@@ -40,6 +40,9 @@ const Sidebar = ({ onClose, collapsed = false }) => {
 
   const handleLogout = () => {
     // TODO: real logout logic (clear tokens, etc.)
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
     navigate('/login');
     onClose?.();
   };

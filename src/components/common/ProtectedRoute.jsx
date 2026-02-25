@@ -6,11 +6,13 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   const token = localStorage.getItem('token');
   const isAuthenticated = !!token;
 
+  // User must be logged in
   if (requireAuth && !isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (isAuthenticated && location.pathname === '/login') {
+  // Logged-in users shouldn't access public-only pages (like login)
+  if (!requireAuth && isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
