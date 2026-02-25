@@ -3,11 +3,14 @@ import { motion } from 'framer-motion';
 import {
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Divider,
   Box,
   Typography,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
@@ -15,19 +18,20 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-const Sidebar = ({ onClose }) => {
+const Sidebar = ({ onClose, collapsed = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Users', icon: <PeopleIcon />, path: '/dashboard/users' },
-    { text: 'Locations', icon: <LocationOnIcon />, path: '/dashboard/locations' },
-    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/dashboard/analytics' },
+    { text: 'Team Members', icon: <PeopleIcon />, path: '/dashboard/users' },
+    { text: 'Live Locations', icon: <LocationOnIcon />, path: '/dashboard/locations' },
+    { text: 'Reports & Analytics', icon: <AnalyticsIcon />, path: '/dashboard/analytics' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/dashboard/settings' },
   ];
+
+  const isActive = (path) => location.pathname === path;
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -35,7 +39,7 @@ const Sidebar = ({ onClose }) => {
   };
 
   const handleLogout = () => {
-    // Handle logout logic here
+    // TODO: real logout logic (clear tokens, etc.)
     navigate('/login');
     onClose?.();
   };
@@ -44,149 +48,183 @@ const Sidebar = ({ onClose }) => {
     <Box
       sx={{
         height: '100%',
+        width: collapsed ? 72 : 260,
         display: 'flex',
         flexDirection: 'column',
-        background: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
+        bgcolor: '#0f766e', // darker teal – more professional
         color: 'white',
+        transition: 'width 0.3s ease',
+        overflowX: 'hidden',
+        boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+        borderRadius: 0, // No rounded corners
       }}
     >
-      {/* Logo Section */}
+      {/* Header / Logo */}
       <Box
         sx={{
-          p: 3,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          p: collapsed ? 2 : 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          minHeight: 64,
+          borderRadius: 0, // No rounded corners
         }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+        <Avatar
+          sx={{
+            bgcolor: 'rgba(255,255,255,0.25)',
+            width: 40,
+            height: 40,
+            fontWeight: 'bold',
+          }}
         >
-          <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                T
-              </Typography>
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          TT
+        </Avatar>
+
+        {!collapsed && (
+          <Box>
+            <Typography variant="subtitle1" fontWeight="bold" noWrap>
               Team Trackify
             </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Admin
+            </Typography>
           </Box>
-          <Typography variant="caption" sx={{ opacity: 0.8 }}>
-            Admin Panel
-          </Typography>
-        </motion.div>
+        )}
       </Box>
 
-      {/* User Profile Section */}
-      <Box
-        sx={{
-          p: 2,
-          mx: 2,
-          mt: 2,
-          bgcolor: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 2,
-          backdropFilter: 'blur(10px)',
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <AccountCircleIcon sx={{ fontSize: 40 }} />
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-              Admin User
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.8 }}>
-              admin@trackify.com
-            </Typography>
+      {/* User quick info */}
+      {!collapsed && (
+        <Box sx={{ px: 2.5, py: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              bgcolor: 'rgba(255,255,255,0.08)',
+              p: 1.5,
+              borderRadius: 1.5,
+            }}
+          >
+            <Avatar sx={{ bgcolor: '#2dd4bf' }}>A</Avatar>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={500} noWrap>
+                Admin User
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.75 }} noWrap>
+                admin@trackify.in
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
+      )}
 
       {/* Navigation */}
-      <List sx={{ flexGrow: 1, p: 2, pt: 3 }}>
-        {menuItems.map((item, index) => {
-          const isActive = location.pathname === item.path;
+      <List sx={{ flexGrow: 1, pt: 1, px: collapsed ? 1 : 1.5, pb: 1 }}>
+        {menuItems.map((item) => {
+          const active = isActive(item.path);
+
           return (
-            <motion.div
+            <Tooltip
               key={item.text}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              title={collapsed ? item.text : ''}
+              placement="right"
+              arrow
             >
-              <ListItem
-                button
-                onClick={() => handleNavigation(item.path)}
-                sx={{
-                  mb: 1,
-                  borderRadius: 2,
-                  bgcolor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                  transition: 'all 0.2s',
-                }}
-              >
-                <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    sx: { fontWeight: isActive ? 600 : 400 },
+              <ListItem disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{
+                    minHeight: 48,
+                    borderRadius: 1,
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    px: collapsed ? 0 : 2.5,
+                    py: 1.2,
+                    mx: collapsed ? 0.5 : 0,
+                    bgcolor: active ? 'rgba(255,255,255,0.18)' : 'transparent',
+                    '&:hover': {
+                      bgcolor: active ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+                    },
+                    position: 'relative',
+                    transition: 'all 0.18s ease',
                   }}
-                />
+                >
+                  {/* Active indicator line */}
+                  {active && !collapsed && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: 4,
+                        height: '60%',
+                        bgcolor: '#5eead4',
+                        borderRadius: '0 4px 4px 0',
+                      }}
+                    />
+                  )}
+
+                  <ListItemIcon
+                    sx={{
+                      minWidth: collapsed ? 'auto' : 40,
+                      color: active ? '#a7f3d0' : 'inherit',
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+
+                  {!collapsed && (
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontWeight: active ? 600 : 400,
+                        fontSize: '0.95rem',
+                        color: active ? '#d1fae5' : 'white',
+                      }}
+                    />
+                  )}
+                </ListItemButton>
               </ListItem>
-            </motion.div>
+            </Tooltip>
           );
         })}
       </List>
 
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', mx: 2 }} />
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', mx: 2, my: 0 }} />
 
       {/* Logout */}
-      <Box sx={{ p: 2 }}>
-        <ListItem
-          button
-          onClick={handleLogout}
-          sx={{
-            borderRadius: 2,
-            '&:hover': {
-              bgcolor: 'rgba(255, 255, 255, 0.1)',
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
+      <Box sx={{ p: collapsed ? 1.5 : 2, pb: collapsed ? 1.5 : 1.5 }}>
+        <Tooltip title={collapsed ? 'Logout' : ''} placement="right" arrow>
+          <ListItemButton
+            onClick={handleLogout}
+            sx={{
+              borderRadius: 1,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              px: collapsed ? 0 : 2.5,
+              py: 1.2,
+              mx: collapsed ? 0.5 : 0,
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 40 }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            {!collapsed && <ListItemText primary="Logout" />}
+          </ListItemButton>
+        </Tooltip>
       </Box>
 
-      {/* Footer */}
-      <Box
-        sx={{
-          p: 2,
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="caption" sx={{ opacity: 0.7 }}>
-          © {new Date().getFullYear()} Team Trackify
-        </Typography>
-      </Box>
+      {!collapsed && (
+        <Box sx={{ px: 2, pb: 2, pt: 1, textAlign: 'center' }}>
+          <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.75rem' }}>
+            © {new Date().getFullYear()} Team Trackify
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };
 
 export default Sidebar;
-

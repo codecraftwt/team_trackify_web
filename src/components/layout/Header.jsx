@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
+import logoImage from '../../assets/Team-Trackify-logo.png';
 
 const Header = ({ onMenuClick }) => {
   const location = useLocation();
@@ -22,6 +23,7 @@ const Header = ({ onMenuClick }) => {
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
+    { path: '/pricing', label: 'Pricing' },
     { path: '/contact', label: 'Contact' },
   ];
 
@@ -45,12 +47,11 @@ const Header = ({ onMenuClick }) => {
             transition={{ duration: 0.4 }}
           >
             <Link to="/" className="flex items-center gap-2.5 md:gap-3">
-              <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-primary-600 to-primary-500 rounded-xl flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-xl md:text-2xl tracking-tight">T</span>
-              </div>
-              <span className="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">
-                Trackify
-              </span>
+              <img
+                src={logoImage}
+                alt="Team Trackify Logo"
+                className="h-20 md:h-22 lg:h-24 w-auto object-contain"
+              />
             </Link>
           </motion.div>
 

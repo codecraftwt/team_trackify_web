@@ -4,6 +4,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import EmailIcon from '@mui/icons-material/Email';
+import logoImage from '../../assets/Team-Trackify-logo.png';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -45,11 +46,12 @@ const Footer = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <Link to="/" className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">T</span>
-                </div>
-                <span className="text-xl font-bold text-white">Team Trackify</span>
+              <Link to="/" className="flex items-center">
+                <img
+                  src={logoImage}
+                  alt="Team Trackify Logo"
+                  className="h-20 md:h-22 lg:h-24 w-auto object-contain"
+                />
               </Link>
               <p className="text-gray-400 mb-4 max-w-md">
                 Advanced GPS tracking and team management solution for modern businesses.

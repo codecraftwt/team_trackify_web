@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { TextField, Button, CircularProgress, InputAdornment } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -313,6 +314,7 @@ const Contact = () => {
       </section>
 
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

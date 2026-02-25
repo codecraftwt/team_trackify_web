@@ -20,6 +20,7 @@ import { FiArrowRight } from 'react-icons/fi';
 import landingImage from '../assets/landing.png';
 import mobileImage from '../assets/mobile.png';
 import ParticlesBackground from '../components/common/ParticlesBackground';
+import ScrollToTopButton from '../components/common/ScrollToTopButton';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -570,6 +571,7 @@ const Home = () => {
       </section>
 
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };
