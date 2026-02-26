@@ -1,191 +1,327 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {
-  Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  IconButton,
-  useTheme,
-  useMediaQuery,
-  Avatar,
+// import { useEffect } from 'react';
+// import { Outlet, useNavigate } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import { Box } from '@mui/material';
+// import Sidebar from './Sidebar';
+
+// const DashboardLayout = () => {
+//   const navigate = useNavigate();
+//   const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
+
+//   // Check if user is authenticated
+//   useEffect(() => {
+//     if (!isAuthenticated || !user || !role_id) {
+//       navigate('/login', { replace: true });
+//     }
+//   }, [isAuthenticated, user, role_id, navigate]);
+
+//   // Don't render if not authenticated
+//   if (!isAuthenticated || !user || !role_id) {
+//     return null;
+//   }
+
+//   return (
+//     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+//       {/* Sidebar - fixed width */}
+//       <Sidebar />
+      
+//       {/* Main Content - with left margin to account for sidebar */}
+//       <Box 
+//         component="main" 
+//         sx={{ 
+//           flexGrow: 1,
+//           ml: '280px', // Add left margin equal to sidebar width
+//           width: '100%',
+//           minHeight: '100vh',
+//           bgcolor: '#f5f5f5',
+//           p: 3
+//         }}
+//       >
+//         <Outlet />
+//       </Box>
+//     </Box>
+//   );
+// };
+
+// export default DashboardLayout;
+
+import React, { useState, useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  Box, 
+  AppBar, 
+  Toolbar, 
+  IconButton, 
+  Typography, 
+  Avatar, 
+  Menu, 
+  MenuItem,
   Tooltip,
   Badge,
+  alpha
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Sidebar from './Sidebar';           // ← your updated Sidebar (with collapsed prop)
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Menu as MenuIcon,
+  MenuOpen as MenuOpenIcon,
+  Notifications as NotificationsIcon,
+  Settings as SettingsIcon,
+  Logout as LogoutIcon,
+  Person as PersonIcon,
+} from '@mui/icons-material';
+import { logout } from '../../redux/slices/authSlice';
+import Sidebar from './Sidebar';
 
-const DRAWER_WIDTH = 280;
-const COLLAPSED_WIDTH = 72;
+const DashboardLayout = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, role_id, isAuthenticated } = useSelector((state) => state.auth);
 
-const DashboardLayout = ({ children }) => {
-  const theme = useTheme();
-  const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false); // new: desktop collapse
-
-  const effectiveDrawerWidth = desktopCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH;
-
-  const handleDrawerToggle = () => {
-    if (isMobile) {
-      setMobileOpen(!mobileOpen);
-    } else {
-      setDesktopCollapsed(!desktopCollapsed);
-    }
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const drawerContent = (
-    <Sidebar collapsed={desktopCollapsed && !isMobile} onClose={() => setMobileOpen(false)} />
-  );
+  const handleNotificationOpen = (event) => {
+    setNotificationAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setNotificationAnchor(null);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+    handleMenuClose();
+  };
+
+  const handleProfile = () => {
+    const profilePath = role_id === 2 ? '/super-admin/profile' : '/admin/profile';
+    navigate(profilePath);
+    handleMenuClose();
+  };
+
+  const handleSettings = () => {
+    const settingsPath = role_id === 2 ? '/super-admin/settings' : '/admin/settings';
+    navigate(settingsPath);
+    handleMenuClose();
+  };
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* AppBar – cleaner, modern look */}
-      <AppBar
-        position="fixed"
-        elevation={1}
-        sx={{
-          width: { md: `calc(100% - ${effectiveDrawerWidth}px)` },
-          ml: { md: `${effectiveDrawerWidth}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(8px)',
-          transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Navbar */}
+      <AppBar 
+        position="fixed" 
+        sx={{ 
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: 'white',
+          color: '#1e293b',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+          borderBottom: '1px solid #e2e8f0',
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: 64, md: 72 } }}>
-          <IconButton
-            color="inherit"
-            aria-label={desktopCollapsed ? 'expand sidebar' : 'collapse sidebar'}
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, color: 'text.secondary' }}
-          >
-            {isMobile ? (
-              <MenuIcon />
-            ) : desktopCollapsed ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {/* Left side - Menu toggle and title */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Tooltip title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
+              <IconButton 
+                onClick={toggleSidebar}
+                sx={{
+                  color: '#0f766e',
+                  '&:hover': {
+                    bgcolor: alpha('#0f766e', 0.1),
+                  },
+                }}
+              >
+                {sidebarCollapsed ? <MenuOpenIcon /> : <MenuIcon />}
+              </IconButton>
+            </Tooltip>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 600,
+                color: '#0f766e',
+                display: { xs: 'none', sm: 'block' }
+              }}
+            >
+              Team Trackify
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: '#64748b',
+                display: { xs: 'none', md: 'block' },
+                ml: 2,
+                px: 1.5,
+                py: 0.5,
+                bgcolor: alpha('#0f766e', 0.1),
+                borderRadius: 2,
+              }}
+            >
+              {roleName}
+            </Typography>
+          </Box>
 
-          <Box sx={{ flexGrow: 1 }} />
-
-          {/* Right side actions – modern pattern */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {/* Right side - Notifications and Profile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Notifications */}
             <Tooltip title="Notifications">
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="error" variant="dot">
-                  <NotificationsNoneIcon />
+              <IconButton 
+                onClick={handleNotificationOpen}
+                sx={{
+                  color: '#64748b',
+                  '&:hover': {
+                    color: '#0f766e',
+                    bgcolor: alpha('#0f766e', 0.1),
+                  },
+                }}
+              >
+                <Badge badgeContent={3} color="error">
+                  <NotificationsIcon />
                 </Badge>
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Account">
-              <IconButton sx={{ p: 0 }}>
-                <Avatar alt="User" src="/static/images/avatar/1.jpg" sx={{ width: 38, height: 38 }} />
+            {/* Profile */}
+            <Tooltip title="Profile">
+              <IconButton
+                onClick={handleProfileMenuOpen}
+                sx={{
+                  ml: 1,
+                  '&:hover': {
+                    bgcolor: alpha('#0f766e', 0.1),
+                  },
+                }}
+              >
+                <Avatar 
+                  src={user?.avtar}
+                  sx={{ 
+                    width: 35, 
+                    height: 35,
+                    bgcolor: '#0f766e',
+                    color: 'white',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {user?.name?.charAt(0) || 'A'}
+                </Avatar>
               </IconButton>
             </Tooltip>
           </Box>
+
+          {/* Profile Menu */}
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            onClick={handleMenuClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                minWidth: 200,
+                borderRadius: 2,
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                border: '1px solid #e2e8f0',
+              }
+            }}
+          >
+            <MenuItem onClick={handleProfile} sx={{ py: 1.5 }}>
+              <PersonIcon sx={{ mr: 1.5, color: '#0f766e', fontSize: 20 }} />
+              <Typography variant="body2">My Profile</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleSettings} sx={{ py: 1.5 }}>
+              <SettingsIcon sx={{ mr: 1.5, color: '#0f766e', fontSize: 20 }} />
+              <Typography variant="body2">Settings</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleLogout} sx={{ py: 1.5, color: '#ef4444' }}>
+              <LogoutIcon sx={{ mr: 1.5, color: '#ef4444', fontSize: 20 }} />
+              <Typography variant="body2">Logout</Typography>
+            </MenuItem>
+          </Menu>
+
+          {/* Notifications Menu */}
+          <Menu
+            anchorEl={notificationAnchor}
+            open={Boolean(notificationAnchor)}
+            onClose={handleMenuClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                width: 320,
+                maxHeight: 400,
+                borderRadius: 2,
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                border: '1px solid #e2e8f0',
+              }
+            }}
+          >
+            <Box sx={{ p: 2, borderBottom: '1px solid #e2e8f0' }}>
+              <Typography variant="subtitle2" fontWeight={600}>Notifications</Typography>
+            </Box>
+            {[1, 2, 3].map((item) => (
+              <MenuItem key={item} sx={{ py: 1.5, px: 2, borderBottom: '1px solid #f1f5f9' }}>
+                <Box>
+                  <Typography variant="body2" fontWeight={500}>New activity detected</Typography>
+                  <Typography variant="caption" color="text.secondary">2 minutes ago</Typography>
+                </Box>
+              </MenuItem>
+            ))}
+            <Box sx={{ p: 1, textAlign: 'center' }}>
+              <Typography variant="caption" color="primary" sx={{ cursor: 'pointer' }}>
+                View all notifications
+              </Typography>
+            </Box>
+          </Menu>
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar – permanent on desktop, temporary on mobile */}
-      <Box
-        component="nav"
-        sx={{
-          width: { md: effectiveDrawerWidth },
-          flexShrink: { md: 0 },
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-        }}
-      >
-        {/* Mobile temporary drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              boxSizing: 'border-box',
-              bgcolor: 'background.paper',
-              borderRight: 'none',
-              boxShadow: theme.shadows[16],
-              borderRadius: 0, // No rounded corners
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-
-        {/* Desktop permanent + collapsible */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              width: effectiveDrawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 'none',
-              bgcolor: 'background.paper',
-              boxShadow: '1px 0 8px rgba(0,0,0,0.06)',
-              borderRadius: 0, // No rounded corners
-              transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-              overflowX: 'hidden',
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      </Box>
-
-      {/* Main Content – animated page transitions */}
+      {/* Sidebar */}
+      <Sidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={toggleSidebar}
+      />
+      
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, sm: 3, md: 4 },
-          width: { md: `calc(100% - ${effectiveDrawerWidth}px)` },
-          mt: { xs: '64px', md: '72px' },
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          bgcolor: 'background.default',
+          mt: '64px',
+          ml: sidebarCollapsed ? '72px' : '280px',
+          width: sidebarCollapsed ? 'calc(100% - 72px)' : 'calc(100% - 280px)',
+          minHeight: 'calc(100vh - 64px)',
+          bgcolor: '#f8fafc',
+          transition: 'all 0.3s ease',
+          p: 3,
         }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname} // better exit animation per route
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <Outlet />
       </Box>
     </Box>
   );

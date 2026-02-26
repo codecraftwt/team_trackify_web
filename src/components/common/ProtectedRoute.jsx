@@ -1,23 +1,28 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { Box, CircularProgress } from '@mui/material';
+// src/components/common/ProtectedRoute.jsx
+import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({ children, requireAuth = true }) => {
-  const location = useLocation();
-  const token = localStorage.getItem('token');
-  const isAuthenticated = !!token;
+  const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
+  
+  console.log('ProtectedRoute - Auth State:', { isAuthenticated, user, role_id });
 
-  // User must be logged in
+  // Check if user is authenticated
   if (requireAuth && !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    console.log('Not authenticated, redirecting to login');
+    return <Navigate to="/login" replace />;
   }
 
-  // Logged-in users shouldn't access public-only pages (like login)
   if (!requireAuth && isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    // If route is for non-authenticated users and user is authenticated
+    if (role_id === 2) {
+      return <Navigate to="/super-admin/dashboard" replace />;
+    } else if (role_id === 1) {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
   }
 
-  return children;
+  return children || <Outlet />;
 };
 
 export default ProtectedRoute;
-

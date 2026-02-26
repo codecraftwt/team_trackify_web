@@ -1,5 +1,5 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   List,
   ListItem,
@@ -12,54 +12,82 @@ import {
   Avatar,
   Tooltip,
 } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
+import {
+  Dashboard as DashboardIcon,
+  People as PeopleIcon,
+  Payment as PaymentIcon,
+  Assessment as AssessmentIcon,
+  Person as PersonIcon,
+  Business as BusinessIcon,
+  AttachMoney as MoneyIcon,
+  PriceChange as PlanIcon,
+  Contacts as ContactIcon,
+  Logout as LogoutIcon,
+  Receipt as ReceiptIcon,           
+  Description as ReportIcon,       
+  ManageAccounts as ProfileIcon,
+} from '@mui/icons-material';
+import { logout } from '../../redux/slices/authSlice';
 
 const Sidebar = ({ onClose, collapsed = false }) => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, role_id } = useSelector((state) => state.auth);
 
-  const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Team Members', icon: <PeopleIcon />, path: '/dashboard/users' },
-    { text: 'Live Locations', icon: <LocationOnIcon />, path: '/dashboard/locations' },
-    { text: 'Reports & Analytics', icon: <AnalyticsIcon />, path: '/dashboard/analytics' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/dashboard/settings' },
-  ];
-
-  const isActive = (path) => location.pathname === path;
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+    onClose?.();
+  };
 
   const handleNavigation = (path) => {
     navigate(path);
     onClose?.();
   };
 
-  const handleLogout = () => {
-    // TODO: real logout logic (clear tokens, etc.)
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  // Admin Menu Items
+  const adminMenuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+    { text: 'User Management', icon: <PeopleIcon />, path: '/admin/users' },
+    { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
+    { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
+    { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
+    { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/admin/profile' },
+  ];
 
-    navigate('/login');
-    onClose?.();
-  };
+  // Super Admin Menu Items
+  const superAdminMenuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
+    { text: 'Organization Details', icon: <BusinessIcon />, path: '/super-admin/organization' },
+    { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+    { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
+    { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
+    { text: 'Profile Manager', icon: <PersonIcon />, path: '/super-admin/profile' },
+  ];
+
+  // Get menu items based on role
+  const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Box
       sx={{
         height: '100%',
-        width: collapsed ? 72 : 260,
+        width: collapsed ? 72 : 280,
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#0f766e', // darker teal – more professional
+        bgcolor: '#0f766e',
         color: 'white',
         transition: 'width 0.3s ease',
         overflowX: 'hidden',
         boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
-        borderRadius: 0, // No rounded corners
+        borderRadius: 0,
+        position: 'fixed',
+        left: 0,
+        top: 0,
       }}
     >
       {/* Header / Logo */}
@@ -71,7 +99,6 @@ const Sidebar = ({ onClose, collapsed = false }) => {
           gap: 1.5,
           borderBottom: '1px solid rgba(255,255,255,0.08)',
           minHeight: 64,
-          borderRadius: 0, // No rounded corners
         }}
       >
         <Avatar
@@ -91,13 +118,13 @@ const Sidebar = ({ onClose, collapsed = false }) => {
               Team Trackify
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              Admin
+              {roleName}
             </Typography>
           </Box>
         )}
       </Box>
 
-      {/* User quick info */}
+      {/* User Info */}
       {!collapsed && (
         <Box sx={{ px: 2.5, py: 2 }}>
           <Box
@@ -110,20 +137,25 @@ const Sidebar = ({ onClose, collapsed = false }) => {
               borderRadius: 1.5,
             }}
           >
-            <Avatar sx={{ bgcolor: '#2dd4bf' }}>A</Avatar>
+            <Avatar
+              src={user?.avtar}
+              sx={{ bgcolor: '#2dd4bf' }}
+            >
+              {user?.name?.charAt(0) || 'A'}
+            </Avatar>
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="body2" fontWeight={500} noWrap>
-                Admin User
+                {user?.name || 'Admin User'}
               </Typography>
               <Typography variant="caption" sx={{ opacity: 0.75 }} noWrap>
-                admin@trackify.in
+                {user?.email || 'admin@trackify.in'}
               </Typography>
             </Box>
           </Box>
         </Box>
       )}
 
-      {/* Navigation */}
+      {/* Menu Items */}
       <List sx={{ flexGrow: 1, pt: 1, px: collapsed ? 1 : 1.5, pb: 1 }}>
         {menuItems.map((item) => {
           const active = isActive(item.path);
@@ -219,6 +251,7 @@ const Sidebar = ({ onClose, collapsed = false }) => {
         </Tooltip>
       </Box>
 
+      {/* Footer Copyright */}
       {!collapsed && (
         <Box sx={{ px: 2, pb: 2, pt: 1, textAlign: 'center' }}>
           <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.75rem' }}>
