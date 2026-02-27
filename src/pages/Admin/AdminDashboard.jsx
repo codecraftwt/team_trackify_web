@@ -557,7 +557,7 @@
 //       icon: <FaUsers size={24} />,
 //       bgColor: "rgba(59, 130, 246, 0.1)",
 //       iconColor: "#3B82F6",
-//       onClick: () => navigate("/admin/users?filter=active"),
+//       onClick: () => navigate("/user?filter=active"),
 //     },
 //     {
 //       key: "inactiveUsers",
@@ -566,7 +566,7 @@
 //       icon: <FaUserTimes size={24} />,
 //       bgColor: "rgba(107, 114, 128, 0.1)",
 //       iconColor: "#6B7280",
-//       onClick: () => navigate("/admin/users?filter=inactive"),
+//       onClick: () => navigate("/user?filter=inactive"),
 //     },
 //     {
 //       key: "checkedInUsers",
@@ -1652,7 +1652,7 @@ const AdminDashboard = () => {
       icon: <FaUsers size={24} />,
       bgColor: alpha("#3B82F6", 0.1),
       iconColor: "#3B82F6",
-      onClick: () => navigate("/admin/users?filter=active"),
+      onClick: () => navigate("/user?filter=active"),
     },
     {
       key: "inactiveUsers",
@@ -1661,7 +1661,7 @@ const AdminDashboard = () => {
       icon: <FaUserTimes size={24} />,
       bgColor: alpha("#6B7280", 0.1),
       iconColor: "#6B7280",
-      onClick: () => navigate("/admin/users?filter=inactive"),
+      onClick: () => navigate("/user?filter=inactive"),
     },
     {
       key: "checkedInUsers",

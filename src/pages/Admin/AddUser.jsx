@@ -256,7 +256,7 @@ const AddUser = () => {
       if (profileEditing) {
         navigate("/admin/profile");
       } else {
-        navigate("/admin/users");
+        navigate("/user");
       }
     } catch (error) {
       toast.error(error?.message || "Operation failed");
@@ -267,7 +267,7 @@ const AddUser = () => {
     if (profileEditing) {
       navigate("/admin/profile");
     } else {
-      navigate("/admin/users");
+      navigate("/user");
     }
   };
 

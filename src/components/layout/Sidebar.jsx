@@ -49,7 +49,7 @@ const Sidebar = ({ onClose, collapsed = false }) => {
   // Admin Menu Items
   const adminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
-    { text: 'User Management', icon: <PeopleIcon />, path: '/admin/users' },
+    { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
@@ -59,7 +59,7 @@ const Sidebar = ({ onClose, collapsed = false }) => {
   // Super Admin Menu Items
   const superAdminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
-    { text: 'Organization Details', icon: <BusinessIcon />, path: '/admin/users' },
+    { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },

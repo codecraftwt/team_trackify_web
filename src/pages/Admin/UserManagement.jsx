@@ -236,7 +236,7 @@ const UserCard = ({
       </Card>
     </motion.div>
   );
-};
+}; 
 
 // Main Component
 const UserManagement = () => {

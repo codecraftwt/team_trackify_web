@@ -40,6 +40,9 @@ import TransactionHistory from './pages/Admin/TransactionHistory';
 import AddUser from './pages/Admin/component/AddUser';
 import ResetPasswordProfile from './components/common/ResetPasswordProfile.jsx';
 import Navbar from './components/layout/Navbar.jsx';
+import TrackingData from './pages/TrackingData.jsx';
+import Locations from './pages/Locations.jsx';
+import ListUsers from './pages/SuperAdmin/Listusers.jsx';
 
 // Settings page (shared)
 
@@ -116,20 +119,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
 
             {/* Protected Routes with Dashboard Layout */}
             <Route element={<ProtectedRoute requireAuth={true} />}>
               <Route element={<DashboardLayout />}>
                 {/* Admin Routes (role_id: 1) - Note: these are children of DashboardLayout */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/user" element={<UserManagement />} />
                 <Route path="/admin/payments-plans" element={<PaymentsPlan />} />
                 <Route path="/admin/reports" element={<Reports />} />
                 <Route path="/admin/transactionhistory" element={<TransactionHistory />} />
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
-                <Route path="/admin/reset-password-ptofile"element={<ResetPasswordProfile />}/>
+                <Route path="/admin/reset-password-ptofile" element={<ResetPasswordProfile />} />
+                <Route path="/trackingdata" element={<TrackingData />} />
+                <Route path="/locations" element={<Locations />} />
+
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}
 
                 {/* Super Admin Routes (role_id: 2) - Note: these are children of DashboardLayout */}
@@ -138,6 +144,7 @@ function App() {
                 <Route path="/super-admin/revenue" element={<RevenueAnalytics />} />
                 <Route path="/super-admin/plans" element={<PlanManagement />} />
                 <Route path="/super-admin/contacts" element={<ContactList />} />
+                <Route path="/list-users/:adminId" element={<ListUsers />} />
                 {/* <Route path="/super-admin/profile" element={<SuperAdminProfile />} /> */}
               </Route>
             </Route>
