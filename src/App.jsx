@@ -31,7 +31,7 @@ import AdminProfile from './pages/Admin/Profile';
 
 // Super Admin Pages (role_id: 2)
 import SuperAdminDashboard from './pages/SuperAdmin/SuperAdminDashboard';
-import OrganizationDetails from './pages/SuperAdmin/OrganizationDetails';
+// import OrganizationDetails from './pages/SuperAdmin/OrganizationDetails';
 import RevenueAnalytics from './pages/SuperAdmin/RevenueManagement';
 import PlanManagement from './pages/SuperAdmin/PlanManagement';
 import ContactList from './pages/SuperAdmin/ContactList';
@@ -39,7 +39,6 @@ import SuperAdminProfile from './pages/SuperAdmin/ProfileManagement';
 import TransactionHistory from './pages/Admin/TransactionHistory';
 import AddUser from './pages/Admin/component/AddUser';
 import ResetPasswordProfile from './components/common/ResetPasswordProfile.jsx';
-import Navbar from './components/layout/Navbar.jsx';
 import TrackingData from './pages/TrackingData.jsx';
 import Locations from './pages/Locations.jsx';
 import ListUsers from './pages/SuperAdmin/Listusers.jsx';
@@ -111,15 +110,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/navbar"
-              element={
-                <ProtectedRoute requireAuth={false}>
-                  <Navbar />
-                </ProtectedRoute>
-              }
-            />
-
+         
 
             {/* Protected Routes with Dashboard Layout */}
             <Route element={<ProtectedRoute requireAuth={true} />}>
@@ -132,15 +123,16 @@ function App() {
                 <Route path="/admin/transactionhistory" element={<TransactionHistory />} />
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
-                <Route path="/admin/reset-password-ptofile" element={<ResetPasswordProfile />} />
+                <Route path="/reset-password-ptofile" element={<ResetPasswordProfile />} />
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
+
 
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}
 
                 {/* Super Admin Routes (role_id: 2) - Note: these are children of DashboardLayout */}
                 <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
-                <Route path="/super-admin/organization" element={<OrganizationDetails />} />
+                {/* <Route path="/super-admin/organization" element={<OrganizationDetails />} /> */}
                 <Route path="/super-admin/revenue" element={<RevenueAnalytics />} />
                 <Route path="/super-admin/plans" element={<PlanManagement />} />
                 <Route path="/super-admin/contacts" element={<ContactList />} />

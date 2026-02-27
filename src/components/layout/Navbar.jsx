@@ -71,13 +71,13 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar }) => {
 
   return (
     <AppBar
-      position="fixed"
+      position="sticky" // Changed from 'fixed' to 'sticky'
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
         bgcolor: 'white',
         color: '#1e293b',
         boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
         borderBottom: '1px solid #e2e8f0',
+        width: '100%', // Takes full width of its container (the right section)
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -93,7 +93,8 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar }) => {
                 },
               }}
             >
-              {sidebarCollapsed ? <MenuOpenIcon /> : <MenuIcon />}
+              {/* {sidebarCollapsed ? <MenuOpenIcon /> : <MenuIcon />} */}
+              <MenuIcon />
             </IconButton>
           </Tooltip>
           
@@ -247,3 +248,4 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar }) => {
 };
 
 export default Navbar;
+
