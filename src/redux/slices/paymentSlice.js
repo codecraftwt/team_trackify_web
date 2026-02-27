@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL, 
 });
 
 // Add token to requests if it exists

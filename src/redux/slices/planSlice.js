@@ -8,7 +8,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
 const api = axios.create({
   baseURL: BASE_URL,
 });
-
+ 
 // Add token to requests if it exists
 api.interceptors.request.use(
   (config) => {

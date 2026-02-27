@@ -2,7 +2,7 @@
  * Format date to YYYY-MM-DD (for API requests, database queries)
  * @param {Date} date - Date object
  * @returns {string} Formatted date string
- */
+ */ 
 export function formatDateLocal(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

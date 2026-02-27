@@ -4,6 +4,7 @@ import userReducer from '../slices/userSlice';
 import planReducer from '../slices/planSlice';
 import paymentReducer from '../slices/paymentSlice';
 import reportReducer from '../slices/reportSlice';
+import contactReducer from '../slices/contactSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   plan: planReducer,
   payment: paymentReducer,
   report: reportReducer,
+  contact: contactReducer,
 });
 
 export default rootReducer;

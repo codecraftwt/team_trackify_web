@@ -53,17 +53,17 @@ const Sidebar = ({ onClose, collapsed = false }) => {
     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
-    { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/admin/profile' },
+    { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
   ];
 
   // Super Admin Menu Items
   const superAdminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
-    { text: 'Organization Details', icon: <BusinessIcon />, path: '/super-admin/organization' },
+    { text: 'Organization Details', icon: <BusinessIcon />, path: '/admin/users' },
     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
-    { text: 'Profile Manager', icon: <PersonIcon />, path: '/super-admin/profile' },
+    { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
   ];
 
   // Get menu items based on role
