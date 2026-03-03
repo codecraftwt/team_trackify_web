@@ -1,3 +1,743 @@
+// import React, { useEffect, useState } from "react";
+// import {
+//   Box,
+//   Container,
+//   Typography,
+//   Paper,
+//   Grid,
+//   Card,
+//   CardContent,
+//   Chip,
+//   IconButton,
+//   Button,
+//   Menu,
+//   MenuItem,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   TablePagination,
+//   LinearProgress,
+//   alpha,
+//   useTheme,
+//   Avatar,
+//   Stack,
+//   Divider,
+//   Tooltip,
+//   Collapse,
+//   Alert,
+// } from "@mui/material";
+// import {
+//   History as HistoryIcon,
+//   Refresh as RefreshIcon,
+//   GridView as GridViewIcon,
+//   TableRows as TableRowsIcon,
+//   CheckCircle as CheckCircleIcon,
+//   AccessTime as PendingIcon,
+//   Cancel as CancelIcon,
+//   ArrowUpward as IncomeIcon,
+//   ArrowDownward as ExpenseIcon,
+//   CalendarToday as CalendarIcon,
+//   Receipt as ReceiptIcon,
+//   ExpandMore as ExpandMoreIcon,
+//   ExpandLess as ExpandLessIcon,
+//   Download as DownloadIcon,
+//   Print as PrintIcon,
+// } from "@mui/icons-material";
+// import { motion, AnimatePresence } from "framer-motion";
+// import { useDispatch, useSelector } from "react-redux";
+// import { getPaymentHistory } from "../../redux/slices/paymentSlice";
+// import ReceiptModal from "../../components/models/ReceiptModal";
+// import { PaginationBottom } from "../../components/PaginationBottom";
+// import { toast } from "react-toastify";
+ 
+// const TransactionHistory = () => {
+//   const theme = useTheme();
+//   const dispatch = useDispatch();
+//   const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated || false);
+//   const authUser = useSelector((state) => state.auth?.user || {});
+//   const userData = useSelector((state) => state.user?.userInfo || {});
+  
+//   const {
+//     paymentHistory = [],
+//     historyLoading = false,
+//     historyError = null,
+//     currentPage = 1,
+//     totalPages = 1,
+//     totalItems = 0,
+//     paymentStats = {
+//       totalPayments: 0,
+//       completedCount: 0,
+//       pendingCount: 0,
+//       totalAmount: 0,
+//     },
+//   } = useSelector((state) => state.payment || {});
+
+//   const [selectedTransaction, setSelectedTransaction] = useState(null);
+//   const [showReceipt, setShowReceipt] = useState(false);
+//   const [expandedAddOns, setExpandedAddOns] = useState({});
+//   const [viewMode, setViewMode] = useState("table");
+//   const [page, setPage] = useState(0);
+//   const [rowsPerPage, setRowsPerPage] = useState(10);
+//   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+//   const [sortAnchorEl, setSortAnchorEl] = useState(null);
+//   const [filter, setFilter] = useState("all");
+//   const [sortBy, setSortBy] = useState("newest");
+
+//   useEffect(() => {
+//     if (isAuthenticated) {
+//       const adminId = authUser._id || authUser.id || userData?._id;
+//       if (adminId) {
+//         dispatch(getPaymentHistory({ adminId, page: page + 1, limit: rowsPerPage }));
+//       }
+//     }
+//   }, [dispatch, isAuthenticated, authUser, userData, page, rowsPerPage]);
+
+//   const handleChangePage = (event, newPage) => {
+//     setPage(newPage);
+//   };
+
+//   const handleChangeRowsPerPage = (event) => {
+//     setRowsPerPage(parseInt(event.target.value, 10));
+//     setPage(0);
+//   };
+
+//   const toggleAddOns = (transactionId) => {
+//     setExpandedAddOns((prev) => ({
+//       ...prev,
+//       [transactionId]: !prev[transactionId],
+//     }));
+//   };
+
+//   const toggleViewMode = () => {
+//     setViewMode(viewMode === "card" ? "table" : "card");
+//   };
+
+//   const refreshData = () => {
+//     if (isAuthenticated) {
+//       const adminId = authUser._id || authUser.id || userData?._id;
+//       if (adminId) {
+//         dispatch(getPaymentHistory({ adminId, page: page + 1, limit: rowsPerPage }));
+//         toast.success("Data refreshed successfully");
+//       }
+//     }
+//   };
+
+//   const handleFilterClick = (event) => {
+//     setFilterAnchorEl(event.currentTarget);
+//   };
+
+//   const handleFilterClose = (value) => {
+//     if (value) {
+//       setFilter(value);
+//     }
+//     setFilterAnchorEl(null);
+//   };
+
+//   const handleSortClick = (event) => {
+//     setSortAnchorEl(event.currentTarget);
+//   };
+
+//   const handleSortClose = (value) => {
+//     if (value) {
+//       setSortBy(value);
+//     }
+//     setSortAnchorEl(null);
+//   };
+
+//   const filteredTransactions = paymentHistory?.filter((transaction) => {
+//     if (filter === "all") return true;
+//     return transaction.status === filter;
+//   });
+
+//   const sortedTransactions = [...(filteredTransactions || [])].sort((a, b) => {
+//     if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+//     if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+//     if (sortBy === "highest") return b.amount - a.amount;
+//     if (sortBy === "lowest") return a.amount - b.amount;
+//     return 0;
+//   });
+
+//   const formatDate = (dateString) => {
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString("en-US", {
+//       year: "numeric",
+//       month: "short",
+//       day: "numeric",
+//     });
+//   };
+
+//   const formatTime = (dateString) => {
+//     const date = new Date(dateString);
+//     return date.toLocaleTimeString("en-US", {
+//       hour: "2-digit",
+//       minute: "2-digit",
+//       hour12: true,
+//     });
+//   };
+
+//   const formatAmount = (amount) => {
+//     return new Intl.NumberFormat("en-IN", {
+//       style: "currency",
+//       currency: "INR",
+//       minimumFractionDigits: 2,
+//     }).format(amount);
+//   };
+
+//   const getStatusIcon = (status) => {
+//     switch (status) {
+//       case "completed":
+//         return <CheckCircleIcon sx={{ color: "#22c55e", fontSize: 16 }} />;
+//       case "pending":
+//         return <PendingIcon sx={{ color: "#f59e0b", fontSize: 16 }} />;
+//       default:
+//         return <CancelIcon sx={{ color: "#ef4444", fontSize: 16 }} />;
+//     }
+//   };
+
+//   const getStatusColor = (status) => {
+//     switch (status) {
+//       case "completed":
+//         return "#22c55e";
+//       case "pending":
+//         return "#f59e0b";
+//       default:
+//         return "#ef4444";
+//     }
+//   };
+
+//   const statCards = [
+//     {
+//       label: "Total Transactions",
+//       value: paymentStats.totalPayments || 0,
+//       icon: <HistoryIcon />,
+//       color: "#0f766e",
+//     },
+//     {
+//       label: "Completed",
+//       value: paymentStats.completedCount || 0,
+//       icon: <CheckCircleIcon />,
+//       color: "#22c55e",
+//     },
+//     {
+//       label: "Pending",
+//       value: paymentStats.pendingCount || 0,
+//       icon: <PendingIcon />,
+//       color: "#f59e0b",
+//     },
+//     {
+//       label: "Total Amount",
+//       value: formatAmount(paymentStats.totalAmount || 0),
+//       icon: <IncomeIcon />,
+//       color: "#0f766e",
+//     },
+//   ];
+
+//   return (
+//     <Box sx={{ minHeight: "100vh", bgcolor: "#f8fafc" }}>
+//       {/* Header */}
+//       <Paper
+//         elevation={0}
+//         sx={{
+//           py: 3,
+//           px: 3,
+//           borderBottom: "1px solid",
+//           borderColor: alpha("#e2e8f0", 0.5),
+//           borderRadius: 0,
+//         }}
+//       >
+//         <Container maxWidth="xl">
+//           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+//             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+//               <Avatar
+//                 sx={{
+//                   bgcolor: alpha("#0f766e", 0.1),
+//                   color: "#0f766e",
+//                   width: 50,
+//                   height: 50,
+//                 }}
+//               >
+//                 <HistoryIcon />
+//               </Avatar>
+//               <Box>
+//                 <Typography variant="h4" fontWeight={700} sx={{ color: "#0f766e" }}>
+//                   Transaction History
+//                 </Typography>
+//                 <Typography variant="body2" color="text.secondary">
+//                   View all your payment transactions
+//                 </Typography>
+//               </Box>
+//             </Box>
+
+//             <Box sx={{ display: "flex", gap: 1 }}>
+//               <Tooltip title="Refresh">
+//                 <IconButton
+//                   onClick={refreshData}
+//                   disabled={historyLoading}
+//                   sx={{
+//                     color: "#0f766e",
+//                     "&:hover": { bgcolor: alpha("#0f766e", 0.1) },
+//                   }}
+//                 >
+//                   <RefreshIcon sx={{ animation: historyLoading ? "spin 1s linear infinite" : "none" }} />
+//                 </IconButton>
+//               </Tooltip>
+
+//               <Tooltip title={viewMode === "table" ? "Card View" : "Table View"}>
+//                 <IconButton
+//                   onClick={toggleViewMode}
+//                   sx={{
+//                     color: "#0f766e",
+//                     "&:hover": { bgcolor: alpha("#0f766e", 0.1) },
+//                   }}
+//                 >
+//                   {viewMode === "table" ? <GridViewIcon /> : <TableRowsIcon />}
+//                 </IconButton>
+//               </Tooltip>
+
+//               <Button
+//                 variant="outlined"
+//                 onClick={handleFilterClick}
+//                 startIcon={<PendingIcon />}
+//                 sx={{
+//                   borderColor: "#e2e8f0",
+//                   color: "#64748b",
+//                   "&:hover": {
+//                     borderColor: "#0f766e",
+//                     color: "#0f766e",
+//                   },
+//                 }}
+//               >
+//                 Filter: {filter}
+//               </Button>
+
+//               <Menu
+//                 anchorEl={filterAnchorEl}
+//                 open={Boolean(filterAnchorEl)}
+//                 onClose={() => handleFilterClose()}
+//                 PaperProps={{
+//                   sx: { borderRadius: 2, mt: 1, minWidth: 150 },
+//                 }}
+//               >
+//                 <MenuItem onClick={() => handleFilterClose("all")}>All</MenuItem>
+//                 <MenuItem onClick={() => handleFilterClose("completed")}>Completed</MenuItem>
+//                 <MenuItem onClick={() => handleFilterClose("pending")}>Pending</MenuItem>
+//               </Menu>
+
+//               <Button
+//                 variant="outlined"
+//                 onClick={handleSortClick}
+//                 startIcon={<CalendarIcon />}
+//                 sx={{
+//                   borderColor: "#e2e8f0",
+//                   color: "#64748b",
+//                   "&:hover": {
+//                     borderColor: "#0f766e",
+//                     color: "#0f766e",
+//                   },
+//                 }}
+//               >
+//                 Sort: {sortBy}
+//               </Button>
+
+//               <Menu
+//                 anchorEl={sortAnchorEl}
+//                 open={Boolean(sortAnchorEl)}
+//                 onClose={() => handleSortClose()}
+//                 PaperProps={{
+//                   sx: { borderRadius: 2, mt: 1, minWidth: 150 },
+//                 }}
+//               >
+//                 <MenuItem onClick={() => handleSortClose("newest")}>Newest First</MenuItem>
+//                 <MenuItem onClick={() => handleSortClose("oldest")}>Oldest First</MenuItem>
+//                 <MenuItem onClick={() => handleSortClose("highest")}>Highest Amount</MenuItem>
+//                 <MenuItem onClick={() => handleSortClose("lowest")}>Lowest Amount</MenuItem>
+//               </Menu>
+//             </Box>
+//           </Box>
+//         </Container>
+//       </Paper>
+
+//       {/* Stats Cards */}
+//       <Container maxWidth="xl" sx={{ py: 3 }}>
+//         <Grid container spacing={3}>
+//           {statCards.map((stat, index) => (
+//             <Grid item xs={12} sm={6} md={3} key={index}>
+//               <motion.div
+//                 initial={{ opacity: 0, y: 20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.3, delay: index * 0.1 }}
+//               >
+//                 <Paper
+//                   elevation={0}
+//                   sx={{
+//                     p: 2,
+//                     borderRadius: 3,
+//                     border: "1px solid",
+//                     borderColor: alpha(stat.color, 0.2),
+//                     position: "relative",
+//                     overflow: "hidden",
+//                   }}
+//                 >
+//                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+//                     <Box>
+//                       <Typography variant="caption" color="text.secondary">
+//                         {stat.label}
+//                       </Typography>
+//                       <Typography variant="h5" fontWeight={700} sx={{ color: stat.color, mt: 1 }}>
+//                         {stat.value}
+//                       </Typography>
+//                     </Box>
+//                     <Avatar
+//                       sx={{
+//                         bgcolor: alpha(stat.color, 0.1),
+//                         color: stat.color,
+//                         width: 48,
+//                         height: 48,
+//                       }}
+//                     >
+//                       {stat.icon}
+//                     </Avatar>
+//                   </Box>
+//                 </Paper>
+//               </motion.div>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Container>
+
+//       {/* Transactions List */}
+//       <Container maxWidth="xl" sx={{ pb: 4 }}>
+//         {historyLoading ? (
+//           <Box sx={{ width: "100%", mt: 4 }}>
+//             <LinearProgress sx={{ bgcolor: alpha("#0f766e", 0.1), "& .MuiLinearProgress-bar": { bgcolor: "#0f766e" } }} />
+//             <Typography textAlign="center" sx={{ mt: 2 }} color="text.secondary">
+//               Loading transactions...
+//             </Typography>
+//           </Box>
+//         ) : sortedTransactions.length > 0 ? (
+//           <Paper
+//             elevation={0}
+//             sx={{
+//               borderRadius: 3,
+//               border: "1px solid",
+//               borderColor: alpha("#e2e8f0", 0.5),
+//               overflow: "hidden",
+//             }}
+//           >
+//             {viewMode === "table" ? (
+//               <>
+//                 <TableContainer>
+//                   <Table>
+//                     <TableHead>
+//                       <TableRow sx={{ bgcolor: alpha("#0f766e", 0.05) }}>
+//                         <TableCell>Sr. No</TableCell>
+//                         <TableCell>Plan</TableCell>
+//                         <TableCell>Description</TableCell>
+//                         <TableCell>Date</TableCell>
+//                         <TableCell>Amount</TableCell>
+//                         <TableCell>Status</TableCell>
+//                         <TableCell>Payment</TableCell>
+//                         <TableCell align="right">Actions</TableCell>
+//                       </TableRow>
+//                     </TableHead>
+//                     <TableBody>
+//                       <AnimatePresence>
+//                         {sortedTransactions.map((transaction, index) => (
+//                           <motion.tr
+//                             key={transaction._id || index}
+//                             initial={{ opacity: 0 }}
+//                             animate={{ opacity: 1 }}
+//                             exit={{ opacity: 0 }}
+//                             transition={{ duration: 0.2 }}
+//                           >
+//                             <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+//                             <TableCell>
+//                               {transaction.planId ? (
+//                                 <Box>
+//                                   <Typography variant="body2" fontWeight={500}>
+//                                     {transaction.planId.name}
+//                                   </Typography>
+//                                   <Typography variant="caption" color="text.secondary">
+//                                     {transaction.planId.duration}
+//                                   </Typography>
+//                                 </Box>
+//                               ) : "-"}
+//                             </TableCell>
+//                             <TableCell>
+//                               {transaction.description || `Payment for ${transaction.planId?.name || "Plan"}`}
+//                             </TableCell>
+//                             <TableCell>
+//                               <Box>
+//                                 <Typography variant="body2">{formatDate(transaction.createdAt)}</Typography>
+//                                 <Typography variant="caption" color="text.secondary">
+//                                   {formatTime(transaction.createdAt)}
+//                                 </Typography>
+//                               </Box>
+//                             </TableCell>
+//                             <TableCell>
+//                               <Typography
+//                                 variant="body2"
+//                                 fontWeight={600}
+//                                 sx={{ color: transaction.amount > 0 ? "#22c55e" : "#ef4444" }}
+//                               >
+//                                 {formatAmount(transaction.amount)}
+//                               </Typography>
+//                             </TableCell>
+//                             <TableCell>
+//                               <Chip
+//                                 icon={getStatusIcon(transaction.status)}
+//                                 label={transaction.status}
+//                                 size="small"
+//                                 sx={{
+//                                   bgcolor: alpha(getStatusColor(transaction.status), 0.1),
+//                                   color: getStatusColor(transaction.status),
+//                                   fontWeight: 600,
+//                                   fontSize: "0.7rem",
+//                                 }}
+//                               />
+//                             </TableCell>
+//                             <TableCell>{transaction.paymentMethod || "-"}</TableCell>
+//                             <TableCell align="right">
+//                               <Tooltip title="View Receipt">
+//                                 <IconButton
+//                                   size="small"
+//                                   onClick={() => {
+//                                     setSelectedTransaction(transaction);
+//                                     setShowReceipt(true);
+//                                   }}
+//                                   sx={{ color: "#0f766e" }}
+//                                 >
+//                                   <ReceiptIcon fontSize="small" />
+//                                 </IconButton>
+//                               </Tooltip>
+//                             </TableCell>
+//                           </motion.tr>
+//                         ))}
+//                       </AnimatePresence>
+//                     </TableBody>
+//                   </Table>
+//                 </TableContainer>
+//                 <TablePagination
+//                   component="div"
+//                   count={totalItems}
+//                   page={page}
+//                   onPageChange={handleChangePage}
+//                   rowsPerPage={rowsPerPage}
+//                   onRowsPerPageChange={handleChangeRowsPerPage}
+//                   rowsPerPageOptions={[5, 10, 25, 50]}
+//                   sx={{
+//                     borderTop: "1px solid",
+//                     borderColor: alpha("#e2e8f0", 0.5),
+//                   }}
+//                 />
+//               </>
+//             ) : (
+//               <Box sx={{ p: 2 }}>
+//                 <Stack spacing={2}>
+//                   <AnimatePresence>
+//                     {sortedTransactions.map((transaction, index) => (
+//                       <motion.div
+//                         key={transaction._id || index}
+//                         initial={{ opacity: 0, y: 20 }}
+//                         animate={{ opacity: 1, y: 0 }}
+//                         exit={{ opacity: 0 }}
+//                         transition={{ duration: 0.3, delay: index * 0.05 }}
+//                       >
+//                         <Paper
+//                           elevation={0}
+//                           sx={{
+//                             p: 3,
+//                             borderRadius: 3,
+//                             border: "1px solid",
+//                             borderColor: alpha("#e2e8f0", 0.5),
+//                             cursor: "pointer",
+//                             transition: "all 0.2s ease",
+//                             "&:hover": {
+//                               borderColor: "#0f766e",
+//                               boxShadow: "0 8px 20px -8px rgba(15, 118, 110, 0.3)",
+//                             },
+//                           }}
+//                           onClick={() => {
+//                             setSelectedTransaction(transaction);
+//                             setShowReceipt(true);
+//                           }}
+//                         >
+//                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+//                             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+//                               <Avatar
+//                                 sx={{
+//                                   bgcolor: transaction.amount > 0 ? alpha("#22c55e", 0.1) : alpha("#ef4444", 0.1),
+//                                   color: transaction.amount > 0 ? "#22c55e" : "#ef4444",
+//                                 }}
+//                               >
+//                                 {transaction.amount > 0 ? <IncomeIcon /> : <ExpenseIcon />}
+//                               </Avatar>
+//                               <Box>
+//                                 <Typography variant="subtitle1" fontWeight={600}>
+//                                   {transaction.description || `Payment for ${transaction.planId?.name || "Plan"}`}
+//                                 </Typography>
+//                                 <Typography variant="caption" color="text.secondary">
+//                                   <CalendarIcon sx={{ fontSize: 12, mr: 0.5 }} />
+//                                   {formatDate(transaction.createdAt)} at {formatTime(transaction.createdAt)}
+//                                 </Typography>
+//                               </Box>
+//                             </Box>
+//                             <Box sx={{ textAlign: "right" }}>
+//                               <Typography variant="h6" fontWeight={700} sx={{ color: "#0f766e" }}>
+//                                 {formatAmount(transaction.amount)}
+//                               </Typography>
+//                               <Chip
+//                                 icon={getStatusIcon(transaction.status)}
+//                                 label={transaction.status}
+//                                 size="small"
+//                                 sx={{
+//                                   mt: 0.5,
+//                                   bgcolor: alpha(getStatusColor(transaction.status), 0.1),
+//                                   color: getStatusColor(transaction.status),
+//                                   fontWeight: 600,
+//                                   fontSize: "0.7rem",
+//                                 }}
+//                               />
+//                             </Box>
+//                           </Box>
+
+//                           <Divider sx={{ my: 2 }} />
+
+//                           <Grid container spacing={2}>
+//                             {transaction.planId && (
+//                               <Grid item xs={12} sm={6}>
+//                                 <Typography variant="caption" color="text.secondary" display="block">
+//                                   Plan
+//                                 </Typography>
+//                                 <Typography variant="body2" fontWeight={500}>
+//                                   {transaction.planId.name} ({transaction.planId.duration})
+//                                 </Typography>
+//                               </Grid>
+//                             )}
+//                             <Grid item xs={12} sm={6}>
+//                               <Typography variant="caption" color="text.secondary" display="block">
+//                                 Payment Method
+//                               </Typography>
+//                               <Typography variant="body2" fontWeight={500}>
+//                                 {transaction.paymentMethod || "-"}
+//                               </Typography>
+//                             </Grid>
+//                           </Grid>
+
+//                           {transaction.addOns && transaction.addOns.length > 0 && (
+//                             <Box sx={{ mt: 2 }}>
+//                               <Button
+//                                 size="small"
+//                                 onClick={(e) => {
+//                                   e.stopPropagation();
+//                                   toggleAddOns(transaction._id);
+//                                 }}
+//                                 endIcon={expandedAddOns[transaction._id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+//                                 sx={{ color: "#0f766e" }}
+//                               >
+//                                 {transaction.addOns.length} Add-on(s)
+//                               </Button>
+//                               <Collapse in={expandedAddOns[transaction._id]}>
+//                                 <Box sx={{ mt: 2, p: 2, bgcolor: alpha("#f8fafc", 0.5), borderRadius: 2 }}>
+//                                   {transaction.addOns.map((addOn, idx) => (
+//                                     <Box key={idx} sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+//                                       <Typography variant="body2">Upgrade to {addOn.addOnMaxUser} users</Typography>
+//                                       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+//                                         <Typography variant="body2" fontWeight={600} sx={{ color: "#22c55e" }}>
+//                                           +{formatAmount(addOn.addOnAmount)}
+//                                         </Typography>
+//                                         <Chip
+//                                           label={addOn.status}
+//                                           size="small"
+//                                           sx={{
+//                                             bgcolor: alpha(getStatusColor(addOn.status), 0.1),
+//                                             color: getStatusColor(addOn.status),
+//                                             fontSize: "0.65rem",
+//                                           }}
+//                                         />
+//                                       </Box>
+//                                     </Box>
+//                                   ))}
+//                                 </Box>
+//                               </Collapse>
+//                             </Box>
+//                           )}
+//                         </Paper>
+//                       </motion.div>
+//                     ))}
+//                   </AnimatePresence>
+//                 </Stack>
+//                 <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+//                   <Button
+//                     variant="outlined"
+//                     onClick={() => setPage(page + 1)}
+//                     disabled={(page + 1) * rowsPerPage >= totalItems}
+//                     sx={{
+//                       borderColor: "#0f766e",
+//                       color: "#0f766e",
+//                       "&:hover": {
+//                         borderColor: "#0a5c55",
+//                         bgcolor: alpha("#0f766e", 0.1),
+//                       },
+//                     }}
+//                   >
+//                     Load More
+//                   </Button>
+//                 </Box>
+//               </Box>
+//             )}
+//           </Paper>
+//         ) : (
+//           <Paper
+//             elevation={0}
+//             sx={{
+//               p: 5,
+//               borderRadius: 3,
+//               textAlign: "center",
+//               border: "1px solid",
+//               borderColor: alpha("#e2e8f0", 0.5),
+//             }}
+//           >
+//             <HistoryIcon sx={{ fontSize: 48, color: alpha("#0f766e", 0.3), mb: 2 }} />
+//             <Typography variant="h6" color="text.secondary" gutterBottom>
+//               No transactions found
+//             </Typography>
+//             <Typography variant="body2" color="text.secondary">
+//               Your transaction history will appear here after making payments
+//             </Typography>
+//           </Paper>
+//         )}
+//       </Container>
+
+//       {/* Receipt Modal */}
+//       {selectedTransaction && (
+//         <ReceiptModal
+//           transaction={selectedTransaction}
+//           show={showReceipt}
+//           onHide={() => setShowReceipt(false)}
+//         />
+//       )}
+
+//       <style>
+//         {`
+//           @keyframes spin {
+//             0% { transform: rotate(0deg); }
+//             100% { transform: rotate(360deg); }
+//           }
+//         `}
+//       </style>
+//     </Box>
+//   );
+// };
+
+// export default TransactionHistory;
+
+/////Responsive
+
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -28,6 +768,7 @@ import {
   Tooltip,
   Collapse,
   Alert,
+  useMediaQuery,
 } from "@mui/material";
 import {
   History as HistoryIcon,
@@ -56,6 +797,12 @@ import { toast } from "react-toastify";
 const TransactionHistory = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  
+  // Responsive breakpoints
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isSmallMobile = useMediaQuery('(max-width:480px)');
+  
   const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated || false);
   const authUser = useSelector((state) => state.auth?.user || {});
   const userData = useSelector((state) => state.user?.userInfo || {});
@@ -189,11 +936,11 @@ const TransactionHistory = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return <CheckCircleIcon sx={{ color: "#22c55e", fontSize: 16 }} />;
+        return <CheckCircleIcon sx={{ color: "#22c55e", fontSize: { xs: 14, sm: 16 } }} />;
       case "pending":
-        return <PendingIcon sx={{ color: "#f59e0b", fontSize: 16 }} />;
+        return <PendingIcon sx={{ color: "#f59e0b", fontSize: { xs: 14, sm: 16 } }} />;
       default:
-        return <CancelIcon sx={{ color: "#ef4444", fontSize: 16 }} />;
+        return <CancelIcon sx={{ color: "#ef4444", fontSize: { xs: 14, sm: 16 } }} />;
     }
   };
 
@@ -241,69 +988,99 @@ const TransactionHistory = () => {
       <Paper
         elevation={0}
         sx={{
-          py: 3,
-          px: 3,
+          py: { xs: 2, sm: 2.5, md: 3 },
+          px: { xs: 2, sm: 2.5, md: 3 },
           borderBottom: "1px solid",
           borderColor: alpha("#e2e8f0", 0.5),
           borderRadius: 0,
         }}
       >
-        <Container maxWidth="xl">
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Container maxWidth="xl" disableGutters={isMobile} sx={{ px: { xs: 0, sm: 2, md: 3 } }}>
+          <Box sx={{ 
+            display: "flex", 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: "space-between", 
+            alignItems: { xs: 'flex-start', sm: 'center' }, 
+            flexWrap: "wrap", 
+            gap: 2 
+          }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2 } }}>
               <Avatar
                 sx={{
                   bgcolor: alpha("#0f766e", 0.1),
                   color: "#0f766e",
-                  width: 50,
-                  height: 50,
+                  width: { xs: 40, sm: 45, md: 50 },
+                  height: { xs: 40, sm: 45, md: 50 },
                 }}
               >
-                <HistoryIcon />
+                <HistoryIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
               </Avatar>
               <Box>
-                <Typography variant="h4" fontWeight={700} sx={{ color: "#0f766e" }}>
+                <Typography 
+                  variant="h4" 
+                  fontWeight={700} 
+                  sx={{ 
+                    color: "#0f766e",
+                    fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.8rem', lg: '2rem' }
+                  }}
+                >
                   Transaction History
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
                   View all your payment transactions
                 </Typography>
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 1 }}>
+            <Box sx={{ 
+              display: "flex", 
+              gap: 1, 
+              flexWrap: 'wrap',
+              width: { xs: '100%', sm: 'auto' },
+              justifyContent: { xs: 'flex-start', sm: 'flex-end' }
+            }}>
               <Tooltip title="Refresh">
                 <IconButton
                   onClick={refreshData}
                   disabled={historyLoading}
+                  size={isMobile ? "small" : "medium"}
                   sx={{
                     color: "#0f766e",
                     "&:hover": { bgcolor: alpha("#0f766e", 0.1) },
                   }}
                 >
-                  <RefreshIcon sx={{ animation: historyLoading ? "spin 1s linear infinite" : "none" }} />
+                  <RefreshIcon sx={{ 
+                    animation: historyLoading ? "spin 1s linear infinite" : "none",
+                    fontSize: { xs: 18, sm: 20, md: 24 }
+                  }} />
                 </IconButton>
               </Tooltip>
 
               <Tooltip title={viewMode === "table" ? "Card View" : "Table View"}>
                 <IconButton
                   onClick={toggleViewMode}
+                  size={isMobile ? "small" : "medium"}
                   sx={{
                     color: "#0f766e",
                     "&:hover": { bgcolor: alpha("#0f766e", 0.1) },
                   }}
                 >
-                  {viewMode === "table" ? <GridViewIcon /> : <TableRowsIcon />}
+                  {viewMode === "table" ? 
+                    <GridViewIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} /> : 
+                    <TableRowsIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} />
+                  }
                 </IconButton>
               </Tooltip>
 
               <Button
                 variant="outlined"
                 onClick={handleFilterClick}
-                startIcon={<PendingIcon />}
+                startIcon={<PendingIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   borderColor: "#e2e8f0",
                   color: "#64748b",
+                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' },
                   "&:hover": {
                     borderColor: "#0f766e",
                     color: "#0f766e",
@@ -318,28 +1095,32 @@ const TransactionHistory = () => {
                 open={Boolean(filterAnchorEl)}
                 onClose={() => handleFilterClose()}
                 PaperProps={{
-                  sx: { borderRadius: 2, mt: 1, minWidth: 150 },
+                  sx: { borderRadius: 2, mt: 1, minWidth: { xs: 120, sm: 150 } },
                 }}
               >
-                <MenuItem onClick={() => handleFilterClose("all")}>All</MenuItem>
-                <MenuItem onClick={() => handleFilterClose("completed")}>Completed</MenuItem>
-                <MenuItem onClick={() => handleFilterClose("pending")}>Pending</MenuItem>
+                <MenuItem onClick={() => handleFilterClose("all")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>All</MenuItem>
+                <MenuItem onClick={() => handleFilterClose("completed")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Completed</MenuItem>
+                <MenuItem onClick={() => handleFilterClose("pending")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Pending</MenuItem>
               </Menu>
 
               <Button
                 variant="outlined"
                 onClick={handleSortClick}
-                startIcon={<CalendarIcon />}
+                startIcon={<CalendarIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   borderColor: "#e2e8f0",
                   color: "#64748b",
+                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' },
                   "&:hover": {
                     borderColor: "#0f766e",
                     color: "#0f766e",
                   },
                 }}
               >
-                Sort: {sortBy}
+                Sort: {sortBy === "newest" ? "Newest" : 
+                       sortBy === "oldest" ? "Oldest" : 
+                       sortBy === "highest" ? "Highest" : "Lowest"}
               </Button>
 
               <Menu
@@ -347,13 +1128,13 @@ const TransactionHistory = () => {
                 open={Boolean(sortAnchorEl)}
                 onClose={() => handleSortClose()}
                 PaperProps={{
-                  sx: { borderRadius: 2, mt: 1, minWidth: 150 },
+                  sx: { borderRadius: 2, mt: 1, minWidth: { xs: 120, sm: 150 } },
                 }}
               >
-                <MenuItem onClick={() => handleSortClose("newest")}>Newest First</MenuItem>
-                <MenuItem onClick={() => handleSortClose("oldest")}>Oldest First</MenuItem>
-                <MenuItem onClick={() => handleSortClose("highest")}>Highest Amount</MenuItem>
-                <MenuItem onClick={() => handleSortClose("lowest")}>Lowest Amount</MenuItem>
+                <MenuItem onClick={() => handleSortClose("newest")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Newest First</MenuItem>
+                <MenuItem onClick={() => handleSortClose("oldest")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Oldest First</MenuItem>
+                <MenuItem onClick={() => handleSortClose("highest")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Highest Amount</MenuItem>
+                <MenuItem onClick={() => handleSortClose("lowest")} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>Lowest Amount</MenuItem>
               </Menu>
             </Box>
           </Box>
@@ -361,8 +1142,8 @@ const TransactionHistory = () => {
       </Paper>
 
       {/* Stats Cards */}
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Grid container spacing={3}>
+      <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 2.5, md: 3 } }}>
+        <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }}>
           {statCards.map((stat, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
               <motion.div
@@ -373,20 +1154,34 @@ const TransactionHistory = () => {
                 <Paper
                   elevation={0}
                   sx={{
-                    p: 2,
-                    borderRadius: 3,
+                    p: { xs: 1.5, sm: 1.8, md: 2 },
+                    borderRadius: { xs: 2, sm: 2.5, md: 3 },
                     border: "1px solid",
                     borderColor: alpha(stat.color, 0.2),
                     position: "relative",
                     overflow: "hidden",
+                    height: '100%',
+                    minHeight: { xs: 90, sm: 95, md: 100 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                   }}
                 >
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <Box>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
                         {stat.label}
                       </Typography>
-                      <Typography variant="h5" fontWeight={700} sx={{ color: stat.color, mt: 1 }}>
+                      <Typography 
+                        variant="h5" 
+                        fontWeight={700} 
+                        sx={{ 
+                          color: stat.color, 
+                          mt: 1,
+                          fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.2rem' },
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         {stat.value}
                       </Typography>
                     </Box>
@@ -394,8 +1189,11 @@ const TransactionHistory = () => {
                       sx={{
                         bgcolor: alpha(stat.color, 0.1),
                         color: stat.color,
-                        width: 48,
-                        height: 48,
+                        width: { xs: 36, sm: 42, md: 48 },
+                        height: { xs: 36, sm: 42, md: 48 },
+                        '& svg': {
+                          fontSize: { xs: 18, sm: 20, md: 22 }
+                        }
                       }}
                     >
                       {stat.icon}
@@ -409,11 +1207,11 @@ const TransactionHistory = () => {
       </Container>
 
       {/* Transactions List */}
-      <Container maxWidth="xl" sx={{ pb: 4 }}>
+      <Container maxWidth="xl" sx={{ pb: 4, px: { xs: 1, sm: 2, md: 3 } }}>
         {historyLoading ? (
           <Box sx={{ width: "100%", mt: 4 }}>
             <LinearProgress sx={{ bgcolor: alpha("#0f766e", 0.1), "& .MuiLinearProgress-bar": { bgcolor: "#0f766e" } }} />
-            <Typography textAlign="center" sx={{ mt: 2 }} color="text.secondary">
+            <Typography textAlign="center" sx={{ mt: 2 }} color="text.secondary" fontSize={{ xs: '0.8rem', sm: '0.9rem', md: '1rem' }}>
               Loading transactions...
             </Typography>
           </Box>
@@ -421,7 +1219,7 @@ const TransactionHistory = () => {
           <Paper
             elevation={0}
             sx={{
-              borderRadius: 3,
+              borderRadius: { xs: 2, sm: 2.5, md: 3 },
               border: "1px solid",
               borderColor: alpha("#e2e8f0", 0.5),
               overflow: "hidden",
@@ -429,18 +1227,43 @@ const TransactionHistory = () => {
           >
             {viewMode === "table" ? (
               <>
-                <TableContainer>
-                  <Table>
+                <TableContainer sx={{ 
+                  overflowX: 'auto',
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: alpha('#0f766e', 0.3),
+                    borderRadius: '3px',
+                  },
+                }}>
+                  <Table sx={{ minWidth: isMobile ? 800 : isTablet ? 900 : 1000 }}>
                     <TableHead>
                       <TableRow sx={{ bgcolor: alpha("#0f766e", 0.05) }}>
-                        <TableCell>Sr. No</TableCell>
-                        <TableCell>Plan</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Payment</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Sr. No
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Plan
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Description
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Date
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Amount
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Status
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Payment
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                          Actions
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -453,26 +1276,32 @@ const TransactionHistory = () => {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                            <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
+                              {page * rowsPerPage + index + 1}
+                            </TableCell>
                             <TableCell>
                               {transaction.planId ? (
                                 <Box>
-                                  <Typography variant="body2" fontWeight={500}>
+                                  <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
                                     {transaction.planId.name}
                                   </Typography>
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem', md: '0.6rem' } }}>
                                     {transaction.planId.duration}
                                   </Typography>
                                 </Box>
                               ) : "-"}
                             </TableCell>
                             <TableCell>
-                              {transaction.description || `Payment for ${transaction.planId?.name || "Plan"}`}
+                              <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
+                                {transaction.description || `Payment for ${transaction.planId?.name || "Plan"}`}
+                              </Typography>
                             </TableCell>
                             <TableCell>
                               <Box>
-                                <Typography variant="body2">{formatDate(transaction.createdAt)}</Typography>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
+                                  {formatDate(transaction.createdAt)}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem', md: '0.6rem' } }}>
                                   {formatTime(transaction.createdAt)}
                                 </Typography>
                               </Box>
@@ -481,7 +1310,10 @@ const TransactionHistory = () => {
                               <Typography
                                 variant="body2"
                                 fontWeight={600}
-                                sx={{ color: transaction.amount > 0 ? "#22c55e" : "#ef4444" }}
+                                sx={{ 
+                                  color: transaction.amount > 0 ? "#22c55e" : "#ef4444",
+                                  fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }
+                                }}
                               >
                                 {formatAmount(transaction.amount)}
                               </Typography>
@@ -495,11 +1327,19 @@ const TransactionHistory = () => {
                                   bgcolor: alpha(getStatusColor(transaction.status), 0.1),
                                   color: getStatusColor(transaction.status),
                                   fontWeight: 600,
-                                  fontSize: "0.7rem",
+                                  fontSize: { xs: '0.5rem', sm: '0.55rem', md: '0.6rem' },
+                                  height: { xs: 20, sm: 22, md: 24 },
+                                  '& .MuiChip-icon': {
+                                    fontSize: { xs: 10, sm: 12, md: 14 }
+                                  }
                                 }}
                               />
                             </TableCell>
-                            <TableCell>{transaction.paymentMethod || "-"}</TableCell>
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
+                                {transaction.paymentMethod || "-"}
+                              </Typography>
+                            </TableCell>
                             <TableCell align="right">
                               <Tooltip title="View Receipt">
                                 <IconButton
@@ -508,9 +1348,13 @@ const TransactionHistory = () => {
                                     setSelectedTransaction(transaction);
                                     setShowReceipt(true);
                                   }}
-                                  sx={{ color: "#0f766e" }}
+                                  sx={{ 
+                                    color: "#0f766e",
+                                    width: { xs: 28, sm: 30, md: 32 },
+                                    height: { xs: 28, sm: 30, md: 32 },
+                                  }}
                                 >
-                                  <ReceiptIcon fontSize="small" />
+                                  <ReceiptIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
                                 </IconButton>
                               </Tooltip>
                             </TableCell>
@@ -531,11 +1375,25 @@ const TransactionHistory = () => {
                   sx={{
                     borderTop: "1px solid",
                     borderColor: alpha("#e2e8f0", 0.5),
+                    '.MuiTablePagination-select': {
+                      borderRadius: 2,
+                    },
+                    '.MuiTablePagination-displayedRows': {
+                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                    },
+                    '.MuiTablePagination-selectLabel': {
+                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                    },
+                    '.MuiTablePagination-actions': {
+                      button: {
+                        fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                      }
+                    }
                   }}
                 />
               </>
             ) : (
-              <Box sx={{ p: 2 }}>
+              <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
                 <Stack spacing={2}>
                   <AnimatePresence>
                     {sortedTransactions.map((transaction, index) => (
@@ -549,8 +1407,8 @@ const TransactionHistory = () => {
                         <Paper
                           elevation={0}
                           sx={{
-                            p: 3,
-                            borderRadius: 3,
+                            p: { xs: 2, sm: 2.5, md: 3 },
+                            borderRadius: { xs: 2, sm: 2.5, md: 3 },
                             border: "1px solid",
                             borderColor: alpha("#e2e8f0", 0.5),
                             cursor: "pointer",
@@ -565,28 +1423,54 @@ const TransactionHistory = () => {
                             setShowReceipt(true);
                           }}
                         >
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                          <Box sx={{ 
+                            display: "flex", 
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            justifyContent: "space-between", 
+                            alignItems: { xs: 'flex-start', sm: 'center' }, 
+                            mb: 2,
+                            gap: 1
+                          }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2 } }}>
                               <Avatar
                                 sx={{
                                   bgcolor: transaction.amount > 0 ? alpha("#22c55e", 0.1) : alpha("#ef4444", 0.1),
                                   color: transaction.amount > 0 ? "#22c55e" : "#ef4444",
+                                  width: { xs: 40, sm: 45, md: 48 },
+                                  height: { xs: 40, sm: 45, md: 48 },
                                 }}
                               >
-                                {transaction.amount > 0 ? <IncomeIcon /> : <ExpenseIcon />}
+                                {transaction.amount > 0 ? 
+                                  <IncomeIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} /> : 
+                                  <ExpenseIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
+                                }
                               </Avatar>
-                              <Box>
-                                <Typography variant="subtitle1" fontWeight={600}>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography 
+                                  variant="subtitle1" 
+                                  fontWeight={600} 
+                                  sx={{ 
+                                    fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                                    wordBreak: 'break-word',
+                                  }}
+                                >
                                   {transaction.description || `Payment for ${transaction.planId?.name || "Plan"}`}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  <CalendarIcon sx={{ fontSize: 12, mr: 0.5 }} />
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
+                                  <CalendarIcon sx={{ fontSize: 12, mr: 0.5, verticalAlign: 'middle' }} />
                                   {formatDate(transaction.createdAt)} at {formatTime(transaction.createdAt)}
                                 </Typography>
                               </Box>
                             </Box>
-                            <Box sx={{ textAlign: "right" }}>
-                              <Typography variant="h6" fontWeight={700} sx={{ color: "#0f766e" }}>
+                            <Box sx={{ 
+                              textAlign: "right",
+                              width: { xs: '100%', sm: 'auto' },
+                              mt: { xs: 1, sm: 0 }
+                            }}>
+                              <Typography variant="h6" fontWeight={700} sx={{ 
+                                color: "#0f766e",
+                                fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
+                              }}>
                                 {formatAmount(transaction.amount)}
                               </Typography>
                               <Chip
@@ -598,7 +1482,8 @@ const TransactionHistory = () => {
                                   bgcolor: alpha(getStatusColor(transaction.status), 0.1),
                                   color: getStatusColor(transaction.status),
                                   fontWeight: 600,
-                                  fontSize: "0.7rem",
+                                  fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                                  height: { xs: 22, sm: 24 },
                                 }}
                               />
                             </Box>
@@ -609,19 +1494,19 @@ const TransactionHistory = () => {
                           <Grid container spacing={2}>
                             {transaction.planId && (
                               <Grid item xs={12} sm={6}>
-                                <Typography variant="caption" color="text.secondary" display="block">
+                                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
                                   Plan
                                 </Typography>
-                                <Typography variant="body2" fontWeight={500}>
+                                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
                                   {transaction.planId.name} ({transaction.planId.duration})
                                 </Typography>
                               </Grid>
                             )}
                             <Grid item xs={12} sm={6}>
-                              <Typography variant="caption" color="text.secondary" display="block">
+                              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
                                 Payment Method
                               </Typography>
-                              <Typography variant="body2" fontWeight={500}>
+                              <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
                                 {transaction.paymentMethod || "-"}
                               </Typography>
                             </Grid>
@@ -636,17 +1521,33 @@ const TransactionHistory = () => {
                                   toggleAddOns(transaction._id);
                                 }}
                                 endIcon={expandedAddOns[transaction._id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                sx={{ color: "#0f766e" }}
+                                sx={{ 
+                                  color: "#0f766e",
+                                  fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }
+                                }}
                               >
                                 {transaction.addOns.length} Add-on(s)
                               </Button>
                               <Collapse in={expandedAddOns[transaction._id]}>
                                 <Box sx={{ mt: 2, p: 2, bgcolor: alpha("#f8fafc", 0.5), borderRadius: 2 }}>
                                   {transaction.addOns.map((addOn, idx) => (
-                                    <Box key={idx} sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                                      <Typography variant="body2">Upgrade to {addOn.addOnMaxUser} users</Typography>
-                                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                        <Typography variant="body2" fontWeight={600} sx={{ color: "#22c55e" }}>
+                                    <Box key={idx} sx={{ 
+                                      display: "flex", 
+                                      flexDirection: { xs: 'column', sm: 'row' },
+                                      justifyContent: "space-between", 
+                                      mb: 1,
+                                      gap: { xs: 0.5, sm: 0 }
+                                    }}>
+                                      <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
+                                        Upgrade to {addOn.addOnMaxUser} users
+                                      </Typography>
+                                      <Box sx={{ 
+                                        display: "flex", 
+                                        alignItems: "center", 
+                                        gap: 1,
+                                        justifyContent: { xs: 'flex-start', sm: 'flex-end' }
+                                      }}>
+                                        <Typography variant="body2" fontWeight={600} sx={{ color: "#22c55e", fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
                                           +{formatAmount(addOn.addOnAmount)}
                                         </Typography>
                                         <Chip
@@ -655,7 +1556,8 @@ const TransactionHistory = () => {
                                           sx={{
                                             bgcolor: alpha(getStatusColor(addOn.status), 0.1),
                                             color: getStatusColor(addOn.status),
-                                            fontSize: "0.65rem",
+                                            fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                            height: { xs: 20, sm: 22 },
                                           }}
                                         />
                                       </Box>
@@ -670,23 +1572,27 @@ const TransactionHistory = () => {
                     ))}
                   </AnimatePresence>
                 </Stack>
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => setPage(page + 1)}
-                    disabled={(page + 1) * rowsPerPage >= totalItems}
-                    sx={{
-                      borderColor: "#0f766e",
-                      color: "#0f766e",
-                      "&:hover": {
-                        borderColor: "#0a5c55",
-                        bgcolor: alpha("#0f766e", 0.1),
-                      },
-                    }}
-                  >
-                    Load More
-                  </Button>
-                </Box>
+                {totalItems > rowsPerPage && (
+                  <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setPage(page + 1)}
+                      disabled={(page + 1) * rowsPerPage >= totalItems}
+                      size={isMobile ? "small" : "medium"}
+                      sx={{
+                        borderColor: "#0f766e",
+                        color: "#0f766e",
+                        fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
+                        "&:hover": {
+                          borderColor: "#0a5c55",
+                          bgcolor: alpha("#0f766e", 0.1),
+                        },
+                      }}
+                    >
+                      Load More
+                    </Button>
+                  </Box>
+                )}
               </Box>
             )}
           </Paper>
@@ -694,18 +1600,22 @@ const TransactionHistory = () => {
           <Paper
             elevation={0}
             sx={{
-              p: 5,
-              borderRadius: 3,
+              p: { xs: 3, sm: 4, md: 5 },
+              borderRadius: { xs: 2, sm: 2.5, md: 3 },
               textAlign: "center",
               border: "1px solid",
               borderColor: alpha("#e2e8f0", 0.5),
             }}
           >
-            <HistoryIcon sx={{ fontSize: 48, color: alpha("#0f766e", 0.3), mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <HistoryIcon sx={{ 
+              fontSize: { xs: 36, sm: 42, md: 48 }, 
+              color: alpha("#0f766e", 0.3), 
+              mb: 2 
+            }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' } }}>
               No transactions found
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
               Your transaction history will appear here after making payments
             </Typography>
           </Paper>

@@ -329,6 +329,7 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
               p: 2.5,
               borderTop: "1px solid",
               borderColor: alpha("#e2e8f0", 0.5),
+               bgcolor:"#ffffff",
               gap: 1,
             }}
           >

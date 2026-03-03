@@ -159,9 +159,9 @@ const ResetPasswordProfile = () => {
         setTimeout(() => {
           // Redirect based on role
           if (role_id === 2) {
-            navigate("/super-admin/profile");
+            navigate("/profile");
           } else {
-            navigate("/admin/profile");
+            navigate("/profile");
           }
         }, 2000);
       } catch (err) {
@@ -172,9 +172,9 @@ const ResetPasswordProfile = () => {
 
   const handleBackToProfile = () => {
     if (role_id === 2) {
-      navigate("/super-admin/profile");
+      navigate("profile");
     } else {
-      navigate("/admin/profile");
+      navigate("/profile");
     }
   };
 

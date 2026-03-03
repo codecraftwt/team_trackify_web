@@ -31,7 +31,7 @@ import AdminProfile from './pages/Admin/Profile';
 
 // Super Admin Pages (role_id: 2)
 import SuperAdminDashboard from './pages/SuperAdmin/SuperAdminDashboard';
-// import OrganizationDetails from './pages/SuperAdmin/OrganizationDetails';
+import OrganizationDetails from './pages/SuperAdmin/OrganizationDetails';
 import RevenueAnalytics from './pages/SuperAdmin/RevenueManagement';
 import PlanManagement from './pages/SuperAdmin/PlanManagement';
 import ContactList from './pages/SuperAdmin/ContactList';
@@ -42,6 +42,7 @@ import ResetPasswordProfile from './components/common/ResetPasswordProfile.jsx';
 import TrackingData from './pages/TrackingData.jsx';
 import Locations from './pages/Locations.jsx';
 import ListUsers from './pages/SuperAdmin/Listusers.jsx';
+import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
 
 // Settings page (shared)
 
@@ -126,13 +127,14 @@ function App() {
                 <Route path="/reset-password-ptofile" element={<ResetPasswordProfile />} />
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
+                <Route path="/admin/live-locations" element={<ActiveUserLocations />} />
 
 
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}
 
                 {/* Super Admin Routes (role_id: 2) - Note: these are children of DashboardLayout */}
                 <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
-                {/* <Route path="/super-admin/organization" element={<OrganizationDetails />} /> */}
+                <Route path="/super-admin/organization" element={<OrganizationDetails />} />
                 <Route path="/super-admin/revenue" element={<RevenueAnalytics />} />
                 <Route path="/super-admin/plans" element={<PlanManagement />} />
                 <Route path="/super-admin/contacts" element={<ContactList />} />

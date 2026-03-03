@@ -79,8 +79,8 @@ const authSlice = createSlice({
       localStorage.removeItem('user');
       state.user = null;
       state.token = null;
-      state.isAuthenticated = false; // Fix: Set to false
-      state.role_id = null; // Fix: Clear role_id
+      state.isAuthenticated = false; 
+      state.role_id = null; 
       state.isLoading = false;
       state.error = null;
       state.success = false;
