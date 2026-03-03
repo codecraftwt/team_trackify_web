@@ -80,7 +80,7 @@ const Login = () => {
             Welcome Back
           </Typography>
           <Typography variant="body1" className="text-gray-600">
-            Sign in to your account to continue
+            Sign in to your account to continue 
           </Typography>
         </motion.div>
 
