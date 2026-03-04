@@ -441,6 +441,422 @@
 
 
 
+// import React from "react";
+// import {
+//   Paper,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   TablePagination,
+//   Box,
+//   Typography,
+//   Avatar,
+//   Chip,
+//   alpha,
+//   useTheme,
+//   useMediaQuery,
+// } from "@mui/material";
+// import {
+//   CheckCircle as CheckCircleIcon,
+//   Cancel as CancelIcon,
+//   Pending as PendingIcon,
+//   CalendarToday as CalendarIcon,
+//   AttachMoney as MoneyIcon,
+// } from "@mui/icons-material";
+// import { motion, AnimatePresence } from "framer-motion";
+// import moment from "moment";
+
+// const RevenueTable = ({ 
+//   filteredPayments, 
+//   page, 
+//   handlePageChange, 
+//   totalPages,
+//   isMobile,
+//   isTablet,
+//   isSmallMobile 
+// }) => {
+//   const theme = useTheme();
+  
+//   const getStatusIcon = (status) => {
+//     switch (status?.toLowerCase()) {
+//       case "completed":
+//         return <CheckCircleIcon sx={{ color: "#22c55e", fontSize: { xs: 14, sm: 16 } }} />;
+//       case "pending":
+//         return <PendingIcon sx={{ color: "#f59e0b", fontSize: { xs: 14, sm: 16 } }} />;
+//       default:
+//         return <CancelIcon sx={{ color: "#ef4444", fontSize: { xs: 14, sm: 16 } }} />;
+//     }
+//   };
+
+//   const getStatusColor = (status) => {
+//     switch (status?.toLowerCase()) {
+//       case "completed":
+//         return "#22c55e";
+//       case "pending":
+//         return "#f59e0b";
+//       default:
+//         return "#ef4444";
+//     }
+//   };
+
+//   const formatCurrency = (amount) => {
+//     return new Intl.NumberFormat("en-IN", {
+//       style: "currency",
+//       currency: "INR",
+//       minimumFractionDigits: 0,
+//     }).format(amount);
+//   };
+
+//   // Mobile Card View
+//   const MobileCardView = () => {
+//     return (
+//       <Box sx={{ p: { xs: 1, sm: 2 } }}>
+//         <AnimatePresence>
+//           {filteredPayments.map((payment, index) => (
+//             <motion.div
+//               key={payment.id}
+//               initial={{ opacity: 0, y: 10 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               exit={{ opacity: 0 }}
+//               transition={{ duration: 0.2, delay: index * 0.02 }}
+//             >
+//               <Paper
+//                 elevation={0}
+//                 sx={{
+//                   p: 2,
+//                   mb: 1.5,
+//                   borderRadius: 2,
+//                   border: "1px solid",
+//                   borderColor: alpha("#e2e8f0", 0.5),
+//                   bgcolor: index % 2 === 0 ? "#fff" : alpha("#f8fafc", 0.5),
+//                 }}
+//               >
+//                 {/* Header */}
+//                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+//                   <Avatar
+//                     sx={{
+//                       width: 40,
+//                       height: 40,
+//                       bgcolor: alpha("#0f766e", 0.1),
+//                       color: "#0f766e",
+//                     }}
+//                   >
+//                     {payment.name?.charAt(0) || "A"}
+//                   </Avatar>
+//                   <Box sx={{ flex: 1 }}>
+//                     <Typography variant="subtitle2" fontWeight={600}>
+//                       {payment.name}
+//                     </Typography>
+//                     <Typography variant="caption" color="text.secondary">
+//                       {payment.email}
+//                     </Typography>
+//                   </Box>
+//                 </Box>
+
+//                 {/* Details Grid */}
+//                 <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, mb: 1.5 }}>
+//                   <Box>
+//                     <Typography variant="caption" color="text.secondary">
+//                       Plan
+//                     </Typography>
+//                     <Chip
+//                       label={payment.plan}
+//                       size="small"
+//                       sx={{
+//                         mt: 0.5,
+//                         bgcolor: alpha("#0f766e", 0.1),
+//                         color: "#0f766e",
+//                         fontWeight: 500,
+//                         fontSize: "0.65rem",
+//                         height: 22,
+//                       }}
+//                     />
+//                   </Box>
+//                   <Box>
+//                     <Typography variant="caption" color="text.secondary">
+//                       Amount
+//                     </Typography>
+//                     <Typography variant="body2" fontWeight={600} sx={{ color: "#0f766e" }}>
+//                       {formatCurrency(payment.amount)}
+//                     </Typography>
+//                   </Box>
+//                   <Box>
+//                     <Typography variant="caption" color="text.secondary">
+//                       Date
+//                     </Typography>
+//                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+//                       <CalendarIcon sx={{ color: "#64748b", fontSize: 12 }} />
+//                       <Typography variant="caption">
+//                         {moment(payment.date).format("DD MMM YYYY")}
+//                       </Typography>
+//                     </Box>
+//                   </Box>
+//                   <Box>
+//                     <Typography variant="caption" color="text.secondary">
+//                       Status
+//                     </Typography>
+//                     <Chip
+//                       icon={getStatusIcon(payment.status)}
+//                       label={payment.status}
+//                       size="small"
+//                       sx={{
+//                         mt: 0.5,
+//                         bgcolor: alpha(getStatusColor(payment.status), 0.1),
+//                         color: getStatusColor(payment.status),
+//                         fontWeight: 600,
+//                         fontSize: "0.65rem",
+//                         height: 22,
+//                       }}
+//                     />
+//                   </Box>
+//                 </Box>
+
+//                 {/* Additional Info */}
+//                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+//                   <Typography variant="caption" color="text.secondary">
+//                     Method: {payment.paymentMethod || "Online"}
+//                   </Typography>
+//                   {payment.duration && payment.duration !== "-" && (
+//                     <Typography variant="caption" color="text.secondary">
+//                       Duration: {payment.duration}
+//                     </Typography>
+//                   )}
+//                 </Box>
+//               </Paper>
+//             </motion.div>
+//           ))}
+//         </AnimatePresence>
+//       </Box>
+//     );
+//   };
+
+//   // Desktop Table View
+//   const TableView = () => {
+//     // Determine columns based on screen size
+//     const showEmail = !isSmallMobile;
+//     const showDuration = !isMobile;
+//     const showPaymentMethod = !isMobile;
+
+//     // Minimum table width for scrolling
+//     const getMinWidth = () => {
+//       if (isSmallMobile) return 600;
+//       if (isMobile) return 700;
+//       if (isTablet) return 800;
+//       return 900;
+//     };
+
+//     return (
+//       <TableContainer sx={{ 
+//         overflowX: 'auto',
+//         '&::-webkit-scrollbar': {
+//           height: '6px',
+//         },
+//         '&::-webkit-scrollbar-thumb': {
+//           backgroundColor: alpha('#0f766e', 0.3),
+//           borderRadius: '3px',
+//         },
+//       }}>
+//         <Table sx={{ minWidth: getMinWidth() }}>
+//           <TableHead>
+//             <TableRow sx={{ bgcolor: alpha("#0f766e", 0.05) }}>
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                 Admin
+//               </TableCell>
+//               {showEmail && (
+//                 <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                   Email
+//                 </TableCell>
+//               )}
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                 Plan
+//               </TableCell>
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                 Date
+//               </TableCell>
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                 Amount
+//               </TableCell>
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                 Status
+//               </TableCell>
+//               {showPaymentMethod && (
+//                 <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                   Method
+//                 </TableCell>
+//               )}
+//               {showDuration && (
+//                 <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+//                   Duration
+//                 </TableCell>
+//               )}
+//             </TableRow>
+//           </TableHead>
+//           <TableBody>
+//             <AnimatePresence>
+//               {filteredPayments.map((payment, index) => (
+//                 <motion.tr
+//                   key={payment.id}
+//                   initial={{ opacity: 0, y: 10 }}
+//                   animate={{ opacity: 1, y: 0 }}
+//                   exit={{ opacity: 0 }}
+//                   transition={{ duration: 0.2, delay: index * 0.02 }}
+//                   style={{
+//                     backgroundColor: index % 2 === 0 ? "transparent" : alpha("#f8fafc", 0.5),
+//                   }}
+//                 >
+//                   <TableCell>
+//                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+//                       <Avatar
+//                         sx={{
+//                           width: { xs: 28, sm: 32, md: 36 },
+//                           height: { xs: 28, sm: 32, md: 36 },
+//                           bgcolor: alpha("#0f766e", 0.1),
+//                           color: "#0f766e",
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.85rem' },
+//                         }}
+//                       >
+//                         {payment.name?.charAt(0) || "A"}
+//                       </Avatar>
+//                       <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.85rem' } }}>
+//                         {payment.name}
+//                       </Typography>
+//                     </Box>
+//                   </TableCell>
+//                   {showEmail && (
+//                     <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+//                       {payment.email}
+//                     </TableCell>
+//                   )}
+//                   <TableCell>
+//                     <Chip
+//                       label={payment.plan}
+//                       size="small"
+//                       sx={{
+//                         bgcolor: alpha("#0f766e", 0.1),
+//                         color: "#0f766e",
+//                         fontWeight: 500,
+//                         fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+//                         height: { xs: 20, sm: 22, md: 24 },
+//                       }}
+//                     />
+//                   </TableCell>
+//                   <TableCell>
+//                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+//                       <CalendarIcon sx={{ color: "#64748b", fontSize: { xs: 10, sm: 12, md: 14 } }} />
+//                       <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+//                         {moment(payment.date).format("DD MMM YYYY")}
+//                       </Typography>
+//                     </Box>
+//                   </TableCell>
+//                   <TableCell>
+//                     <Typography variant="body2" fontWeight={600} sx={{ color: "#0f766e", fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+//                       {formatCurrency(payment.amount)}
+//                     </Typography>
+//                   </TableCell>
+//                   <TableCell>
+//                     <Chip
+//                       icon={getStatusIcon(payment.status)}
+//                       label={payment.status}
+//                       size="small"
+//                       sx={{
+//                         bgcolor: alpha(getStatusColor(payment.status), 0.1),
+//                         color: getStatusColor(payment.status),
+//                         fontWeight: 600,
+//                         fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+//                         height: { xs: 20, sm: 22, md: 24 },
+//                         '& .MuiChip-icon': {
+//                           fontSize: { xs: 10, sm: 12, md: 14 }
+//                         }
+//                       }}
+//                     />
+//                   </TableCell>
+//                   {showPaymentMethod && (
+//                     <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+//                       {payment.paymentMethod || "Online"}
+//                     </TableCell>
+//                   )}
+//                   {showDuration && (
+//                     <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+//                       {payment.duration || "-"}
+//                     </TableCell>
+//                   )}
+//                 </motion.tr>
+//               ))}
+//             </AnimatePresence>
+//           </TableBody>
+//         </Table>
+//       </TableContainer>
+//     );
+//   };
+
+//   return (
+//     <Paper
+//       elevation={0}
+//       sx={{
+//         borderRadius: { xs: 2, sm: 2.5, md: 3 },
+//         border: "1px solid",
+//         borderColor: alpha("#e2e8f0", 0.5),
+//         overflow: "hidden",
+//       }}
+//     >
+//       {isMobile ? <MobileCardView /> : <TableView />}
+
+//       {totalPages > 1 && (
+//         <Box sx={{ 
+//           display: "flex", 
+//           justifyContent: "center", 
+//           p: { xs: 1.5, sm: 2 },
+//           borderTop: "1px solid",
+//           borderColor: alpha("#e2e8f0", 0.5),
+//         }}>
+//           <TablePagination
+//             component="div"
+//             count={totalPages * 10}
+//             page={page - 1}
+//             onPageChange={(e, newPage) => handlePageChange(newPage + 1)}
+//             rowsPerPage={10}
+//             rowsPerPageOptions={[10]}
+//             sx={{
+//               '.MuiTablePagination-displayedRows': {
+//                 fontSize: { xs: '0.7rem', sm: '0.8rem' },
+//               },
+//               '.MuiTablePagination-actions': {
+//                 button: {
+//                   fontSize: { xs: '0.7rem', sm: '0.8rem' },
+//                 }
+//               }
+//             }}
+//           />
+//         </Box>
+//       )}
+//     </Paper>
+//   );
+// };
+
+// export default RevenueTable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////// Change Color Theam/////////////////////////////////////
 import React from "react";
 import {
   Paper,
@@ -530,7 +946,7 @@ const RevenueTable = ({
                   mb: 1.5,
                   borderRadius: 2,
                   border: "1px solid",
-                  borderColor: alpha("#e2e8f0", 0.5),
+                  borderColor: alpha("#2563EB", 0.1),
                   bgcolor: index % 2 === 0 ? "#fff" : alpha("#f8fafc", 0.5),
                 }}
               >
@@ -540,14 +956,14 @@ const RevenueTable = ({
                     sx={{
                       width: 40,
                       height: 40,
-                      bgcolor: alpha("#0f766e", 0.1),
-                      color: "#0f766e",
+                      bgcolor: alpha("#2563EB", 0.1),
+                      color: "#2563EB",
                     }}
                   >
                     {payment.name?.charAt(0) || "A"}
                   </Avatar>
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" fontWeight={600}>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ color: '#1e293b' }}>
                       {payment.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -567,8 +983,8 @@ const RevenueTable = ({
                       size="small"
                       sx={{
                         mt: 0.5,
-                        bgcolor: alpha("#0f766e", 0.1),
-                        color: "#0f766e",
+                        bgcolor: alpha("#2563EB", 0.1),
+                        color: "#2563EB",
                         fontWeight: 500,
                         fontSize: "0.65rem",
                         height: 22,
@@ -579,7 +995,7 @@ const RevenueTable = ({
                     <Typography variant="caption" color="text.secondary">
                       Amount
                     </Typography>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: "#0f766e" }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: "#2563EB" }}>
                       {formatCurrency(payment.amount)}
                     </Typography>
                   </Box>
@@ -588,8 +1004,8 @@ const RevenueTable = ({
                       Date
                     </Typography>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                      <CalendarIcon sx={{ color: "#64748b", fontSize: 12 }} />
-                      <Typography variant="caption">
+                      <CalendarIcon sx={{ color: "#2563EB", fontSize: 12 }} />
+                      <Typography variant="caption" sx={{ color: '#1e293b' }}>
                         {moment(payment.date).format("DD MMM YYYY")}
                       </Typography>
                     </Box>
@@ -655,40 +1071,40 @@ const RevenueTable = ({
           height: '6px',
         },
         '&::-webkit-scrollbar-thumb': {
-          backgroundColor: alpha('#0f766e', 0.3),
+          backgroundColor: alpha('#2563EB', 0.3),
           borderRadius: '3px',
         },
       }}>
         <Table sx={{ minWidth: getMinWidth() }}>
           <TableHead>
-            <TableRow sx={{ bgcolor: alpha("#0f766e", 0.05) }}>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+            <TableRow sx={{ bgcolor: alpha("#2563EB", 0.05) }}>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                 Admin
               </TableCell>
               {showEmail && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                   Email
                 </TableCell>
               )}
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                 Plan
               </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                 Date
               </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                 Amount
               </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                 Status
               </TableCell>
               {showPaymentMethod && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                   Method
                 </TableCell>
               )}
               {showDuration && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' }, color: "#2563EB" }}>
                   Duration
                 </TableCell>
               )}
@@ -713,20 +1129,20 @@ const RevenueTable = ({
                         sx={{
                           width: { xs: 28, sm: 32, md: 36 },
                           height: { xs: 28, sm: 32, md: 36 },
-                          bgcolor: alpha("#0f766e", 0.1),
-                          color: "#0f766e",
+                          bgcolor: alpha("#2563EB", 0.1),
+                          color: "#2563EB",
                           fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.85rem' },
                         }}
                       >
                         {payment.name?.charAt(0) || "A"}
                       </Avatar>
-                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.85rem' } }}>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.85rem' }, color: '#1e293b' }}>
                         {payment.name}
                       </Typography>
                     </Box>
                   </TableCell>
                   {showEmail && (
-                    <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                    <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' }, color: '#1e293b' }}>
                       {payment.email}
                     </TableCell>
                   )}
@@ -735,8 +1151,8 @@ const RevenueTable = ({
                       label={payment.plan}
                       size="small"
                       sx={{
-                        bgcolor: alpha("#0f766e", 0.1),
-                        color: "#0f766e",
+                        bgcolor: alpha("#2563EB", 0.1),
+                        color: "#2563EB",
                         fontWeight: 500,
                         fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
                         height: { xs: 20, sm: 22, md: 24 },
@@ -745,14 +1161,14 @@ const RevenueTable = ({
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                      <CalendarIcon sx={{ color: "#64748b", fontSize: { xs: 10, sm: 12, md: 14 } }} />
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+                      <CalendarIcon sx={{ color: "#2563EB", fontSize: { xs: 10, sm: 12, md: 14 } }} />
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }, color: '#1e293b' }}>
                         {moment(payment.date).format("DD MMM YYYY")}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: "#0f766e", fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: "#2563EB", fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' } }}>
                       {formatCurrency(payment.amount)}
                     </Typography>
                   </TableCell>
@@ -774,12 +1190,12 @@ const RevenueTable = ({
                     />
                   </TableCell>
                   {showPaymentMethod && (
-                    <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+                    <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }, color: '#1e293b' }}>
                       {payment.paymentMethod || "Online"}
                     </TableCell>
                   )}
                   {showDuration && (
-                    <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' } }}>
+                    <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }, color: '#1e293b' }}>
                       {payment.duration || "-"}
                     </TableCell>
                   )}
@@ -798,7 +1214,7 @@ const RevenueTable = ({
       sx={{
         borderRadius: { xs: 2, sm: 2.5, md: 3 },
         border: "1px solid",
-        borderColor: alpha("#e2e8f0", 0.5),
+        borderColor: alpha("#2563EB", 0.1),
         overflow: "hidden",
       }}
     >
@@ -810,7 +1226,7 @@ const RevenueTable = ({
           justifyContent: "center", 
           p: { xs: 1.5, sm: 2 },
           borderTop: "1px solid",
-          borderColor: alpha("#e2e8f0", 0.5),
+          borderColor: alpha("#2563EB", 0.1),
         }}>
           <TablePagination
             component="div"
@@ -837,6 +1253,5 @@ const RevenueTable = ({
 };
 
 export default RevenueTable;
-
 
 
