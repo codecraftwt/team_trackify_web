@@ -653,20 +653,20 @@
 //         setIsLoading(false);
 //         return;
 //       }
-      
+
 //       try {
 //         setIsLoading(true);
 //         console.log("Fetching data for user:", userData._id);
-        
+
 //         // Fetch user data first
 //         const userResult = await dispatch(getUserById(userData._id)).unwrap();
 //         console.log("User API Result:", userResult);
-        
+
 //         // Extract plan data from the correct path
 //         if (userResult?.user?.currentPaymentId?.addOns?.length > 0) {
 //           const plan = userResult.user.currentPaymentId;
 //           console.log("Plan data found:", plan);
-          
+
 //           setPlanData({
 //             description: plan.description,
 //             duration: plan.duration,
@@ -714,19 +714,19 @@
 //     // Initial load - runs when component mounts or userData._id changes
 //     useEffect(() => {
 //       console.log("useEffect triggered, userData:", userData);
-      
+
 //       if (userData?._id) {
 //         fetchAllData();
 //       } else {
 //         // Check localStorage for user data
 //         const storedUser = localStorage.getItem('user');
 //         console.log("Stored user from localStorage:", storedUser);
-        
+
 //         if (storedUser) {
 //           try {
 //             const parsedUser = JSON.parse(storedUser);
 //             console.log("Parsed user:", parsedUser);
-            
+
 //             if (parsedUser?._id) {
 //               // Dispatch to update Redux state
 //               dispatch({ type: 'user/setUserInfo', payload: parsedUser });
@@ -964,7 +964,7 @@
 //   };
 
 //   export default AdminDashboard;
- 
+
 
 
 
@@ -1061,7 +1061,7 @@
 // const CurrentPlanSkeleton = () => {
 //   const theme = useTheme();
 //   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
 //   return (
 //     <Paper
 //       elevation={0}
@@ -1961,20 +1961,20 @@
 //       setIsLoading(false);
 //       return;
 //     }
-    
+
 //     try {
 //       setIsLoading(true);
 //       console.log("Fetching data for user:", userData._id);
-      
+
 //       // Fetch user data first
 //       const userResult = await dispatch(getUserById(userData._id)).unwrap();
 //       console.log("User API Result:", userResult);
-      
+
 //       // Extract plan data from the correct path
 //       if (userResult?.user?.currentPaymentId?.addOns?.length > 0) {
 //         const plan = userResult.user.currentPaymentId;
 //         console.log("Plan data found:", plan);
-        
+
 //         setPlanData({
 //           description: plan.description,
 //           duration: plan.duration,
@@ -2022,19 +2022,19 @@
 //   // Initial load - runs when component mounts or userData._id changes
 //   useEffect(() => {
 //     console.log("useEffect triggered, userData:", userData);
-    
+
 //     if (userData?._id) {
 //       fetchAllData();
 //     } else {
 //       // Check localStorage for user data
 //       const storedUser = localStorage.getItem('user');
 //       console.log("Stored user from localStorage:", storedUser);
-      
+
 //       if (storedUser) {
 //         try {
 //           const parsedUser = JSON.parse(storedUser);
 //           console.log("Parsed user:", parsedUser);
-          
+
 //           if (parsedUser?._id) {
 //             // Dispatch to update Redux state
 //             dispatch({ type: 'user/setUserInfo', payload: parsedUser });
@@ -2349,7 +2349,7 @@
 // const CurrentPlanSkeleton = () => {
 //   const theme = useTheme();
 //   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
 //   return (
 //     <Paper
 //       elevation={0}
@@ -3093,27 +3093,27 @@
 //       setIsLoading(false);
 //       return;
 //     }
-    
+
 //     try {
 //       // Only set loading to true on initial load
 //       if (isInitialLoad) {
 //         setIsLoading(true);
 //       }
-      
+
 //       console.log("Fetching data for user:", userData._id);
-      
+
 //       // Store the start time only on initial load
 //       const startTime = isInitialLoad ? Date.now() : null;
-      
+
 //       // Fetch user data first
 //       const userResult = await dispatch(getUserById(userData._id)).unwrap();
 //       console.log("User API Result:", userResult);
-      
+
 //       // Extract plan data from the correct path
 //       if (userResult?.user?.currentPaymentId?.addOns?.length > 0) {
 //         const plan = userResult.user.currentPaymentId;
 //         console.log("Plan data found:", plan);
-        
+
 //         setPlanData({
 //           description: plan.description,
 //           duration: plan.duration,
@@ -3151,18 +3151,18 @@
 //       }
 
 //       setLastUpdated(new Date());
-      
+
 //       // Only apply the 1-second minimum delay on initial load
 //       if (isInitialLoad && startTime) {
 //         const fetchDuration = Date.now() - startTime;
 //         const minLoadTime = 1000; // 1 second minimum
-        
+
 //         // If fetch took less than 1 second, wait the remaining time
 //         if (fetchDuration < minLoadTime) {
 //           await new Promise(resolve => setTimeout(resolve, minLoadTime - fetchDuration));
 //         }
 //       }
-      
+
 //     } catch (error) {
 //       console.error("Error fetching dashboard data:", error);
 //     } finally {
@@ -3176,19 +3176,19 @@
 //   useEffect(() => {
 //     if (!hasMounted.current) {
 //       hasMounted.current = true;
-      
+
 //       if (userData?._id) {
 //         fetchAllData(true); // Pass true for initial load
 //       } else {
 //         // Check localStorage for user data
 //         const storedUser = localStorage.getItem('user');
 //         console.log("Stored user from localStorage:", storedUser);
-        
+
 //         if (storedUser) {
 //           try {
 //             const parsedUser = JSON.parse(storedUser);
 //             console.log("Parsed user:", parsedUser);
-            
+
 //             if (parsedUser?._id) {
 //               // Dispatch to update Redux state
 //               dispatch({ type: 'user/setUserInfo', payload: parsedUser });
@@ -3512,7 +3512,7 @@ const StatsCardSkeleton = () => {
 const CurrentPlanSkeleton = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   return (
     <Paper
       elevation={0}
@@ -3526,14 +3526,14 @@ const CurrentPlanSkeleton = () => {
       }}
     >
       {/* Header Skeleton */}
-      <Box sx={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        mb: 2, 
-        pb: 2, 
-        borderBottom: "1px solid", 
-        borderColor: alpha("#2563EB", 0.1) 
+      <Box sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 2,
+        pb: 2,
+        borderBottom: "1px solid",
+        borderColor: alpha("#2563EB", 0.1)
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Skeleton variant="circular" width={8} height={8} sx={{ bgcolor: "#2563EB" }} />
@@ -3667,9 +3667,9 @@ const StatsCards = ({ stats, loading }) => {
     <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5, lg: 3 }} sx={{ mb: { xs: 3, sm: 4 } }}>
       {stats.map((stat, index) => (
         <Grid item xs={12} sm={6} md={3} key={stat.key || index}>
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <Paper
@@ -3703,16 +3703,16 @@ const StatsCards = ({ stats, loading }) => {
                 },
                 "&:hover": stat.onClick
                   ? {
-                      transform: !isMobile ? "translateY(-4px) scale(1.02)" : "none",
-                      boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(stat.iconColor, 0.3)}` : "none",
-                      borderColor: stat.iconColor,
-                      "& .stat-icon": {
-                        transform: !isMobile ? "scale(1.1) rotate(5deg)" : "none",
-                      },
-                      "& .stat-value": {
-                        color: stat.iconColor,
-                      },
-                    }
+                    transform: !isMobile ? "translateY(-4px) scale(1.02)" : "none",
+                    boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(stat.iconColor, 0.3)}` : "none",
+                    borderColor: stat.iconColor,
+                    "& .stat-icon": {
+                      transform: !isMobile ? "scale(1.1) rotate(5deg)" : "none",
+                    },
+                    "& .stat-value": {
+                      color: stat.iconColor,
+                    },
+                  }
                   : {},
               }}
             >
@@ -3897,9 +3897,8 @@ const CurrentPlan = ({ planData, loading }) => {
           <Typography
             variant={isMobile ? "h6" : "h5"}
             fontWeight="700"
-            sx={{ color: '#1e293b' }}
             gutterBottom
-            sx={{ fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+            sx={{ fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' }, color: '#1e293b' }}
           >
             {planData.description || "No Plan"}
           </Typography>
@@ -4256,27 +4255,27 @@ const AdminDashboard = () => {
       setIsLoading(false);
       return;
     }
-    
+
     try {
       // Only set loading to true on initial load
       if (isInitialLoad) {
         setIsLoading(true);
       }
-      
+
       console.log("Fetching data for user:", userData._id);
-      
+
       // Store the start time only on initial load
       const startTime = isInitialLoad ? Date.now() : null;
-      
+
       // Fetch user data first
       const userResult = await dispatch(getUserById(userData._id)).unwrap();
       console.log("User API Result:", userResult);
-      
+
       // Extract plan data from the correct path
       if (userResult?.user?.currentPaymentId?.addOns?.length > 0) {
         const plan = userResult.user.currentPaymentId;
         console.log("Plan data found:", plan);
-        
+
         setPlanData({
           description: plan.description,
           duration: plan.duration,
@@ -4314,18 +4313,18 @@ const AdminDashboard = () => {
       }
 
       setLastUpdated(new Date());
-      
+
       // Only apply the 1-second minimum delay on initial load
       if (isInitialLoad && startTime) {
         const fetchDuration = Date.now() - startTime;
         const minLoadTime = 1000; // 1 second minimum
-        
+
         // If fetch took less than 1 second, wait the remaining time
         if (fetchDuration < minLoadTime) {
           await new Promise(resolve => setTimeout(resolve, minLoadTime - fetchDuration));
         }
       }
-      
+
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -4339,19 +4338,19 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
-      
+
       if (userData?._id) {
         fetchAllData(true); // Pass true for initial load
       } else {
         // Check localStorage for user data
         const storedUser = localStorage.getItem('user');
         console.log("Stored user from localStorage:", storedUser);
-        
+
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser);
             console.log("Parsed user:", parsedUser);
-            
+
             if (parsedUser?._id) {
               // Dispatch to update Redux state
               dispatch({ type: 'user/setUserInfo', payload: parsedUser });
