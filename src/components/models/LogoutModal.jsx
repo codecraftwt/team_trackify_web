@@ -366,9 +366,10 @@ const LogoutModal = ({ show, onHide, onConfirm, title = "Confirm Logout", messag
                     color: "#ef4444",
                     border: "3px solid",
                     borderColor: alpha("#ef4444", 0.3),
+                    
                   }}
                 >
-                  <LogoutIcon sx={{ fontSize: 40 }} />
+                  <LogoutIcon sx={{ fontSize: 40, }} />
                 </Avatar>
               </Box>
             </motion.div>

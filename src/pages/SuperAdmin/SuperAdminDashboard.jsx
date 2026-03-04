@@ -476,6 +476,670 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
+// import {
+//   Box,
+//   Grid,
+//   Paper,
+//   Typography,
+//   Avatar,
+//   Chip,
+//   IconButton,
+//   Container,
+//   alpha,
+//   useTheme,
+//   useMediaQuery,
+// } from "@mui/material";
+// import {
+//   Refresh as RefreshIcon,
+// } from "@mui/icons-material";
+// import { motion } from "framer-motion";
+// import {
+//   FaUsers,
+//   FaUserCheck,
+//   FaUserTimes,
+//   FaUserShield,
+//   FaChartLine,
+//   FaRupeeSign,
+//   FaCalendarAlt,
+//   FaArrowUp,
+// } from "react-icons/fa";
+// import { getUserCounts } from "../../redux/slices/userSlice";
+// import { getUsersWithExpiringPlans } from "../../redux/slices/planSlice";
+// import { getRevenueSummary } from "../../redux/slices/paymentSlice";
+// import ExpiringPlansTable from "../../components/ExpiringPlansTable";
+
+// const SuperAdminDashboard = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const theme = useTheme();
+  
+//   // Responsive breakpoints
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+//   const isSmallMobile = useMediaQuery('(max-width:400px)');
+
+//   const [lastUpdated, setLastUpdated] = useState(new Date());
+//   const [isRefreshing, setIsRefreshing] = useState(false);
+
+//   // Safe Redux state access
+//   const userCounts = useSelector((state) => state.user?.userCounts || {});
+//   const expiringUsers = useSelector((state) => state.plan?.expiringUsers || []);
+//   const { revenueSummary } = useSelector(
+//     (state) => state.payment || {}
+//   );
+
+//   useEffect(() => {
+//     refreshData();
+//   }, [dispatch]);
+
+//   const refreshData = async () => {
+//     setIsRefreshing(true);
+//     setLastUpdated(new Date());
+
+//     await Promise.all([
+//       dispatch(getUserCounts()),
+//       dispatch(getUsersWithExpiringPlans()),
+//       dispatch(getRevenueSummary()),
+//     ]);
+
+//     setIsRefreshing(false);
+//   };
+
+//   // User Stats with responsive icons
+//   const userStats = [
+//     {
+//       key: "activeAdmins",
+//       label: "Active Admins",
+//       count: userCounts?.activeAdmins || 0,
+//       icon: <FaUserShield />,
+//       bgColor: alpha("#3B82F6", 0.1),
+//       iconColor: "#3B82F6",
+//     },
+//     {
+//       key: "inactiveAdmins",
+//       label: "Inactive Admins",
+//       count: userCounts?.inactiveAdmins || 0,
+//       icon: <FaUserTimes />,
+//       bgColor: alpha("#6B7280", 0.1),
+//       iconColor: "#6B7280",
+//     },
+//     {
+//       key: "allActiveUsers",
+//       label: "All Active Users",
+//       count: userCounts?.allActiveUsers || 0,
+//       icon: <FaUserCheck />,
+//       bgColor: alpha("#22C55E", 0.1),
+//       iconColor: "#22C55E",
+//     },
+//     {
+//       key: "allInactiveUsers",
+//       label: "All Inactive Users",
+//       count: userCounts?.allInactiveUsers || 0,
+//       icon: <FaUsers />,
+//       bgColor: alpha("#F59E0B", 0.1),
+//       iconColor: "#F59E0B",
+//     },
+//   ];
+
+//   // Stats Cards Component - Constant Height
+//   const StatsCards = () => {
+//     const itemVariants = {
+//       hidden: { opacity: 0, y: 20 },
+//       visible: {
+//         opacity: 1,
+//         y: 0,
+//         transition: { duration: 0.5 },
+//       },
+//     };
+
+//     // Get grid columns based on screen size
+//     const getGridColumns = () => {
+//       if (isSmallMobile) return 12; // 1 card
+//       if (isMobile) return 12; // 1 card
+//       if (isTablet) return 6; // 2 cards
+//       return 3; // 4 cards
+//     };
+
+//     return (
+//       <Grid 
+//         container 
+//         spacing={isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3} 
+//         sx={{ mb: isMobile ? 3 : 4 }}
+//       >
+//         {userStats.map((stat, index) => (
+//           <Grid item xs={getGridColumns()} key={stat.key || index}>
+//             <motion.div
+//               variants={itemVariants}
+//               initial="hidden"
+//               animate="visible"
+//               transition={{ delay: index * 0.1 }}
+//             >
+//               <Paper
+//                 elevation={0}
+//                 sx={{
+//                   p: isSmallMobile ? 2 : isMobile ? 2.5 : isTablet ? 2.5 : 3,
+//                   borderRadius: isSmallMobile ? 2 : isMobile ? 3 : 4,
+//                   background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
+//                   border: "1px solid",
+//                   borderColor: alpha(stat.iconColor, 0.2),
+//                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+//                   position: "relative",
+//                   overflow: "hidden",
+//                   height: '100%', // Constant height
+//                   minHeight: isSmallMobile ? 120 : isMobile ? 140 : isTablet ? 150 : 160,
+//                   display: 'flex',
+//                   flexDirection: 'column',
+//                   justifyContent: 'center',
+//                   "&::before": {
+//                     content: '""',
+//                     position: "absolute",
+//                     top: 0,
+//                     left: 0,
+//                     right: 0,
+//                     height: "100%",
+//                     background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
+//                     zIndex: 0,
+//                   },
+//                   "&:hover": {
+//                     transform: !isMobile ? "translateY(-4px) scale(1.02)" : "none",
+//                     boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(stat.iconColor, 0.3)}` : "none",
+//                     borderColor: stat.iconColor,
+//                   },
+//                 }}
+//               >
+//                 <Box sx={{ position: "relative", zIndex: 1 }}>
+//                   <Box sx={{ 
+//                     display: "flex", 
+//                     alignItems: "center", 
+//                     justifyContent: "space-between",
+//                     flexDirection: isSmallMobile ? "column" : "row",
+//                     textAlign: isSmallMobile ? "center" : "left",
+//                     gap: isSmallMobile ? 1 : 0,
+//                   }}>
+//                     <Box>
+//                       <Typography
+//                         variant={isSmallMobile ? "h5" : isMobile ? "h4" : isTablet ? "h3" : "h3"}
+//                         fontWeight="700"
+//                         sx={{
+//                           mb: 0.5,
+//                           color: '#1e293b',
+//                           fontSize: isSmallMobile ? '1.8rem' : isMobile ? '2rem' : isTablet ? '2.2rem' : '2.5rem',
+//                           lineHeight: 1.2,
+//                         }}
+//                       >
+//                         {stat.count}
+//                       </Typography>
+//                       <Typography 
+//                         variant="body2" 
+//                         color="text.secondary" 
+//                         sx={{ 
+//                           fontWeight: 500,
+//                           fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
+//                         }}
+//                       >
+//                         {stat.label}
+//                       </Typography>
+//                     </Box>
+//                     <Avatar
+//                       sx={{
+//                         bgcolor: alpha(stat.iconColor, 0.1),
+//                         color: stat.iconColor,
+//                         width: isSmallMobile ? 45 : isMobile ? 50 : isTablet ? 55 : 60,
+//                         height: isSmallMobile ? 45 : isMobile ? 50 : isTablet ? 55 : 60,
+//                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+//                         boxShadow: `0 10px 20px -5px ${alpha(stat.iconColor, 0.2)}`,
+//                         '& svg': {
+//                           fontSize: isSmallMobile ? '1.2rem' : isMobile ? '1.3rem' : isTablet ? '1.4rem' : '1.5rem',
+//                         },
+//                       }}
+//                     >
+//                       {stat.icon}
+//                     </Avatar>
+//                   </Box>
+//                 </Box>
+//                 <Box
+//                   sx={{
+//                     position: "absolute",
+//                     bottom: 0,
+//                     left: 0,
+//                     width: "100%",
+//                     height: 4,
+//                     background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
+//                     opacity: 0.8,
+//                   }}
+//                 />
+//               </Paper>
+//             </motion.div>
+//           </Grid>
+//         ))}
+//       </Grid>
+//     );
+//   };
+
+//   // Revenue Card Component - Constant Height
+//   const RevenueCard = () => {
+//     return (
+//       <Paper
+//         elevation={0}
+//         sx={{
+//           p: isSmallMobile ? 2 : isMobile ? 2.5 : isTablet ? 2.5 : 3,
+//           borderRadius: isSmallMobile ? 2 : isMobile ? 3 : 4,
+//           background: "linear-gradient(135deg, #334155, #1e293b)",
+//           color: "white",
+//           position: "relative",
+//           overflow: "hidden",
+//           height: '100%',
+//           minHeight: isSmallMobile ? 200 : isMobile ? 220 : isTablet ? 240 : 250,
+//           display: 'flex',
+//           flexDirection: 'column',
+//           justifyContent: 'space-between',
+//           "&::before": {
+//             content: '""',
+//             position: "absolute",
+//             top: 0,
+//             right: 0,
+//             width: isSmallMobile ? "120px" : isMobile ? "150px" : isTablet ? "180px" : "200px",
+//             height: isSmallMobile ? "120px" : isMobile ? "150px" : isTablet ? "180px" : "200px",
+//             background: `radial-gradient(circle, ${alpha("#0f766e", 0.2)} 0%, transparent 70%)`,
+//             borderRadius: "50%",
+//             transform: "translate(50%, -50%)",
+//           },
+//         }}
+//       >
+//         {/* Header Section */}
+//         <Box sx={{ 
+//           display: "flex", 
+//           flexDirection: (isMobile || isTablet) ? "column" : "row",
+//           justifyContent: "space-between", 
+//           alignItems: (isMobile || isTablet) ? "flex-start" : "center", 
+//           mb: (isMobile || isTablet) ? 2 : 4,
+//           gap: (isMobile || isTablet) ? 1 : 0,
+//         }}>
+//           <Box>
+//             <Typography 
+//               variant="subtitle2" 
+//               sx={{ 
+//                 color: alpha("#ffffff", 0.7), 
+//                 mb: 1,
+//                 fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.875rem',
+//               }}
+//             >
+//               Total Revenue
+//             </Typography>
+//             <Typography 
+//               variant={isSmallMobile ? "h5" : isMobile ? "h4" : isTablet ? "h3" : "h3"} 
+//               fontWeight="700"
+//               sx={{ 
+//                 fontSize: isSmallMobile ? '1.5rem' : isMobile ? '1.8rem' : isTablet ? '2rem' : '2.5rem',
+//                 lineHeight: 1.2,
+//               }}
+//             >
+//               {revenueSummary?.totalRevenue > 0
+//                 ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
+//                 : "₹0"}
+//             </Typography>
+//           </Box>
+//           <Box sx={{ textAlign: (isMobile || isTablet) ? "left" : "right" }}>
+//             <Chip
+//               label={`+${revenueSummary?.growthPercentage > 0
+//                 ? revenueSummary?.growthPercentage.toLocaleString()
+//                 : "0"}%`}
+//               size="small"
+//               icon={<FaArrowUp size={isSmallMobile ? 10 : 10} />}
+//               sx={{
+//                 bgcolor: alpha("#22c55e", 0.2),
+//                 color: "#22c55e",
+//                 fontWeight: 600,
+//                 fontSize: isSmallMobile ? '0.65rem' : isMobile ? '0.7rem' : isTablet ? '0.75rem' : '0.75rem',
+//                 mb: 1,
+//                 height: isSmallMobile ? 22 : isMobile ? 24 : isTablet ? 24 : 24,
+//               }}
+//             />
+//             <Typography 
+//               variant="caption" 
+//               sx={{ 
+//                 color: alpha("#ffffff", 0.7), 
+//                 display: "block",
+//                 fontSize: isSmallMobile ? '0.6rem' : isMobile ? '0.65rem' : isTablet ? '0.7rem' : '0.7rem',
+//               }}
+//             >
+//               This Month
+//             </Typography>
+//           </Box>
+//         </Box>
+
+//         {/* Monthly Summary Section */}
+//         <Grid container spacing={isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 1.5 : 2}>
+//           <Grid item xs={6}>
+//             <Box
+//               sx={{
+//                 p: isSmallMobile ? 1.5 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+//                 borderRadius: isSmallMobile ? 2 : isMobile ? 2 : isTablet ? 2.5 : 3,
+//                 background: alpha("#ffffff", 0.08),
+//                 backdropFilter: "blur(4px)",
+//                 height: '100%',
+//                 minHeight: isSmallMobile ? 70 : isMobile ? 80 : isTablet ? 85 : 90,
+//               }}
+//             >
+//               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
+//                 <Box>
+//                   <Typography 
+//                     variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+//                     fontWeight="700" 
+//                     sx={{ 
+//                       mb: 0.5,
+//                       fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem',
+//                     }}
+//                   >
+//                     {revenueSummary?.currentMonthRevenue > 0
+//                       ? `₹${revenueSummary?.currentMonthRevenue.toLocaleString()}`
+//                       : "₹0"}
+//                   </Typography>
+//                   <Typography 
+//                     variant="caption" 
+//                     sx={{ 
+//                       color: alpha("#ffffff", 0.7),
+//                       fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+//                     }}
+//                   >
+//                     This Month
+//                   </Typography>
+//                 </Box>
+//                 <FaCalendarAlt size={isSmallMobile ? 16 : isMobile ? 18 : isTablet ? 18 : 20} style={{ opacity: 0.5 }} />
+//               </Box>
+//             </Box>
+//           </Grid>
+//           <Grid item xs={6}>
+//             <Box
+//               sx={{
+//                 p: isSmallMobile ? 1.5 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+//                 borderRadius: isSmallMobile ? 2 : isMobile ? 2 : isTablet ? 2.5 : 3,
+//                 background: alpha("#ffffff", 0.08),
+//                 backdropFilter: "blur(4px)",
+//                 height: '100%',
+//                 minHeight: isSmallMobile ? 70 : isMobile ? 80 : isTablet ? 85 : 90,
+//               }}
+//             >
+//               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
+//                 <Box>
+//                   <Typography 
+//                     variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+//                     fontWeight="700" 
+//                     sx={{ 
+//                       mb: 0.5,
+//                       fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem',
+//                     }}
+//                   >
+//                     {revenueSummary?.lastMonthRevenue > 0
+//                       ? `₹${revenueSummary?.lastMonthRevenue.toLocaleString()}`
+//                       : "₹0"}
+//                   </Typography>
+//                   <Typography 
+//                     variant="caption" 
+//                     sx={{ 
+//                       color: alpha("#ffffff", 0.7),
+//                       fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+//                     }}
+//                   >
+//                     Last Month
+//                   </Typography>
+//                 </Box>
+//                 <FaCalendarAlt size={isSmallMobile ? 16 : isMobile ? 18 : isTablet ? 18 : 20} style={{ opacity: 0.5 }} />
+//               </Box>
+//             </Box>
+//           </Grid>
+//         </Grid>
+//       </Paper>
+//     );
+//   };
+
+//   const containerVariants = {
+//     hidden: { opacity: 0 },
+//     visible: {
+//       opacity: 1,
+//       transition: {
+//         staggerChildren: 0.1,
+//       },
+//     },
+//   };
+
+//   const itemVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: {
+//       opacity: 1,
+//       y: 0,
+//       transition: { duration: 0.5 },
+//     },
+//   };
+
+//   const cardVariants = {
+//     hidden: { opacity: 0, scale: 0.9 },
+//     visible: {
+//       opacity: 1,
+//       scale: 1,
+//       transition: { duration: 0.5 },
+//     },
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         minHeight: "100vh",
+//         background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+//         width: "100%",
+//         overflowX: "hidden",
+//         position: "relative",
+//         py: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
+//         px: { xs: 0, sm: 0, md: 0 },
+//       }}
+//     >
+//       {/* Show refresh loader overlay when refreshing */}
+//       {isRefreshing && (
+//         <Box
+//           sx={{
+//             position: "fixed",
+//             top: 0,
+//             left: 0,
+//             right: 0,
+//             bottom: 0,
+//             bgcolor: "rgba(255, 255, 255, 0.8)",
+//             backdropFilter: "blur(5px)",
+//             zIndex: 999,
+//             display: "flex",
+//             alignItems: "center",
+//             justifyContent: "center",
+//           }}
+//         >
+//           <Box sx={{ textAlign: 'center' }}>
+//             <RefreshIcon 
+//               sx={{ 
+//                 fontSize: 40, 
+//                 color: '#0f766e',
+//                 animation: 'spin 1s linear infinite',
+//                 mb: 2
+//               }} 
+//             />
+//             <Typography variant="body1" color="#0f766e" fontWeight={500}>
+//               Refreshing data...
+//             </Typography>
+//             <Typography variant="caption" color="text.secondary">
+//               Please wait while we update your dashboard
+//             </Typography>
+//           </Box>
+//         </Box>
+//       )}
+
+//       <Container 
+//         maxWidth="xl" 
+//         disableGutters={isMobile}
+//         sx={{
+//           px: isSmallMobile ? 0.5 : isMobile ? 1 : isTablet ? 1.5 : 2,
+//         }}
+//       >
+//         <motion.div
+//           variants={containerVariants}
+//           initial="hidden"
+//           animate="visible"
+//         >
+//           {/* Header Section */}
+//           <motion.div variants={itemVariants}>
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 mb: 2,
+//               }}
+//             >
+//               <Typography 
+//                 variant={isMobile ? "h5" : "h4"}
+//                 fontWeight="800"
+//                 color="#0f766e"
+//                 gutterBottom
+//                 sx={{
+//                   background: "linear-gradient(135deg, #0f766e, #14b8a6)",
+//                   WebkitBackgroundClip: "text",
+//                   WebkitTextFillColor: "transparent",
+//                   fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
+//                 }}
+//               >
+//                 Super Admin Dashboard
+//               </Typography>
+//               <IconButton onClick={refreshData} disabled={isRefreshing}>
+//                 <RefreshIcon sx={{ color: '#0f766e', animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+//               </IconButton>
+//             </Box>
+//           </motion.div>
+
+//           {/* Tracking Overview Section */}
+//           <motion.section 
+//             variants={itemVariants} 
+//             style={{ 
+//               marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+//             }}
+//           >
+//             <Box sx={{ 
+//               display: "flex", 
+//               justifyContent: "space-between", 
+//               alignItems: "center", 
+//               mb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3, 
+//               flexWrap: "wrap", 
+//               gap: 1,
+//               px: isSmallMobile ? 0.5 : 0,
+//             }}>
+//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//                 <FaChartLine style={{ 
+//                   color: "#0f766e", 
+//                   fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20 
+//                 }} />
+//                 <Typography 
+//                   variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+//                   fontWeight="600" 
+//                   color="#1e293b"
+//                   sx={{ 
+//                     fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem' 
+//                   }}
+//                 >
+//                   Tracking Overview
+//                 </Typography>
+//               </Box>
+
+//               <Chip
+//                 label="Live Analytics"
+//                 size="small"
+//                 icon={<FaChartLine size={isSmallMobile ? 8 : isMobile ? 10 : isTablet ? 12 : 14} />}
+//                 sx={{
+//                   bgcolor: alpha("#22c55e", 0.1),
+//                   color: "#22c55e",
+//                   fontWeight: 600,
+//                   fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.85rem',
+//                   height: isSmallMobile ? 20 : isMobile ? 22 : isTablet ? 24 : 28,
+//                 }}
+//               />
+//             </Box>
+
+//             <StatsCards />
+//           </motion.section>
+
+//           {/* Expiring Plans Section */}
+//           <motion.section 
+//             variants={itemVariants} 
+//             style={{ 
+//               marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+//             }}
+//           >
+//             <ExpiringPlansTable data={expiringUsers} />
+//           </motion.section>
+
+//           {/* Revenue Overview Section */}
+//           <motion.section 
+//             variants={itemVariants} 
+//             style={{ 
+//               marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+//             }}
+//           >
+//             <Box sx={{ 
+//               display: "flex", 
+//               alignItems: "center", 
+//               gap: 1, 
+//               mb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3,
+//               px: isSmallMobile ? 0.5 : 0,
+//             }}>
+//               <FaRupeeSign style={{ 
+//                 color: "#0f766e", 
+//                 fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20 
+//               }} />
+//               <Typography 
+//                 variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+//                 fontWeight="600" 
+//                 color="#1e293b"
+//                 sx={{ 
+//                   fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem' 
+//                 }}
+//               >
+//                 Revenue Overview
+//               </Typography>
+//             </Box>
+
+//             <motion.div variants={cardVariants}>
+//               <RevenueCard />
+//             </motion.div>
+//           </motion.section>
+//         </motion.div>
+//       </Container>
+
+//       {/* CSS for animations */}
+//       <style>
+//         {`
+//           @keyframes spin {
+//             0% { transform: rotate(0deg); }
+//             100% { transform: rotate(360deg); }
+//           }
+//         `}
+//       </style>
+//     </Box>
+//   );
+// };
+
+// export default SuperAdminDashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Skalaton Loader
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -491,6 +1155,7 @@ import {
   alpha,
   useTheme,
   useMediaQuery,
+  Skeleton,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -511,6 +1176,270 @@ import { getUsersWithExpiringPlans } from "../../redux/slices/planSlice";
 import { getRevenueSummary } from "../../redux/slices/paymentSlice";
 import ExpiringPlansTable from "../../components/ExpiringPlansTable";
 
+// Stats Card Skeleton Component
+const StatsCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
+  // Get grid columns based on screen size
+  const getGridColumns = () => {
+    if (isSmallMobile) return 12;
+    if (isMobile) return 12;
+    if (isTablet) return 6;
+    return 3;
+  };
+
+  return (
+    <Grid item xs={getGridColumns()}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: isSmallMobile ? 2 : isMobile ? 2.5 : isTablet ? 2.5 : 3,
+          borderRadius: isSmallMobile ? 2 : isMobile ? 3 : 4,
+          background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
+          border: "1px solid",
+          borderColor: alpha("#e2e8f0", 0.2),
+          height: '100%',
+          minHeight: isSmallMobile ? 120 : isMobile ? 140 : isTablet ? 150 : 160,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ position: "relative", zIndex: 1 }}>
+          <Box sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            flexDirection: isSmallMobile ? "column" : "row",
+            textAlign: isSmallMobile ? "center" : "left",
+            gap: isSmallMobile ? 1 : 0,
+          }}>
+            <Box>
+              <Skeleton 
+                variant="text" 
+                width={isSmallMobile ? 60 : isMobile ? 70 : isTablet ? 80 : 100} 
+                height={isSmallMobile ? 32 : isMobile ? 36 : isTablet ? 40 : 48} 
+                sx={{ mb: 0.5 }} 
+              />
+              <Skeleton 
+                variant="text" 
+                width={isSmallMobile ? 80 : isMobile ? 100 : isTablet ? 120 : 140} 
+                height={isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18} 
+              />
+            </Box>
+            <Skeleton 
+              variant="circular" 
+              width={isSmallMobile ? 45 : isMobile ? 50 : isTablet ? 55 : 60} 
+              height={isSmallMobile ? 45 : isMobile ? 50 : isTablet ? 55 : 60} 
+            />
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            height: 4,
+            background: alpha("#e2e8f0", 0.3),
+          }}
+        />
+      </Paper>
+    </Grid>
+  );
+};
+
+// Revenue Card Skeleton Component
+const RevenueCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: isSmallMobile ? 2 : isMobile ? 2.5 : isTablet ? 2.5 : 3,
+        borderRadius: isSmallMobile ? 2 : isMobile ? 3 : 4,
+        background: "linear-gradient(135deg, #334155, #1e293b)",
+        color: "white",
+        position: "relative",
+        overflow: "hidden",
+        height: '100%',
+        minHeight: isSmallMobile ? 200 : isMobile ? 220 : isTablet ? 240 : 250,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      {/* Header Section Skeleton */}
+      <Box sx={{ 
+        display: "flex", 
+        flexDirection: (isMobile || isTablet) ? "column" : "row",
+        justifyContent: "space-between", 
+        alignItems: (isMobile || isTablet) ? "flex-start" : "center", 
+        mb: (isMobile || isTablet) ? 2 : 4,
+        gap: (isMobile || isTablet) ? 1 : 0,
+      }}>
+        <Box>
+          <Skeleton 
+            variant="text" 
+            width={100} 
+            height={isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18} 
+            sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 1 }} 
+          />
+          <Skeleton 
+            variant="text" 
+            width={isSmallMobile ? 120 : isMobile ? 150 : isTablet ? 180 : 200} 
+            height={isSmallMobile ? 24 : isMobile ? 28 : isTablet ? 32 : 40} 
+            sx={{ bgcolor: alpha("#ffffff", 0.2) }} 
+          />
+        </Box>
+        <Box sx={{ textAlign: (isMobile || isTablet) ? "left" : "right" }}>
+          <Skeleton 
+            variant="rounded" 
+            width={80} 
+            height={24} 
+            sx={{ 
+              bgcolor: alpha("#ffffff", 0.2), 
+              borderRadius: 3,
+              mb: 1 
+            }} 
+          />
+          <Skeleton 
+            variant="text" 
+            width={60} 
+            height={isSmallMobile ? 10 : isMobile ? 12 : isTablet ? 14 : 16} 
+            sx={{ bgcolor: alpha("#ffffff", 0.2) }} 
+          />
+        </Box>
+      </Box>
+
+      {/* Monthly Summary Section Skeleton */}
+      <Grid container spacing={isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 1.5 : 2}>
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              p: isSmallMobile ? 1.5 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+              borderRadius: isSmallMobile ? 2 : isMobile ? 2 : isTablet ? 2.5 : 3,
+              background: alpha("#ffffff", 0.08),
+              height: '100%',
+              minHeight: isSmallMobile ? 70 : isMobile ? 80 : isTablet ? 85 : 90,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
+              <Box>
+                <Skeleton 
+                  variant="text" 
+                  width={isSmallMobile ? 60 : isMobile ? 70 : isTablet ? 80 : 100} 
+                  height={isSmallMobile ? 16 : isMobile ? 18 : isTablet ? 20 : 24} 
+                  sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 0.5 }} 
+                />
+                <Skeleton 
+                  variant="text" 
+                  width={isSmallMobile ? 40 : isMobile ? 50 : isTablet ? 60 : 70} 
+                  height={isSmallMobile ? 8 : isMobile ? 10 : isTablet ? 12 : 14} 
+                  sx={{ bgcolor: alpha("#ffffff", 0.2) }} 
+                />
+              </Box>
+              <Skeleton variant="circular" width={20} height={20} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              p: isSmallMobile ? 1.5 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+              borderRadius: isSmallMobile ? 2 : isMobile ? 2 : isTablet ? 2.5 : 3,
+              background: alpha("#ffffff", 0.08),
+              height: '100%',
+              minHeight: isSmallMobile ? 70 : isMobile ? 80 : isTablet ? 85 : 90,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
+              <Box>
+                <Skeleton 
+                  variant="text" 
+                  width={isSmallMobile ? 60 : isMobile ? 70 : isTablet ? 80 : 100} 
+                  height={isSmallMobile ? 16 : isMobile ? 18 : isTablet ? 20 : 24} 
+                  sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 0.5 }} 
+                />
+                <Skeleton 
+                  variant="text" 
+                  width={isSmallMobile ? 40 : isMobile ? 50 : isTablet ? 60 : 70} 
+                  height={isSmallMobile ? 8 : isMobile ? 10 : isTablet ? 12 : 14} 
+                  sx={{ bgcolor: alpha("#ffffff", 0.2) }} 
+                />
+              </Box>
+              <Skeleton variant="circular" width={20} height={20} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+};
+
+// Expiring Plans Table Skeleton
+const ExpiringPlansTableSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3,
+        borderRadius: isSmallMobile ? 2 : isMobile ? 3 : isTablet ? 3 : 4,
+        border: "1px solid",
+        borderColor: alpha("#e2e8f0", 0.5),
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        mb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3,
+        pb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3,
+        borderBottom: "1px solid",
+        borderColor: alpha("#e2e8f0", 0.5),
+      }}>
+        <Box>
+          <Skeleton variant="text" width={150} height={isSmallMobile ? 20 : isMobile ? 22 : isTablet ? 24 : 28} sx={{ mb: 0.5 }} />
+          <Skeleton variant="text" width={200} height={isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18} />
+        </Box>
+        <Skeleton variant="rounded" width={100} height={isSmallMobile ? 28 : isMobile ? 32 : isTablet ? 36 : 40} sx={{ borderRadius: 2 }} />
+      </Box>
+
+      {/* Table Header Skeleton */}
+      <Box sx={{ 
+        display: "flex", 
+        bgcolor: alpha("#0f766e", 0.05), 
+        p: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+        borderRadius: 1,
+        mb: 1
+      }}>
+        <Skeleton variant="text" width={60} height={20} sx={{ mr: 2 }} />
+        <Skeleton variant="text" width={120} height={20} sx={{ mr: 2 }} />
+        <Skeleton variant="text" width={100} height={20} sx={{ mr: 2 }} />
+        <Skeleton variant="text" width={80} height={20} sx={{ mr: 2 }} />
+        <Skeleton variant="text" width={80} height={20} />
+      </Box>
+
+      {/* Table Rows Skeleton */}
+      {[1, 2, 3].map((item, index) => (
+        <Box key={item} sx={{ 
+          display: "flex", 
+          p: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+          borderBottom: index < 2 ? "1px solid" : "none",
+          borderColor: alpha("#e2e8f0", 0.5),
+          bgcolor: index % 2 === 0 ? "transparent" : alpha("#f8fafc", 0.5),
+        }}>
+          <Skeleton variant="text" width={60} height={20} sx={{ mr: 2 }} />
+          <Skeleton variant="text" width={120} height={20} sx={{ mr: 2 }} />
+          <Skeleton variant="text" width={100} height={20} sx={{ mr: 2 }} />
+          <Skeleton variant="text" width={80} height={20} sx={{ mr: 2 }} />
+          <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 3 }} />
+        </Box>
+      ))}
+    </Paper>
+  );
+};
+
 const SuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -521,8 +1450,10 @@ const SuperAdminDashboard = () => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isSmallMobile = useMediaQuery('(max-width:400px)');
 
+  // New state for first render loading effect (1 second)
+  const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
+
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Safe Redux state access
   const userCounts = useSelector((state) => state.user?.userCounts || {});
@@ -532,20 +1463,23 @@ const SuperAdminDashboard = () => {
   );
 
   useEffect(() => {
-    refreshData();
+    dispatch(getUserCounts());
+    dispatch(getUsersWithExpiringPlans());
+    dispatch(getRevenueSummary());
+    
+    // Set first render loader to false after 1 second
+    const timer = setTimeout(() => {
+      setShowFirstRenderLoader(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, [dispatch]);
 
-  const refreshData = async () => {
-    setIsRefreshing(true);
+  const refreshData = () => {
     setLastUpdated(new Date());
-
-    await Promise.all([
-      dispatch(getUserCounts()),
-      dispatch(getUsersWithExpiringPlans()),
-      dispatch(getRevenueSummary()),
-    ]);
-
-    setIsRefreshing(false);
+    dispatch(getUserCounts());
+    dispatch(getUsersWithExpiringPlans());
+    dispatch(getRevenueSummary());
   };
 
   // User Stats with responsive icons
@@ -584,7 +1518,7 @@ const SuperAdminDashboard = () => {
     },
   ];
 
-  // Stats Cards Component - Constant Height
+  // Stats Cards Component
   const StatsCards = () => {
     const itemVariants = {
       hidden: { opacity: 0, y: 20 },
@@ -597,10 +1531,10 @@ const SuperAdminDashboard = () => {
 
     // Get grid columns based on screen size
     const getGridColumns = () => {
-      if (isSmallMobile) return 12; // 1 card
-      if (isMobile) return 12; // 1 card
-      if (isTablet) return 6; // 2 cards
-      return 3; // 4 cards
+      if (isSmallMobile) return 12;
+      if (isMobile) return 12;
+      if (isTablet) return 6;
+      return 3;
     };
 
     return (
@@ -628,7 +1562,7 @@ const SuperAdminDashboard = () => {
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   position: "relative",
                   overflow: "hidden",
-                  height: '100%', // Constant height
+                  height: '100%',
                   minHeight: isSmallMobile ? 120 : isMobile ? 140 : isTablet ? 150 : 160,
                   display: 'flex',
                   flexDirection: 'column',
@@ -719,7 +1653,7 @@ const SuperAdminDashboard = () => {
     );
   };
 
-  // Revenue Card Component - Constant Height
+  // Revenue Card Component
   const RevenueCard = () => {
     return (
       <Paper
@@ -924,6 +1858,162 @@ const SuperAdminDashboard = () => {
     },
   };
 
+  // If first render loader is active, show skeletons for everything except title and refresh button
+  if (showFirstRenderLoader) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+          width: "100%",
+          overflowX: "hidden",
+          position: "relative",
+          py: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
+          px: { xs: 0, sm: 0, md: 0 },
+        }}
+      >
+        <Container 
+          maxWidth="xl" 
+          disableGutters={isMobile}
+          sx={{
+            px: isSmallMobile ? 0.5 : isMobile ? 1 : isTablet ? 1.5 : 2,
+          }}
+        >
+          {/* Header Section with Title and Refresh Button */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography 
+              variant={isMobile ? "h5" : "h4"}
+              fontWeight="800"
+              color="#0f766e"
+              gutterBottom
+              sx={{
+                background: "linear-gradient(135deg, #0f766e, #14b8a6)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
+              }}
+            >
+              Super Admin Dashboard
+            </Typography>
+            <IconButton>
+              <RefreshIcon sx={{ color: '#0f766e' }} />
+            </IconButton>
+          </Box>
+
+          {/* Tracking Overview Section Skeleton */}
+          <Box sx={{ 
+            marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+          }}>
+            <Box sx={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              mb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3, 
+              flexWrap: "wrap", 
+              gap: 1,
+              px: isSmallMobile ? 0.5 : 0,
+            }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <FaChartLine style={{ 
+                  color: "#0f766e", 
+                  fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20 
+                }} />
+                <Typography 
+                  variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+                  fontWeight="600" 
+                  color="#1e293b"
+                  sx={{ 
+                    fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem' 
+                  }}
+                >
+                  Tracking Overview
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Stats Cards Skeleton */}
+            <Grid 
+              container 
+              spacing={isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3} 
+              sx={{ mb: isMobile ? 3 : 4 }}
+            >
+              {[1, 2, 3, 4].map((item) => (
+                <StatsCardSkeleton 
+                  key={item} 
+                  isSmallMobile={isSmallMobile} 
+                  isMobile={isMobile} 
+                  isTablet={isTablet} 
+                />
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Expiring Plans Section Skeleton */}
+          <Box sx={{ 
+            marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+          }}>
+            <ExpiringPlansTableSkeleton 
+              isSmallMobile={isSmallMobile} 
+              isMobile={isMobile} 
+              isTablet={isTablet} 
+            />
+          </Box>
+
+          {/* Revenue Overview Section Skeleton */}
+          <Box sx={{ 
+            marginBottom: isSmallMobile ? "20px" : isMobile ? "25px" : isTablet ? "30px" : "40px" 
+          }}>
+            <Box sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 1, 
+              mb: isSmallMobile ? 1.5 : isMobile ? 2 : isTablet ? 2.5 : 3,
+              px: isSmallMobile ? 0.5 : 0,
+            }}>
+              <FaRupeeSign style={{ 
+                color: "#0f766e", 
+                fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20 
+              }} />
+              <Typography 
+                variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h6" : "h5"} 
+                fontWeight="600" 
+                color="#1e293b"
+                sx={{ 
+                  fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.5rem' 
+                }}
+              >
+                Revenue Overview
+              </Typography>
+            </Box>
+
+            <RevenueCardSkeleton 
+              isSmallMobile={isSmallMobile} 
+              isMobile={isMobile} 
+              isTablet={isTablet} 
+            />
+          </Box>
+        </Container>
+
+        {/* CSS for animations */}
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -933,45 +2023,9 @@ const SuperAdminDashboard = () => {
         overflowX: "hidden",
         position: "relative",
         py: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
-        px: { xs: 0.5, sm: 1, md: 2 },
+        px: { xs: 0, sm: 0, md: 0 },
       }}
     >
-      {/* Show refresh loader overlay when refreshing */}
-      {isRefreshing && (
-        <Box
-          sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            bgcolor: "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(5px)",
-            zIndex: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box sx={{ textAlign: 'center' }}>
-            <RefreshIcon 
-              sx={{ 
-                fontSize: 40, 
-                color: '#0f766e',
-                animation: 'spin 1s linear infinite',
-                mb: 2
-              }} 
-            />
-            <Typography variant="body1" color="#0f766e" fontWeight={500}>
-              Refreshing data...
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Please wait while we update your dashboard
-            </Typography>
-          </Box>
-        </Box>
-      )}
-
       <Container 
         maxWidth="xl" 
         disableGutters={isMobile}
@@ -995,15 +2049,21 @@ const SuperAdminDashboard = () => {
               }}
             >
               <Typography 
-                variant="h5" 
-                fontWeight="700" 
+                variant={isMobile ? "h5" : "h4"}
+                fontWeight="800"
                 color="#0f766e"
-                sx={{ fontSize: isSmallMobile ? '1.2rem' : isMobile ? '1.3rem' : isTablet ? '1.4rem' : '1.5rem' }}
+                gutterBottom
+                sx={{
+                  background: "linear-gradient(135deg, #0f766e, #14b8a6)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
+                }}
               >
                 Super Admin Dashboard
               </Typography>
-              <IconButton onClick={refreshData} disabled={isRefreshing}>
-                <RefreshIcon sx={{ color: '#0f766e', animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+              <IconButton onClick={refreshData}>
+                <RefreshIcon sx={{ color: '#0f766e' }} />
               </IconButton>
             </Box>
           </motion.div>
@@ -1119,3 +2179,4 @@ const SuperAdminDashboard = () => {
 };
 
 export default SuperAdminDashboard;
+
