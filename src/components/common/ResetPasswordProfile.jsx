@@ -490,7 +490,7 @@ const ResetPasswordProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-  
+
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -681,15 +681,15 @@ const ResetPasswordProfile = () => {
         px: { xs: 1, sm: 2, md: 0 },
       }}
     >
-      <Container 
-        maxWidth="sm" 
+      <Container
+        maxWidth="sm"
         disableGutters={isMobile}
-        sx={{ 
-          px: { 
-            xs: isLandscape ? 1 : 2, 
-            sm: 3, 
-            md: 0 
-          } 
+        sx={{
+          px: {
+            xs: isLandscape ? 1 : 2,
+            sm: 3,
+            md: 0
+          }
         }}
       >
         <motion.div
@@ -700,10 +700,10 @@ const ResetPasswordProfile = () => {
           <Paper
             elevation={0}
             sx={{
-              p: { 
-                xs: isLandscape ? 2 : 2.5, 
-                sm: 3, 
-                md: 4 
+              p: {
+                xs: isLandscape ? 2 : 2.5,
+                sm: 3,
+                md: 4
               },
               borderRadius: { xs: 2.5, sm: 3, md: 4 },
               border: "1px solid",
@@ -726,27 +726,27 @@ const ResetPasswordProfile = () => {
                 >
                   <KeyIcon sx={{ fontSize: { xs: 30, sm: 35 } }} />
                 </Avatar>
-                <Typography 
-                  variant={isMobile ? "h5" : "h4"} 
-                  fontWeight={700} 
-                  sx={{ 
+                <Typography
+                  variant={isMobile ? "h5" : "h4"}
+                  fontWeight={700}
+                  sx={{
                     color: "#2563EB",
                     background: "linear-gradient(135deg, #2563EB, #1E40AF)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    fontSize: { 
-                      xs: isLandscape ? '1.25rem' : '1.5rem', 
-                      sm: '2rem', 
-                      md: '2.25rem' 
+                    fontSize: {
+                      xs: isLandscape ? '1.25rem' : '1.5rem',
+                      sm: '2rem',
+                      md: '2.25rem'
                     },
                   }}
                 >
                   Reset Password
                 </Typography>
-                <Typography 
-                  variant="body2" 
-                  color="text.secondary" 
-                  sx={{ 
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
                     mt: 1,
                     fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.9rem' }
                   }}
@@ -763,10 +763,10 @@ const ResetPasswordProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Alert 
-                  severity="success" 
-                  sx={{ 
-                    mb: { xs: 2, sm: 3 }, 
+                <Alert
+                  severity="success"
+                  sx={{
+                    mb: { xs: 2, sm: 3 },
                     borderRadius: 2,
                     border: "1px solid",
                     borderColor: alpha("#22c55e", 0.2),
@@ -785,10 +785,10 @@ const ResetPasswordProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Alert 
-                  severity="error" 
-                  sx={{ 
-                    mb: { xs: 2, sm: 3 }, 
+                <Alert
+                  severity="error"
+                  sx={{
+                    mb: { xs: 2, sm: 3 },
                     borderRadius: 2,
                     border: "1px solid",
                     borderColor: alpha("#ef4444", 0.2),
@@ -804,7 +804,7 @@ const ResetPasswordProfile = () => {
             <form onSubmit={handleSubmit}>
               <motion.div variants={itemVariants}>
                 {/* Old Password */}
-                <TextField
+                {/* <TextField
                   fullWidth
                   type={showPassword.old ? "text" : "password"}
                   label="Old Password"
@@ -848,12 +848,57 @@ const ResetPasswordProfile = () => {
                       fontSize: { xs: '0.8rem', sm: '0.9rem' },
                     },
                   }}
+                /> */}
+                <TextField
+                  fullWidth
+                  type={showPassword.old ? "text" : "password"}
+                  label="Old Password"
+                  value={form.oldPassword}
+                  onChange={handleChange("oldPassword")}
+                  onBlur={handleBlur("oldPassword")}
+                  error={touched.oldPassword && !!errors.oldPassword}
+                  helperText={touched.oldPassword && errors.oldPassword}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    mb: { xs: 1.5, sm: 2 },
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover fieldset": {
+                        borderColor: "#2563EB",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: "#2563EB", fontSize: isMobile ? 18 : 20 }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => toggleVisibility("old")}
+                          edge="end"
+                          sx={{ color: "#2563EB" }}
+                          size={isMobile ? "small" : "medium"}
+                        >
+                          {showPassword.old ? <VisibilityOffIcon fontSize={isMobile ? "small" : "medium"} /> : <VisibilityIcon fontSize={isMobile ? "small" : "medium"} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </motion.div>
 
               <motion.div variants={itemVariants}>
                 {/* New Password */}
-                <TextField
+                {/* <TextField
                   fullWidth
                   type={showPassword.new ? "text" : "password"}
                   label="New Password"
@@ -897,12 +942,57 @@ const ResetPasswordProfile = () => {
                       fontSize: { xs: '0.8rem', sm: '0.9rem' },
                     },
                   }}
+                /> */}
+                <TextField
+                  fullWidth
+                  type={showPassword.new ? "text" : "password"}
+                  label="New Password"
+                  value={form.newPassword}
+                  onChange={handleChange("newPassword")}
+                  onBlur={handleBlur("newPassword")}
+                  error={touched.newPassword && !!errors.newPassword}
+                  helperText={touched.newPassword && errors.newPassword}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    mb: { xs: 1.5, sm: 2 },
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover fieldset": {
+                        borderColor: "#2563EB",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: "#2563EB", fontSize: isMobile ? 18 : 20 }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => toggleVisibility("new")}
+                          edge="end"
+                          sx={{ color: "#2563EB" }}
+                          size={isMobile ? "small" : "medium"}
+                        >
+                          {showPassword.new ? <VisibilityOffIcon fontSize={isMobile ? "small" : "medium"} /> : <VisibilityIcon fontSize={isMobile ? "small" : "medium"} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </motion.div>
 
               <motion.div variants={itemVariants}>
                 {/* Confirm Password */}
-                <TextField
+                {/* <TextField
                   fullWidth
                   type={showPassword.confirm ? "text" : "password"}
                   label="Confirm New Password"
@@ -945,6 +1035,52 @@ const ResetPasswordProfile = () => {
                     "& .MuiInputBase-input": {
                       fontSize: { xs: '0.8rem', sm: '0.9rem' },
                     },
+                  }}
+                /> */}
+
+                <TextField
+                  fullWidth
+                  type={showPassword.confirm ? "text" : "password"}
+                  label="Confirm New Password"
+                  value={form.confirmPassword}
+                  onChange={handleChange("confirmPassword")}
+                  onBlur={handleBlur("confirmPassword")}
+                  error={touched.confirmPassword && !!errors.confirmPassword}
+                  helperText={touched.confirmPassword && errors.confirmPassword}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    mb: { xs: 2, sm: 3 },
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover fieldset": {
+                        borderColor: "#2563EB",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: "#2563EB", fontSize: isMobile ? 18 : 20 }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => toggleVisibility("confirm")}
+                          edge="end"
+                          sx={{ color: "#2563EB" }}
+                          size={isMobile ? "small" : "medium"}
+                        >
+                          {showPassword.confirm ? <VisibilityOffIcon fontSize={isMobile ? "small" : "medium"} /> : <VisibilityIcon fontSize={isMobile ? "small" : "medium"} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
                   }}
                 />
               </motion.div>
@@ -1016,5 +1152,3 @@ const ResetPasswordProfile = () => {
 };
 
 export default ResetPasswordProfile;
-
-
