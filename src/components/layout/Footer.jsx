@@ -244,7 +244,7 @@ const Footer = () => {
                     aria-label={social.label}
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors"
+                    className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
                   >
                     {social.icon}
                   </motion.a>
@@ -259,14 +259,15 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex flex-col items-center text-center w-full sm:max-w-[180px] md:max-w-[200px] mx-auto px-2"
           >
-            <h3 className="text-white font-semibold mb-4">Product</h3>
-            <ul className="space-y-2">
+            <h6 className="text-white font-semibold mb-2 text-base sm:text-lg">Product</h6>
+            <ul className="space-y-2 sm:space-y-3 w-full">
               {footerLinks.product.map((link) => (
-                <li key={link.path}>
+                <li key={link.path} className="w-full">
                   <Link
                     to={link.path}
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block py-1 px-2"
                   >
                     {link.label}
                   </Link>
@@ -281,14 +282,15 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col items-center text-center w-full sm:max-w-[180px] md:max-w-[200px] mx-auto px-2"
           >
-            <h3 className="text-white font-semibold mb-4">Company</h3>
-            <ul className="space-y-2">
+            <h6 className="text-white font-semibold mb-2 text-base sm:text-lg">Company</h6>
+            <ul className="space-y-2 sm:space-y-3 w-full">
               {footerLinks.company.map((link) => (
-                <li key={link.path}>
+                <li key={link.path} className="w-full">
                   <Link
                     to={link.path}
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block py-1 px-2"
                   >
                     {link.label}
                   </Link>
@@ -303,14 +305,15 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex flex-col items-center text-center w-full sm:max-w-[180px] md:max-w-[200px] mx-auto px-2"
           >
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
+            <h6 className="text-white font-semibold mb-2 text-base sm:text-lg">Legal</h6>
+            <ul className="space-y-2 sm:space-y-3 w-full">
               {footerLinks.legal.map((link) => (
-                <li key={link.path}>
+                <li key={link.path} className="w-full">
                   <Link
                     to={link.path}
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block py-1 px-2"
                   >
                     {link.label}
                   </Link>
