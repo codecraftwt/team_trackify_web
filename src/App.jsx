@@ -43,6 +43,7 @@ import TrackingData from './pages/TrackingData.jsx';
 import Locations from './pages/Locations.jsx';
 import ListUsers from './pages/SuperAdmin/Listusers.jsx';
 import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
+import ExpiringPlansPage from './pages/SuperAdmin/Expiringplanspage.jsx';
 
 // Settings page (shared)
 
@@ -120,14 +121,15 @@ function App() {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/user" element={<UserManagement />} />
                 <Route path="/admin/payments-plans" element={<PaymentsPlan />} />
-                <Route path="/admin/reports" element={<Reports />} />
                 <Route path="/admin/transactionhistory" element={<TransactionHistory />} />
+                <Route path="/admin/reports" element={<Reports />} />
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
-                <Route path="/reset-password-ptofile" element={<ResetPasswordProfile />} />
+                <Route path="/reset-password-profile" element={<ResetPasswordProfile />} />
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
                 <Route path="/admin/live-locations" element={<ActiveUserLocations />} />
+                
 
 
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}
@@ -139,6 +141,8 @@ function App() {
                 <Route path="/super-admin/plans" element={<PlanManagement />} />
                 <Route path="/super-admin/contacts" element={<ContactList />} />
                 <Route path="/list-users/:adminId" element={<ListUsers />} />
+                <Route path="/admin/expiringplanspage" element={<ExpiringPlansPage />} />
+
                 {/* <Route path="/super-admin/profile" element={<SuperAdminProfile />} /> */}
               </Route>
             </Route>

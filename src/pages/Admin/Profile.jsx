@@ -1,867 +1,4 @@
-// import React, { useState, useEffect } from "react";
-// import {
-//   Box,
-//   Container,
-//   Paper,
-//   Typography,
-//   Avatar,
-//   Button,
-//   Chip,
-//   Divider,
-//   Stack,
-//   alpha,
-//   CardContent,
-//   IconButton,
-//   Tooltip,
-//   TextField,
-//   Grid,
-//   InputAdornment,
-//   CircularProgress,
-//   Alert,
-//   useTheme,
-//   useMediaQuery,
-// } from "@mui/material";
-// import {
-//   Edit as EditIcon,
-//   Email as EmailIcon,
-//   Phone as PhoneIcon,
-//   LocationOn as LocationIcon,
-//   Logout as LogoutIcon,
-//   LockReset as ResetPasswordIcon,
-//   Person as PersonIcon,
-//   AdminPanelSettings as AdminIcon,
-//   VerifiedUser as SuperAdminIcon,
-//   CameraAlt as CameraIcon,
-//   Close as CloseIcon,
-//   Save as SaveIcon,
-//   Cancel as CancelIcon,
-// } from "@mui/icons-material";
-// import { motion } from "framer-motion";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import { logout } from "../../redux/slices/authSlice";
-// import { updateUser, getUserById } from "../../redux/slices/userSlice";
-// import LogoutModal from "../../components/models/LogoutModal";
-// import { toast } from "react-toastify";
-
-// const Profile = () => {
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch();
-//   const theme = useTheme();
-  
-//   // Responsive breakpoints
-//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-//   const isSmallMobile = useMediaQuery('(max-width:480px)');
-
-//   const userData = useSelector((state) => state.user?.userInfo || {});
-//   const { role_id } = useSelector((state) => state.auth || {});
-//   const { loading } = useSelector((state) => state.user || {});
-  
-//   const [showLogoutModal, setShowLogoutModal] = useState(false);
-//   const [isEditing, setIsEditing] = useState(false);
-  
-//   // Form state
-//   const [formData, setFormData] = useState({
-//     fullName: "",
-//     email: "",
-//     mobile: "",
-//     address: "",
-//     avtar: null,
-//   });
-
-//   const [previewImage, setPreviewImage] = useState(null);
-//   const [imageRemoved, setImageRemoved] = useState(false);
-//   const [errors, setErrors] = useState({});
-//   const [touched, setTouched] = useState({});
-
-//   // Initialize form with user data
-//   useEffect(() => {
-//     if (userData?._id) {
-//       setFormData({
-//         fullName: userData.name || "",
-//         email: userData.email || "",
-//         mobile: userData.mobile_no || "",
-//         address: userData.address || "",
-//         avtar: null,
-//       });
-      
-//       if (userData.avtar) {
-//         setPreviewImage(userData.avtar);
-//       }
-//     }
-//   }, [userData]);
-
-//   const validateField = (name, value) => {
-//     let error = "";
-
-//     switch (name) {
-//       case "fullName":
-//         if (!value?.trim()) error = "Full name is required";
-//         else if (value.length < 3) error = "Name must be at least 3 characters";
-//         break;
-//       case "email":
-//         if (!value?.trim()) error = "Email is required";
-//         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-//           error = "Invalid email format";
-//         break;
-//       case "mobile":
-//         if (!value?.trim()) error = "Mobile number is required";
-//         else if (!/^\d{10}$/.test(value))
-//           error = "Invalid mobile number (10 digits required)";
-//         break;
-//       case "address":
-//         if (!value?.trim()) error = "Address is required";
-//         break;
-//       default:
-//         break;
-//     }
-
-//     return error;
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-
-//     if (touched[name]) {
-//       const error = validateField(name, value);
-//       setErrors({ ...errors, [name]: error });
-//     }
-//   };
-
-//   const handleBlur = (e) => {
-//     const { name, value } = e.target;
-//     setTouched({ ...touched, [name]: true });
-//     const error = validateField(name, value);
-//     setErrors({ ...errors, [name]: error });
-//   };
-
-//   const handleImageChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       if (file.size > 5 * 1024 * 1024) {
-//         toast.error("File size should be less than 5MB");
-//         return;
-//       }
-//       setFormData({ ...formData, avtar: file });
-//       setPreviewImage(URL.createObjectURL(file));
-//       setImageRemoved(false);
-//     }
-//   };
-
-//   const removeImage = () => {
-//     setFormData({ ...formData, avtar: null });
-//     setPreviewImage(null);
-//     setImageRemoved(true);
-//   };
-
-//   const validateForm = () => {
-//     const newErrors = {
-//       fullName: validateField("fullName", formData.fullName),
-//       email: validateField("email", formData.email),
-//       mobile: validateField("mobile", formData.mobile),
-//       address: validateField("address", formData.address),
-//     };
-
-//     setErrors(newErrors);
-//     return !Object.values(newErrors).some((error) => error);
-//   };
-
-//   const handleSave = async () => {
-//     if (!validateForm()) return;
-
-//     const payload = new FormData();
-//     payload.append("name", formData.fullName);
-//     payload.append("email", formData.email);
-//     payload.append("mobile_no", formData.mobile);
-//     payload.append("address", formData.address);
-//     payload.append("role_id", userData.role_id);
-//     payload.append("createdby", userData.createdby);
-//     payload.append("isActive", userData.isActive);
-
-//     if (formData.avtar) {
-//       payload.append("avtar", formData.avtar);
-//     }
-
-//     if (imageRemoved) {
-//       payload.append("removeAvtar", "true");
-//     }
-
-//     try {
-//       await dispatch(
-//         updateUser({ userId: userData._id, formData: payload })
-//       ).unwrap();
-      
-//       // Refresh user data
-//       await dispatch(getUserById(userData._id));
-      
-//       toast.success("Profile updated successfully!");
-//       setIsEditing(false);
-//       setImageRemoved(false);
-//     } catch (error) {
-//       toast.error(error?.message || "Failed to update profile");
-//     }
-//   };
-
-//   const handleCancel = () => {
-//     // Reset form to original user data
-//     setFormData({
-//       fullName: userData.name || "",
-//       email: userData.email || "",
-//       mobile: userData.mobile_no || "",
-//       address: userData.address || "",
-//       avtar: null,
-//     });
-//     setPreviewImage(userData.avtar || null);
-//     setImageRemoved(false);
-//     setErrors({});
-//     setTouched({});
-//     setIsEditing(false);
-//   };
-
-//   const handleLogout = () => {
-//     dispatch(logout());
-//     navigate("/login");
-//   };
-
-//   const handleResetPassword = () => {
-//     if (role_id === 2) {
-//       navigate("/reset-password-ptofile");
-//     } else {
-//       navigate("/reset-password-ptofile");
-//     }
-//   };
-
-//   const getRoleIcon = () => {
-//     switch (userData?.role_id || role_id) {
-//       case 2:
-//         return <SuperAdminIcon sx={{ color: "#f59e0b", fontSize: isMobile ? 20 : 24 }} />;
-//       case 1:
-//         return <AdminIcon sx={{ color: "#0f766e", fontSize: isMobile ? 20 : 24 }} />;
-//       default:
-//         return <PersonIcon sx={{ color: "#64748b", fontSize: isMobile ? 20 : 24 }} />;
-//     }
-//   };
-
-//   const getRoleName = () => {
-//     switch (userData?.role_id || role_id) {
-//       case 2:
-//         return "Super Admin";
-//       case 1:
-//         return "Admin";
-//       default:
-//         return "User";
-//     }
-//   };
-
-//   const getRoleColor = () => {
-//     switch (userData?.role_id || role_id) {
-//       case 2:
-//         return "#f59e0b";
-//       case 1:
-//         return "#0f766e";
-//       default:
-//         return "#64748b";
-//     }
-//   };
-
-//   const containerVariants = {
-//     hidden: { opacity: 0, y: 20 },
-//     visible: {
-//       opacity: 1,
-//       y: 0,
-//       transition: {
-//         duration: 0.5,
-//         staggerChildren: 0.1,
-//       },
-//     },
-//   };
-
-//   const itemVariants = {
-//     hidden: { opacity: 0, y: 20 },
-//     visible: {
-//       opacity: 1,
-//       y: 0,
-//       transition: { duration: 0.5 },
-//     },
-//   };
-
-//   return (
-//     <Box
-//       sx={{
-//         minHeight: "100vh",
-//         bgcolor: "#f8fafc",
-//         backgroundImage:
-//           "radial-gradient(circle at 10% 20%, rgba(15, 118, 110, 0.05) 0%, rgba(15, 118, 110, 0.02) 90%)",
-//         py: { xs: 2, sm: 3, md: 4 },
-//         px: { xs: 1, sm: 2, md: 0 },
-//       }}
-//     >
-//       <Container 
-//         maxWidth="md" 
-//         disableGutters={isMobile}
-//         sx={{ px: { xs: 2, sm: 3, md: 0 } }}
-//       >
-//         <motion.div
-//           initial={{ opacity: 0, y: 20 }}
-//           animate={{ opacity: 1, y: 0 }}
-//           transition={{ duration: 0.5 }}
-//         >
-//           {/* Profile Header Card */}
-//           <Paper
-//             elevation={0}
-//             sx={{
-//               borderRadius: { xs: 3, sm: 3.5, md: 4 },
-//               overflow: "hidden",
-//               border: "1px solid",
-//               borderColor: alpha("#e2e8f0", 0.5),
-//               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
-//               mb: { xs: 2, sm: 2.5, md: 3 },
-//               background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-//             }}
-//           >
-//             <Box
-//               sx={{
-//                 p: { xs: 2, sm: 3, md: 4 },
-//                 display: "flex",
-//                 flexDirection: { xs: "column", sm: "row" },
-//                 alignItems: "center",
-//                 gap: { xs: 2, sm: 2.5, md: 3 },
-//               }}
-//             >
-//               {/* Avatar Section */}
-//               <Box sx={{ position: "relative" }}>
-//                 {previewImage ? (
-//                   <Avatar
-//                     src={previewImage}
-//                     sx={{
-//                       width: { xs: 80, sm: 100, md: 120 },
-//                       height: { xs: 80, sm: 100, md: 120 },
-//                       border: "4px solid white",
-//                       boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-//                     }}
-//                   />
-//                 ) : (
-//                   <Avatar
-//                     sx={{
-//                       width: { xs: 80, sm: 100, md: 120 },
-//                       height: { xs: 80, sm: 100, md: 120 },
-//                       bgcolor: alpha("#0f766e", 0.1),
-//                       color: "#0f766e",
-//                       border: "4px solid white",
-//                       boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-//                     }}
-//                   >
-//                     <PersonIcon sx={{ fontSize: { xs: 40, sm: 50, md: 60 } }} />
-//                   </Avatar>
-//                 )}
-                
-//                 {!isEditing && (
-//                   <Tooltip title="Edit Profile">
-//                     <IconButton
-//                       size="small"
-//                       onClick={() => setIsEditing(true)}
-//                       sx={{
-//                         position: "absolute",
-//                         bottom: 0,
-//                         right: 0,
-//                         bgcolor: "#0f766e",
-//                         color: "white",
-//                         width: { xs: 28, sm: 32, md: 36 },
-//                         height: { xs: 28, sm: 32, md: 36 },
-//                         "&:hover": {
-//                           bgcolor: "#0a5c55",
-//                         },
-//                       }}
-//                     >
-//                       <EditIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
-//                     </IconButton>
-//                   </Tooltip>
-//                 )}
-
-//                 {isEditing && (
-//                   <Tooltip title="Change Photo">
-//                     <IconButton
-//                       size="small"
-//                       component="label"
-//                       sx={{
-//                         position: "absolute",
-//                         bottom: 0,
-//                         right: 0,
-//                         bgcolor: "#0f766e",
-//                         color: "white",
-//                         width: { xs: 28, sm: 32, md: 36 },
-//                         height: { xs: 28, sm: 32, md: 36 },
-//                         "&:hover": {
-//                           bgcolor: "#0a5c55",
-//                         },
-//                       }}
-//                     >
-//                       <CameraIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
-//                       <input
-//                         type="file"
-//                         hidden
-//                         accept="image/*"
-//                         onChange={handleImageChange}
-//                       />
-//                     </IconButton>
-//                   </Tooltip>
-//                 )}
-//               </Box>
-
-//               {/* User Info */}
-//               <Box sx={{ 
-//                 textAlign: { xs: "center", sm: "left" }, 
-//                 flex: 1,
-//                 width: { xs: '100%', sm: 'auto' }
-//               }}>
-//                 <Typography 
-//                   variant={isMobile ? "h5" : "h4"} 
-//                   fontWeight={700} 
-//                   color="#1e293b" 
-//                   gutterBottom
-//                   sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' } }}
-//                 >
-//                   {userData?.name || "User Name"}
-//                 </Typography>
-                
-//                 <Box sx={{ 
-//                   display: "flex", 
-//                   alignItems: "center", 
-//                   gap: 1, 
-//                   justifyContent: { xs: "center", sm: "flex-start" }, 
-//                   mb: { xs: 1, sm: 2 },
-//                   flexWrap: 'wrap',
-//                 }}>
-//                   {getRoleIcon()}
-//                   <Chip
-//                     label={getRoleName()}
-//                     size="small"
-//                     sx={{
-//                       bgcolor: alpha(getRoleColor(), 0.1),
-//                       color: getRoleColor(),
-//                       fontWeight: 600,
-//                       fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
-//                       height: { xs: 22, sm: 24, md: 26 },
-//                     }}
-//                   />
-//                 </Box>
-
-//                 {userData?.createdAt && (
-//                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' } }}>
-//                     Member since {new Date(userData.createdAt).toLocaleDateString()}
-//                   </Typography>
-//                 )}
-//               </Box>
-//             </Box>
-//           </Paper>
-
-//           {/* Profile Details Card */}
-//           <Paper
-//             elevation={0}
-//             sx={{
-//               borderRadius: { xs: 3, sm: 3.5, md: 4 },
-//               overflow: "hidden",
-//               border: "1px solid",
-//               borderColor: alpha("#e2e8f0", 0.5),
-//               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
-//               background: "#ffffff",
-//             }}
-//           >
-//             <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-//               <Typography
-//                 variant="subtitle1"
-//                 fontWeight={600}
-//                 color="#0f766e"
-//                 sx={{
-//                   textTransform: "uppercase",
-//                   letterSpacing: 1,
-//                   mb: { xs: 2, sm: 2.5, md: 3 },
-//                   fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
-//                 }}
-//               >
-//                 Personal Information
-//               </Typography>
-
-//               {isEditing ? (
-//                 // Edit Mode
-//                 <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
-//                   <Grid item xs={12}>
-//                     <TextField
-//                       fullWidth
-//                       name="fullName"
-//                       label="Full Name"
-//                       value={formData.fullName}
-//                       onChange={handleChange}
-//                       onBlur={handleBlur}
-//                       error={!!errors.fullName && touched.fullName}
-//                       helperText={touched.fullName && errors.fullName}
-//                       size={isSmallMobile ? "small" : "small"}
-//                       InputProps={{
-//                         startAdornment: (
-//                           <InputAdornment position="start">
-//                             <PersonIcon sx={{ color: "#0f766e", fontSize: { xs: 18, sm: 20 } }} />
-//                           </InputAdornment>
-//                         ),
-//                       }}
-//                       sx={{
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                         "& .MuiInputBase-input": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                       }}
-//                     />
-//                   </Grid>
-
-//                   <Grid item xs={12}>
-//                     <TextField
-//                       fullWidth
-//                       name="email"
-//                       label="Email Address"
-//                       type="email"
-//                       value={formData.email}
-//                       onChange={handleChange}
-//                       onBlur={handleBlur}
-//                       error={!!errors.email && touched.email}
-//                       helperText={touched.email && errors.email}
-//                       size={isSmallMobile ? "small" : "small"}
-//                       InputProps={{
-//                         startAdornment: (
-//                           <InputAdornment position="start">
-//                             <EmailIcon sx={{ color: "#0f766e", fontSize: { xs: 18, sm: 20 } }} />
-//                           </InputAdornment>
-//                         ),
-//                       }}
-//                       sx={{
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                         "& .MuiInputBase-input": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                       }}
-//                     />
-//                   </Grid>
-
-//                   <Grid item xs={12}>
-//                     <TextField
-//                       fullWidth
-//                       name="mobile"
-//                       label="Mobile Number"
-//                       value={formData.mobile}
-//                       onChange={handleChange}
-//                       onBlur={handleBlur}
-//                       error={!!errors.mobile && touched.mobile}
-//                       helperText={touched.mobile && errors.mobile}
-//                       size={isSmallMobile ? "small" : "small"}
-//                       InputProps={{
-//                         startAdornment: (
-//                           <InputAdornment position="start">
-//                             <PhoneIcon sx={{ color: "#0f766e", fontSize: { xs: 18, sm: 20 } }} />
-//                           </InputAdornment>
-//                         ),
-//                       }}
-//                       sx={{
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                         "& .MuiInputBase-input": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                       }}
-//                     />
-//                   </Grid>
-
-//                   <Grid item xs={12}>
-//                     <TextField
-//                       fullWidth
-//                       name="address"
-//                       label="Address"
-//                       value={formData.address}
-//                       onChange={handleChange}
-//                       onBlur={handleBlur}
-//                       error={!!errors.address && touched.address}
-//                       helperText={touched.address && errors.address}
-//                       size={isSmallMobile ? "small" : "small"}
-//                       InputProps={{
-//                         startAdornment: (
-//                           <InputAdornment position="start">
-//                             <LocationIcon sx={{ color: "#0f766e", fontSize: { xs: 18, sm: 20 } }} />
-//                           </InputAdornment>
-//                         ),
-//                       }}
-//                       sx={{
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                         "& .MuiInputBase-input": {
-//                           fontSize: { xs: '0.8rem', sm: '0.9rem' },
-//                         },
-//                       }}
-//                     />
-//                   </Grid>
-
-//                   {/* Action Buttons */}
-//                   <Grid item xs={12}>
-//                     <Box sx={{ 
-//                       display: "flex", 
-//                       flexDirection: { xs: 'column', sm: 'row' },
-//                       gap: { xs: 1.5, sm: 2 }, 
-//                       mt: { xs: 1, sm: 2 } 
-//                     }}>
-//                       <Button
-//                         fullWidth
-//                         variant="contained"
-//                         startIcon={<SaveIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-//                         onClick={handleSave}
-//                         disabled={loading}
-//                         sx={{
-//                           py: { xs: 1, sm: 1.2, md: 1.5 },
-//                           borderRadius: { xs: 2, sm: 2.5, md: 3 },
-//                           bgcolor: "#0f766e",
-//                           fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                           order: { xs: 1, sm: 1 },
-//                           "&:hover": {
-//                             bgcolor: "#0a5c55",
-//                           },
-//                         }}
-//                       >
-//                         {loading ? (
-//                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                             <CircularProgress size={20} sx={{ color: "white" }} />
-//                             <span>Saving...</span>
-//                           </Box>
-//                         ) : (
-//                           "Save Changes"
-//                         )}
-//                       </Button>
-
-//                       <Button
-//                         fullWidth
-//                         variant="outlined"
-//                         startIcon={<CancelIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-//                         onClick={handleCancel}
-//                         disabled={loading}
-//                         sx={{
-//                           py: { xs: 1, sm: 1.2, md: 1.5 },
-//                           borderRadius: { xs: 2, sm: 2.5, md: 3 },
-//                           borderColor: "#e2e8f0",
-//                           color: "#64748b",
-//                           fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                           order: { xs: 2, sm: 2 },
-//                           "&:hover": {
-//                             borderColor: "#0f766e",
-//                             color: "#0f766e",
-//                             bgcolor: alpha("#0f766e", 0.1),
-//                           },
-//                         }}
-//                       >
-//                         Cancel
-//                       </Button>
-//                     </Box>
-//                   </Grid>
-//                 </Grid>
-//               ) : (
-//                 // View Mode
-//                 <>
-//                   <Stack spacing={{ xs: 2, sm: 2.5, md: 3 }}>
-//                     {/* Email */}
-//                     <Box sx={{ 
-//                       display: "flex", 
-//                       alignItems: "center", 
-//                       gap: { xs: 1.5, sm: 2 },
-//                       flexDirection: { xs: 'column', sm: 'row' },
-//                       textAlign: { xs: 'center', sm: 'left' }
-//                     }}>
-//                       <Avatar
-//                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
-//                           width: { xs: 40, sm: 44, md: 48 },
-//                           height: { xs: 40, sm: 44, md: 48 },
-//                         }}
-//                       >
-//                         <EmailIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
-//                       </Avatar>
-//                       <Box sx={{ flex: 1, width: '100%' }}>
-//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, letterSpacing: 0.5 }}>
-//                           Email Address
-//                         </Typography>
-//                         <Typography variant="body1" fontWeight={500} sx={{ 
-//                           color: "#1e293b",
-//                           fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                           wordBreak: 'break-all'
-//                         }}>
-//                           {userData?.email || "Not provided"}
-//                         </Typography>
-//                       </Box>
-//                     </Box>
-
-//                     <Divider sx={{ borderColor: alpha("#e2e8f0", 0.5) }} />
-
-//                     {/* Phone */}
-//                     <Box sx={{ 
-//                       display: "flex", 
-//                       alignItems: "center", 
-//                       gap: { xs: 1.5, sm: 2 },
-//                       flexDirection: { xs: 'column', sm: 'row' },
-//                       textAlign: { xs: 'center', sm: 'left' }
-//                     }}>
-//                       <Avatar
-//                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
-//                           width: { xs: 40, sm: 44, md: 48 },
-//                           height: { xs: 40, sm: 44, md: 48 },
-//                         }}
-//                       >
-//                         <PhoneIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
-//                       </Avatar>
-//                       <Box sx={{ flex: 1, width: '100%' }}>
-//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, letterSpacing: 0.5 }}>
-//                           Phone Number
-//                         </Typography>
-//                         <Typography variant="body1" fontWeight={500} sx={{ 
-//                           color: "#1e293b",
-//                           fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                           wordBreak: 'break-all'
-//                         }}>
-//                           {userData?.mobile_no || "Not provided"}
-//                         </Typography>
-//                       </Box>
-//                     </Box>
-
-//                     <Divider sx={{ borderColor: alpha("#e2e8f0", 0.5) }} />
-
-//                     {/* Address */}
-//                     <Box sx={{ 
-//                       display: "flex", 
-//                       alignItems: "center", 
-//                       gap: { xs: 1.5, sm: 2 },
-//                       flexDirection: { xs: 'column', sm: 'row' },
-//                       textAlign: { xs: 'center', sm: 'left' }
-//                     }}>
-//                       <Avatar
-//                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
-//                           width: { xs: 40, sm: 44, md: 48 },
-//                           height: { xs: 40, sm: 44, md: 48 },
-//                         }}
-//                       >
-//                         <LocationIcon sx={{ fontSize: { xs: 20, sm: 22, md: 24 } }} />
-//                       </Avatar>
-//                       <Box sx={{ flex: 1, width: '100%' }}>
-//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, letterSpacing: 0.5 }}>
-//                           Address
-//                         </Typography>
-//                         <Typography variant="body1" fontWeight={500} sx={{ 
-//                           color: "#1e293b",
-//                           fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                           wordBreak: 'break-word'
-//                         }}>
-//                           {userData?.address || "Not provided"}
-//                         </Typography>
-//                       </Box>
-//                     </Box>
-//                   </Stack>
-
-//                   <Divider sx={{ my: { xs: 3, sm: 3.5, md: 4 }, borderColor: alpha("#e2e8f0", 0.5) }} />
-
-//                   {/* Actions */}
-//                   <Stack spacing={{ xs: 1.5, sm: 2 }}>
-//                     <Button
-//                       fullWidth
-//                       variant="outlined"
-//                       startIcon={<ResetPasswordIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-//                       onClick={handleResetPassword}
-//                       sx={{
-//                         py: { xs: 1, sm: 1.2, md: 1.5 },
-//                         borderRadius: { xs: 2, sm: 2.5, md: 3 },
-//                         borderColor: "#0f766e",
-//                         color: "#0f766e",
-//                         fontWeight: 600,
-//                         fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                         "&:hover": {
-//                           borderColor: "#0a5c55",
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                         },
-//                       }}
-//                     >
-//                       Reset Password
-//                     </Button>
-
-//                     <Button
-//                       fullWidth
-//                       variant="contained"
-//                       startIcon={<LogoutIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-//                       onClick={() => setShowLogoutModal(true)}
-//                       sx={{
-//                         py: { xs: 1, sm: 1.2, md: 1.5 },
-//                         borderRadius: { xs: 2, sm: 2.5, md: 3 },
-//                         bgcolor: "#ef4444",
-//                         fontWeight: 600,
-//                         fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                         "&:hover": {
-//                           bgcolor: "#dc2626",
-//                         },
-//                       }}
-//                     >
-//                       Sign Out
-//                     </Button>
-//                   </Stack>
-//                 </>
-//               )}
-//             </CardContent>
-//           </Paper>
-
-//           {/* Edit Button (Mobile) - Only show in view mode */}
-//           {!isEditing && (
-//             <Box sx={{ display: { xs: "block", md: "none" }, mt: { xs: 2, sm: 2.5, md: 3 } }}>
-//               <Button
-//                 fullWidth
-//                 variant="outlined"
-//                 startIcon={<EditIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-//                 onClick={() => setIsEditing(true)}
-//                 sx={{
-//                   borderColor: "#0f766e",
-//                   color: "#0f766e",
-//                   borderRadius: { xs: 2, sm: 2.5, md: 3 },
-//                   py: { xs: 1, sm: 1.2, md: 1.5 },
-//                   fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-//                   "&:hover": {
-//                     borderColor: "#0a5c55",
-//                     bgcolor: alpha("#0f766e", 0.1),
-//                   },
-//                 }}
-//               >
-//                 Edit Profile
-//               </Button>
-//             </Box>
-//           )}
-//         </motion.div>
-//       </Container>
-
-//       {/* Logout Modal */}
-//       <LogoutModal
-//         show={showLogoutModal}
-//         onHide={() => setShowLogoutModal(false)}
-//         onConfirm={handleLogout}
-//         title="Sign Out"
-//         message="Are you sure you want to sign out?"
-//         subMessage="You will be redirected to the login page."
-//       />
-//     </Box>
-//   );
-// };
-
-// export default Profile;
-
-
-
+////////////////////////////// Change Color Theam/////////////////////////////////////
 
 // import React, { useState, useEffect } from "react";
 // import {
@@ -1092,9 +229,9 @@
 
 //   const handleResetPassword = () => {
 //     if (role_id === 2) {
-//       navigate("/reset-password-ptofile");
+//       navigate("/reset-password-profile");
 //     } else {
-//       navigate("/reset-password-ptofile");
+//       navigate("/reset-password-profile");
 //     }
 //   };
 
@@ -1103,7 +240,7 @@
 //       case 2:
 //         return <SuperAdminIcon sx={{ color: "#f59e0b", fontSize: isMobile ? 20 : 24 }} />;
 //       case 1:
-//         return <AdminIcon sx={{ color: "#0f766e", fontSize: isMobile ? 20 : 24 }} />;
+//         return <AdminIcon sx={{ color: "#2563EB", fontSize: isMobile ? 20 : 24 }} />;
 //       default:
 //         return <PersonIcon sx={{ color: "#64748b", fontSize: isMobile ? 20 : 24 }} />;
 //     }
@@ -1125,7 +262,7 @@
 //       case 2:
 //         return "#f59e0b";
 //       case 1:
-//         return "#0f766e";
+//         return "#2563EB";
 //       default:
 //         return "#64748b";
 //     }
@@ -1158,7 +295,7 @@
 //         minHeight: "100vh",
 //         bgcolor: "#f8fafc",
 //         backgroundImage:
-//           "radial-gradient(circle at 10% 20%, rgba(15, 118, 110, 0.05) 0%, rgba(15, 118, 110, 0.02) 90%)",
+//           "radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 90%)",
 //         py: { xs: 1, sm: 1.5, md: 2 },
 //         px: { xs: 1, sm: 2, md: 0 },
 //         display: "flex",
@@ -1182,8 +319,8 @@
 //               borderRadius: { xs: 3, sm: 3.5, md: 4 },
 //               overflow: "hidden",
 //               border: "1px solid",
-//               borderColor: alpha("#e2e8f0", 0.5),
-//               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
+//               borderColor: alpha("#2563EB", 0.1),
+//               boxShadow: `0 10px 30px -10px ${alpha("#2563EB", 0.2)}`,
 //               mb: { xs: 1.5, sm: 1, md: 1 },
 //               background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
 //             }}
@@ -1206,7 +343,7 @@
 //                       width: { xs: 70, sm: 80, md: 90 },
 //                       height: { xs: 70, sm: 80, md: 90 },
 //                       border: "4px solid white",
-//                       boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+//                       boxShadow: `0 4px 20px ${alpha("#2563EB", 0.2)}`,
 //                     }}
 //                   />
 //                 ) : (
@@ -1214,10 +351,10 @@
 //                     sx={{
 //                       width: { xs: 70, sm: 80, md: 90 },
 //                       height: { xs: 70, sm: 80, md: 90 },
-//                       bgcolor: alpha("#0f766e", 0.1),
-//                       color: "#0f766e",
+//                       bgcolor: alpha("#2563EB", 0.1),
+//                       color: "#2563EB",
 //                       border: "4px solid white",
-//                       boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+//                       boxShadow: `0 4px 20px ${alpha("#2563EB", 0.2)}`,
 //                     }}
 //                   >
 //                     <PersonIcon sx={{ fontSize: { xs: 35, sm: 40, md: 45 } }} />
@@ -1233,12 +370,12 @@
 //                         position: "absolute",
 //                         bottom: 0,
 //                         right: 0,
-//                         bgcolor: "#0f766e",
+//                         background: "linear-gradient(135deg, #2563EB, #1E40AF)",
 //                         color: "white",
 //                         width: { xs: 24, sm: 28, md: 32 },
 //                         height: { xs: 24, sm: 28, md: 32 },
 //                         "&:hover": {
-//                           bgcolor: "#0a5c55",
+//                           background: "linear-gradient(135deg, #1E40AF, #2563EB)",
 //                         },
 //                       }}
 //                     >
@@ -1256,12 +393,12 @@
 //                         position: "absolute",
 //                         bottom: 0,
 //                         right: 0,
-//                         bgcolor: "#0f766e",
+//                         background: "linear-gradient(135deg, #2563EB, #1E40AF)",
 //                         color: "white",
 //                         width: { xs: 24, sm: 28, md: 32 },
 //                         height: { xs: 24, sm: 28, md: 32 },
 //                         "&:hover": {
-//                           bgcolor: "#0a5c55",
+//                           background: "linear-gradient(135deg, #1E40AF, #2563EB)",
 //                         },
 //                       }}
 //                     >
@@ -1331,8 +468,8 @@
 //               borderRadius: { xs: 3, sm: 3.5, md: 4 },
 //               overflow: "hidden",
 //               border: "1px solid",
-//               borderColor: alpha("#e2e8f0", 0.5),
-//               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
+//               borderColor: alpha("#2563EB", 0.1),
+//               boxShadow: `0 10px 30px -10px ${alpha("#2563EB", 0.2)}`,
 //               background: "#ffffff",
 //             }}
 //           >
@@ -1340,8 +477,8 @@
 //               <Typography
 //                 variant="subtitle2"
 //                 fontWeight={600}
-//                 color="#0f766e"
 //                 sx={{
+//                   color: "#2563EB",
 //                   textTransform: "uppercase",
 //                   letterSpacing: 1,
 //                   mb: { xs: 1.5, sm: 2, md: 2.5 },
@@ -1368,7 +505,7 @@
 //                       InputProps={{
 //                         startAdornment: (
 //                           <InputAdornment position="start">
-//                             <PersonIcon sx={{ color: "#0f766e", fontSize: { xs: 16, sm: 18 } }} />
+//                             <PersonIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
 //                           </InputAdornment>
 //                         ),
 //                       }}
@@ -1398,7 +535,7 @@
 //                       InputProps={{
 //                         startAdornment: (
 //                           <InputAdornment position="start">
-//                             <EmailIcon sx={{ color: "#0f766e", fontSize: { xs: 16, sm: 18 } }} />
+//                             <EmailIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
 //                           </InputAdornment>
 //                         ),
 //                       }}
@@ -1427,7 +564,7 @@
 //                       InputProps={{
 //                         startAdornment: (
 //                           <InputAdornment position="start">
-//                             <PhoneIcon sx={{ color: "#0f766e", fontSize: { xs: 16, sm: 18 } }} />
+//                             <PhoneIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
 //                           </InputAdornment>
 //                         ),
 //                       }}
@@ -1456,7 +593,7 @@
 //                       InputProps={{
 //                         startAdornment: (
 //                           <InputAdornment position="start">
-//                             <LocationIcon sx={{ color: "#0f766e", fontSize: { xs: 16, sm: 18 } }} />
+//                             <LocationIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
 //                           </InputAdornment>
 //                         ),
 //                       }}
@@ -1489,11 +626,11 @@
 //                         sx={{
 //                           py: { xs: 0.8, sm: 1 },
 //                           borderRadius: { xs: 2, sm: 2.5 },
-//                           bgcolor: "#0f766e",
+//                           background: "linear-gradient(135deg, #2563EB, #1E40AF)",
 //                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
 //                           order: { xs: 1, sm: 1 },
 //                           "&:hover": {
-//                             bgcolor: "#0a5c55",
+//                             background: "linear-gradient(135deg, #1E40AF, #2563EB)",
 //                           },
 //                         }}
 //                       >
@@ -1522,9 +659,9 @@
 //                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
 //                           order: { xs: 2, sm: 2 },
 //                           "&:hover": {
-//                             borderColor: "#0f766e",
-//                             color: "#0f766e",
-//                             bgcolor: alpha("#0f766e", 0.1),
+//                             borderColor: "#2563EB",
+//                             color: "#2563EB",
+//                             bgcolor: alpha("#2563EB", 0.1),
 //                           },
 //                         }}
 //                       >
@@ -1547,8 +684,8 @@
 //                     }}>
 //                       <Avatar
 //                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
+//                           bgcolor: alpha("#2563EB", 0.1),
+//                           color: "#2563EB",
 //                           width: { xs: 36, sm: 40, md: 44 },
 //                           height: { xs: 36, sm: 40, md: 44 },
 //                         }}
@@ -1569,7 +706,7 @@
 //                       </Box>
 //                     </Box>
 
-//                     <Divider sx={{ borderColor: alpha("#e2e8f0", 0.5) }} />
+//                     <Divider sx={{ borderColor: alpha("#2563EB", 0.1) }} />
 
 //                     {/* Phone */}
 //                     <Box sx={{ 
@@ -1581,8 +718,8 @@
 //                     }}>
 //                       <Avatar
 //                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
+//                           bgcolor: alpha("#2563EB", 0.1),
+//                           color: "#2563EB",
 //                           width: { xs: 36, sm: 40, md: 44 },
 //                           height: { xs: 36, sm: 40, md: 44 },
 //                         }}
@@ -1603,7 +740,7 @@
 //                       </Box>
 //                     </Box>
 
-//                     <Divider sx={{ borderColor: alpha("#e2e8f0", 0.5) }} />
+//                     <Divider sx={{ borderColor: alpha("#2563EB", 0.1) }} />
 
 //                     {/* Address */}
 //                     <Box sx={{ 
@@ -1615,8 +752,8 @@
 //                     }}>
 //                       <Avatar
 //                         sx={{
-//                           bgcolor: alpha("#0f766e", 0.1),
-//                           color: "#0f766e",
+//                           bgcolor: alpha("#2563EB", 0.1),
+//                           color: "#2563EB",
 //                           width: { xs: 36, sm: 40, md: 44 },
 //                           height: { xs: 36, sm: 40, md: 44 },
 //                         }}
@@ -1638,7 +775,7 @@
 //                     </Box>
 //                   </Stack>
 
-//                   <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha("#e2e8f0", 0.5) }} />
+//                   <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha("#2563EB", 0.1) }} />
 
 //                   {/* Actions */}
 //                   <Stack spacing={{ xs: 1, sm: 1.5 }}>
@@ -1651,13 +788,13 @@
 //                       sx={{
 //                         py: { xs: 0.8, sm: 1 },
 //                         borderRadius: { xs: 2, sm: 2.5 },
-//                         borderColor: "#0f766e",
-//                         color: "#0f766e",
+//                         borderColor: "#2563EB",
+//                         color: "#2563EB",
 //                         fontWeight: 600,
 //                         fontSize: { xs: '0.75rem', sm: '0.8rem' },
 //                         "&:hover": {
-//                           borderColor: "#0a5c55",
-//                           bgcolor: alpha("#0f766e", 0.1),
+//                           borderColor: "#1E40AF",
+//                           bgcolor: alpha("#2563EB", 0.1),
 //                         },
 //                       }}
 //                     >
@@ -1699,14 +836,14 @@
 //                 onClick={() => setIsEditing(true)}
 //                 size="small"
 //                 sx={{
-//                   borderColor: "#0f766e",
-//                   color: "#0f766e",
+//                   borderColor: "#2563EB",
+//                   color: "#2563EB",
 //                   borderRadius: { xs: 2, sm: 2.5 },
 //                   py: { xs: 0.8, sm: 1 },
 //                   fontSize: { xs: '0.75rem', sm: '0.8rem' },
 //                   "&:hover": {
-//                     borderColor: "#0a5c55",
-//                     bgcolor: alpha("#0f766e", 0.1),
+//                     borderColor: "#1E40AF",
+//                     bgcolor: alpha("#2563EB", 0.1),
 //                   },
 //                 }}
 //               >
@@ -1745,6 +882,881 @@
 
 
 
+//////////////////////////////    Centralised Color     ///////////////////////////////
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// import {
+//   Box,
+//   Container,
+//   Paper,
+//   Typography,
+//   Avatar,
+//   Button,
+//   Chip,
+//   Divider,
+//   Stack,
+//   alpha,
+//   CardContent,
+//   IconButton,
+//   Tooltip,
+//   TextField,
+//   Grid,
+//   InputAdornment,
+//   CircularProgress,
+//   Alert,
+//   useTheme,
+//   useMediaQuery,
+// } from "@mui/material";
+// import {
+//   Edit as EditIcon,
+//   Email as EmailIcon,
+//   Phone as PhoneIcon,
+//   LocationOn as LocationIcon,
+//   Logout as LogoutIcon,
+//   LockReset as ResetPasswordIcon,
+//   Person as PersonIcon,
+//   AdminPanelSettings as AdminIcon,
+//   VerifiedUser as SuperAdminIcon,
+//   CameraAlt as CameraIcon,
+//   Close as CloseIcon,
+//   Save as SaveIcon,
+//   Cancel as CancelIcon,
+// } from "@mui/icons-material";
+// import { motion } from "framer-motion";
+// import { useDispatch, useSelector } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+// import { logout } from "../../redux/slices/authSlice";
+// import { updateUser, getUserById } from "../../redux/slices/userSlice";
+// import LogoutModal from "../../components/models/LogoutModal";
+// import { toast } from "react-toastify";
+
+// const Profile = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+  
+//   // Responsive breakpoints
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+//   const userData = useSelector((state) => state.user?.userInfo || {});
+//   const { role_id } = useSelector((state) => state.auth || {});
+//   const { loading } = useSelector((state) => state.user || {});
+  
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+//   const [isEditing, setIsEditing] = useState(false);
+  
+//   // Form state
+//   const [formData, setFormData] = useState({
+//     fullName: "",
+//     email: "",
+//     mobile: "",
+//     address: "",
+//     avtar: null,
+//   });
+
+//   const [previewImage, setPreviewImage] = useState(null);
+//   const [imageRemoved, setImageRemoved] = useState(false);
+//   const [errors, setErrors] = useState({});
+//   const [touched, setTouched] = useState({});
+
+//   // Initialize form with user data
+//   useEffect(() => {
+//     if (userData?._id) {
+//       setFormData({
+//         fullName: userData.name || "",
+//         email: userData.email || "",
+//         mobile: userData.mobile_no || "",
+//         address: userData.address || "",
+//         avtar: null,
+//       });
+      
+//       if (userData.avtar) {
+//         setPreviewImage(userData.avtar);
+//       }
+//     }
+//   }, [userData]);
+
+//   const validateField = (name, value) => {
+//     let error = "";
+
+//     switch (name) {
+//       case "fullName":
+//         if (!value?.trim()) error = "Full name is required";
+//         else if (value.length < 3) error = "Name must be at least 3 characters";
+//         break;
+//       case "email":
+//         if (!value?.trim()) error = "Email is required";
+//         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+//           error = "Invalid email format";
+//         break;
+//       case "mobile":
+//         if (!value?.trim()) error = "Mobile number is required";
+//         else if (!/^\d{10}$/.test(value))
+//           error = "Invalid mobile number (10 digits required)";
+//         break;
+//       case "address":
+//         if (!value?.trim()) error = "Address is required";
+//         break;
+//       default:
+//         break;
+//     }
+
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData({ ...formData, [name]: value });
+
+//     if (touched[name]) {
+//       const error = validateField(name, value);
+//       setErrors({ ...errors, [name]: error });
+//     }
+//   };
+
+//   const handleBlur = (e) => {
+//     const { name, value } = e.target;
+//     setTouched({ ...touched, [name]: true });
+//     const error = validateField(name, value);
+//     setErrors({ ...errors, [name]: error });
+//   };
+
+//   const handleImageChange = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       if (file.size > 5 * 1024 * 1024) {
+//         toast.error("File size should be less than 5MB");
+//         return;
+//       }
+//       setFormData({ ...formData, avtar: file });
+//       setPreviewImage(URL.createObjectURL(file));
+//       setImageRemoved(false);
+//     }
+//   };
+
+//   const removeImage = () => {
+//     setFormData({ ...formData, avtar: null });
+//     setPreviewImage(null);
+//     setImageRemoved(true);
+//   };
+
+//   const validateForm = () => {
+//     const newErrors = {
+//       fullName: validateField("fullName", formData.fullName),
+//       email: validateField("email", formData.email),
+//       mobile: validateField("mobile", formData.mobile),
+//       address: validateField("address", formData.address),
+//     };
+
+//     setErrors(newErrors);
+//     return !Object.values(newErrors).some((error) => error);
+//   };
+
+//   const handleSave = async () => {
+//     if (!validateForm()) return;
+
+//     const payload = new FormData();
+//     payload.append("name", formData.fullName);
+//     payload.append("email", formData.email);
+//     payload.append("mobile_no", formData.mobile);
+//     payload.append("address", formData.address);
+//     payload.append("role_id", userData.role_id);
+//     payload.append("createdby", userData.createdby);
+//     payload.append("isActive", userData.isActive);
+
+//     if (formData.avtar) {
+//       payload.append("avtar", formData.avtar);
+//     }
+
+//     if (imageRemoved) {
+//       payload.append("removeAvtar", "true");
+//     }
+
+//     try {
+//       await dispatch(
+//         updateUser({ userId: userData._id, formData: payload })
+//       ).unwrap();
+      
+//       // Refresh user data
+//       await dispatch(getUserById(userData._id));
+      
+//       toast.success("Profile updated successfully!");
+//       setIsEditing(false);
+//       setImageRemoved(false);
+//     } catch (error) {
+//       toast.error(error?.message || "Failed to update profile");
+//     }
+//   };
+
+//   const handleCancel = () => {
+//     // Reset form to original user data
+//     setFormData({
+//       fullName: userData.name || "",
+//       email: userData.email || "",
+//       mobile: userData.mobile_no || "",
+//       address: userData.address || "",
+//       avtar: null,
+//     });
+//     setPreviewImage(userData.avtar || null);
+//     setImageRemoved(false);
+//     setErrors({});
+//     setTouched({});
+//     setIsEditing(false);
+//   };
+
+//   const handleLogout = () => {
+//     dispatch(logout());
+//     navigate("/login");
+//   };
+
+//   const handleResetPassword = () => {
+//     if (role_id === 2) {
+//       navigate("/reset-password-profile");
+//     } else {
+//       navigate("/reset-password-profile");
+//     }
+//   };
+
+//   const getRoleIcon = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return <SuperAdminIcon sx={{ color: theme.palette.secondary.main, fontSize: isMobile ? 20 : 24 }} />;
+//       case 1:
+//         return <AdminIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 20 : 24 }} />;
+//       default:
+//         return <PersonIcon sx={{ color: theme.palette.text.secondary, fontSize: isMobile ? 20 : 24 }} />;
+//     }
+//   };
+
+//   const getRoleName = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return "Super Admin";
+//       case 1:
+//         return "Admin";
+//       default:
+//         return "User";
+//     }
+//   };
+
+//   const getRoleColor = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return theme.palette.secondary.main;
+//       case 1:
+//         return theme.palette.primary.main;
+//       default:
+//         return theme.palette.text.secondary;
+//     }
+//   };
+
+//   const containerVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: {
+//       opacity: 1,
+//       y: 0,
+//       transition: {
+//         duration: 0.5,
+//         staggerChildren: 0.1,
+//       },
+//     },
+//   };
+
+//   const itemVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: {
+//       opacity: 1,
+//       y: 0,
+//       transition: { duration: 0.5 },
+//     },
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         minHeight: "100vh",
+//         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//         backgroundImage: `radial-gradient(circle at 10% 20%, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 90%)`,
+//         py: { xs: 1, sm: 1.5, md: 2 },
+//         px: { xs: 1, sm: 2, md: 0 },
+//         display: "flex",
+//         alignItems: "center",
+//       }}
+//     >
+//       <Container 
+//         maxWidth="md" 
+//         disableGutters={isMobile}
+//         sx={{ px: { xs: 2, sm: 3, md: 0 } }}
+//       >
+//         <motion.div
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ duration: 0.5 }}
+//         >
+//           {/* Profile Header Card */}
+//           <Paper
+//             elevation={0}
+//             sx={{
+//               borderRadius: { xs: 3, sm: 3.5, md: 4 },
+//               overflow: "hidden",
+//               border: "1px solid",
+//               borderColor: alpha(theme.palette.primary.main, 0.1),
+//               boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
+//               mb: { xs: 1.5, sm: 1, md: 1 },
+//               background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+//             }}
+//           >
+//             <Box
+//               sx={{
+//                 p: { xs: 1.5, sm: 2, md: 2.5 },
+//                 display: "flex",
+//                 flexDirection: { xs: "column", sm: "row" },
+//                 alignItems: "center",
+//                 gap: { xs: 1.5, sm: 2, md: 2.5 },
+//               }}
+//             >
+//               {/* Avatar Section */}
+//               <Box sx={{ position: "relative" }}>
+//                 {previewImage ? (
+//                   <Avatar
+//                     src={previewImage}
+//                     sx={{
+//                       width: { xs: 70, sm: 80, md: 90 },
+//                       height: { xs: 70, sm: 80, md: 90 },
+//                       border: "4px solid white",
+//                       boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+//                     }}
+//                   />
+//                 ) : (
+//                   <Avatar
+//                     sx={{
+//                       width: { xs: 70, sm: 80, md: 90 },
+//                       height: { xs: 70, sm: 80, md: 90 },
+//                       bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                       color: theme.palette.primary.main,
+//                       border: "4px solid white",
+//                       boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+//                     }}
+//                   >
+//                     <PersonIcon sx={{ fontSize: { xs: 35, sm: 40, md: 45 } }} />
+//                   </Avatar>
+//                 )}
+                
+//                 {!isEditing && (
+//                   <Tooltip title="Edit Profile">
+//                     <IconButton
+//                       size="small"
+//                       onClick={() => setIsEditing(true)}
+//                       sx={{
+//                         position: "absolute",
+//                         bottom: 0,
+//                         right: 0,
+//                         background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                         color: "white",
+//                         width: { xs: 24, sm: 28, md: 32 },
+//                         height: { xs: 24, sm: 28, md: 32 },
+//                         "&:hover": {
+//                           background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+//                         },
+//                       }}
+//                     >
+//                       <EditIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
+//                     </IconButton>
+//                   </Tooltip>
+//                 )}
+
+//                 {isEditing && (
+//                   <Tooltip title="Change Photo">
+//                     <IconButton
+//                       size="small"
+//                       component="label"
+//                       sx={{
+//                         position: "absolute",
+//                         bottom: 0,
+//                         right: 0,
+//                         background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                         color: "white",
+//                         width: { xs: 24, sm: 28, md: 32 },
+//                         height: { xs: 24, sm: 28, md: 32 },
+//                         "&:hover": {
+//                           background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+//                         },
+//                       }}
+//                     >
+//                       <CameraIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
+//                       <input
+//                         type="file"
+//                         hidden
+//                         accept="image/*"
+//                         onChange={handleImageChange}
+//                       />
+//                     </IconButton>
+//                   </Tooltip>
+//                 )}
+//               </Box>
+
+//               {/* User Info */}
+//               <Box sx={{ 
+//                 textAlign: { xs: "center", sm: "left" }, 
+//                 flex: 1,
+//                 width: { xs: '100%', sm: 'auto' }
+//               }}>
+//                 <Typography 
+//                   variant={isMobile ? "h6" : "h5"} 
+//                   fontWeight={700} 
+//                   color="text.primary" 
+//                   gutterBottom
+//                   sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } }}
+//                 >
+//                   {userData?.name || "User Name"}
+//                 </Typography>
+                
+//                 <Box sx={{ 
+//                   display: "flex", 
+//                   alignItems: "center", 
+//                   gap: 1, 
+//                   justifyContent: { xs: "center", sm: "flex-start" }, 
+//                   mb: { xs: 0.5, sm: 1 },
+//                   flexWrap: 'wrap',
+//                 }}>
+//                   {getRoleIcon()}
+//                   <Chip
+//                     label={getRoleName()}
+//                     size="small"
+//                     sx={{
+//                       bgcolor: alpha(getRoleColor(), 0.1),
+//                       color: getRoleColor(),
+//                       fontWeight: 600,
+//                       fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+//                       height: { xs: 20, sm: 22, md: 24 },
+//                     }}
+//                   />
+//                 </Box>
+
+//                 {userData?.createdAt && (
+//                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
+//                     Member since {new Date(userData.createdAt).toLocaleDateString()}
+//                   </Typography>
+//                 )}
+//               </Box>
+//             </Box>
+//           </Paper>
+
+//           {/* Profile Details Card */}
+//           <Paper
+//             elevation={0}
+//             sx={{
+//               borderRadius: { xs: 3, sm: 3.5, md: 4 },
+//               overflow: "hidden",
+//               border: "1px solid",
+//               borderColor: alpha(theme.palette.primary.main, 0.1),
+//               boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
+//               background: theme.palette.background.paper,
+//             }}
+//           >
+//             <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
+//               <Typography
+//                 variant="subtitle2"
+//                 fontWeight={600}
+//                 sx={{
+//                   color: theme.palette.primary.main,
+//                   textTransform: "uppercase",
+//                   letterSpacing: 1,
+//                   mb: { xs: 1.5, sm: 2, md: 2.5 },
+//                   fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
+//                 }}
+//               >
+//                 Personal Information
+//               </Typography>
+
+//               {isEditing ? (
+//                 // Edit Mode
+//                 <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="fullName"
+//                       label="Full Name"
+//                       value={formData.fullName}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.fullName && touched.fullName}
+//                       helperText={touched.fullName && errors.fullName}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <PersonIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         "& .MuiInputLabel-root": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                         "& .MuiInputBase-input": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="email"
+//                       label="Email Address"
+//                       type="email"
+//                       value={formData.email}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.email && touched.email}
+//                       helperText={touched.email && errors.email}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         "& .MuiInputLabel-root": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                         "& .MuiInputBase-input": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="mobile"
+//                       label="Mobile Number"
+//                       value={formData.mobile}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.mobile && touched.mobile}
+//                       helperText={touched.mobile && errors.mobile}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         "& .MuiInputLabel-root": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                         "& .MuiInputBase-input": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="address"
+//                       label="Address"
+//                       value={formData.address}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.address && touched.address}
+//                       helperText={touched.address && errors.address}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         "& .MuiInputLabel-root": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                         "& .MuiInputBase-input": {
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   {/* Action Buttons */}
+//                   <Grid item xs={12}>
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       gap: { xs: 1, sm: 1.5 }, 
+//                       mt: { xs: 0.5, sm: 1 } 
+//                     }}>
+//                       <Button
+//                         fullWidth
+//                         variant="contained"
+//                         startIcon={<SaveIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+//                         onClick={handleSave}
+//                         disabled={loading}
+//                         size="small"
+//                         sx={{
+//                           py: { xs: 0.8, sm: 1 },
+//                           borderRadius: { xs: 2, sm: 2.5 },
+//                           background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                           order: { xs: 1, sm: 1 },
+//                           "&:hover": {
+//                             background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+//                           },
+//                         }}
+//                       >
+//                         {loading ? (
+//                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//                             <CircularProgress size={16} sx={{ color: "white" }} />
+//                             <span>Saving...</span>
+//                           </Box>
+//                         ) : (
+//                           "Save Changes"
+//                         )}
+//                       </Button>
+
+//                       <Button
+//                         fullWidth
+//                         variant="outlined"
+//                         startIcon={<CancelIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+//                         onClick={handleCancel}
+//                         disabled={loading}
+//                         size="small"
+//                         sx={{
+//                           py: { xs: 0.8, sm: 1 },
+//                           borderRadius: { xs: 2, sm: 2.5 },
+//                           borderColor: alpha(theme.palette.divider, 0.5),
+//                           color: "text.secondary",
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                           order: { xs: 2, sm: 2 },
+//                           "&:hover": {
+//                             borderColor: theme.palette.primary.main,
+//                             color: theme.palette.primary.main,
+//                             bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           },
+//                         }}
+//                       >
+//                         Cancel
+//                       </Button>
+//                     </Box>
+//                   </Grid>
+//                 </Grid>
+//               ) : (
+//                 // View Mode
+//                 <>
+//                   <Stack spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+//                     {/* Email */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 36, sm: 40, md: 44 },
+//                           height: { xs: 36, sm: 40, md: 44 },
+//                         }}
+//                       >
+//                         <EmailIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+//                           Email Address
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+//                           wordBreak: 'break-all'
+//                         }}>
+//                           {userData?.email || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+
+//                     <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                     {/* Phone */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 36, sm: 40, md: 44 },
+//                           height: { xs: 36, sm: 40, md: 44 },
+//                         }}
+//                       >
+//                         <PhoneIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+//                           Phone Number
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+//                           wordBreak: 'break-all'
+//                         }}>
+//                           {userData?.mobile_no || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+
+//                     <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                     {/* Address */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 36, sm: 40, md: 44 },
+//                           height: { xs: 36, sm: 40, md: 44 },
+//                         }}
+//                       >
+//                         <LocationIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+//                           Address
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+//                           wordBreak: 'break-word'
+//                         }}>
+//                           {userData?.address || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+//                   </Stack>
+
+//                   <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                   {/* Actions */}
+//                   <Stack spacing={{ xs: 1, sm: 1.5 }}>
+//                     <Button
+//                       fullWidth
+//                       variant="outlined"
+//                       startIcon={<ResetPasswordIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+//                       onClick={handleResetPassword}
+//                       size="small"
+//                       sx={{
+//                         py: { xs: 0.8, sm: 1 },
+//                         borderRadius: { xs: 2, sm: 2.5 },
+//                         borderColor: theme.palette.primary.main,
+//                         color: theme.palette.primary.main,
+//                         fontWeight: 600,
+//                         fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         "&:hover": {
+//                           borderColor: theme.palette.primary.dark,
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                         },
+//                       }}
+//                     >
+//                       Reset Password
+//                     </Button>
+
+//                     <Button
+//                       fullWidth
+//                       variant="contained"
+//                       startIcon={<LogoutIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+//                       onClick={() => setShowLogoutModal(true)}
+//                       size="small"
+//                       sx={{
+//                         py: { xs: 0.8, sm: 1 },
+//                         borderRadius: { xs: 2, sm: 2.5 },
+//                         bgcolor: "#ef4444",
+//                         fontWeight: 600,
+//                         fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                         "&:hover": {
+//                           bgcolor: "#dc2626",
+//                         },
+//                       }}
+//                     >
+//                       Sign Out
+//                     </Button>
+//                   </Stack>
+//                 </>
+//               )}
+//             </CardContent>
+//           </Paper>
+
+//           {/* Edit Button (Mobile) - Only show in view mode */}
+//           {!isEditing && (
+//             <Box sx={{ display: { xs: "block", md: "none" }, mt: { xs: 1.5, sm: 2, md: 2.5 } }}>
+//               <Button
+//                 fullWidth
+//                 variant="outlined"
+//                 startIcon={<EditIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+//                 onClick={() => setIsEditing(true)}
+//                 size="small"
+//                 sx={{
+//                   borderColor: theme.palette.primary.main,
+//                   color: theme.palette.primary.main,
+//                   borderRadius: { xs: 2, sm: 2.5 },
+//                   py: { xs: 0.8, sm: 1 },
+//                   fontSize: { xs: '0.75rem', sm: '0.8rem' },
+//                   "&:hover": {
+//                     borderColor: theme.palette.primary.dark,
+//                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                   },
+//                 }}
+//               >
+//                 Edit Profile
+//               </Button>
+//             </Box>
+//           )}
+//         </motion.div>
+//       </Container>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </Box>
+//   );
+// };
+
+// export default Profile;
 
 
 
@@ -1755,16 +1767,1153 @@
 
 
 
+// import React, { useState, useEffect } from "react";
+// import {
+//   Box,
+//   Typography,
+//   Paper,
+//   Avatar,
+//   Button,
+//   Chip,
+//   Divider,
+//   Stack,
+//   alpha,
+//   CardContent,
+//   IconButton,
+//   Tooltip,
+//   TextField,
+//   Grid,
+//   InputAdornment,
+//   CircularProgress,
+//   useTheme,
+//   useMediaQuery,
+//   Tab,
+//   Tabs,
+// } from "@mui/material";
+// import {
+//   Edit as EditIcon,
+//   Email as EmailIcon,
+//   Phone as PhoneIcon,
+//   LocationOn as LocationIcon,
+//   Logout as LogoutIcon,
+//   LockReset as ResetPasswordIcon,
+//   Person as PersonIcon,
+//   AdminPanelSettings as AdminIcon,
+//   VerifiedUser as SuperAdminIcon,
+//   CameraAlt as CameraIcon,
+//   Save as SaveIcon,
+//   Cancel as CancelIcon,
+//   Key as KeyIcon,
+//   Mail as MailIcon,
+//   VpnKey as VpnKeyIcon,
+// } from "@mui/icons-material";
+// import { motion, AnimatePresence } from "framer-motion";
+// import { useDispatch, useSelector } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+// import { logout } from "../../redux/slices/authSlice";
+// import { updateUser, getUserById } from "../../redux/slices/userSlice";
+// import LogoutModal from "../../components/models/LogoutModal";
+// import { toast } from "react-toastify";
+
+// // TabPanel component
+// function TabPanel({ children, value, index, ...other }) {
+//   return (
+//     <div
+//       role="tabpanel"
+//       hidden={value !== index}
+//       id={`profile-tabpanel-${index}`}
+//       aria-labelledby={`profile-tab-${index}`}
+//       {...other}
+//     >
+//       {value === index && <Box sx={{ py: { xs: 1.5, sm: 2 } }}>{children}</Box>}
+//     </div>
+//   );
+// }
+
+// const Profile = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+  
+//   // Responsive breakpoints
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+//   const userData = useSelector((state) => state.user?.userInfo || {});
+//   const { role_id } = useSelector((state) => state.auth || {});
+//   const { loading } = useSelector((state) => state.user || {});
+  
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+//   const [isEditing, setIsEditing] = useState(false);
+//   const [tabValue, setTabValue] = useState(0);
+  
+//   // Form state
+//   const [formData, setFormData] = useState({
+//     fullName: "",
+//     email: "",
+//     mobile: "",
+//     address: "",
+//     avtar: null,
+//   });
+
+//   // Configuration state (display only - not fetched)
+//   const [configData] = useState({
+//     razorpayKeyId: "rzp_test_xxxxxxxxxxxx",
+//     razorpayKeySecret: "xxxxxxxxxxxxxxxx",
+//     razorpayWebhookSecret: "whsec_xxxxxxxxxxxx",
+//     gmailUser: "your-email@gmail.com",
+//     gmailAppPass: "xxxx xxxx xxxx xxxx",
+//     emailFrom: "noreply@yourdomain.com",
+//   });
+
+//   const [previewImage, setPreviewImage] = useState(null);
+//   const [imageRemoved, setImageRemoved] = useState(false);
+//   const [errors, setErrors] = useState({});
+//   const [touched, setTouched] = useState({});
+
+//   // Initialize form with user data
+//   useEffect(() => {
+//     if (userData?._id) {
+//       setFormData({
+//         fullName: userData.name || "",
+//         email: userData.email || "",
+//         mobile: userData.mobile_no || "",
+//         address: userData.address || "",
+//         avtar: null,
+//       });
+      
+//       if (userData.avtar) {
+//         setPreviewImage(userData.avtar);
+//       }
+//     }
+//   }, [userData]);
+
+//   const validateField = (name, value) => {
+//     let error = "";
+
+//     switch (name) {
+//       case "fullName":
+//         if (!value?.trim()) error = "Full name is required";
+//         else if (value.length < 3) error = "Name must be at least 3 characters";
+//         break;
+//       case "email":
+//         if (!value?.trim()) error = "Email is required";
+//         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+//           error = "Invalid email format";
+//         break;
+//       case "mobile":
+//         if (!value?.trim()) error = "Mobile number is required";
+//         else if (!/^\d{10}$/.test(value))
+//           error = "Invalid mobile number (10 digits required)";
+//         break;
+//       case "address":
+//         if (!value?.trim()) error = "Address is required";
+//         break;
+//       default:
+//         break;
+//     }
+
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData({ ...formData, [name]: value });
+
+//     if (touched[name]) {
+//       const error = validateField(name, value);
+//       setErrors({ ...errors, [name]: error });
+//     }
+//   };
+
+//   const handleBlur = (e) => {
+//     const { name, value } = e.target;
+//     setTouched({ ...touched, [name]: true });
+//     const error = validateField(name, value);
+//     setErrors({ ...errors, [name]: error });
+//   };
+
+//   const handleImageChange = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       if (file.size > 5 * 1024 * 1024) {
+//         toast.error("File size should be less than 5MB");
+//         return;
+//       }
+//       setFormData({ ...formData, avtar: file });
+//       setPreviewImage(URL.createObjectURL(file));
+//       setImageRemoved(false);
+//     }
+//   };
+
+//   const removeImage = () => {
+//     setFormData({ ...formData, avtar: null });
+//     setPreviewImage(null);
+//     setImageRemoved(true);
+//   };
+
+//   const validateForm = () => {
+//     const newErrors = {
+//       fullName: validateField("fullName", formData.fullName),
+//       email: validateField("email", formData.email),
+//       mobile: validateField("mobile", formData.mobile),
+//       address: validateField("address", formData.address),
+//     };
+
+//     setErrors(newErrors);
+//     return !Object.values(newErrors).some((error) => error);
+//   };
+
+//   const handleSave = async () => {
+//     if (!validateForm()) return;
+
+//     const payload = new FormData();
+//     payload.append("name", formData.fullName);
+//     payload.append("email", formData.email);
+//     payload.append("mobile_no", formData.mobile);
+//     payload.append("address", formData.address);
+//     payload.append("role_id", userData.role_id);
+//     payload.append("createdby", userData.createdby);
+//     payload.append("isActive", userData.isActive);
+
+//     if (formData.avtar) {
+//       payload.append("avtar", formData.avtar);
+//     }
+
+//     if (imageRemoved) {
+//       payload.append("removeAvtar", "true");
+//     }
+
+//     try {
+//       await dispatch(
+//         updateUser({ userId: userData._id, formData: payload })
+//       ).unwrap();
+      
+//       // Refresh user data
+//       await dispatch(getUserById(userData._id));
+      
+//       toast.success("Profile updated successfully!");
+//       setIsEditing(false);
+//       setImageRemoved(false);
+//     } catch (error) {
+//       toast.error(error?.message || "Failed to update profile");
+//     }
+//   };
+
+//   const handleCancel = () => {
+//     // Reset form to original user data
+//     setFormData({
+//       fullName: userData.name || "",
+//       email: userData.email || "",
+//       mobile: userData.mobile_no || "",
+//       address: userData.address || "",
+//       avtar: null,
+//     });
+//     setPreviewImage(userData.avtar || null);
+//     setImageRemoved(false);
+//     setErrors({});
+//     setTouched({});
+//     setIsEditing(false);
+//   };
+
+//   const handleLogout = () => {
+//     dispatch(logout());
+//     navigate("/login");
+//   };
+
+//   const handleResetPassword = () => {
+//     if (role_id === 2) {
+//       navigate("/reset-password-profile");
+//     } else {
+//       navigate("/reset-password-profile");
+//     }
+//   };
+
+//   const handleTabChange = (event, newValue) => {
+//     setTabValue(newValue);
+//   };
+
+//   const getRoleIcon = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return <SuperAdminIcon sx={{ color: theme.palette.secondary.main, fontSize: isMobile ? 18 : 20 }} />;
+//       case 1:
+//         return <AdminIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 18 : 20 }} />;
+//       default:
+//         return <PersonIcon sx={{ color: theme.palette.text.secondary, fontSize: isMobile ? 18 : 20 }} />;
+//     }
+//   };
+
+//   const getRoleName = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return "Super Admin";
+//       case 1:
+//         return "Admin";
+//       default:
+//         return "User";
+//     }
+//   };
+
+//   const getRoleColor = () => {
+//     switch (userData?.role_id || role_id) {
+//       case 2:
+//         return theme.palette.secondary.main;
+//       case 1:
+//         return theme.palette.primary.main;
+//       default:
+//         return theme.palette.text.secondary;
+//     }
+//   };
+
+//   const containerVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: {
+//       opacity: 1,
+//       y: 0,
+//       transition: {
+//         duration: 0.5,
+//         staggerChildren: 0.1,
+//       },
+//     },
+//   };
+
+//   const itemVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: {
+//       opacity: 1,
+//       y: 0,
+//       transition: { duration: 0.5 },
+//     },
+//   };
+
+//   return (
+//     <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
+//       {/* Header */}
+//       <Box sx={{
+//         display: 'flex',
+//         flexDirection: { xs: 'column', sm: 'row' },
+//         justifyContent: 'space-between',
+//         alignItems: { xs: 'flex-start', sm: 'center' },
+//         mb: { xs: 2, sm: 2.5 },
+//         gap: 2
+//       }}>
+//         <Box>
+//           <Typography
+//             variant={isMobile ? "h6" : "h5"}
+//             fontWeight="700"
+//             gutterBottom
+//             sx={{
+//               background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//               WebkitBackgroundClip: "text",
+//               WebkitTextFillColor: "transparent",
+//               fontSize: {
+//                 xs: '1rem',
+//                 sm: '1.2rem',
+//                 md: '1.4rem',
+//                 lg: '1.6rem',
+//                 xl: '1.8rem'
+//               },
+//             }}
+//           >
+//             My Profile
+//           </Typography>
+//           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
+//             Manage your personal information and account settings
+//           </Typography>
+//         </Box>
+
+//         {!isEditing && (
+//           <Button
+//             variant="outlined"
+//             startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+//             onClick={() => setIsEditing(true)}
+//             size="small"
+//             sx={{
+//               borderColor: theme.palette.primary.main,
+//               color: theme.palette.primary.main,
+//               fontSize: { xs: '0.65rem', sm: '0.7rem' },
+//               height: 34,
+//               '&:hover': {
+//                 borderColor: theme.palette.primary.dark,
+//                 bgcolor: alpha(theme.palette.primary.main, 0.1),
+//               },
+//             }}
+//           >
+//             Edit Profile
+//           </Button>
+//         )}
+//       </Box>
+
+//       <motion.div
+//         initial="hidden"
+//         animate="visible"
+//         variants={containerVariants}
+//       >
+//         {/* Profile Header Card */}
+//         <Paper
+//           elevation={0}
+//           sx={{
+//             borderRadius: { xs: 2, sm: 2.5 },
+//             border: '1px solid',
+//             borderColor: alpha(theme.palette.primary.main, 0.1),
+//             mb: { xs: 2, sm: 2.5 },
+//             background: theme.palette.background.paper,
+//           }}
+//         >
+//           <Box
+//             sx={{
+//               p: { xs: 1.5, sm: 2, md: 2.5 },
+//               display: "flex",
+//               flexDirection: { xs: "column", sm: "row" },
+//               alignItems: "center",
+//               gap: { xs: 1.5, sm: 2, md: 2.5 },
+//             }}
+//           >
+//             {/* Avatar Section */}
+//             <Box sx={{ position: "relative" }}>
+//               {previewImage ? (
+//                 <Avatar
+//                   src={previewImage}
+//                   sx={{
+//                     width: { xs: 60, sm: 70, md: 80 },
+//                     height: { xs: 60, sm: 70, md: 80 },
+//                     border: "3px solid white",
+//                     boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+//                   }}
+//                 />
+//               ) : (
+//                 <Avatar
+//                   sx={{
+//                     width: { xs: 60, sm: 70, md: 80 },
+//                     height: { xs: 60, sm: 70, md: 80 },
+//                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                     color: theme.palette.primary.main,
+//                     border: "3px solid white",
+//                     boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+//                   }}
+//                 >
+//                   <PersonIcon sx={{ fontSize: { xs: 30, sm: 35, md: 40 } }} />
+//                 </Avatar>
+//               )}
+              
+//               {isEditing && (
+//                 <Tooltip title="Change Photo">
+//                   <IconButton
+//                     size="small"
+//                     component="label"
+//                     sx={{
+//                       position: "absolute",
+//                       bottom: 0,
+//                       right: 0,
+//                       background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                       color: "white",
+//                       width: { xs: 22, sm: 24, md: 26 },
+//                       height: { xs: 22, sm: 24, md: 26 },
+//                       "&:hover": {
+//                         background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+//                       },
+//                     }}
+//                   >
+//                     <CameraIcon sx={{ fontSize: { xs: 12, sm: 13, md: 14 } }} />
+//                     <input
+//                       type="file"
+//                       hidden
+//                       accept="image/*"
+//                       onChange={handleImageChange}
+//                     />
+//                   </IconButton>
+//                 </Tooltip>
+//               )}
+//             </Box>
+
+//             {/* User Info */}
+//             <Box sx={{ 
+//               textAlign: { xs: "center", sm: "left" }, 
+//               flex: 1,
+//               width: { xs: '100%', sm: 'auto' }
+//             }}>
+//               <Typography 
+//                 variant={isMobile ? "body1" : "h6"} 
+//                 fontWeight={600} 
+//                 color="text.primary" 
+//                 gutterBottom
+//                 sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' } }}
+//               >
+//                 {userData?.name || "User Name"}
+//               </Typography>
+              
+//               <Box sx={{ 
+//                 display: "flex", 
+//                 alignItems: "center", 
+//                 gap: 1, 
+//                 justifyContent: { xs: "center", sm: "flex-start" }, 
+//                 mb: { xs: 0.5, sm: 1 },
+//                 flexWrap: 'wrap',
+//               }}>
+//                 {getRoleIcon()}
+//                 <Chip
+//                   label={getRoleName()}
+//                   size="small"
+//                   sx={{
+//                     bgcolor: alpha(getRoleColor(), 0.1),
+//                     color: getRoleColor(),
+//                     fontWeight: 600,
+//                     fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+//                     height: { xs: 18, sm: 20, md: 22 },
+//                   }}
+//                 />
+//               </Box>
+
+//               {userData?.createdAt && (
+//                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' } }}>
+//                   Member since {new Date(userData.createdAt).toLocaleDateString()}
+//                 </Typography>
+//               )}
+//             </Box>
+//           </Box>
+//         </Paper>
+
+//         {/* Tabs */}
+//         <Paper
+//           elevation={0}
+//           sx={{
+//             borderRadius: { xs: 2, sm: 2.5 },
+//             border: '1px solid',
+//             borderColor: alpha(theme.palette.primary.main, 0.1),
+//             overflow: 'hidden',
+//           }}
+//         >
+//           <Box sx={{ borderBottom: 1, borderColor: alpha(theme.palette.primary.main, 0.1) }}>
+//             <Tabs
+//               value={tabValue}
+//               onChange={handleTabChange}
+//               variant={isMobile ? "fullWidth" : "standard"}
+//               sx={{
+//                 '& .MuiTab-root': {
+//                   textTransform: 'none',
+//                   fontWeight: 600,
+//                   fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' },
+//                   minHeight: { xs: 42, sm: 48 },
+//                   px: { xs: 1, sm: 1.5 },
+//                 },
+//                 '& .Mui-selected': {
+//                   color: `${theme.palette.primary.main} !important`,
+//                 },
+//                 '& .MuiTabs-indicator': {
+//                   bgcolor: theme.palette.primary.main,
+//                 },
+//               }}
+//             >
+//               <Tab label="Personal Information" />
+//               <Tab label="Configuration" />
+//             </Tabs>
+//           </Box>
+
+//           {/* Personal Information Tab */}
+//           <TabPanel value={tabValue} index={0}>
+//             <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
+//               {isEditing ? (
+//                 // Edit Mode
+//                 <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="fullName"
+//                       label="Full Name"
+//                       value={formData.fullName}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.fullName && touched.fullName}
+//                       helperText={touched.fullName && errors.fullName}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <PersonIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         '& .MuiInputLabel-root': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiInputBase-input': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiFormHelperText-root': {
+//                           fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="email"
+//                       label="Email Address"
+//                       type="email"
+//                       value={formData.email}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.email && touched.email}
+//                       helperText={touched.email && errors.email}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         '& .MuiInputLabel-root': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiInputBase-input': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiFormHelperText-root': {
+//                           fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="mobile"
+//                       label="Mobile Number"
+//                       value={formData.mobile}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.mobile && touched.mobile}
+//                       helperText={touched.mobile && errors.mobile}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         '& .MuiInputLabel-root': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiInputBase-input': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiFormHelperText-root': {
+//                           fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   <Grid item xs={12}>
+//                     <TextField
+//                       fullWidth
+//                       name="address"
+//                       label="Address"
+//                       value={formData.address}
+//                       onChange={handleChange}
+//                       onBlur={handleBlur}
+//                       error={!!errors.address && touched.address}
+//                       helperText={touched.address && errors.address}
+//                       size="small"
+//                       InputProps={{
+//                         startAdornment: (
+//                           <InputAdornment position="start">
+//                             <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
+//                           </InputAdornment>
+//                         ),
+//                       }}
+//                       sx={{
+//                         '& .MuiInputLabel-root': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiInputBase-input': {
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         },
+//                         '& .MuiFormHelperText-root': {
+//                           fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                         },
+//                       }}
+//                     />
+//                   </Grid>
+
+//                   {/* Action Buttons */}
+//                   <Grid item xs={12}>
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       gap: { xs: 1, sm: 1.5 }, 
+//                       mt: { xs: 0.5, sm: 1 } 
+//                     }}>
+//                       <Button
+//                         fullWidth
+//                         variant="contained"
+//                         startIcon={<SaveIcon sx={{ fontSize: 14 }} />}
+//                         onClick={handleSave}
+//                         disabled={loading}
+//                         size="small"
+//                         sx={{
+//                           py: { xs: 0.8, sm: 1 },
+//                           borderRadius: { xs: 2, sm: 2.5 },
+//                           background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                           height: 36,
+//                           order: { xs: 1, sm: 1 },
+//                           "&:hover": {
+//                             background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+//                           },
+//                         }}
+//                       >
+//                         {loading ? (
+//                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//                             <CircularProgress size={14} sx={{ color: "white" }} />
+//                             <span>Saving...</span>
+//                           </Box>
+//                         ) : (
+//                           "Save Changes"
+//                         )}
+//                       </Button>
+
+//                       <Button
+//                         fullWidth
+//                         variant="outlined"
+//                         startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+//                         onClick={handleCancel}
+//                         disabled={loading}
+//                         size="small"
+//                         sx={{
+//                           py: { xs: 0.8, sm: 1 },
+//                           borderRadius: { xs: 2, sm: 2.5 },
+//                           borderColor: alpha(theme.palette.divider, 0.5),
+//                           color: "text.secondary",
+//                           fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                           height: 36,
+//                           order: { xs: 2, sm: 2 },
+//                           "&:hover": {
+//                             borderColor: theme.palette.primary.main,
+//                             color: theme.palette.primary.main,
+//                             bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           },
+//                         }}
+//                       >
+//                         Cancel
+//                       </Button>
+//                     </Box>
+//                   </Grid>
+//                 </Grid>
+//               ) : (
+//                 // View Mode
+//                 <>
+//                   <Stack spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+//                     {/* Email */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 32, sm: 36, md: 40 },
+//                           height: { xs: 32, sm: 36, md: 40 },
+//                         }}
+//                       >
+//                         <EmailIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
+//                           Email Address
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+//                           wordBreak: 'break-all'
+//                         }}>
+//                           {userData?.email || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+
+//                     <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                     {/* Phone */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 32, sm: 36, md: 40 },
+//                           height: { xs: 32, sm: 36, md: 40 },
+//                         }}
+//                       >
+//                         <PhoneIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
+//                           Phone Number
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+//                           wordBreak: 'break-all'
+//                         }}>
+//                           {userData?.mobile_no || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+
+//                     <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                     {/* Address */}
+//                     <Box sx={{ 
+//                       display: "flex", 
+//                       alignItems: "center", 
+//                       gap: { xs: 1, sm: 1.5 },
+//                       flexDirection: { xs: 'column', sm: 'row' },
+//                       textAlign: { xs: 'center', sm: 'left' }
+//                     }}>
+//                       <Avatar
+//                         sx={{
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                           width: { xs: 32, sm: 36, md: 40 },
+//                           height: { xs: 32, sm: 36, md: 40 },
+//                         }}
+//                       >
+//                         <LocationIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
+//                       </Avatar>
+//                       <Box sx={{ flex: 1, width: '100%' }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
+//                           Address
+//                         </Typography>
+//                         <Typography variant="body2" fontWeight={500} sx={{ 
+//                           color: "text.primary",
+//                           fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+//                           wordBreak: 'break-word'
+//                         }}>
+//                           {userData?.address || "Not provided"}
+//                         </Typography>
+//                       </Box>
+//                     </Box>
+//                   </Stack>
+
+//                   <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//                   {/* Actions */}
+//                   <Stack spacing={{ xs: 1, sm: 1.5 }}>
+//                     <Button
+//                       fullWidth
+//                       variant="outlined"
+//                       startIcon={<ResetPasswordIcon sx={{ fontSize: 14 }} />}
+//                       onClick={handleResetPassword}
+//                       size="small"
+//                       sx={{
+//                         py: { xs: 0.8, sm: 1 },
+//                         borderRadius: { xs: 2, sm: 2.5 },
+//                         borderColor: theme.palette.primary.main,
+//                         color: theme.palette.primary.main,
+//                         fontWeight: 600,
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         height: 36,
+//                         "&:hover": {
+//                           borderColor: theme.palette.primary.dark,
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                         },
+//                       }}
+//                     >
+//                       Reset Password
+//                     </Button>
+
+//                     <Button
+//                       fullWidth
+//                       variant="contained"
+//                       startIcon={<LogoutIcon sx={{ fontSize: 14 }} />}
+//                       onClick={() => setShowLogoutModal(true)}
+//                       size="small"
+//                       sx={{
+//                         py: { xs: 0.8, sm: 1 },
+//                         borderRadius: { xs: 2, sm: 2.5 },
+//                         bgcolor: "#ef4444",
+//                         fontWeight: 600,
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                         height: 36,
+//                         "&:hover": {
+//                           bgcolor: "#dc2626",
+//                         },
+//                       }}
+//                     >
+//                       Sign Out
+//                     </Button>
+//                   </Stack>
+//                 </>
+//               )}
+//             </CardContent>
+//           </TabPanel>
+
+//           {/* Configuration Tab */}
+//           <TabPanel value={tabValue} index={1}>
+//             <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
+//               <Typography
+//                 variant="subtitle2"
+//                 fontWeight={600}
+//                 sx={{
+//                   color: theme.palette.primary.main,
+//                   textTransform: "uppercase",
+//                   letterSpacing: 1,
+//                   mb: { xs: 1.5, sm: 2, md: 2.5 },
+//                   fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+//                 }}
+//               >
+//                 Payment Configuration
+//               </Typography>
+
+//               <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }} sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="RAZORPAY_KEY_ID"
+//                     value={configData.razorpayKeyId}
+//                     size="small"
+//                     disabled
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <KeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="RAZORPAY_KEY_SECRET"
+//                     value={configData.razorpayKeySecret}
+//                     size="small"
+//                     disabled
+//                     type="password"
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="RAZORPAY_WEBHOOK_SECRET"
+//                     value={configData.razorpayWebhookSecret}
+//                     size="small"
+//                     disabled
+//                     type="password"
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+//               </Grid>
+
+//               <Typography
+//                 variant="subtitle2"
+//                 fontWeight={600}
+//                 sx={{
+//                   color: theme.palette.primary.main,
+//                   textTransform: "uppercase",
+//                   letterSpacing: 1,
+//                   mb: { xs: 1.5, sm: 2, md: 2.5 },
+//                   fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+//                 }}
+//               >
+//                 Gmail Configuration
+//               </Typography>
+
+//               <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="GMAIL_USER"
+//                     value={configData.gmailUser}
+//                     size="small"
+//                     disabled
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <MailIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="GMAIL_APP_PASS"
+//                     value={configData.gmailAppPass}
+//                     size="small"
+//                     disabled
+//                     type="password"
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+
+//                 <Grid item xs={12}>
+//                   <TextField
+//                     fullWidth
+//                     label="EMAIL_FROM"
+//                     value={configData.emailFrom}
+//                     size="small"
+//                     disabled
+//                     InputProps={{
+//                       startAdornment: (
+//                         <InputAdornment position="start">
+//                           <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+//                         </InputAdornment>
+//                       ),
+//                     }}
+//                     sx={{
+//                       '& .MuiInputLabel-root': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         fontSize: { xs: '0.7rem', sm: '0.75rem' },
+//                       },
+//                       '& .Mui-disabled': {
+//                         WebkitTextFillColor: theme.palette.text.primary,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.05),
+//                       },
+//                     }}
+//                   />
+//                 </Grid>
+//               </Grid>
+//             </CardContent>
+//           </TabPanel>
+//         </Paper>
+//       </motion.div>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </Box>
+//   );
+// };
+
+// export default Profile;
 
 
-////////////////////////////// Change Color Theam/////////////////////////////////////
+
+
+
+
+
+
+
+
 
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Container,
-  Paper,
   Typography,
+  Paper,
   Avatar,
   Button,
   Chip,
@@ -1778,9 +2927,10 @@ import {
   Grid,
   InputAdornment,
   CircularProgress,
-  Alert,
   useTheme,
   useMediaQuery,
+  Tab,
+  Tabs,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -1793,17 +2943,34 @@ import {
   AdminPanelSettings as AdminIcon,
   VerifiedUser as SuperAdminIcon,
   CameraAlt as CameraIcon,
-  Close as CloseIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
+  Key as KeyIcon,
+  Mail as MailIcon,
+  VpnKey as VpnKeyIcon,
 } from "@mui/icons-material";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../redux/slices/authSlice";
 import { updateUser, getUserById } from "../../redux/slices/userSlice";
 import LogoutModal from "../../components/models/LogoutModal";
 import { toast } from "react-toastify";
+
+// TabPanel component
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`profile-tabpanel-${index}`}
+      aria-labelledby={`profile-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: { xs: 1.5, sm: 2 } }}>{children}</Box>}
+    </div>
+  );
+}
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -1821,6 +2988,7 @@ const Profile = () => {
   
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -1829,6 +2997,16 @@ const Profile = () => {
     mobile: "",
     address: "",
     avtar: null,
+  });
+
+  // Configuration state (display only - not fetched) - Only for Super Admin
+  const [configData] = useState({
+    razorpayKeyId: "rzp_test_xxxxxxxxxxxx",
+    razorpayKeySecret: "xxxxxxxxxxxxxxxx",
+    razorpayWebhookSecret: "whsec_xxxxxxxxxxxx",
+    gmailUser: "your-email@gmail.com",
+    gmailAppPass: "xxxx xxxx xxxx xxxx",
+    emailFrom: "noreply@yourdomain.com",
   });
 
   const [previewImage, setPreviewImage] = useState(null);
@@ -1987,21 +3165,21 @@ const Profile = () => {
   };
 
   const handleResetPassword = () => {
-    if (role_id === 2) {
-      navigate("/reset-password-ptofile");
-    } else {
-      navigate("/reset-password-ptofile");
-    }
+    navigate("/reset-password-profile");
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   const getRoleIcon = () => {
     switch (userData?.role_id || role_id) {
       case 2:
-        return <SuperAdminIcon sx={{ color: "#f59e0b", fontSize: isMobile ? 20 : 24 }} />;
+        return <SuperAdminIcon sx={{ color: theme.palette.secondary.main, fontSize: isMobile ? 18 : 20 }} />;
       case 1:
-        return <AdminIcon sx={{ color: "#2563EB", fontSize: isMobile ? 20 : 24 }} />;
+        return <AdminIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 18 : 20 }} />;
       default:
-        return <PersonIcon sx={{ color: "#64748b", fontSize: isMobile ? 20 : 24 }} />;
+        return <PersonIcon sx={{ color: theme.palette.text.secondary, fontSize: isMobile ? 18 : 20 }} />;
     }
   };
 
@@ -2019,11 +3197,11 @@ const Profile = () => {
   const getRoleColor = () => {
     switch (userData?.role_id || role_id) {
       case 2:
-        return "#f59e0b";
+        return theme.palette.secondary.main;
       case 1:
-        return "#2563EB";
+        return theme.palette.primary.main;
       default:
-        return "#64748b";
+        return theme.palette.text.secondary;
     }
   };
 
@@ -2048,207 +3226,238 @@ const Profile = () => {
     },
   };
 
+  // Determine if user is Super Admin (role_id = 2)
+  const isSuperAdmin = (userData?.role_id || role_id) === 2;
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#f8fafc",
-        backgroundImage:
-          "radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 90%)",
-        py: { xs: 1, sm: 1.5, md: 2 },
-        px: { xs: 1, sm: 2, md: 0 },
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      <Container 
-        maxWidth="md" 
-        disableGutters={isMobile}
-        sx={{ px: { xs: 2, sm: 3, md: 0 } }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Profile Header Card */}
-          <Paper
-            elevation={0}
+    <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
+      {/* Header */}
+      <Box sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between',
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        mb: { xs: 2, sm: 2.5 },
+        gap: 2
+      }}>
+        <Box>
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            fontWeight="700"
+            gutterBottom
             sx={{
-              borderRadius: { xs: 3, sm: 3.5, md: 4 },
-              overflow: "hidden",
-              border: "1px solid",
-              borderColor: alpha("#2563EB", 0.1),
-              boxShadow: `0 10px 30px -10px ${alpha("#2563EB", 0.2)}`,
-              mb: { xs: 1.5, sm: 1, md: 1 },
-              background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontSize: {
+                xs: '1rem',
+                sm: '1.2rem',
+                md: '1.4rem',
+                lg: '1.6rem',
+                xl: '1.8rem'
+              },
             }}
           >
-            <Box
-              sx={{
-                p: { xs: 1.5, sm: 2, md: 2.5 },
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                gap: { xs: 1.5, sm: 2, md: 2.5 },
-              }}
-            >
-              {/* Avatar Section */}
-              <Box sx={{ position: "relative" }}>
-                {previewImage ? (
-                  <Avatar
-                    src={previewImage}
+            My Profile
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
+            Manage your personal information and account settings
+          </Typography>
+        </Box>
+
+        {!isEditing && (
+          <Button
+            variant="outlined"
+            startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setIsEditing(true)}
+            size="small"
+            sx={{
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
+              fontSize: { xs: '0.65rem', sm: '0.7rem' },
+              height: 34,
+              '&:hover': {
+                borderColor: theme.palette.primary.dark,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+              },
+            }}
+          >
+            Edit Profile
+          </Button>
+        )}
+      </Box>
+
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* Profile Header Card */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: { xs: 2, sm: 2.5 },
+            border: '1px solid',
+            borderColor: alpha(theme.palette.primary.main, 0.1),
+            mb: { xs: 2, sm: 2.5 },
+            background: theme.palette.background.paper,
+          }}
+        >
+          <Box
+            sx={{
+              p: { xs: 1.5, sm: 2, md: 2.5 },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: "center",
+              gap: { xs: 1.5, sm: 2, md: 2.5 },
+            }}
+          >
+            {/* Avatar Section */}
+            <Box sx={{ position: "relative" }}>
+              {previewImage ? (
+                <Avatar
+                  src={previewImage}
+                  sx={{
+                    width: { xs: 60, sm: 70, md: 80 },
+                    height: { xs: 60, sm: 70, md: 80 },
+                    border: "3px solid white",
+                    boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
+                />
+              ) : (
+                <Avatar
+                  sx={{
+                    width: { xs: 60, sm: 70, md: 80 },
+                    height: { xs: 60, sm: 70, md: 80 },
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    border: "3px solid white",
+                    boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
+                >
+                  <PersonIcon sx={{ fontSize: { xs: 30, sm: 35, md: 40 } }} />
+                </Avatar>
+              )}
+              
+              {isEditing && (
+                <Tooltip title="Change Photo">
+                  <IconButton
+                    size="small"
+                    component="label"
                     sx={{
-                      width: { xs: 70, sm: 80, md: 90 },
-                      height: { xs: 70, sm: 80, md: 90 },
-                      border: "4px solid white",
-                      boxShadow: `0 4px 20px ${alpha("#2563EB", 0.2)}`,
-                    }}
-                  />
-                ) : (
-                  <Avatar
-                    sx={{
-                      width: { xs: 70, sm: 80, md: 90 },
-                      height: { xs: 70, sm: 80, md: 90 },
-                      bgcolor: alpha("#2563EB", 0.1),
-                      color: "#2563EB",
-                      border: "4px solid white",
-                      boxShadow: `0 4px 20px ${alpha("#2563EB", 0.2)}`,
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                      color: "white",
+                      width: { xs: 22, sm: 24, md: 26 },
+                      height: { xs: 22, sm: 24, md: 26 },
+                      "&:hover": {
+                        background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                      },
                     }}
                   >
-                    <PersonIcon sx={{ fontSize: { xs: 35, sm: 40, md: 45 } }} />
-                  </Avatar>
-                )}
-                
-                {!isEditing && (
-                  <Tooltip title="Edit Profile">
-                    <IconButton
-                      size="small"
-                      onClick={() => setIsEditing(true)}
-                      sx={{
-                        position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        background: "linear-gradient(135deg, #2563EB, #1E40AF)",
-                        color: "white",
-                        width: { xs: 24, sm: 28, md: 32 },
-                        height: { xs: 24, sm: 28, md: 32 },
-                        "&:hover": {
-                          background: "linear-gradient(135deg, #1E40AF, #2563EB)",
-                        },
-                      }}
-                    >
-                      <EditIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
-                    </IconButton>
-                  </Tooltip>
-                )}
-
-                {isEditing && (
-                  <Tooltip title="Change Photo">
-                    <IconButton
-                      size="small"
-                      component="label"
-                      sx={{
-                        position: "absolute",
-                        bottom: 0,
-                        right: 0,
-                        background: "linear-gradient(135deg, #2563EB, #1E40AF)",
-                        color: "white",
-                        width: { xs: 24, sm: 28, md: 32 },
-                        height: { xs: 24, sm: 28, md: 32 },
-                        "&:hover": {
-                          background: "linear-gradient(135deg, #1E40AF, #2563EB)",
-                        },
-                      }}
-                    >
-                      <CameraIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-
-              {/* User Info */}
-              <Box sx={{ 
-                textAlign: { xs: "center", sm: "left" }, 
-                flex: 1,
-                width: { xs: '100%', sm: 'auto' }
-              }}>
-                <Typography 
-                  variant={isMobile ? "h6" : "h5"} 
-                  fontWeight={700} 
-                  color="#1e293b" 
-                  gutterBottom
-                  sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } }}
-                >
-                  {userData?.name || "User Name"}
-                </Typography>
-                
-                <Box sx={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: 1, 
-                  justifyContent: { xs: "center", sm: "flex-start" }, 
-                  mb: { xs: 0.5, sm: 1 },
-                  flexWrap: 'wrap',
-                }}>
-                  {getRoleIcon()}
-                  <Chip
-                    label={getRoleName()}
-                    size="small"
-                    sx={{
-                      bgcolor: alpha(getRoleColor(), 0.1),
-                      color: getRoleColor(),
-                      fontWeight: 600,
-                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
-                      height: { xs: 20, sm: 22, md: 24 },
-                    }}
-                  />
-                </Box>
-
-                {userData?.createdAt && (
-                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
-                    Member since {new Date(userData.createdAt).toLocaleDateString()}
-                  </Typography>
-                )}
-              </Box>
+                    <CameraIcon sx={{ fontSize: { xs: 12, sm: 13, md: 14 } }} />
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
-          </Paper>
 
-          {/* Profile Details Card */}
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: { xs: 3, sm: 3.5, md: 4 },
-              overflow: "hidden",
-              border: "1px solid",
-              borderColor: alpha("#2563EB", 0.1),
-              boxShadow: `0 10px 30px -10px ${alpha("#2563EB", 0.2)}`,
-              background: "#ffffff",
-            }}
-          >
-            <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={600}
-                sx={{
-                  color: "#2563EB",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                  mb: { xs: 1.5, sm: 2, md: 2.5 },
-                  fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-                }}
+            {/* User Info */}
+            <Box sx={{ 
+              textAlign: { xs: "center", sm: "left" }, 
+              flex: 1,
+              width: { xs: '100%', sm: 'auto' }
+            }}>
+              <Typography 
+                variant={isMobile ? "body1" : "h6"} 
+                fontWeight={600} 
+                color="text.primary" 
+                gutterBottom
+                sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' } }}
               >
-                Personal Information
+                {userData?.name || "User Name"}
               </Typography>
+              
+              <Box sx={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: 1, 
+                justifyContent: { xs: "center", sm: "flex-start" }, 
+                mb: { xs: 0.5, sm: 1 },
+                flexWrap: 'wrap',
+              }}>
+                {getRoleIcon()}
+                <Chip
+                  label={getRoleName()}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(getRoleColor(), 0.1),
+                    color: getRoleColor(),
+                    fontWeight: 600,
+                    fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+                    height: { xs: 18, sm: 20, md: 22 },
+                  }}
+                />
+              </Box>
 
+              {userData?.createdAt && (
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' } }}>
+                  Member since {new Date(userData.createdAt).toLocaleDateString()}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* Tabs - Only show Configuration tab for Super Admin */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: { xs: 2, sm: 2.5 },
+            border: '1px solid',
+            borderColor: alpha(theme.palette.primary.main, 0.1),
+            overflow: 'hidden',
+          }}
+        >
+          <Box sx={{ borderBottom: 1, borderColor: alpha(theme.palette.primary.main, 0.1) }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              variant={isMobile ? "fullWidth" : "standard"}
+              sx={{
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.8rem' },
+                  minHeight: { xs: 42, sm: 48 },
+                  px: { xs: 1, sm: 1.5 },
+                },
+                '& .Mui-selected': {
+                  color: `${theme.palette.primary.main} !important`,
+                },
+                '& .MuiTabs-indicator': {
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
+            >
+              <Tab label="Personal Information" />
+              {/* Only show Configuration tab for Super Admin */}
+              {isSuperAdmin && <Tab label="Configuration" />}
+            </Tabs>
+          </Box>
+
+          {/* Personal Information Tab */}
+          <TabPanel value={tabValue} index={0}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
               {isEditing ? (
-                // Edit Mode
+                // Edit Mode - Email field disabled
                 <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
                   <Grid item xs={12}>
                     <TextField
@@ -2264,16 +3473,19 @@ const Profile = () => {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
+                            <PersonIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
-                        "& .MuiInputLabel-root": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
                         },
-                        "& .MuiInputBase-input": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          fontSize: { xs: '0.55rem', sm: '0.6rem' },
                         },
                       }}
                     />
@@ -2286,24 +3498,25 @@ const Profile = () => {
                       label="Email Address"
                       type="email"
                       value={formData.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!errors.email && touched.email}
-                      helperText={touched.email && errors.email}
+                      disabled
                       size="small"
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <EmailIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
+                            <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
-                        "& .MuiInputLabel-root": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
                         },
-                        "& .MuiInputBase-input": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.secondary,
+                          bgcolor: alpha(theme.palette.action.disabled, 0.05),
                         },
                       }}
                     />
@@ -2323,16 +3536,19 @@ const Profile = () => {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PhoneIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
+                            <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
-                        "& .MuiInputLabel-root": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
                         },
-                        "& .MuiInputBase-input": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          fontSize: { xs: '0.55rem', sm: '0.6rem' },
                         },
                       }}
                     />
@@ -2349,19 +3565,24 @@ const Profile = () => {
                       error={!!errors.address && touched.address}
                       helperText={touched.address && errors.address}
                       size="small"
+                      multiline
+                      rows={2}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <LocationIcon sx={{ color: "#2563EB", fontSize: { xs: 16, sm: 18 } }} />
+                            <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 16, sm: 18 } }} />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
-                        "& .MuiInputLabel-root": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
                         },
-                        "& .MuiInputBase-input": {
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiFormHelperText-root': {
+                          fontSize: { xs: '0.55rem', sm: '0.6rem' },
                         },
                       }}
                     />
@@ -2378,24 +3599,25 @@ const Profile = () => {
                       <Button
                         fullWidth
                         variant="contained"
-                        startIcon={<SaveIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                        startIcon={<SaveIcon sx={{ fontSize: 14 }} />}
                         onClick={handleSave}
                         disabled={loading}
                         size="small"
                         sx={{
                           py: { xs: 0.8, sm: 1 },
                           borderRadius: { xs: 2, sm: 2.5 },
-                          background: "linear-gradient(135deg, #2563EB, #1E40AF)",
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                          height: 36,
                           order: { xs: 1, sm: 1 },
                           "&:hover": {
-                            background: "linear-gradient(135deg, #1E40AF, #2563EB)",
+                            background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
                           },
                         }}
                       >
                         {loading ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <CircularProgress size={16} sx={{ color: "white" }} />
+                            <CircularProgress size={14} sx={{ color: "white" }} />
                             <span>Saving...</span>
                           </Box>
                         ) : (
@@ -2406,21 +3628,22 @@ const Profile = () => {
                       <Button
                         fullWidth
                         variant="outlined"
-                        startIcon={<CancelIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                        startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
                         onClick={handleCancel}
                         disabled={loading}
                         size="small"
                         sx={{
                           py: { xs: 0.8, sm: 1 },
                           borderRadius: { xs: 2, sm: 2.5 },
-                          borderColor: "#e2e8f0",
-                          color: "#64748b",
-                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          borderColor: alpha(theme.palette.divider, 0.5),
+                          color: "text.secondary",
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                          height: 36,
                           order: { xs: 2, sm: 2 },
                           "&:hover": {
-                            borderColor: "#2563EB",
-                            color: "#2563EB",
-                            bgcolor: alpha("#2563EB", 0.1),
+                            borderColor: theme.palette.primary.main,
+                            color: theme.palette.primary.main,
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
                           },
                         }}
                       >
@@ -2443,21 +3666,21 @@ const Profile = () => {
                     }}>
                       <Avatar
                         sx={{
-                          bgcolor: alpha("#2563EB", 0.1),
-                          color: "#2563EB",
-                          width: { xs: 36, sm: 40, md: 44 },
-                          height: { xs: 36, sm: 40, md: 44 },
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                          width: { xs: 32, sm: 36, md: 40 },
+                          height: { xs: 32, sm: 36, md: 40 },
                         }}
                       >
-                        <EmailIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+                        <EmailIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
                       </Avatar>
                       <Box sx={{ flex: 1, width: '100%' }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
                           Email Address
                         </Typography>
                         <Typography variant="body2" fontWeight={500} sx={{ 
-                          color: "#1e293b",
-                          fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+                          color: "text.primary",
+                          fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
                           wordBreak: 'break-all'
                         }}>
                           {userData?.email || "Not provided"}
@@ -2465,7 +3688,7 @@ const Profile = () => {
                       </Box>
                     </Box>
 
-                    <Divider sx={{ borderColor: alpha("#2563EB", 0.1) }} />
+                    <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
 
                     {/* Phone */}
                     <Box sx={{ 
@@ -2477,21 +3700,21 @@ const Profile = () => {
                     }}>
                       <Avatar
                         sx={{
-                          bgcolor: alpha("#2563EB", 0.1),
-                          color: "#2563EB",
-                          width: { xs: 36, sm: 40, md: 44 },
-                          height: { xs: 36, sm: 40, md: 44 },
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                          width: { xs: 32, sm: 36, md: 40 },
+                          height: { xs: 32, sm: 36, md: 40 },
                         }}
                       >
-                        <PhoneIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+                        <PhoneIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
                       </Avatar>
                       <Box sx={{ flex: 1, width: '100%' }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
                           Phone Number
                         </Typography>
                         <Typography variant="body2" fontWeight={500} sx={{ 
-                          color: "#1e293b",
-                          fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+                          color: "text.primary",
+                          fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
                           wordBreak: 'break-all'
                         }}>
                           {userData?.mobile_no || "Not provided"}
@@ -2499,7 +3722,7 @@ const Profile = () => {
                       </Box>
                     </Box>
 
-                    <Divider sx={{ borderColor: alpha("#2563EB", 0.1) }} />
+                    <Divider sx={{ borderColor: alpha(theme.palette.primary.main, 0.1) }} />
 
                     {/* Address */}
                     <Box sx={{ 
@@ -2511,21 +3734,21 @@ const Profile = () => {
                     }}>
                       <Avatar
                         sx={{
-                          bgcolor: alpha("#2563EB", 0.1),
-                          color: "#2563EB",
-                          width: { xs: 36, sm: 40, md: 44 },
-                          height: { xs: 36, sm: 40, md: 44 },
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                          width: { xs: 32, sm: 36, md: 40 },
+                          height: { xs: 32, sm: 36, md: 40 },
                         }}
                       >
-                        <LocationIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+                        <LocationIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
                       </Avatar>
                       <Box sx={{ flex: 1, width: '100%' }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, letterSpacing: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, letterSpacing: 0.5 }}>
                           Address
                         </Typography>
                         <Typography variant="body2" fontWeight={500} sx={{ 
-                          color: "#1e293b",
-                          fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+                          color: "text.primary",
+                          fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
                           wordBreak: 'break-word'
                         }}>
                           {userData?.address || "Not provided"}
@@ -2534,26 +3757,27 @@ const Profile = () => {
                     </Box>
                   </Stack>
 
-                  <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha("#2563EB", 0.1) }} />
+                  <Divider sx={{ my: { xs: 2, sm: 2.5, md: 3 }, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
 
                   {/* Actions */}
                   <Stack spacing={{ xs: 1, sm: 1.5 }}>
                     <Button
                       fullWidth
                       variant="outlined"
-                      startIcon={<ResetPasswordIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                      startIcon={<ResetPasswordIcon sx={{ fontSize: 14 }} />}
                       onClick={handleResetPassword}
                       size="small"
                       sx={{
                         py: { xs: 0.8, sm: 1 },
                         borderRadius: { xs: 2, sm: 2.5 },
-                        borderColor: "#2563EB",
-                        color: "#2563EB",
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
                         fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        height: 36,
                         "&:hover": {
-                          borderColor: "#1E40AF",
-                          bgcolor: alpha("#2563EB", 0.1),
+                          borderColor: theme.palette.primary.dark,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
                         },
                       }}
                     >
@@ -2563,7 +3787,7 @@ const Profile = () => {
                     <Button
                       fullWidth
                       variant="contained"
-                      startIcon={<LogoutIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                      startIcon={<LogoutIcon sx={{ fontSize: 14 }} />}
                       onClick={() => setShowLogoutModal(true)}
                       size="small"
                       sx={{
@@ -2571,7 +3795,8 @@ const Profile = () => {
                         borderRadius: { xs: 2, sm: 2.5 },
                         bgcolor: "#ef4444",
                         fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        height: 36,
                         "&:hover": {
                           bgcolor: "#dc2626",
                         },
@@ -2583,35 +3808,225 @@ const Profile = () => {
                 </>
               )}
             </CardContent>
-          </Paper>
+          </TabPanel>
 
-          {/* Edit Button (Mobile) - Only show in view mode */}
-          {!isEditing && (
-            <Box sx={{ display: { xs: "block", md: "none" }, mt: { xs: 1.5, sm: 2, md: 2.5 } }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<EditIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
-                onClick={() => setIsEditing(true)}
-                size="small"
-                sx={{
-                  borderColor: "#2563EB",
-                  color: "#2563EB",
-                  borderRadius: { xs: 2, sm: 2.5 },
-                  py: { xs: 0.8, sm: 1 },
-                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                  "&:hover": {
-                    borderColor: "#1E40AF",
-                    bgcolor: alpha("#2563EB", 0.1),
-                  },
-                }}
-              >
-                Edit Profile
-              </Button>
-            </Box>
+          {/* Configuration Tab - Only rendered for Super Admin */}
+          {isSuperAdmin && (
+            <TabPanel value={tabValue} index={1}>
+              <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    mb: { xs: 1.5, sm: 2, md: 2.5 },
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                  }}
+                >
+                  Payment Configuration
+                </Typography>
+
+                <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }} sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="RAZORPAY_KEY_ID"
+                      value={configData.razorpayKeyId}
+                      size="small"
+                      disabled
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <KeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="RAZORPAY_KEY_SECRET"
+                      value={configData.razorpayKeySecret}
+                      size="small"
+                      disabled
+                      type="password"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="RAZORPAY_WEBHOOK_SECRET"
+                      value={configData.razorpayWebhookSecret}
+                      size="small"
+                      disabled
+                      type="password"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    mb: { xs: 1.5, sm: 2, md: 2.5 },
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                  }}
+                >
+                  Gmail Configuration
+                </Typography>
+
+                <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="GMAIL_USER"
+                      value={configData.gmailUser}
+                      size="small"
+                      disabled
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MailIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="GMAIL_APP_PASS"
+                      value={configData.gmailAppPass}
+                      size="small"
+                      disabled
+                      type="password"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <VpnKeyIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="EMAIL_FROM"
+                      value={configData.emailFrom}
+                      size="small"
+                      disabled
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputLabel-root': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .MuiInputBase-input': {
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                        },
+                        '& .Mui-disabled': {
+                          WebkitTextFillColor: theme.palette.text.primary,
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </TabPanel>
           )}
-        </motion.div>
-      </Container>
+        </Paper>
+      </motion.div>
 
       {/* Logout Modal */}
       <LogoutModal
@@ -2627,5 +4042,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-

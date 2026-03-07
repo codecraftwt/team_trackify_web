@@ -1,13 +1,18 @@
 // import { useEffect, useState } from 'react';
 // import { Outlet, useNavigate } from 'react-router-dom';
 // import { useSelector } from 'react-redux';
-// import { Box } from '@mui/material';
+// import { Box, useMediaQuery, useTheme } from '@mui/material';
 // import Sidebar from './Sidebar';
 // import Navbar from './Navbar';
 
 // const DashboardLayout = () => {
 //   const navigate = useNavigate();
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
+  
 //   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+//   const [mobileOpen, setMobileOpen] = useState(false);
+  
 //   const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
 
 //   // Check if user is authenticated
@@ -17,8 +22,25 @@
 //     }
 //   }, [isAuthenticated, user, role_id, navigate]);
 
+//   // Close mobile sidebar when switching to desktop
+//   useEffect(() => {
+//     if (!isMobile) {
+//       setMobileOpen(false);
+//     }
+//   }, [isMobile]);
+
 //   const handleToggleSidebar = () => {
-//     setSidebarCollapsed(!sidebarCollapsed);
+//     if (isMobile) {
+//       // On mobile, toggle the mobile drawer
+//       setMobileOpen(!mobileOpen);
+//     } else {
+//       // On desktop, toggle collapse
+//       setSidebarCollapsed(!sidebarCollapsed);
+//     }
+//   };
+
+//   const handleSidebarClose = () => {
+//     setMobileOpen(false);
 //   };
 
 //   // Don't render if not authenticated
@@ -28,15 +50,20 @@
 
 //   return (
 //     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-//       {/* Sidebar - fixed on left */}
-//       <Sidebar collapsed={sidebarCollapsed} />
+//       {/* Sidebar - with mobile drawer support */}
+//       <Sidebar 
+//         collapsed={sidebarCollapsed}
+//         mobileOpen={mobileOpen}
+//         onClose={handleSidebarClose}
+//         isMobile={isMobile}
+//       />
       
-//       {/* Right Side Container - This is where Navbar belongs */}
+//       {/* Right Side Container */}
 //       <Box 
 //         sx={{ 
 //           flexGrow: 1,
-//           ml: sidebarCollapsed ? '72px' : '280px', // Match sidebar width
-//           width: `calc(100% - ${sidebarCollapsed ? 72 : 280}px)`,
+//           ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '280px'),
+//           width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 280}px)`,
 //           minHeight: '100vh',
 //           display: 'flex',
 //           flexDirection: 'column',
@@ -44,10 +71,12 @@
 //           bgcolor: '#f5f5f5',
 //         }}
 //       >
-//         {/* Navbar - inside the right container, not full screen */}
+//         {/* Navbar */}
 //         <Navbar 
 //           sidebarCollapsed={sidebarCollapsed}
 //           onToggleSidebar={handleToggleSidebar}
+//           isMobile={isMobile}
+//           mobileOpen={mobileOpen}
 //         />
         
 //         {/* Main Content Area */}
@@ -55,7 +84,7 @@
 //           component="main" 
 //           sx={{ 
 //             flexGrow: 1,
-//             p: 3,
+//             // p: { xs: 2, sm: 3 },
 //             overflow: 'auto',
 //           }}
 //         >
@@ -68,6 +97,10 @@
 
 // export default DashboardLayout;
 
+
+
+
+
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -79,10 +112,10 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
-  
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
   const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
 
   // Check if user is authenticated
@@ -101,10 +134,8 @@ const DashboardLayout = () => {
 
   const handleToggleSidebar = () => {
     if (isMobile) {
-      // On mobile, toggle the mobile drawer
       setMobileOpen(!mobileOpen);
     } else {
-      // On desktop, toggle collapse
       setSidebarCollapsed(!sidebarCollapsed);
     }
   };
@@ -120,20 +151,20 @@ const DashboardLayout = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Sidebar - with mobile drawer support */}
-      <Sidebar 
+      {/* Sidebar */}
+      <Sidebar
         collapsed={sidebarCollapsed}
         mobileOpen={mobileOpen}
         onClose={handleSidebarClose}
         isMobile={isMobile}
       />
-      
+
       {/* Right Side Container */}
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           flexGrow: 1,
-          ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '280px'),
-          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 280}px)`,
+          ml: isMobile ? 0 : (sidebarCollapsed ? '64px' : '220px'), // ← reduced from 72px/280px
+          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 64 : 220}px)`, // ← reduced from 72/280
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
@@ -142,19 +173,18 @@ const DashboardLayout = () => {
         }}
       >
         {/* Navbar */}
-        <Navbar 
+        <Navbar
           sidebarCollapsed={sidebarCollapsed}
           onToggleSidebar={handleToggleSidebar}
           isMobile={isMobile}
           mobileOpen={mobileOpen}
         />
-        
+
         {/* Main Content Area */}
-        <Box 
-          component="main" 
-          sx={{ 
+        <Box
+          component="main"
+          sx={{
             flexGrow: 1,
-            // p: { xs: 2, sm: 3 },
             overflow: 'auto',
           }}
         >
@@ -166,8 +196,3 @@ const DashboardLayout = () => {
 };
 
 export default DashboardLayout;
-
-
-
-
-

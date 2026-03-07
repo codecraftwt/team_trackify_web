@@ -39,11 +39,11 @@
 //   const navigate = useNavigate();
 //   const dispatch = useDispatch();
 //   const theme = useTheme();
-  
+
 //   // Responsive breakpoints for mobile width
 //   const isSmallMobile = useMediaQuery('(max-width:480px)');
 //   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
-  
+
 //   const { user, role_id } = useSelector((state) => state.auth);
 
 //   const handleLogout = () => {
@@ -340,7 +340,7 @@
 //             }}>
 //               <LogoutIcon />
 //             </ListItemIcon>
-            
+
 //             {/* Hide text when collapsed on desktop */}
 //             {(!collapsed || isMobile) && (
 //               <ListItemText 
@@ -444,14 +444,14 @@
 //   const navigate = useNavigate();
 //   const dispatch = useDispatch();
 //   const theme = useTheme();
-  
+
 //   // Add state for logout modal
 //   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  
+
 //   // Responsive breakpoints for mobile width
 //   const isSmallMobile = useMediaQuery('(max-width:480px)');
 //   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
-  
+
 //   const { user, role_id } = useSelector((state) => state.auth);
 
 //   // Replace handleLogout with these two functions
@@ -463,7 +463,7 @@
 //     // Clear all storage
 //     localStorage.clear();
 //     sessionStorage.clear();
-    
+
 //     // Clear cookies
 //     document.cookie.split(";").forEach((c) => {
 //       document.cookie = c
@@ -473,18 +473,18 @@
 
 //     // Dispatch Redux logout action
 //     dispatch(logout());
-    
+
 //     // Close sidebar if on mobile
 //     if (isMobile) {
 //       onClose?.();
 //     }
-    
+
 //     // Navigate to login
 //     navigate('/login', { replace: true });
-    
+
 //     // Close modal
 //     setShowLogoutModal(false);
-    
+
 //     // Reload page to clear any cached state
 //     setTimeout(() => {
 //       window.location.reload();
@@ -779,7 +779,7 @@
 //             }}>
 //               <LogoutIcon />
 //             </ListItemIcon>
-            
+
 //             {/* Hide text when collapsed on desktop */}
 //             {(!collapsed || isMobile) && (
 //               <ListItemText 
@@ -815,7 +815,7 @@
 //         >
 //           {sidebarContent}
 //         </Drawer>
-        
+
 //         {/* Logout Modal */}
 //         <LogoutModal
 //           show={showLogoutModal}
@@ -843,7 +843,7 @@
 //       >
 //         {sidebarContent}
 //       </Box>
-      
+
 //       {/* Logout Modal */}
 //       <LogoutModal
 //         show={showLogoutModal}
@@ -867,9 +867,1921 @@
 
 
 // change color
+// import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useState } from 'react'; // Add this import
+// import {
+//   Drawer,
+//   List,
+//   ListItem,
+//   ListItemButton,
+//   ListItemIcon,
+//   ListItemText,
+//   Divider,
+//   Box,
+//   Typography,
+//   Avatar,
+//   Tooltip,
+//   IconButton,
+//   useMediaQuery,
+//   useTheme,
+// } from '@mui/material';
+// import {
+//   Dashboard as DashboardIcon,
+//   People as PeopleIcon,
+//   Payment as PaymentIcon,
+//   Assessment as AssessmentIcon,
+//   Person as PersonIcon,
+//   Business as BusinessIcon,
+//   AttachMoney as MoneyIcon,
+//   PriceChange as PlanIcon,
+//   Contacts as ContactIcon,
+//   Logout as LogoutIcon,
+//   Receipt as ReceiptIcon,           
+//   Description as ReportIcon,       
+//   ManageAccounts as ProfileIcon,
+//   ChevronLeft as ChevronLeftIcon,
+// } from '@mui/icons-material';
+// import { logout } from '../../redux/slices/authSlice';
+// import LogoutModal from '../models/LogoutModal'; // Add this import
+
+// const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = false }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+
+//   // Add state for logout modal
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+//   // Responsive breakpoints for mobile width
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+//   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
+
+//   const { user, role_id } = useSelector((state) => state.auth);
+
+//   // Replace handleLogout with these two functions
+//   const handleLogoutClick = () => {
+//     setShowLogoutModal(true);
+//   };
+
+//   const handleConfirmLogout = () => {
+//     // Clear all storage
+//     localStorage.clear();
+//     sessionStorage.clear();
+
+//     // Clear cookies
+//     document.cookie.split(";").forEach((c) => {
+//       document.cookie = c
+//         .replace(/^ +/, "")
+//         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+//     });
+
+//     // Dispatch Redux logout action
+//     dispatch(logout());
+
+//     // Close sidebar if on mobile
+//     if (isMobile) {
+//       onClose?.();
+//     }
+
+//     // Navigate to login
+//     navigate('/login', { replace: true });
+
+//     // Close modal
+//     setShowLogoutModal(false);
+
+//     // Reload page to clear any cached state
+//     setTimeout(() => {
+//       window.location.reload();
+//     }, 100);
+//   };
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     if (isMobile) {
+//       onClose?.();
+//     }
+//   };
+
+//   // Admin Menu Items
+//   const adminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+//     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
+//     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
+//     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
+//     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
+//     { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
+//   ];
+
+//   // Super Admin Menu Items
+//   const superAdminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
+//     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
+//     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+//     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
+//     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
+//     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
+//   ];
+
+//   // Get menu items based on role
+//   const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+//   const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+//   const isActive = (path) => location.pathname === path;
+
+//   // Determine mobile drawer width
+//   const getMobileWidth = () => {
+//     if (isSmallMobile) return 240; 
+//     if (isMediumMobile) return 260;
+//     return 280; 
+//   };
+
+//   const sidebarContent = (
+//     <Box
+//       sx={{
+//         height: '100%',
+//         width: isMobile ? getMobileWidth() : (collapsed ? 72 : 280),
+//         display: 'flex',
+//         flexDirection: 'column',
+//         background: 'linear-gradient(135deg, rgb(91, 138, 240), rgba(34, 69, 184, 0.86))', // Updated gradient
+//         color: 'white',
+//         transition: 'width 0.3s ease',
+//         overflowX: 'hidden',
+//         boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+//         borderRadius: 0,
+//       }}
+//     >
+//       {/* Header / Logo */}
+//       <Box
+//         sx={{
+//           p: isMobile ? 1.5 : (collapsed ? 1.5 : 2.5),
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'flex-start'),
+//           gap: 1.5,
+//           borderBottom: '1px solid rgba(255,255,255,0.08)',
+//           minHeight: isMobile ? 56 : (collapsed ? 56 : 64),
+//         }}
+//       >
+//         <Box sx={{ 
+//           display: 'flex', 
+//           alignItems: 'center', 
+//           gap: 1.5,
+//           justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//           width: collapsed && !isMobile ? '100%' : 'auto',
+//         }}>
+//           <Avatar
+//             sx={{
+//               bgcolor: '#2563EB', // Updated to primary color
+//               width: isMobile ? 30 : (collapsed ? 32 : 40),
+//               height: isMobile ? 30 : (collapsed ? 32 : 40),
+//               fontWeight: 'bold',
+//               fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
+//             }}
+//           >
+//             TT
+//           </Avatar>
+
+//           {/* Hide text when collapsed on desktop, but show on mobile */}
+//           {(!collapsed || isMobile) && (
+//             <Box>
+//               <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ 
+//                 fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
+//                 lineHeight: 1.2,
+//               }}>
+//                 Team Trackify
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.7, 
+//                 fontSize: isMobile ? '0.55rem' : (collapsed ? '0.6rem' : '0.7rem'),
+//                 display: 'block',
+//               }}>
+//                 {roleName}
+//               </Typography>
+//             </Box>
+//           )}
+//         </Box>
+
+//         {/* Close button for mobile */}
+//         {isMobile && (
+//           <IconButton onClick={onClose} sx={{ color: 'white', p: 0.5 }}>
+//             <ChevronLeftIcon sx={{ fontSize: 20 }} />
+//           </IconButton>
+//         )}
+//       </Box>
+
+//       {/* User Info - Hide when collapsed on desktop */}
+//       {(!collapsed || isMobile) && (
+//         <Box sx={{ px: isMobile ? 1.5 : 2.5, py: isMobile ? 1 : 2 }}>
+//           <Box
+//             sx={{
+//               display: 'flex',
+//               alignItems: 'center',
+//               gap: isMobile ? 1 : 2,
+//               bgcolor: 'rgba(255,255,255,0.08)',
+//               p: isMobile ? 0.8 : 1.5,
+//               borderRadius: 1.5,
+//             }}
+//           >
+//             <Avatar
+//               src={user?.avtar}
+//               sx={{ 
+//                 bgcolor: 'rgb(96, 165, 250)', // Updated to accent color
+//                 width: isMobile ? 28 : 40,
+//                 height: isMobile ? 28 : 40,
+//                 fontSize: isMobile ? '0.7rem' : '0.9rem',
+//               }}
+//             >
+//               {user?.name?.charAt(0) || 'A'}
+//             </Avatar>
+//             <Box sx={{ minWidth: 0 }}>
+//               <Typography variant="body2" fontWeight={500} noWrap sx={{ 
+//                 fontSize: isMobile ? '0.7rem' : '0.85rem',
+//                 lineHeight: 1.2,
+//               }}>
+//                 {user?.name || 'Admin User'}
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.75,
+//                 fontSize: isMobile ? '0.55rem' : '0.65rem',
+//                 display: 'block',
+//                 whiteSpace: 'nowrap',
+//                 overflow: 'hidden',
+//                 textOverflow: 'ellipsis',
+//                 maxWidth: isMobile ? 140 : 180,
+//               }}>
+//                 {user?.email || 'admin@trackify.in'}
+//               </Typography>
+//             </Box>
+//           </Box>
+//         </Box>
+//       )}
+
+//       {/* Menu Items - Increased vertical gap when collapsed */}
+//       <List sx={{ 
+//         flexGrow: 1, 
+//         pt: 1, 
+//         px: isMobile ? 0.5 : (collapsed ? 0 : 1.5), 
+//         pb: 1 
+//       }}>
+//         {menuItems.map((item) => {
+//           const active = isActive(item.path);
+
+//           return (
+//             <Tooltip
+//               key={item.text}
+//               title={collapsed && !isMobile ? item.text : ''}
+//               placement="right"
+//               arrow
+//             >
+//               <ListItem disablePadding sx={{ 
+//                 mb: collapsed && !isMobile ? 2 : 0.3, // Increased vertical gap when collapsed
+//               }}>
+//                 <ListItemButton
+//                   onClick={() => handleNavigation(item.path)}
+//                   sx={{
+//                     minHeight: isMobile ? 36 : (collapsed ? 44 : 48), // Increased height when collapsed
+//                     borderRadius: 1,
+//                     justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//                     px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
+//                     py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
+//                     mx: (collapsed && !isMobile) ? 0 : 0,
+//                     bgcolor: active ? 'rgba(96, 165, 250, 0.25)' : 'transparent', // Updated with accent color
+//                     '&:hover': {
+//                       bgcolor: active ? 'rgba(96, 165, 250, 0.35)' : 'rgba(96, 165, 250, 0.15)', // Updated to accent color
+//                     },
+//                     position: 'relative',
+//                     transition: 'all 0.18s ease',
+//                   }}
+//                 >
+//                   {/* Active indicator line - only show when not collapsed */}
+//                   {active && !collapsed && !isMobile && (
+//                     <Box
+//                       sx={{
+//                         position: 'absolute',
+//                         left: 0,
+//                         top: '50%',
+//                         transform: 'translateY(-50%)',
+//                         width: 4,
+//                         height: '60%',
+//                         bgcolor: 'rgb(96, 165, 250)', // Updated to accent color
+//                         borderRadius: '0 4px 4px 0',
+//                       }}
+//                     />
+//                   )}
+
+//                   <ListItemIcon
+//                     sx={{
+//                       minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
+//                       color: active ? 'rgb(96, 165, 250)' : 'inherit', // Updated to accent color
+//                       '& svg': {
+//                         fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), // Slightly larger icons when collapsed
+//                       },
+//                       display: 'flex',
+//                       justifyContent: 'center',
+//                     }}
+//                   >
+//                     {item.icon}
+//                   </ListItemIcon>
+
+//                   {/* Hide text when collapsed on desktop */}
+//                   {(!collapsed || isMobile) && (
+//                     <ListItemText
+//                       primary={item.text}
+//                       primaryTypographyProps={{
+//                         fontWeight: active ? 600 : 400,
+//                         fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
+//                         color: active ? 'rgb(96, 165, 250)' : 'white', // Updated to accent color
+//                       }}
+//                       sx={{
+//                         ml: isMobile ? 0.5 : 1,
+//                       }}
+//                     />
+//                   )}
+//                 </ListItemButton>
+//               </ListItem>
+//             </Tooltip>
+//           );
+//         })}
+//       </List>
+
+//       <Divider sx={{ 
+//         borderColor: 'rgba(255,255,255,0.08)', 
+//         mx: isMobile ? 1 : (collapsed ? 1 : 2), 
+//         my: collapsed && !isMobile ? 1.5 : 0, // Increased margin when collapsed
+//       }} />
+
+//       {/* Logout Button - Updated to use handleLogoutClick */}
+//       <Box sx={{ 
+//         p: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 2), 
+//         pb: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 1.5),
+//         display: 'flex',
+//         justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//         mt: collapsed && !isMobile ? 0.5 : 0, // Extra top margin when collapsed
+//       }}>
+//         <Tooltip title={collapsed && !isMobile ? 'Logout' : ''} placement="right" arrow>
+//           <ListItemButton
+//             onClick={handleLogoutClick} // Changed from handleLogout to handleLogoutClick
+//             sx={{
+//               borderRadius: 1,
+//               justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//               px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
+//               py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
+//               mx: (collapsed && !isMobile) ? 'auto' : 0,
+//               width: collapsed && !isMobile ? 'auto' : '100%',
+//               display: 'flex',
+//               alignItems: 'center',
+//               '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.25)' }, // Updated with accent color
+//             }}
+//           >
+//             <ListItemIcon sx={{ 
+//               minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
+//               '& svg': { 
+//                 fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), 
+//               },
+//               display: 'flex',
+//               justifyContent: 'center',
+//               color: 'rgb(96, 165, 250)', // Updated to accent color
+//             }}>
+//               <LogoutIcon />
+//             </ListItemIcon>
+
+//             {/* Hide text when collapsed on desktop */}
+//             {(!collapsed || isMobile) && (
+//               <ListItemText 
+//                 primary="Logout"
+//                 primaryTypographyProps={{
+//                   fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
+//                   color: 'rgb(96, 165, 250)', // Updated to accent color
+//                 }}
+//               />
+//             )}
+//           </ListItemButton>
+//         </Tooltip>
+//       </Box>
+//     </Box>
+//   );
+
+//   // For mobile devices
+//   if (isMobile) {
+//     return (
+//       <>
+//         <Drawer
+//           variant="temporary"
+//           open={mobileOpen}
+//           onClose={onClose}
+//           ModalProps={{ keepMounted: true }}
+//           sx={{
+//             display: { xs: 'block', sm: 'none' },
+//             '& .MuiDrawer-paper': {
+//               width: getMobileWidth(),
+//               boxSizing: 'border-box',
+//               bgcolor: 'transparent',
+//             },
+//           }}
+//         >
+//           {sidebarContent}
+//         </Drawer>
+
+//         {/* Logout Modal */}
+//         <LogoutModal
+//           show={showLogoutModal}
+//           onHide={() => setShowLogoutModal(false)}
+//           onConfirm={handleConfirmLogout}
+//           title="Sign Out"
+//           message="Are you sure you want to sign out?"
+//           subMessage="You will be redirected to the login page."
+//         />
+//       </>
+//     );
+//   }
+
+//   // On desktop
+//   return (
+//     <>
+//       <Box
+//         sx={{
+//           position: 'fixed',
+//           left: 0,
+//           top: 0,
+//           height: '100vh',
+//           zIndex: 1200,
+//         }}
+//       >
+//         {sidebarContent}
+//       </Box>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleConfirmLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </>
+//   );
+// };
+
+// export default Sidebar; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////    Centralised Color     ///////////////////////////////
+
+// import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useState } from 'react'; // Add this import
+// import {
+//   Drawer,
+//   List,
+//   ListItem,
+//   ListItemButton,
+//   ListItemIcon,
+//   ListItemText,
+//   Divider,
+//   Box,
+//   Typography,
+//   Avatar,
+//   Tooltip,
+//   IconButton,
+//   useMediaQuery,
+//   useTheme,
+// } from '@mui/material';
+// import {
+//   Dashboard as DashboardIcon,
+//   People as PeopleIcon,
+//   Payment as PaymentIcon,
+//   Assessment as AssessmentIcon,
+//   Person as PersonIcon,
+//   Business as BusinessIcon,
+//   AttachMoney as MoneyIcon,
+//   PriceChange as PlanIcon,
+//   Contacts as ContactIcon,
+//   Logout as LogoutIcon,
+//   Receipt as ReceiptIcon,           
+//   Description as ReportIcon,       
+//   ManageAccounts as ProfileIcon,
+//   ChevronLeft as ChevronLeftIcon,
+// } from '@mui/icons-material';
+// import { logout } from '../../redux/slices/authSlice';
+// import LogoutModal from '../models/LogoutModal'; // Add this import
+
+// const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = false }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+
+//   // Add state for logout modal
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+//   // Responsive breakpoints for mobile width
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+//   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
+
+//   const { user, role_id } = useSelector((state) => state.auth);
+
+//   // Replace handleLogout with these two functions
+//   const handleLogoutClick = () => {
+//     setShowLogoutModal(true);
+//   };
+
+//   const handleConfirmLogout = () => {
+//     // Clear all storage
+//     localStorage.clear();
+//     sessionStorage.clear();
+
+//     // Clear cookies
+//     document.cookie.split(";").forEach((c) => {
+//       document.cookie = c
+//         .replace(/^ +/, "")
+//         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+//     });
+
+//     // Dispatch Redux logout action
+//     dispatch(logout());
+
+//     // Close sidebar if on mobile
+//     if (isMobile) {
+//       onClose?.();
+//     }
+
+//     // Navigate to login
+//     navigate('/login', { replace: true });
+
+//     // Close modal
+//     setShowLogoutModal(false);
+
+//     // Reload page to clear any cached state
+//     setTimeout(() => {
+//       window.location.reload();
+//     }, 100);
+//   };
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     if (isMobile) {
+//       onClose?.();
+//     }
+//   };
+
+//   // Admin Menu Items
+//   const adminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+//     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
+//     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
+//     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
+//     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
+//     { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
+//   ];
+
+//   // Super Admin Menu Items
+//   const superAdminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
+//     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
+//     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+//     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
+//     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
+//     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
+//   ];
+
+//   // Get menu items based on role
+//   const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+//   const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+//   const isActive = (path) => location.pathname === path;
+
+//   // Determine mobile drawer width
+//   const getMobileWidth = () => {
+//     if (isSmallMobile) return 240; 
+//     if (isMediumMobile) return 260;
+//     return 280; 
+//   };
+
+//   const sidebarContent = (
+//     <Box
+//       sx={{
+//         height: '100%',
+//         width: isMobile ? getMobileWidth() : (collapsed ? 72 : 280),
+//         display: 'flex',
+//         flexDirection: 'column',
+//         background: 'linear-gradient(135deg, #2f6eaa, #1e4f7a)', // Using primary colors for gradient
+//         color: 'white',
+//         transition: 'width 0.3s ease',
+//         overflowX: 'hidden',
+//         boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+//         borderRadius: 0,
+//       }}
+//     >
+//       {/* Header / Logo */}
+//       <Box
+//         sx={{
+//           p: isMobile ? 1.5 : (collapsed ? 1.5 : 2.5),
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'flex-start'),
+//           gap: 1.5,
+//           borderBottom: '1px solid rgba(255,255,255,0.08)',
+//           minHeight: isMobile ? 56 : (collapsed ? 56 : 64),
+//         }}
+//       >
+//         <Box sx={{ 
+//           display: 'flex', 
+//           alignItems: 'center', 
+//           gap: 1.5,
+//           justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//           width: collapsed && !isMobile ? '100%' : 'auto',
+//         }}>
+//           <Avatar
+//             sx={{
+//               bgcolor: 'primary.main', // Using primary color
+//               width: isMobile ? 30 : (collapsed ? 32 : 40),
+//               height: isMobile ? 30 : (collapsed ? 32 : 40),
+//               fontWeight: 'bold',
+//               fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
+//             }}
+//           >
+//             TT
+//           </Avatar>
+
+//           {/* Hide text when collapsed on desktop, but show on mobile */}
+//           {(!collapsed || isMobile) && (
+//             <Box>
+//               <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ 
+//                 fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
+//                 lineHeight: 1.2,
+//               }}>
+//                 Team Trackify
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.7, 
+//                 fontSize: isMobile ? '0.55rem' : (collapsed ? '0.6rem' : '0.7rem'),
+//                 display: 'block',
+//               }}>
+//                 {roleName}
+//               </Typography>
+//             </Box>
+//           )}
+//         </Box>
+
+//         {/* Close button for mobile */}
+//         {isMobile && (
+//           <IconButton onClick={onClose} sx={{ color: 'white', p: 0.5 }}>
+//             <ChevronLeftIcon sx={{ fontSize: 20 }} />
+//           </IconButton>
+//         )}
+//       </Box>
+
+//       {/* User Info - Hide when collapsed on desktop */}
+//       {(!collapsed || isMobile) && (
+//         <Box sx={{ px: isMobile ? 1.5 : 2.5, py: isMobile ? 1 : 2 }}>
+//           <Box
+//             sx={{
+//               display: 'flex',
+//               alignItems: 'center',
+//               gap: isMobile ? 1 : 2,
+//               bgcolor: 'rgba(255,255,255,0.08)',
+//               p: isMobile ? 0.8 : 1.5,
+//               borderRadius: 1.5,
+//             }}
+//           >
+//             <Avatar
+//               src={user?.avtar}
+//               sx={{ 
+//                 bgcolor: 'secondary.main', // Using secondary color
+//                 width: isMobile ? 28 : 40,
+//                 height: isMobile ? 28 : 40,
+//                 fontSize: isMobile ? '0.7rem' : '0.9rem',
+//               }}
+//             >
+//               {user?.name?.charAt(0) || 'A'}
+//             </Avatar>
+//             <Box sx={{ minWidth: 0 }}>
+//               <Typography variant="body2" fontWeight={500} noWrap sx={{ 
+//                 fontSize: isMobile ? '0.7rem' : '0.85rem',
+//                 lineHeight: 1.2,
+//               }}>
+//                 {user?.name || 'Admin User'}
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.75,
+//                 fontSize: isMobile ? '0.55rem' : '0.65rem',
+//                 display: 'block',
+//                 whiteSpace: 'nowrap',
+//                 overflow: 'hidden',
+//                 textOverflow: 'ellipsis',
+//                 maxWidth: isMobile ? 140 : 180,
+//               }}>
+//                 {user?.email || 'admin@trackify.in'}
+//               </Typography>
+//             </Box>
+//           </Box>
+//         </Box>
+//       )}
+
+//       {/* Menu Items - Increased vertical gap when collapsed */}
+//       <List sx={{ 
+//         flexGrow: 1, 
+//         pt: 1, 
+//         px: isMobile ? 0.5 : (collapsed ? 0 : 1.5), 
+//         pb: 1 
+//       }}>
+//         {menuItems.map((item) => {
+//           const active = isActive(item.path);
+
+//           return (
+//             <Tooltip
+//               key={item.text}
+//               title={collapsed && !isMobile ? item.text : ''}
+//               placement="right"
+//               arrow
+//             >
+//               <ListItem disablePadding sx={{ 
+//                 mb: collapsed && !isMobile ? 2 : 0.3, // Increased vertical gap when collapsed
+//               }}>
+//                 <ListItemButton
+//                   onClick={() => handleNavigation(item.path)}
+//                   sx={{
+//                     minHeight: isMobile ? 36 : (collapsed ? 44 : 48), // Increased height when collapsed
+//                     borderRadius: 1,
+//                     justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//                     px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
+//                     py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
+//                     mx: (collapsed && !isMobile) ? 0 : 0,
+//                     bgcolor: active ? 'rgba(245, 158, 11, 0.25)' : 'transparent', // Using secondary color with opacity
+//                     '&:hover': {
+//                       bgcolor: active ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.15)', // Using secondary color with opacity
+//                     },
+//                     position: 'relative',
+//                     transition: 'all 0.18s ease',
+//                   }}
+//                 >
+//                   {/* Active indicator line - only show when not collapsed */}
+//                   {active && !collapsed && !isMobile && (
+//                     <Box
+//                       sx={{
+//                         position: 'absolute',
+//                         left: 0,
+//                         top: '50%',
+//                         transform: 'translateY(-50%)',
+//                         width: 4,
+//                         height: '60%',
+//                         bgcolor: 'secondary.main', // Using secondary color
+//                         borderRadius: '0 4px 4px 0',
+//                       }}
+//                     />
+//                   )}
+
+//                   <ListItemIcon
+//                     sx={{
+//                       minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
+//                       color: active ? 'secondary.main' : 'inherit', // Using secondary color
+//                       '& svg': {
+//                         fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), // Slightly larger icons when collapsed
+//                       },
+//                       display: 'flex',
+//                       justifyContent: 'center',
+//                     }}
+//                   >
+//                     {item.icon}
+//                   </ListItemIcon>
+
+//                   {/* Hide text when collapsed on desktop */}
+//                   {(!collapsed || isMobile) && (
+//                     <ListItemText
+//                       primary={item.text}
+//                       primaryTypographyProps={{
+//                         fontWeight: active ? 600 : 400,
+//                         fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
+//                         color: active ? 'secondary.main' : 'white', // Using secondary color
+//                       }}
+//                       sx={{
+//                         ml: isMobile ? 0.5 : 1,
+//                       }}
+//                     />
+//                   )}
+//                 </ListItemButton>
+//               </ListItem>
+//             </Tooltip>
+//           );
+//         })}
+//       </List>
+
+//       <Divider sx={{ 
+//         borderColor: 'rgba(255,255,255,0.08)', 
+//         mx: isMobile ? 1 : (collapsed ? 1 : 2), 
+//         my: collapsed && !isMobile ? 1.5 : 0, // Increased margin when collapsed
+//       }} />
+
+//       {/* Logout Button - Updated to use handleLogoutClick */}
+//       <Box sx={{ 
+//         p: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 2), 
+//         pb: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 1.5),
+//         display: 'flex',
+//         justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//         mt: collapsed && !isMobile ? 0.5 : 0, // Extra top margin when collapsed
+//       }}>
+//         <Tooltip title={collapsed && !isMobile ? 'Logout' : ''} placement="right" arrow>
+//           <ListItemButton
+//             onClick={handleLogoutClick} // Changed from handleLogout to handleLogoutClick
+//             sx={{
+//               borderRadius: 1,
+//               justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//               px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
+//               py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
+//               mx: (collapsed && !isMobile) ? 'auto' : 0,
+//               width: collapsed && !isMobile ? 'auto' : '100%',
+//               display: 'flex',
+//               alignItems: 'center',
+//               '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.25)' }, // Using secondary color with opacity
+//             }}
+//           >
+//             <ListItemIcon sx={{ 
+//               minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
+//               '& svg': { 
+//                 fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), 
+//               },
+//               display: 'flex',
+//               justifyContent: 'center',
+//               color: 'secondary.main', // Using secondary color
+//             }}>
+//               <LogoutIcon />
+//             </ListItemIcon>
+
+//             {/* Hide text when collapsed on desktop */}
+//             {(!collapsed || isMobile) && (
+//               <ListItemText 
+//                 primary="Logout"
+//                 primaryTypographyProps={{
+//                   fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
+//                   color: 'secondary.main', // Using secondary color
+//                 }}
+//               />
+//             )}
+//           </ListItemButton>
+//         </Tooltip>
+//       </Box>
+//     </Box>
+//   );
+
+//   // For mobile devices
+//   if (isMobile) {
+//     return (
+//       <>
+//         <Drawer
+//           variant="temporary"
+//           open={mobileOpen}
+//           onClose={onClose}
+//           ModalProps={{ keepMounted: true }}
+//           sx={{
+//             display: { xs: 'block', sm: 'none' },
+//             '& .MuiDrawer-paper': {
+//               width: getMobileWidth(),
+//               boxSizing: 'border-box',
+//               bgcolor: 'transparent',
+//             },
+//           }}
+//         >
+//           {sidebarContent}
+//         </Drawer>
+
+//         {/* Logout Modal */}
+//         <LogoutModal
+//           show={showLogoutModal}
+//           onHide={() => setShowLogoutModal(false)}
+//           onConfirm={handleConfirmLogout}
+//           title="Sign Out"
+//           message="Are you sure you want to sign out?"
+//           subMessage="You will be redirected to the login page."
+//         />
+//       </>
+//     );
+//   }
+
+//   // On desktop
+//   return (
+//     <>
+//       <Box
+//         sx={{
+//           position: 'fixed',
+//           left: 0,
+//           top: 0,
+//           height: '100vh',
+//           zIndex: 1200,
+//         }}
+//       >
+//         {sidebarContent}
+//       </Box>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleConfirmLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </>
+//   );
+// };
+
+// export default Sidebar;
+
+
+
+
+
+
+
+//////////////New Changable
+// import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useState } from 'react';
+// import {
+//   Drawer,
+//   List,
+//   ListItem,
+//   ListItemButton,
+//   ListItemIcon,
+//   ListItemText,
+//   Divider,
+//   Box,
+//   Typography,
+//   Avatar,
+//   Tooltip,
+//   IconButton,
+//   useMediaQuery,
+//   useTheme,
+//   alpha,
+// } from '@mui/material';
+// import {
+//   Dashboard as DashboardIcon,
+//   People as PeopleIcon,
+//   Payment as PaymentIcon,
+//   Assessment as AssessmentIcon,
+//   Person as PersonIcon,
+//   Business as BusinessIcon,
+//   AttachMoney as MoneyIcon,
+//   PriceChange as PlanIcon,
+//   Contacts as ContactIcon,
+//   Logout as LogoutIcon,
+//   Receipt as ReceiptIcon,           
+//   Description as ReportIcon,       
+//   ManageAccounts as ProfileIcon,
+//   ChevronLeft as ChevronLeftIcon,
+// } from '@mui/icons-material';
+// import { logout } from '../../redux/slices/authSlice';
+// import LogoutModal from '../models/LogoutModal';
+
+// const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = false }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+
+//   // Add state for logout modal
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+//   // Responsive breakpoints for mobile width
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+//   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
+
+//   const { user, role_id } = useSelector((state) => state.auth);
+
+//   // Replace handleLogout with these two functions
+//   const handleLogoutClick = () => {
+//     setShowLogoutModal(true);
+//   };
+
+//   const handleConfirmLogout = () => {
+//     // Clear all storage
+//     localStorage.clear();
+//     sessionStorage.clear();
+
+//     // Clear cookies
+//     document.cookie.split(";").forEach((c) => {
+//       document.cookie = c
+//         .replace(/^ +/, "")
+//         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+//     });
+
+//     // Dispatch Redux logout action
+//     dispatch(logout());
+
+//     // Close sidebar if on mobile
+//     if (isMobile) {
+//       onClose?.();
+//     }
+
+//     // Navigate to login
+//     navigate('/login', { replace: true });
+
+//     // Close modal
+//     setShowLogoutModal(false);
+
+//     // Reload page to clear any cached state
+//     setTimeout(() => {
+//       window.location.reload();
+//     }, 100);
+//   };
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     if (isMobile) {
+//       onClose?.();
+//     }
+//   };
+
+//   // Admin Menu Items
+//   const adminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+//     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
+//     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
+//     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
+//     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
+//     { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
+//   ];
+
+//   // Super Admin Menu Items
+//   const superAdminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
+//     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
+//     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+//     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
+//     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
+//     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
+//   ];
+
+//   // Get menu items based on role
+//   const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+//   const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+//   const isActive = (path) => location.pathname === path;
+
+//   // Determine mobile drawer width
+//   const getMobileWidth = () => {
+//     if (isSmallMobile) return 220; 
+//     if (isMediumMobile) return 240;
+//     return 260; 
+//   };
+
+//   const sidebarContent = (
+//     <Box
+//       sx={{
+//         height: '100%',
+//         width: isMobile ? getMobileWidth() : (collapsed ? 64 : 240), // Reduced widths
+//         display: 'flex',
+//         flexDirection: 'column',
+//         background: 'linear-gradient(135deg, #2f6eaa, #1e4f7a)',
+//         color: 'white',
+//         transition: 'width 0.3s ease',
+//         overflowX: 'hidden',
+//         boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+//         borderRadius: 0,
+//       }}
+//     >
+//       {/* Header / Logo */}
+//       <Box
+//         sx={{
+//           p: isMobile ? 1.2 : (collapsed ? 1.2 : 2),
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'flex-start'),
+//           gap: 1,
+//           borderBottom: '1px solid rgba(255,255,255,0.08)',
+//           minHeight: isMobile ? 48 : (collapsed ? 48 : 56),
+//         }}
+//       >
+//         <Box sx={{ 
+//           display: 'flex', 
+//           alignItems: 'center', 
+//           gap: 1,
+//           justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//           width: collapsed && !isMobile ? '100%' : 'auto',
+//         }}>
+//           <Avatar
+//             sx={{
+//               bgcolor: 'primary.main',
+//               width: isMobile ? 26 : (collapsed ? 28 : 32),
+//               height: isMobile ? 26 : (collapsed ? 28 : 32),
+//               fontWeight: 'bold',
+//               fontSize: isMobile ? '0.7rem' : (collapsed ? '0.75rem' : '0.8rem'),
+//             }}
+//           >
+//             TT
+//           </Avatar>
+
+//           {/* Hide text when collapsed on desktop, but show on mobile */}
+//           {(!collapsed || isMobile) && (
+//             <Box>
+//               <Typography variant="subtitle2" fontWeight="bold" noWrap sx={{ 
+//                 fontSize: isMobile ? '0.7rem' : (collapsed ? '0.75rem' : '0.85rem'),
+//                 lineHeight: 1.1,
+//               }}>
+//                 Team Trackify
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.7, 
+//                 fontSize: isMobile ? '0.5rem' : (collapsed ? '0.5rem' : '0.6rem'),
+//                 display: 'block',
+//               }}>
+//                 {roleName}
+//               </Typography>
+//             </Box>
+//           )}
+//         </Box>
+
+//         {/* Close button for mobile */}
+//         {isMobile && (
+//           <IconButton onClick={onClose} sx={{ color: 'white', p: 0.5 }}>
+//             <ChevronLeftIcon sx={{ fontSize: 18 }} />
+//           </IconButton>
+//         )}
+//       </Box>
+
+//       {/* User Info - Hide when collapsed on desktop */}
+//       {(!collapsed || isMobile) && (
+//         <Box sx={{ px: isMobile ? 1.2 : 2, py: isMobile ? 0.8 : 1.5 }}>
+//           <Box
+//             sx={{
+//               display: 'flex',
+//               alignItems: 'center',
+//               gap: isMobile ? 0.8 : 1.5,
+//               bgcolor: 'rgba(255,255,255,0.08)',
+//               p: isMobile ? 0.6 : 1.2,
+//               borderRadius: 1.2,
+//             }}
+//           >
+//             <Avatar
+//               src={user?.avtar}
+//               sx={{ 
+//                 bgcolor: 'secondary.main',
+//                 width: isMobile ? 24 : 32,
+//                 height: isMobile ? 24 : 32,
+//                 fontSize: isMobile ? '0.6rem' : '0.75rem',
+//               }}
+//             >
+//               {user?.name?.charAt(0) || 'A'}
+//             </Avatar>
+//             <Box sx={{ minWidth: 0 }}>
+//               <Typography variant="caption" fontWeight={500} noWrap sx={{ 
+//                 fontSize: isMobile ? '0.6rem' : '0.7rem',
+//                 lineHeight: 1.1,
+//               }}>
+//                 {user?.name || 'Admin User'}
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.75,
+//                 fontSize: isMobile ? '0.5rem' : '0.55rem',
+//                 display: 'block',
+//                 whiteSpace: 'nowrap',
+//                 overflow: 'hidden',
+//                 textOverflow: 'ellipsis',
+//                 maxWidth: isMobile ? 120 : 140,
+//               }}>
+//                 {user?.email || 'admin@trackify.in'}
+//               </Typography>
+//             </Box>
+//           </Box>
+//         </Box>
+//       )}
+
+//       {/* Menu Items */}
+//       <List sx={{ 
+//         flexGrow: 1, 
+//         pt: 0.5, 
+//         px: isMobile ? 0.5 : (collapsed ? 0 : 1.2), 
+//         pb: 0.5 
+//       }}>
+//         {menuItems.map((item) => {
+//           const active = isActive(item.path);
+
+//           return (
+//             <Tooltip
+//               key={item.text}
+//               title={collapsed && !isMobile ? item.text : ''}
+//               placement="right"
+//               arrow
+//               componentsProps={{
+//                 tooltip: {
+//                   sx: {
+//                     fontSize: '0.65rem',
+//                     bgcolor: alpha(theme.palette.primary.main, 0.9),
+//                   }
+//                 }
+//               }}
+//             >
+//               <ListItem disablePadding sx={{ 
+//                 mb: collapsed && !isMobile ? 1.5 : 0.2,
+//               }}>
+//                 <ListItemButton
+//                   onClick={() => handleNavigation(item.path)}
+//                   sx={{
+//                     minHeight: isMobile ? 32 : (collapsed ? 38 : 40),
+//                     borderRadius: 0.8,
+//                     justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//                     px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2),
+//                     py: isMobile ? 0.4 : (collapsed ? 0.8 : 0.8),
+//                     mx: (collapsed && !isMobile) ? 0 : 0,
+//                     bgcolor: active ? 'rgba(245, 158, 11, 0.25)' : 'transparent',
+//                     '&:hover': {
+//                       bgcolor: active ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.15)',
+//                     },
+//                     position: 'relative',
+//                     transition: 'all 0.18s ease',
+//                   }}
+//                 >
+//                   {/* Active indicator line */}
+//                   {active && !collapsed && !isMobile && (
+//                     <Box
+//                       sx={{
+//                         position: 'absolute',
+//                         left: 0,
+//                         top: '50%',
+//                         transform: 'translateY(-50%)',
+//                         width: 3,
+//                         height: '60%',
+//                         bgcolor: 'secondary.main',
+//                         borderRadius: '0 4px 4px 0',
+//                       }}
+//                     />
+//                   )}
+
+//                   <ListItemIcon
+//                     sx={{
+//                       minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 24 : 32),
+//                       color: active ? 'secondary.main' : 'inherit',
+//                       '& svg': {
+//                         fontSize: isMobile ? '0.9rem' : (collapsed ? '1.1rem' : '1.1rem'),
+//                       },
+//                       display: 'flex',
+//                       justifyContent: 'center',
+//                     }}
+//                   >
+//                     {item.icon}
+//                   </ListItemIcon>
+
+//                   {/* Hide text when collapsed on desktop */}
+//                   {(!collapsed || isMobile) && (
+//                     <ListItemText
+//                       primary={item.text}
+//                       primaryTypographyProps={{
+//                         fontWeight: active ? 600 : 400,
+//                         fontSize: isMobile ? '0.6rem' : (collapsed ? '0.65rem' : '0.75rem'),
+//                         color: active ? 'secondary.main' : 'white',
+//                       }}
+//                       sx={{
+//                         ml: isMobile ? 0.3 : 0.8,
+//                       }}
+//                     />
+//                   )}
+//                 </ListItemButton>
+//               </ListItem>
+//             </Tooltip>
+//           );
+//         })}
+//       </List>
+
+//       <Divider sx={{ 
+//         borderColor: 'rgba(255,255,255,0.08)', 
+//         mx: isMobile ? 0.8 : (collapsed ? 0.8 : 1.5), 
+//         my: collapsed && !isMobile ? 1 : 0,
+//       }} />
+
+//       {/* Logout Button */}
+//       <Box sx={{ 
+//         p: (collapsed && !isMobile) ? 1.2 : (isMobile ? 0.8 : 1.5), 
+//         pb: (collapsed && !isMobile) ? 1.2 : (isMobile ? 0.8 : 1),
+//         display: 'flex',
+//         justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//         mt: collapsed && !isMobile ? 0.2 : 0,
+//       }}>
+//         <Tooltip 
+//           title={collapsed && !isMobile ? 'Logout' : ''} 
+//           placement="right" 
+//           arrow
+//           componentsProps={{
+//             tooltip: {
+//               sx: {
+//                 fontSize: '0.65rem',
+//                 bgcolor: alpha(theme.palette.primary.main, 0.9),
+//               }
+//             }
+//           }}
+//         >
+//           <ListItemButton
+//             onClick={handleLogoutClick}
+//             sx={{
+//               borderRadius: 0.8,
+//               justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//               px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2),
+//               py: isMobile ? 0.4 : (collapsed ? 0.8 : 0.8),
+//               mx: (collapsed && !isMobile) ? 'auto' : 0,
+//               width: collapsed && !isMobile ? 'auto' : '100%',
+//               display: 'flex',
+//               alignItems: 'center',
+//               '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.25)' },
+//             }}
+//           >
+//             <ListItemIcon sx={{ 
+//               minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 24 : 32),
+//               '& svg': { 
+//                 fontSize: isMobile ? '0.9rem' : (collapsed ? '1.1rem' : '1.1rem'), 
+//               },
+//               display: 'flex',
+//               justifyContent: 'center',
+//               color: 'secondary.main',
+//             }}>
+//               <LogoutIcon />
+//             </ListItemIcon>
+
+//             {/* Hide text when collapsed on desktop */}
+//             {(!collapsed || isMobile) && (
+//               <ListItemText 
+//                 primary="Logout"
+//                 primaryTypographyProps={{
+//                   fontSize: isMobile ? '0.6rem' : (collapsed ? '0.65rem' : '0.75rem'),
+//                   color: 'secondary.main',
+//                 }}
+//               />
+//             )}
+//           </ListItemButton>
+//         </Tooltip>
+//       </Box>
+//     </Box>
+//   );
+
+//   // For mobile devices
+//   if (isMobile) {
+//     return (
+//       <>
+//         <Drawer
+//           variant="temporary"
+//           open={mobileOpen}
+//           onClose={onClose}
+//           ModalProps={{ keepMounted: true }}
+//           sx={{
+//             display: { xs: 'block', sm: 'none' },
+//             '& .MuiDrawer-paper': {
+//               width: getMobileWidth(),
+//               boxSizing: 'border-box',
+//               bgcolor: 'transparent',
+//             },
+//           }}
+//         >
+//           {sidebarContent}
+//         </Drawer>
+
+//         {/* Logout Modal */}
+//         <LogoutModal
+//           show={showLogoutModal}
+//           onHide={() => setShowLogoutModal(false)}
+//           onConfirm={handleConfirmLogout}
+//           title="Sign Out"
+//           message="Are you sure you want to sign out?"
+//           subMessage="You will be redirected to the login page."
+//         />
+//       </>
+//     );
+//   }
+
+//   // On desktop
+//   return (
+//     <>
+//       <Box
+//         sx={{
+//           position: 'fixed',
+//           left: 0,
+//           top: 0,
+//           height: '100vh',
+//           zIndex: 1200,
+//         }}
+//       >
+//         {sidebarContent}
+//       </Box>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleConfirmLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </>
+//   );
+// };
+
+// export default Sidebar;
+
+
+
+
+
+// import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useState } from 'react'; // Add this import
+// import {
+//   Drawer,
+//   List,
+//   ListItem,
+//   ListItemButton,
+//   ListItemIcon,
+//   ListItemText,
+//   Divider,
+//   Box,
+//   Typography,
+//   Avatar,
+//   Tooltip,
+//   IconButton,
+//   useMediaQuery,
+//   useTheme,
+//   alpha,
+// } from '@mui/material';
+// import {
+//   Dashboard as DashboardIcon,
+//   People as PeopleIcon,
+//   Payment as PaymentIcon,
+//   Assessment as AssessmentIcon,
+//   Person as PersonIcon,
+//   Business as BusinessIcon,
+//   AttachMoney as MoneyIcon,
+//   PriceChange as PlanIcon,
+//   Contacts as ContactIcon,
+//   Logout as LogoutIcon,
+//   Receipt as ReceiptIcon,           
+//   Description as ReportIcon,       
+//   ManageAccounts as ProfileIcon,
+//   ChevronLeft as ChevronLeftIcon,
+// } from '@mui/icons-material';
+// import { logout } from '../../redux/slices/authSlice';
+// import LogoutModal from '../models/LogoutModal'; // Add this import
+
+// const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = false }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const theme = useTheme();
+
+//   // Add state for logout modal
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+//   // Responsive breakpoints for mobile width
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+//   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
+
+//   const { user, role_id } = useSelector((state) => state.auth);
+
+//   // Replace handleLogout with these two functions
+//   const handleLogoutClick = () => {
+//     setShowLogoutModal(true);
+//   };
+
+//   const handleConfirmLogout = () => {
+//     // Clear all storage
+//     localStorage.clear();
+//     sessionStorage.clear();
+
+//     // Clear cookies
+//     document.cookie.split(";").forEach((c) => {
+//       document.cookie = c
+//         .replace(/^ +/, "")
+//         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+//     });
+
+//     // Dispatch Redux logout action
+//     dispatch(logout());
+
+//     // Close sidebar if on mobile
+//     if (isMobile) {
+//       onClose?.();
+//     }
+
+//     // Navigate to login
+//     navigate('/login', { replace: true });
+
+//     // Close modal
+//     setShowLogoutModal(false);
+
+//     // Reload page to clear any cached state
+//     setTimeout(() => {
+//       window.location.reload();
+//     }, 100);
+//   };
+
+//   const handleNavigation = (path) => {
+//     navigate(path);
+//     if (isMobile) {
+//       onClose?.();
+//     }
+//   };
+
+//   // Admin Menu Items
+//   const adminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+//     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
+//     { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
+//     { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
+//     { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
+//     { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
+//   ];
+
+//   // Super Admin Menu Items
+//   const superAdminMenuItems = [
+//     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
+//     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
+//     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+//     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
+//     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
+//     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
+//   ];
+
+//   // Get menu items based on role
+//   const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+//   const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+
+//   const isActive = (path) => location.pathname === path;
+
+//   // Determine mobile drawer width
+//   const getMobileWidth = () => {
+//     if (isSmallMobile) return 240; 
+//     if (isMediumMobile) return 260;
+//     return 280; 
+//   };
+
+//   const sidebarContent = (
+//     <Box
+//       sx={{
+//         height: '100%',
+//         width: isMobile ? getMobileWidth() : (collapsed ? 72 : 280),
+//         display: 'flex',
+//         flexDirection: 'column',
+//         background: 'linear-gradient(135deg, #2f6eaa, #1e4f7a)', // Using primary colors for gradient
+//         color: 'white',
+//         transition: 'width 0.3s ease',
+//         overflowX: 'hidden',
+//         boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+//         borderRadius: 0,
+//       }}
+//     >
+//       {/* Header / Logo */}
+//       <Box
+//         sx={{
+//           p: isMobile ? 1.2 : (collapsed ? 1.2 : 2),
+//           display: 'flex',
+//           alignItems: 'center',
+//           justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'flex-start'),
+//           gap: 1,
+//           borderBottom: '1px solid rgba(255,255,255,0.08)',
+//           minHeight: isMobile ? 48 : (collapsed ? 48 : 56),
+//         }}
+//       >
+//         <Box sx={{ 
+//           display: 'flex', 
+//           alignItems: 'center', 
+//           gap: 1,
+//           justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//           width: collapsed && !isMobile ? '100%' : 'auto',
+//         }}>
+//           <Avatar
+//             sx={{
+//               bgcolor: 'primary.main', // Using primary color
+//               width: isMobile ? 26 : (collapsed ? 28 : 32),
+//               height: isMobile ? 26 : (collapsed ? 28 : 32),
+//               fontWeight: 'bold',
+//               fontSize: isMobile ? '0.7rem' : (collapsed ? '0.75rem' : '0.8rem'),
+//             }}
+//           >
+//             TT
+//           </Avatar>
+
+//           {/* Hide text when collapsed on desktop, but show on mobile */}
+//           {(!collapsed || isMobile) && (
+//             <Box>
+//               <Typography variant="subtitle2" fontWeight="bold" noWrap sx={{ 
+//                 fontSize: isMobile ? '0.7rem' : (collapsed ? '0.75rem' : '0.85rem'),
+//                 lineHeight: 1.1,
+//               }}>
+//                 Team Trackify
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.7, 
+//                 fontSize: isMobile ? '0.5rem' : (collapsed ? '0.55rem' : '0.6rem'),
+//                 display: 'block',
+//               }}>
+//                 {roleName}
+//               </Typography>
+//             </Box>
+//           )}
+//         </Box>
+
+//         {/* Close button for mobile */}
+//         {isMobile && (
+//           <IconButton onClick={onClose} sx={{ color: 'white', p: 0.5 }}>
+//             <ChevronLeftIcon sx={{ fontSize: 18 }} />
+//           </IconButton>
+//         )}
+//       </Box>
+
+//       {/* User Info - Hide when collapsed on desktop */}
+//       {(!collapsed || isMobile) && (
+//         <Box sx={{ px: isMobile ? 1.2 : 2, py: isMobile ? 0.8 : 1.5 }}>
+//           <Box
+//             sx={{
+//               display: 'flex',
+//               alignItems: 'center',
+//               gap: isMobile ? 1 : 1.5,
+//               bgcolor: 'rgba(255,255,255,0.08)',
+//               p: isMobile ? 0.8 : 1.2,
+//               borderRadius: 1.2,
+//             }}
+//           >
+//             <Avatar
+//               src={user?.avtar}
+//               sx={{ 
+//                 bgcolor: 'secondary.main', // Using secondary color
+//                 width: isMobile ? 24 : 32,
+//                 height: isMobile ? 24 : 32,
+//                 fontSize: isMobile ? '0.6rem' : '0.75rem',
+//               }}
+//             >
+//               {user?.name?.charAt(0) || 'A'}
+//             </Avatar>
+//             <Box sx={{ minWidth: 0 }}>
+//               <Typography variant="caption" fontWeight={500} noWrap sx={{ 
+//                 fontSize: isMobile ? '0.6rem' : '0.7rem',
+//                 lineHeight: 1.1,
+//               }}>
+//                 {user?.name || 'Admin User'}
+//               </Typography>
+//               <Typography variant="caption" sx={{ 
+//                 opacity: 0.75,
+//                 fontSize: isMobile ? '0.5rem' : '0.55rem',
+//                 display: 'block',
+//                 whiteSpace: 'nowrap',
+//                 overflow: 'hidden',
+//                 textOverflow: 'ellipsis',
+//                 maxWidth: isMobile ? 120 : 140,
+//               }}>
+//                 {user?.email || 'admin@trackify.in'}
+//               </Typography>
+//             </Box>
+//           </Box>
+//         </Box>
+//       )}
+
+//       {/* Menu Items - Increased vertical gap when collapsed */}
+//       <List sx={{ 
+//         flexGrow: 1, 
+//         pt: 0.5, 
+//         px: isMobile ? 0.5 : (collapsed ? 0 : 1.2), 
+//         pb: 0.5 
+//       }}>
+//         {menuItems.map((item) => {
+//           const active = isActive(item.path);
+
+//           return (
+//             <Tooltip
+//               key={item.text}
+//               title={collapsed && !isMobile ? item.text : ''}
+//               placement="right"
+//               arrow
+//               componentsProps={{
+//                 tooltip: {
+//                   sx: {
+//                     fontSize: '0.65rem',
+//                     bgcolor: alpha(theme.palette.primary.main, 0.9),
+//                   }
+//                 }
+//               }}
+//             >
+//               <ListItem disablePadding sx={{ 
+//                 mb: collapsed && !isMobile ? 1.5 : 0.2,
+//               }}>
+//                 <ListItemButton
+//                   onClick={() => handleNavigation(item.path)}
+//                   sx={{
+//                     minHeight: isMobile ? 32 : (collapsed ? 38 : 40),
+//                     borderRadius: 0.8,
+//                     justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//                     px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2),
+//                     py: isMobile ? 0.4 : (collapsed ? 0.8 : 0.8),
+//                     mx: (collapsed && !isMobile) ? 0 : 0,
+//                     bgcolor: active ? 'rgba(245, 158, 11, 0.25)' : 'transparent', // Using secondary color with opacity
+//                     '&:hover': {
+//                       bgcolor: active ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.15)', // Using secondary color with opacity
+//                     },
+//                     position: 'relative',
+//                     transition: 'all 0.18s ease',
+//                   }}
+//                 >
+//                   {/* Active indicator line - only show when not collapsed */}
+//                   {active && !collapsed && !isMobile && (
+//                     <Box
+//                       sx={{
+//                         position: 'absolute',
+//                         left: 0,
+//                         top: '50%',
+//                         transform: 'translateY(-50%)',
+//                         width: 3,
+//                         height: '60%',
+//                         bgcolor: 'secondary.main', // Using secondary color
+//                         borderRadius: '0 4px 4px 0',
+//                       }}
+//                     />
+//                   )}
+
+//                   <ListItemIcon
+//                     sx={{
+//                       minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 24 : 32),
+//                       color: active ? 'secondary.main' : 'inherit', // Using secondary color
+//                       '& svg': {
+//                         fontSize: isMobile ? '0.9rem' : (collapsed ? '1.1rem' : '1.1rem'),
+//                       },
+//                       display: 'flex',
+//                       justifyContent: 'center',
+//                     }}
+//                   >
+//                     {item.icon}
+//                   </ListItemIcon>
+
+//                   {/* Hide text when collapsed on desktop */}
+//                   {(!collapsed || isMobile) && (
+//                     <ListItemText
+//                       primary={item.text}
+//                       primaryTypographyProps={{
+//                         fontWeight: active ? 600 : 400,
+//                         fontSize: isMobile ? '0.6rem' : (collapsed ? '0.65rem' : '0.75rem'),
+//                         color: active ? 'secondary.main' : 'white', // Using secondary color
+//                       }}
+//                       sx={{
+//                         ml: isMobile ? 0.3 : 0.8,
+//                       }}
+//                     />
+//                   )}
+//                 </ListItemButton>
+//               </ListItem>
+//             </Tooltip>
+//           );
+//         })}
+//       </List>
+
+//       <Divider sx={{ 
+//         borderColor: 'rgba(255,255,255,0.08)', 
+//         mx: isMobile ? 0.8 : (collapsed ? 0.8 : 1.5), 
+//         my: collapsed && !isMobile ? 1 : 0,
+//       }} />
+
+//       {/* Logout Button - Updated to use handleLogoutClick */}
+//       <Box sx={{ 
+//         p: (collapsed && !isMobile) ? 1.2 : (isMobile ? 0.8 : 1.5), 
+//         pb: (collapsed && !isMobile) ? 1.2 : (isMobile ? 0.8 : 1),
+//         display: 'flex',
+//         justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+//         mt: collapsed && !isMobile ? 0.2 : 0,
+//       }}>
+//         <Tooltip 
+//           title={collapsed && !isMobile ? 'Logout' : ''} 
+//           placement="right" 
+//           arrow
+//           componentsProps={{
+//             tooltip: {
+//               sx: {
+//                 fontSize: '0.65rem',
+//                 bgcolor: alpha(theme.palette.primary.main, 0.9),
+//               }
+//             }
+//           }}
+//         >
+//           <ListItemButton
+//             onClick={handleLogoutClick} // Changed from handleLogout to handleLogoutClick
+//             sx={{
+//               borderRadius: 0.8,
+//               justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
+//               px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2),
+//               py: isMobile ? 0.4 : (collapsed ? 0.8 : 0.8),
+//               mx: (collapsed && !isMobile) ? 'auto' : 0,
+//               width: collapsed && !isMobile ? 'auto' : '100%',
+//               display: 'flex',
+//               alignItems: 'center',
+//               '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.25)' }, // Using secondary color with opacity
+//             }}
+//           >
+//             <ListItemIcon sx={{ 
+//               minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 24 : 32),
+//               '& svg': { 
+//                 fontSize: isMobile ? '0.9rem' : (collapsed ? '1.1rem' : '1.1rem'), 
+//               },
+//               display: 'flex',
+//               justifyContent: 'center',
+//               color: 'secondary.main', // Using secondary color
+//             }}>
+//               <LogoutIcon />
+//             </ListItemIcon>
+
+//             {/* Hide text when collapsed on desktop */}
+//             {(!collapsed || isMobile) && (
+//               <ListItemText 
+//                 primary="Logout"
+//                 primaryTypographyProps={{
+//                   fontSize: isMobile ? '0.6rem' : (collapsed ? '0.65rem' : '0.75rem'),
+//                   color: 'secondary.main', // Using secondary color
+//                 }}
+//               />
+//             )}
+//           </ListItemButton>
+//         </Tooltip>
+//       </Box>
+//     </Box>
+//   );
+
+//   // For mobile devices
+//   if (isMobile) {
+//     return (
+//       <>
+//         <Drawer
+//           variant="temporary"
+//           open={mobileOpen}
+//           onClose={onClose}
+//           ModalProps={{ keepMounted: true }}
+//           sx={{
+//             display: { xs: 'block', sm: 'none' },
+//             '& .MuiDrawer-paper': {
+//               width: getMobileWidth(),
+//               boxSizing: 'border-box',
+//               bgcolor: 'transparent',
+//             },
+//           }}
+//         >
+//           {sidebarContent}
+//         </Drawer>
+
+//         {/* Logout Modal */}
+//         <LogoutModal
+//           show={showLogoutModal}
+//           onHide={() => setShowLogoutModal(false)}
+//           onConfirm={handleConfirmLogout}
+//           title="Sign Out"
+//           message="Are you sure you want to sign out?"
+//           subMessage="You will be redirected to the login page."
+//         />
+//       </>
+//     );
+//   }
+
+//   // On desktop
+//   return (
+//     <>
+//       <Box
+//         sx={{
+//           position: 'fixed',
+//           left: 0,
+//           top: 0,
+//           height: '100vh',
+//           zIndex: 1200,
+//         }}
+//       >
+//         {sidebarContent}
+//       </Box>
+
+//       {/* Logout Modal */}
+//       <LogoutModal
+//         show={showLogoutModal}
+//         onHide={() => setShowLogoutModal(false)}
+//         onConfirm={handleConfirmLogout}
+//         title="Sign Out"
+//         message="Are you sure you want to sign out?"
+//         subMessage="You will be redirected to the login page."
+//       />
+//     </>
+//   );
+// };
+
+// export default Sidebar;
+
+
+
+
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react'; // Add this import
+import { useState } from 'react';
 import {
   Drawer,
   List,
@@ -885,6 +2797,7 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  alpha,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -897,61 +2810,51 @@ import {
   PriceChange as PlanIcon,
   Contacts as ContactIcon,
   Logout as LogoutIcon,
-  Receipt as ReceiptIcon,           
-  Description as ReportIcon,       
+  Receipt as ReceiptIcon,
+  Description as ReportIcon,
   ManageAccounts as ProfileIcon,
   ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 import { logout } from '../../redux/slices/authSlice';
-import LogoutModal from '../models/LogoutModal'; // Add this import
+import LogoutModal from '../models/LogoutModal';
+import logo from '../../../src/assets/logo31.png'
 
 const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
-  
-  // Add state for logout modal
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  
-  // Responsive breakpoints for mobile width
+
   const isSmallMobile = useMediaQuery('(max-width:480px)');
   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
-  
+
   const { user, role_id } = useSelector((state) => state.auth);
 
-  // Replace handleLogout with these two functions
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
 
   const handleConfirmLogout = () => {
-    // Clear all storage
     localStorage.clear();
     sessionStorage.clear();
-    
-    // Clear cookies
+
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
 
-    // Dispatch Redux logout action
     dispatch(logout());
-    
-    // Close sidebar if on mobile
+
     if (isMobile) {
       onClose?.();
     }
-    
-    // Navigate to login
+
     navigate('/login', { replace: true });
-    
-    // Close modal
     setShowLogoutModal(false);
-    
-    // Reload page to clear any cached state
+
     setTimeout(() => {
       window.location.reload();
     }, 100);
@@ -968,10 +2871,10 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   const adminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
-    { text: 'Payment Plans', icon: <PaymentIcon  />, path: '/admin/payments-plans' },
-    { text: 'Transaction History', icon: <ReportIcon  />, path: '/admin/transactionhistory' },
-    { text: 'Reports', icon: <ReceiptIcon  />, path: '/admin/reports' },
-    { text: 'Profile Manager', icon: <ProfileIcon  />, path: '/profile' },
+    { text: 'Payment Plans', icon: <PaymentIcon />, path: '/admin/payments-plans' },
+    { text: 'Transaction History', icon: <ReportIcon />, path: '/admin/transactionhistory' },
+    { text: 'Reports', icon: <ReceiptIcon />, path: '/admin/reports' },
+    { text: 'Profile Manager', icon: <ProfileIcon />, path: '/profile' },
   ];
 
   // Super Admin Menu Items
@@ -984,27 +2887,25 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
   ];
 
-  // Get menu items based on role
   const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
   const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
 
   const isActive = (path) => location.pathname === path;
 
-  // Determine mobile drawer width
   const getMobileWidth = () => {
-    if (isSmallMobile) return 240; 
-    if (isMediumMobile) return 260;
-    return 280; 
+    if (isSmallMobile) return 200;
+    if (isMediumMobile) return 220;
+    return 240;
   };
 
   const sidebarContent = (
     <Box
       sx={{
         height: '100%',
-        width: isMobile ? getMobileWidth() : (collapsed ? 72 : 280),
+        width: isMobile ? getMobileWidth() : (collapsed ? 64 : 220), // ← reduced from 72/280
         display: 'flex',
         flexDirection: 'column',
-        background: 'linear-gradient(135deg, rgb(91, 138, 240), rgba(34, 69, 184, 0.86))', // Updated gradient
+        background: 'linear-gradient(135deg, #2f6eaa, #1e4f7a)',
         color: 'white',
         transition: 'width 0.3s ease',
         overflowX: 'hidden',
@@ -1015,102 +2916,121 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
       {/* Header / Logo */}
       <Box
         sx={{
-          p: isMobile ? 1.5 : (collapsed ? 1.5 : 2.5),
+          p: isMobile ? 1.2 : (collapsed ? 1 : 1.5), // ← slightly tighter padding
           display: 'flex',
           alignItems: 'center',
           justifyContent: isMobile ? 'space-between' : (collapsed ? 'center' : 'flex-start'),
-          gap: 1.5,
+          gap: 1,
           borderBottom: '1px solid rgba(255,255,255,0.08)',
-          minHeight: isMobile ? 56 : (collapsed ? 56 : 64),
+          minHeight: isMobile ? 48 : (collapsed ? 48 : 52),
         }}
       >
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1.5,
-          justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
-          width: collapsed && !isMobile ? '100%' : 'auto',
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+            width: collapsed && !isMobile ? '100%' : 'auto',
+          }}
+        >
           <Avatar
+            src={logo}
             sx={{
-              bgcolor: '#2563EB', // Updated to primary color
-              width: isMobile ? 30 : (collapsed ? 32 : 40),
-              height: isMobile ? 30 : (collapsed ? 32 : 40),
+              bgcolor: 'primary.main',
+              width: isMobile ? 26 : (collapsed ? 26 : 28),
+              height: isMobile ? 26 : (collapsed ? 26 : 28),
               fontWeight: 'bold',
-              fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
+              fontSize: isMobile ? '0.7rem' : (collapsed ? '0.7rem' : '0.75rem'),
+              border: '2px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.2)',
             }}
           >
-            TT
+
           </Avatar>
 
-          {/* Hide text when collapsed on desktop, but show on mobile */}
           {(!collapsed || isMobile) && (
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold" noWrap sx={{ 
-                fontSize: isMobile ? '0.8rem' : (collapsed ? '0.9rem' : '1rem'),
-                lineHeight: 1.2,
-              }}>
+              <Typography
+                variant="subtitle2"
+                fontWeight="bold"
+                noWrap
+                sx={{
+                  fontSize: isMobile ? '0.7rem' : '0.8rem',
+                  lineHeight: 1.1,
+                }}
+              >
                 Team Trackify
               </Typography>
-              <Typography variant="caption" sx={{ 
-                opacity: 0.7, 
-                fontSize: isMobile ? '0.55rem' : (collapsed ? '0.6rem' : '0.7rem'),
-                display: 'block',
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  opacity: 0.7,
+                  fontSize: isMobile ? '0.5rem' : '0.58rem',
+                  display: 'block',
+                }}
+              >
                 {roleName}
               </Typography>
             </Box>
           )}
         </Box>
 
-        {/* Close button for mobile */}
         {isMobile && (
           <IconButton onClick={onClose} sx={{ color: 'white', p: 0.5 }}>
-            <ChevronLeftIcon sx={{ fontSize: 20 }} />
+            <ChevronLeftIcon sx={{ fontSize: 18 }} />
           </IconButton>
         )}
       </Box>
 
-      {/* User Info - Hide when collapsed on desktop */}
+      {/* User Info */}
       {(!collapsed || isMobile) && (
-        <Box sx={{ px: isMobile ? 1.5 : 2.5, py: isMobile ? 1 : 2 }}>
+        <Box sx={{ px: isMobile ? 1.2 : 1.5, py: isMobile ? 0.8 : 1.2 }}>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: isMobile ? 1 : 2,
+              gap: isMobile ? 1 : 1.2,
               bgcolor: 'rgba(255,255,255,0.08)',
-              p: isMobile ? 0.8 : 1.5,
-              borderRadius: 1.5,
+              p: isMobile ? 0.8 : 1,
+              borderRadius: 1.2,
             }}
           >
             <Avatar
               src={user?.avtar}
-              sx={{ 
-                bgcolor: 'rgb(96, 165, 250)', // Updated to accent color
-                width: isMobile ? 28 : 40,
-                height: isMobile ? 28 : 40,
-                fontSize: isMobile ? '0.7rem' : '0.9rem',
+              sx={{
+                bgcolor: 'secondary.main',
+                width: isMobile ? 24 : 28,
+                height: isMobile ? 24 : 28,
+                fontSize: isMobile ? '0.6rem' : '0.7rem',
               }}
             >
               {user?.name?.charAt(0) || 'A'}
             </Avatar>
             <Box sx={{ minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={500} noWrap sx={{ 
-                fontSize: isMobile ? '0.7rem' : '0.85rem',
-                lineHeight: 1.2,
-              }}>
+              <Typography
+                variant="caption"
+                fontWeight={500}
+                noWrap
+                sx={{
+                  fontSize: isMobile ? '0.6rem' : '0.68rem',
+                  lineHeight: 1.1,
+                }}
+              >
                 {user?.name || 'Admin User'}
               </Typography>
-              <Typography variant="caption" sx={{ 
-                opacity: 0.75,
-                fontSize: isMobile ? '0.55rem' : '0.65rem',
-                display: 'block',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: isMobile ? 140 : 180,
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  opacity: 0.75,
+                  fontSize: isMobile ? '0.5rem' : '0.55rem',
+                  display: 'block',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: isMobile ? 110 : 125,
+                }}
+              >
                 {user?.email || 'admin@trackify.in'}
               </Typography>
             </Box>
@@ -1118,13 +3038,15 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
         </Box>
       )}
 
-      {/* Menu Items - Increased vertical gap when collapsed */}
-      <List sx={{ 
-        flexGrow: 1, 
-        pt: 1, 
-        px: isMobile ? 0.5 : (collapsed ? 0 : 1.5), 
-        pb: 1 
-      }}>
+      {/* Menu Items */}
+      <List
+        sx={{
+          flexGrow: 1,
+          pt: 0.5,
+          px: isMobile ? 0.5 : (collapsed ? 0 : 1),
+          pb: 0.5,
+        }}
+      >
         {menuItems.map((item) => {
           const active = isActive(item.path);
 
@@ -1134,28 +3056,39 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
               title={collapsed && !isMobile ? item.text : ''}
               placement="right"
               arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    fontSize: '0.65rem',
+                    bgcolor: alpha(theme.palette.primary.main, 0.9),
+                  },
+                },
+              }}
             >
-              <ListItem disablePadding sx={{ 
-                mb: collapsed && !isMobile ? 2 : 0.3, // Increased vertical gap when collapsed
-              }}>
+              <ListItem
+                disablePadding
+                sx={{
+                  mb: collapsed && !isMobile ? 1.2 : 0.2,
+                }}
+              >
                 <ListItemButton
                   onClick={() => handleNavigation(item.path)}
                   sx={{
-                    minHeight: isMobile ? 36 : (collapsed ? 44 : 48), // Increased height when collapsed
-                    borderRadius: 1,
-                    justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
-                    px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
-                    py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
-                    mx: (collapsed && !isMobile) ? 0 : 0,
-                    bgcolor: active ? 'rgba(96, 165, 250, 0.25)' : 'transparent', // Updated with accent color
+                    minHeight: isMobile ? 32 : (collapsed ? 36 : 38),
+                    borderRadius: 0.8,
+                    justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+                    px: collapsed && !isMobile ? 0 : (isMobile ? 1 : 1.5),
+                    py: isMobile ? 0.4 : 0.7,
+                    bgcolor: active ? 'rgba(245, 158, 11, 0.25)' : 'transparent',
                     '&:hover': {
-                      bgcolor: active ? 'rgba(96, 165, 250, 0.35)' : 'rgba(96, 165, 250, 0.15)', // Updated to accent color
+                      bgcolor: active
+                        ? 'rgba(245, 158, 11, 0.35)'
+                        : 'rgba(245, 158, 11, 0.15)',
                     },
                     position: 'relative',
                     transition: 'all 0.18s ease',
                   }}
                 >
-                  {/* Active indicator line - only show when not collapsed */}
                   {active && !collapsed && !isMobile && (
                     <Box
                       sx={{
@@ -1163,9 +3096,9 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                         left: 0,
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        width: 4,
+                        width: 3,
                         height: '60%',
-                        bgcolor: 'rgb(96, 165, 250)', // Updated to accent color
+                        bgcolor: 'secondary.main',
                         borderRadius: '0 4px 4px 0',
                       }}
                     />
@@ -1173,10 +3106,10 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
 
                   <ListItemIcon
                     sx={{
-                      minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
-                      color: active ? 'rgb(96, 165, 250)' : 'inherit', // Updated to accent color
+                      minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 24 : 28),
+                      color: active ? 'secondary.main' : 'inherit',
                       '& svg': {
-                        fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), // Slightly larger icons when collapsed
+                        fontSize: isMobile ? '0.9rem' : '1rem',
                       },
                       display: 'flex',
                       justifyContent: 'center',
@@ -1185,18 +3118,15 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                     {item.icon}
                   </ListItemIcon>
 
-                  {/* Hide text when collapsed on desktop */}
                   {(!collapsed || isMobile) && (
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
                         fontWeight: active ? 600 : 400,
-                        fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
-                        color: active ? 'rgb(96, 165, 250)' : 'white', // Updated to accent color
+                        fontSize: isMobile ? '0.6rem' : '0.72rem',
+                        color: active ? 'secondary.main' : 'white',
                       }}
-                      sx={{
-                        ml: isMobile ? 0.5 : 1,
-                      }}
+                      sx={{ ml: isMobile ? 0.3 : 0.5 }}
                     />
                   )}
                 </ListItemButton>
@@ -1206,54 +3136,71 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
         })}
       </List>
 
-      <Divider sx={{ 
-        borderColor: 'rgba(255,255,255,0.08)', 
-        mx: isMobile ? 1 : (collapsed ? 1 : 2), 
-        my: collapsed && !isMobile ? 1.5 : 0, // Increased margin when collapsed
-      }} />
+      <Divider
+        sx={{
+          borderColor: 'rgba(255,255,255,0.08)',
+          mx: isMobile ? 0.8 : (collapsed ? 0.8 : 1.2),
+          my: collapsed && !isMobile ? 1 : 0,
+        }}
+      />
 
-      {/* Logout Button - Updated to use handleLogoutClick */}
-      <Box sx={{ 
-        p: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 2), 
-        pb: (collapsed && !isMobile) ? 1.5 : (isMobile ? 1 : 1.5),
-        display: 'flex',
-        justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
-        mt: collapsed && !isMobile ? 0.5 : 0, // Extra top margin when collapsed
-      }}>
-        <Tooltip title={collapsed && !isMobile ? 'Logout' : ''} placement="right" arrow>
+      {/* Logout Button */}
+      <Box
+        sx={{
+          p: collapsed && !isMobile ? 1 : (isMobile ? 0.8 : 1.2),
+          pb: collapsed && !isMobile ? 1 : (isMobile ? 0.8 : 1),
+          display: 'flex',
+          justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+          mt: collapsed && !isMobile ? 0.2 : 0,
+        }}
+      >
+        <Tooltip
+          title={collapsed && !isMobile ? 'Logout' : ''}
+          placement="right"
+          arrow
+          componentsProps={{
+            tooltip: {
+              sx: {
+                fontSize: '0.65rem',
+                bgcolor: alpha(theme.palette.primary.main, 0.9),
+              },
+            },
+          }}
+        >
           <ListItemButton
-            onClick={handleLogoutClick} // Changed from handleLogout to handleLogoutClick
+            onClick={handleLogoutClick}
             sx={{
-              borderRadius: 1,
-              justifyContent: (collapsed && !isMobile) ? 'center' : 'flex-start',
-              px: (collapsed && !isMobile) ? 0 : (isMobile ? 1 : 2.5),
-              py: isMobile ? 0.6 : (collapsed ? 1 : 1.2), // Increased vertical padding when collapsed
-              mx: (collapsed && !isMobile) ? 'auto' : 0,
+              borderRadius: 0.8,
+              justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+              px: collapsed && !isMobile ? 0 : (isMobile ? 1 : 1.5),
+              py: isMobile ? 0.4 : 0.7,
+              mx: collapsed && !isMobile ? 'auto' : 0,
               width: collapsed && !isMobile ? 'auto' : '100%',
               display: 'flex',
               alignItems: 'center',
-              '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.25)' }, // Updated with accent color
+              '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.25)' },
             }}
           >
-            <ListItemIcon sx={{ 
-              minWidth: (collapsed && !isMobile) ? 'auto' : (isMobile ? 28 : 40),
-              '& svg': { 
-                fontSize: isMobile ? '1rem' : (collapsed ? '1.3rem' : '1.3rem'), 
-              },
-              display: 'flex',
-              justifyContent: 'center',
-              color: 'rgb(96, 165, 250)', // Updated to accent color
-            }}>
+            <ListItemIcon
+              sx={{
+                minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 24 : 28),
+                '& svg': {
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                },
+                display: 'flex',
+                justifyContent: 'center',
+                color: 'secondary.main',
+              }}
+            >
               <LogoutIcon />
             </ListItemIcon>
-            
-            {/* Hide text when collapsed on desktop */}
+
             {(!collapsed || isMobile) && (
-              <ListItemText 
+              <ListItemText
                 primary="Logout"
                 primaryTypographyProps={{
-                  fontSize: isMobile ? '0.7rem' : (collapsed ? '0.8rem' : '0.95rem'),
-                  color: 'rgb(96, 165, 250)', // Updated to accent color
+                  fontSize: isMobile ? '0.6rem' : '0.72rem',
+                  color: 'secondary.main',
                 }}
               />
             )}
@@ -1283,8 +3230,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
         >
           {sidebarContent}
         </Drawer>
-        
-        {/* Logout Modal */}
+
         <LogoutModal
           show={showLogoutModal}
           onHide={() => setShowLogoutModal(false)}
@@ -1311,8 +3257,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
       >
         {sidebarContent}
       </Box>
-      
-      {/* Logout Modal */}
+
       <LogoutModal
         show={showLogoutModal}
         onHide={() => setShowLogoutModal(false)}
@@ -1325,4 +3270,4 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
