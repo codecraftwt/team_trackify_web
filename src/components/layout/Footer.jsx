@@ -332,16 +332,7 @@ const Footer = () => {
                     transition: 'transform 0.3s',
                   }}
                 />
-                <span style={{
-                  fontSize: 'clamp(1rem, 2.5vw, 1.35rem)',
-                  fontWeight: 700,
-                  background: 'linear-gradient(to right, #60a5fa, #bfdbfe)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  whiteSpace: 'nowrap',
-                }}>
-                  Team Trackify
-                </span>
+               
               </Link>
 
               <p style={{

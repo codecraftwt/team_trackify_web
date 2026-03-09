@@ -1301,56 +1301,7 @@ const Contact = () => {
                   Demo • Pricing • Integration • Support — whatever you need, we're usually online within hours.
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center' }}>
-                  <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      onClick={() => document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })}
-                      endIcon={<SendIcon />}
-                      sx={{
-                        py: { xs: 1, sm: 1.2 },
-                        px: { xs: 3, sm: 4 },
-                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                        boxShadow: `0 8px 20px -5px ${alpha(theme.palette.primary.main, 0.4)}`,
-                        '&:hover': {
-                          background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                          boxShadow: `0 12px 24px -5px ${alpha(theme.palette.primary.main, 0.5)}`,
-                        },
-                      }}
-                    >
-                      Send Message Now
-                    </Button>
-                  </motion.div>
-
-                  <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      onClick={() => navigate('/demo')}
-                      sx={{
-                        py: { xs: 1, sm: 1.2 },
-                        px: { xs: 3, sm: 4 },
-                        fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        borderColor: alpha(theme.palette.primary.main, 0.4),
-                        borderWidth: '1.5px',
-                        color: theme.palette.primary.main,
-                        '&:hover': {
-                          borderColor: theme.palette.primary.main,
-                          borderWidth: '1.5px',
-                          backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                        },
-                      }}
-                    >
-                      Book Live Demo
-                    </Button>
-                  </motion.div>
-                </Box>
+                
               </Box>
             </motion.div>
           </Container>
