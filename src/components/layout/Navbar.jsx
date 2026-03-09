@@ -1178,7 +1178,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
   };
 
   const handleProfile = () => {
-    const profilePath = role_id === 2 ? '/super-admin/profile' : '/admin/profile';
+    const profilePath = '/profile';
     navigate(profilePath);
     handleMenuClose();
   };
@@ -1286,7 +1286,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
           {/* Right side */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
             {/* Notifications */}
-            <Tooltip title="Notifications">
+            {/* <Tooltip title="Notifications">
               <IconButton
                 onClick={handleNotificationOpen}
                 size={isMobile ? "small" : "medium"}
@@ -1312,7 +1312,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                   <NotificationsIcon fontSize={isMobile ? "small" : "medium"} />
                 </Badge>
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* Profile */}
             <Tooltip title="Profile">
@@ -1397,12 +1397,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                 My Profile
               </Typography>
             </MenuItem>
-            <MenuItem onClick={handleSettings} sx={{ py: 1.5 }}>
-              <SettingsIcon sx={{ mr: 1.5, color: 'primary.main', fontSize: 20 }} />
-              <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.primary', fontWeight: 500 }}>
-                Settings
-              </Typography>
-            </MenuItem>
+            
 
             <MenuItem
               onClick={handleLogoutClick}
