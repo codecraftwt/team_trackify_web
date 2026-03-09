@@ -615,25 +615,70 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// // Handle User Update
+// export const updateUser = createAsyncThunk(
+//   "user/updateUser",
+//   async ({ userId, formData }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.patch(
+//         `/users/updateuser/${userId}`,
+//         formData,
+//         { headers: { "Content-Type": "multipart/form-data" } }
+//       );
+//       toast.success(response.data.message);
+//       return response.data;
+//     } catch (error) {
+//       toast.error(error.response?.data?.message);
+//       return rejectWithValue(error.response?.data);
+//     }
+//   }
+// );
 // Handle User Update
 export const updateUser = createAsyncThunk(
   "user/updateUser",
-  async ({ userId, formData }, { rejectWithValue }) => {
+  async ({ userId, formData }, { rejectWithValue, getState }) => {
     try {
+      // Get the current auth state to access token and user info
+      const state = getState();
+      const token = state.auth?.token || localStorage.getItem("token");
+      const userRole = state.auth?.user?.role_id || state.auth?.role_id;
+      
+      console.log("Updating user with role:", userRole);
+      console.log("Token available:", !!token);
+      
+      // Ensure token is in the headers
+      const config = {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "Authorization": token ? `Bearer ${token}` : undefined
+        }
+      };
+      
       const response = await api.patch(
         `/users/updateuser/${userId}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        config
       );
+      
       toast.success(response.data.message);
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message);
-      return rejectWithValue(error.response?.data);
+      console.error("Update user error:", error.response?.data || error);
+      
+      // Handle specific error messages
+      const errorMessage = error.response?.data?.message || "Failed to update user";
+      
+      // Check if it's a permission error
+      if (error.response?.status === 403 || errorMessage.includes("Access denied")) {
+        toast.error("Permission denied. You need Super Admin rights to update configuration.");
+      } else {
+        toast.error(errorMessage);
+      }
+      
+      return rejectWithValue(error.response?.data || { message: errorMessage });
     }
   }
 );
-
 // Fetch All Users
 export const getAllUsers = createAsyncThunk(
   "user/getAllUsers",

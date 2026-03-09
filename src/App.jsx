@@ -44,6 +44,7 @@ import Locations from './pages/Locations.jsx';
 import ListUsers from './pages/SuperAdmin/Listusers.jsx';
 import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
 import ExpiringPlansPage from './pages/SuperAdmin/Expiringplanspage.jsx';
+import PrivacyPolicy from './components/layout/PrivacyPolicy.jsx';
 
 // Settings page (shared)
 
@@ -70,6 +71,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/privacypolicy" element={<PrivacyPolicy />} />
 
             {/* Authentication Routes */}
             <Route
