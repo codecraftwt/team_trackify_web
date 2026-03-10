@@ -5475,149 +5475,292 @@ const Reports = () => {
                 rowsPerPage={rowsPerPage}
               />
             ) : (
-              <TableContainer sx={{
-                overflowX: 'auto',
-                maxHeight: { xs: '450px', sm: '500px', md: '550px' },
-                '&::-webkit-scrollbar': {
-                  height: '6px',
-                  width: '6px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.3),
-                  borderRadius: '3px',
-                },
-              }}>
-                <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
-                  <TableHead>
-                    <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>#</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>User</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Email</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Check In</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Check Out</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Distance</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <AnimatePresence>
-                      {paginatedReports.map((report, index) => (
-                        <motion.tr
-                          key={report._id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2, delay: index * 0.02 }}
-                          style={{
-                            backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isMobile) {
-                              e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isMobile) {
-                              e.currentTarget.style.backgroundColor = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
-                            }
-                          }}
-                        >
-                          <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, py: 0.8 }}>
-                            {currentPage * rowsPerPage + index + 1}
-                          </TableCell>
-                          <TableCell sx={{ py: 0.8 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Avatar
-                                src={report.user?.avtar}
-                                sx={{
-                                  width: { xs: 26, sm: 28 },
-                                  height: { xs: 26, sm: 28 },
-                                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                  color: theme.palette.primary.main,
-                                }}
-                              >
-                                {report.user?.name?.charAt(0) || <PersonIcon sx={{ fontSize: 12 }} />}
-                              </Avatar>
-                              <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
-                                {report.user?.name || "-"}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, py: 0.8, color: 'text.secondary' }}>
-                            {report.user?.email || "-"}
-                          </TableCell>
-                          <TableCell sx={{ py: 0.8 }}>
-                            {report.check_in_time ? (
-                              <Tooltip title={formatDisplayDateTime(report.check_in_time)}>
-                                <Chip
-                                  size="small"
-                                  icon={<EventIcon sx={{ fontSize: 12 }} />}
-                                  label={formatDisplayDate(report.check_in_time)}
-                                  sx={{
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                    color: theme.palette.primary.main,
-                                    fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                                    height: 22,
-                                  }}
-                                />
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ py: 0.8 }}>
-                            {report.check_out_time ? (
-                              <Tooltip title={formatDisplayDateTime(report.check_out_time)}>
-                                <Chip
-                                  size="small"
-                                  icon={<EventIcon sx={{ fontSize: 12 }} />}
-                                  label={formatDisplayDate(report.check_out_time)}
-                                  sx={{
-                                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                                    color: theme.palette.text.secondary,
-                                    fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                                    height: 22,
-                                  }}
-                                />
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ py: 0.8 }}>
-                            {report.tracker?.total_distance ? (
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 14 }} />
-                                <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.primary' }}>
-                                  {report.tracker.total_distance.toFixed(2)} km
-                                </Typography>
-                              </Box>
-                            ) : (
-                              <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ py: 0.8 }}>
-                            {report.tracker?.status && (
-                              <Chip
-                                icon={getStatusIcon(report.tracker.status)}
-                                label={report.tracker.status}
-                                size="small"
-                                sx={{
-                                  bgcolor: alpha(getStatusColor(report.tracker.status), 0.1),
-                                  color: getStatusColor(report.tracker.status),
-                                  fontWeight: 600,
-                                  fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                                  height: 22,
-                                }}
-                              />
-                            )}
-                          </TableCell>
-                        </motion.tr>
-                      ))}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              // <TableContainer sx={{
+              //   overflowX: 'auto',
+              //   maxHeight: { xs: '450px', sm: '500px', md: '550px' },
+              //   '&::-webkit-scrollbar': {
+              //     height: '6px',
+              //     width: '6px',
+              //   },
+              //   '&::-webkit-scrollbar-thumb': {
+              //     backgroundColor: alpha(theme.palette.primary.main, 0.3),
+              //     borderRadius: '3px',
+              //   },
+              // }}>
+              //   <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
+              //     <TableHead>
+              //       <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>#</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>User</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Email</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Check In</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Check Out</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Distance</TableCell>
+              //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1 }}>Status</TableCell>
+              //       </TableRow>
+              //     </TableHead>
+              //     <TableBody>
+              //       <AnimatePresence>
+              //         {paginatedReports.map((report, index) => (
+              //           <motion.tr
+              //             key={report._id}
+              //             initial={{ opacity: 0, y: 10 }}
+              //             animate={{ opacity: 1, y: 0 }}
+              //             exit={{ opacity: 0 }}
+              //             transition={{ duration: 0.2, delay: index * 0.02 }}
+              //             style={{
+              //               backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
+              //             }}
+              //             onMouseEnter={(e) => {
+              //               if (!isMobile) {
+              //                 e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
+              //               }
+              //             }}
+              //             onMouseLeave={(e) => {
+              //               if (!isMobile) {
+              //                 e.currentTarget.style.backgroundColor = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
+              //               }
+              //             }}
+              //           >
+              //             <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, py: 0.8 }}>
+              //               {currentPage * rowsPerPage + index + 1}
+              //             </TableCell>
+              //             <TableCell sx={{ py: 0.8 }}>
+              //               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              //                 <Avatar
+              //                   src={report.user?.avtar}
+              //                   sx={{
+              //                     width: { xs: 26, sm: 28 },
+              //                     height: { xs: 26, sm: 28 },
+              //                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+              //                     color: theme.palette.primary.main,
+              //                   }}
+              //                 >
+              //                   {report.user?.name?.charAt(0) || <PersonIcon sx={{ fontSize: 12 }} />}
+              //                 </Avatar>
+              //                 <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
+              //                   {report.user?.name || "-"}
+              //                 </Typography>
+              //               </Box>
+              //             </TableCell>
+              //             <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, py: 0.8, color: 'text.secondary' }}>
+              //               {report.user?.email || "-"}
+              //             </TableCell>
+              //             <TableCell sx={{ py: 0.8 }}>
+              //               {report.check_in_time ? (
+              //                 <Tooltip title={formatDisplayDateTime(report.check_in_time)}>
+              //                   <Chip
+              //                     size="small"
+              //                     icon={<EventIcon sx={{ fontSize: 12 }} />}
+              //                     label={formatDisplayDate(report.check_in_time)}
+              //                     sx={{
+              //                       bgcolor: alpha(theme.palette.primary.main, 0.1),
+              //                       color: theme.palette.primary.main,
+              //                       fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+              //                       height: 22,
+              //                     }}
+              //                   />
+              //                 </Tooltip>
+              //               ) : (
+              //                 <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
+              //               )}
+              //             </TableCell>
+              //             <TableCell sx={{ py: 0.8 }}>
+              //               {report.check_out_time ? (
+              //                 <Tooltip title={formatDisplayDateTime(report.check_out_time)}>
+              //                   <Chip
+              //                     size="small"
+              //                     icon={<EventIcon sx={{ fontSize: 12 }} />}
+              //                     label={formatDisplayDate(report.check_out_time)}
+              //                     sx={{
+              //                       bgcolor: alpha(theme.palette.text.secondary, 0.1),
+              //                       color: theme.palette.text.secondary,
+              //                       fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+              //                       height: 22,
+              //                     }}
+              //                   />
+              //                 </Tooltip>
+              //               ) : (
+              //                 <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
+              //               )}
+              //             </TableCell>
+              //             <TableCell sx={{ py: 0.8 }}>
+              //               {report.tracker?.total_distance ? (
+              //                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              //                   <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 14 }} />
+              //                   <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.primary' }}>
+              //                     {report.tracker.total_distance.toFixed(2)} km
+              //                   </Typography>
+              //                 </Box>
+              //               ) : (
+              //                 <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>-</Typography>
+              //               )}
+              //             </TableCell>
+              //             <TableCell sx={{ py: 0.8 }}>
+              //               {report.tracker?.status && (
+              //                 <Chip
+              //                   icon={getStatusIcon(report.tracker.status)}
+              //                   label={report.tracker.status}
+              //                   size="small"
+              //                   sx={{
+              //                     bgcolor: alpha(getStatusColor(report.tracker.status), 0.1),
+              //                     color: getStatusColor(report.tracker.status),
+              //                     fontWeight: 600,
+              //                     fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+              //                     height: 22,
+              //                   }}
+              //                 />
+              //               )}
+              //             </TableCell>
+              //           </motion.tr>
+              //         ))}
+              //       </AnimatePresence>
+              //     </TableBody>
+              //   </Table>
+              // </TableContainer>
+            <TableContainer sx={{
+  overflowX: 'auto',
+  maxHeight: { xs: '450px', sm: '500px', md: '550px' },
+  '&::-webkit-scrollbar': {
+    height: '6px',
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+    borderRadius: '3px',
+  },
+}}>
+  <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
+    <TableHead>
+      <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>#</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>User</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>Email</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check In</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check Out</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>Distance</TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, py: 1.5 }}>Status</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <AnimatePresence>
+        {paginatedReports.map((report, index) => (
+          <motion.tr
+            key={report._id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, delay: index * 0.02 }}
+            style={{
+              backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
+            }}
+            onMouseEnter={(e) => {
+              if (!isMobile) {
+                e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isMobile) {
+                e.currentTarget.style.backgroundColor = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
+              }
+            }}
+          >
+            <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, py: 1.2 }}>
+              {currentPage * rowsPerPage + index + 1}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                <Avatar
+                  src={report.user?.avtar}
+                  sx={{
+                    width: { xs: 30, sm: 32 },
+                    height: { xs: 30, sm: 32 },
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                  }}
+                >
+                  {report.user?.name?.charAt(0) || <PersonIcon sx={{ fontSize: 14 }} />}
+                </Avatar>
+                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: 'text.primary' }}>
+                  {report.user?.name || "-"}
+                </Typography>
+              </Box>
+            </TableCell>
+            <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, py: 1.2, color: 'text.secondary' }}>
+              {report.user?.email || "-"}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              {report.check_in_time ? (
+                <Tooltip title={formatDisplayDateTime(report.check_in_time)}>
+                  <Chip
+                    size="small"
+                    icon={<EventIcon sx={{ fontSize: 14 }} />}
+                    label={formatDisplayDate(report.check_in_time)}
+                    sx={{
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                      height: 26,
+                    }}
+                  />
+                </Tooltip>
+              ) : (
+                <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+              )}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              {report.check_out_time ? (
+                <Tooltip title={formatDisplayDateTime(report.check_out_time)}>
+                  <Chip
+                    size="small"
+                    icon={<EventIcon sx={{ fontSize: 14 }} />}
+                    label={formatDisplayDate(report.check_out_time)}
+                    sx={{
+                      bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                      color: theme.palette.text.secondary,
+                      fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                      height: 26,
+                    }}
+                  />
+                </Tooltip>
+              ) : (
+                <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+              )}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              {report.tracker?.total_distance ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                  <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                  <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
+                    {report.tracker.total_distance.toFixed(2)} km
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+              )}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              {report.tracker?.status && (
+                <Chip
+                  icon={getStatusIcon(report.tracker.status)}
+                  label={report.tracker.status}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(getStatusColor(report.tracker.status), 0.1),
+                    color: getStatusColor(report.tracker.status),
+                    fontWeight: 600,
+                    fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+                    height: 26,
+                  }}
+                />
+              )}
+            </TableCell>
+          </motion.tr>
+        ))}
+      </AnimatePresence>
+    </TableBody>
+  </Table>
+</TableContainer>
             )}
 
             <TablePagination

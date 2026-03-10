@@ -1446,124 +1446,125 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
         },
       }}
     >
-      <Table sx={{ minWidth: isTablet ? 1100 : 1200 }}>
-        <TableHead>
-          <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-            <TableCell align="center" sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>#</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Profile</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Name</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Email</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Mobile</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Status</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Address</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Created</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Updated</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 600, fontSize: '0.7rem', color: theme.palette.primary.main, py: 1 }}>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user, index) => (
-            <TableRow
-              key={user._id}
-              hover
-              onClick={() => onRowClick(user)}
+   <Table sx={{ minWidth: isTablet ? 1200 : 1300 }}>
+  <TableHead>
+    <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+      <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>#</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Profile</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Name</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Email</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Mobile</TableCell>
+      <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Status</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Address</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Created</TableCell>
+      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Updated</TableCell>
+      <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' }, color: theme.palette.primary.main, py: 1.5 }}>Actions</TableCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    {users.map((user, index) => (
+      <TableRow
+        key={user._id}
+        hover
+        onClick={() => onRowClick(user)}
+        sx={{
+          cursor: "pointer",
+          "&:hover": {
+            bgcolor: alpha(theme.palette.primary.main, 0.05),
+          },
+        }}
+      >
+        <TableCell align="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' }, py: 1 }}>
+          {index + 1}
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Avatar
+            src={user.avtar}
+            sx={{
+              width: { xs: 36, sm: 38, md: 40 },
+              height: { xs: 36, sm: 38, md: 40 },
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: theme.palette.primary.main,
+              fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+            }}
+          >
+            {user.name?.charAt(0) || <PersonIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />}
+          </Avatar>
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' }, color: 'text.primary' }}>
+            {user.name}
+          </Typography>
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 14, sm: 15, md: 16 } }} />
+            <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: 'text.secondary' }}>
+              {user.email}
+            </Typography>
+          </Box>
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 14, sm: 15, md: 16 } }} />
+            <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: 'text.secondary' }}>
+              {user.mobile_no || "—"}
+            </Typography>
+          </Box>
+        </TableCell>
+        <TableCell align="center" sx={{ py: 1 }}>
+          <Chip
+            icon={user.isActive ? <ActiveIcon sx={{ fontSize: { xs: 12, sm: 13, md: 14 } }} /> : <InactiveIcon sx={{ fontSize: { xs: 12, sm: 13, md: 14 } }} />}
+            label={user.isActive ? "Active" : "Inactive"}
+            size="small"
+            sx={{
+              bgcolor: user.isActive ? alpha("#22c55e", 0.1) : alpha("#ef4444", 0.1),
+              color: user.isActive ? "#22c55e" : "#ef4444",
+              fontWeight: 600,
+              fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+              height: { xs: 22, sm: 23, md: 24 },
+            }}
+          />
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, maxWidth: 180, color: 'text.secondary' }}>
+            {user.address || "—"}
+          </Typography>
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.secondary' }}>
+            {formatDateDDMMYYYY(user.createdAt)}
+          </Typography>
+        </TableCell>
+        <TableCell sx={{ py: 1 }}>
+          <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.secondary' }}>
+            {formatDateDDMMYYYY(user.updatedAt)}
+          </Typography>
+        </TableCell>
+        <TableCell align="center" sx={{ py: 1 }}>
+          <Tooltip title="View Tracking">
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRowClick(user);
+              }}
               sx={{
-                cursor: "pointer",
-                "&:hover": {
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                },
+                color: theme.palette.primary.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                width: { xs: 28, sm: 29, md: 30 },
+                height: { xs: 28, sm: 29, md: 30 },
+                "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
               }}
             >
-              <TableCell align="center" sx={{ fontSize: '0.65rem', py: 0.75 }}>
-                {index + 1}
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Avatar
-                  src={user.avtar}
-                  sx={{
-                    width: 28,
-                    height: 28,
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
-                  }}
-                >
-                  {user.name?.charAt(0) || <PersonIcon sx={{ fontSize: 14 }} />}
-                </Avatar>
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.65rem', color: 'text.primary' }}>
-                  {user.name}
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 12 }} />
-                  <Typography variant="body2" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
-                    {user.email}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: 12 }} />
-                  <Typography variant="body2" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
-                    {user.mobile_no || "—"}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell align="center" sx={{ py: 0.75 }}>
-                <Chip
-                  icon={user.isActive ? <ActiveIcon sx={{ fontSize: 10 }} /> : <InactiveIcon sx={{ fontSize: 10 }} />}
-                  label={user.isActive ? "Active" : "Inactive"}
-                  size="small"
-                  sx={{
-                    bgcolor: user.isActive ? alpha("#22c55e", 0.1) : alpha("#ef4444", 0.1),
-                    color: user.isActive ? "#22c55e" : "#ef4444",
-                    fontWeight: 600,
-                    fontSize: '0.6rem',
-                    height: 18,
-                  }}
-                />
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Typography variant="body2" sx={{ fontSize: '0.65rem', maxWidth: 150, color: 'text.secondary' }}>
-                  {user.address || "—"}
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Typography variant="body2" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
-                  {formatDateDDMMYYYY(user.createdAt)}
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ py: 0.75 }}>
-                <Typography variant="body2" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
-                  {formatDateDDMMYYYY(user.updatedAt)}
-                </Typography>
-              </TableCell>
-              <TableCell align="center" sx={{ py: 0.75 }}>
-                <Tooltip title="View Tracking">
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRowClick(user);
-                    }}
-                    sx={{
-                      color: theme.palette.primary.main,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      width: 24,
-                      height: 24,
-                      "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-                    }}
-                  >
-                    <VisibilityIcon sx={{ fontSize: 14 }} />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+              <VisibilityIcon sx={{ fontSize: { xs: 15, sm: 15.5, md: 16 } }} />
+            </IconButton>
+          </Tooltip>
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
     </TableContainer>
   );
 };
@@ -1695,7 +1696,7 @@ const ListUsers = () => {
           animate="visible"
         >
           {/* Header Section */}
-          <motion.div variants={itemVariants}>
+          {/* <motion.div variants={itemVariants}>
             <Box sx={{ mb: { xs: 1.5, md: 3 } }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
                 Admin ID: {adminId}
@@ -1704,7 +1705,7 @@ const ListUsers = () => {
                 View and manage all users under this organization
               </Typography>
             </Box>
-          </motion.div>
+          </motion.div> */}
 
           {/* Summary Cards - Smaller */}
           <motion.div variants={itemVariants} style={{ marginBottom: isMobile ? 12 : 20 }}>

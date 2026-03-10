@@ -2313,7 +2313,7 @@ const PaymentPlans = () => {
 
             <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
               {/* Description */}
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', mb: 1.5, display: 'block' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.74rem', mb: 1.5, display: 'block' }}>
                 {plan.description}
               </Typography>
 
@@ -2329,7 +2329,7 @@ const PaymentPlans = () => {
                 >
                   {plan.price}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.66rem' }}>
                   per {plan.duration}
                 </Typography>
               </Box>
@@ -2342,7 +2342,7 @@ const PaymentPlans = () => {
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
                   borderRadius: 1.5,
                 }}>
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem' }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.64rem' }}>
                     Min Users
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -2358,7 +2358,7 @@ const PaymentPlans = () => {
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
                   borderRadius: 1.5,
                 }}>
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem' }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.64rem' }}>
                     Max Users
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

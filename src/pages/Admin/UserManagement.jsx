@@ -2405,12 +2405,12 @@ const ResponsiveTable = ({
                     >
                       {user.name?.charAt(0)}
                     </Avatar>
-                    <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
+                    <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
                       {user.name}
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.secondary' }}>
+                <TableCell fontWeight={500}  sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                   {user.email}
                 </TableCell>
                 <TableCell>
@@ -2421,12 +2421,12 @@ const ResponsiveTable = ({
                       bgcolor: user.isActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
                       color: user.isActive ? '#22c55e' : theme.palette.text.secondary,
                       fontWeight: 600,
-                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.70rem' },
                       height: { xs: 18, sm: 20 },
                     }}
                   />
                 </TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.secondary' }}>
+                <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
                   {moment(user.createdAt).format('MMM D, YYYY')}
                 </TableCell>
                 <TableCell align="right">

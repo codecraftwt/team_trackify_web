@@ -2743,192 +2743,377 @@ const PlanManagement = () => {
   // Desktop Table View - Smaller fonts
   const DesktopTableView = () => {
     return (
-      <TableContainer sx={{
-        overflowX: 'auto',
-        maxHeight: { xs: '450px', sm: '550px', md: '650px' },
-        '&::-webkit-scrollbar': {
-          width: '6px',
-          height: '6px',
-        },
-        '&::-webkit-scrollbar-track': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.1),
-          borderRadius: '3px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.3),
-          borderRadius: '3px',
-          '&:hover': {
-            backgroundColor: alpha(theme.palette.primary.main, 0.5),
-          },
-        },
-        scrollBehavior: 'smooth',
-      }}>
-        <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Plan Details
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Users
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Description
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Price
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Duration
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Status
-              </TableCell>
-              <TableCell align="center" sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <AnimatePresence>
-              {filteredPlans.map((plan, index) => {
-                const rowBg = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
-                return (
-                  <TableRow
-                    key={plan._id}
-                    component={motion.tr}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.02 }}
+      // <TableContainer sx={{
+      //   overflowX: 'auto',
+      //   maxHeight: { xs: '450px', sm: '550px', md: '650px' },
+      //   '&::-webkit-scrollbar': {
+      //     width: '6px',
+      //     height: '6px',
+      //   },
+      //   '&::-webkit-scrollbar-track': {
+      //     backgroundColor: alpha(theme.palette.primary.main, 0.1),
+      //     borderRadius: '3px',
+      //   },
+      //   '&::-webkit-scrollbar-thumb': {
+      //     backgroundColor: alpha(theme.palette.primary.main, 0.3),
+      //     borderRadius: '3px',
+      //     '&:hover': {
+      //       backgroundColor: alpha(theme.palette.primary.main, 0.5),
+      //     },
+      //   },
+      //   scrollBehavior: 'smooth',
+      // }}>
+      //   <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
+      //     <TableHead>
+      //       <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Plan Details
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Users
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Description
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Price
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Duration
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Status
+      //         </TableCell>
+      //         <TableCell align="center" sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1 }}>
+      //           Actions
+      //         </TableCell>
+      //       </TableRow>
+      //     </TableHead>
+      //     <TableBody>
+      //       <AnimatePresence>
+      //         {filteredPlans.map((plan, index) => {
+      //           const rowBg = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
+      //           return (
+      //             <TableRow
+      //               key={plan._id}
+      //               component={motion.tr}
+      //               initial={{ opacity: 0, y: 10 }}
+      //               animate={{ opacity: 1, y: 0 }}
+      //               exit={{ opacity: 0 }}
+      //               transition={{ duration: 0.3, delay: index * 0.02 }}
+      //               sx={{
+      //                 "&:hover": {
+      //                   bgcolor: alpha(theme.palette.primary.main, 0.05),
+      //                 },
+      //               }}
+      //             >
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      //                   <Avatar
+      //                     sx={{
+      //                       width: { xs: 24, sm: 26, md: 28 },
+      //                       height: { xs: 24, sm: 26, md: 28 },
+      //                       bgcolor: alpha(getPlanColor(plan.name), 0.1),
+      //                       color: getPlanColor(plan.name),
+      //                       fontSize: { xs: '0.7rem', sm: '0.75rem' },
+      //                     }}
+      //                   >
+      //                     {getPlanIcon(plan.name)}
+      //                   </Avatar>
+      //                   <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: 'text.primary' }}>
+      //                     {plan.name}
+      //                   </Typography>
+      //                 </Box>
+      //               </TableCell>
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Chip
+      //                   label={`${plan.minUsers} - ${plan.maxUsers}`}
+      //                   size="small"
+      //                   sx={{
+      //                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+      //                     color: theme.palette.primary.main,
+      //                     fontWeight: 500,
+      //                     fontSize: { xs: '0.6rem', sm: '0.65rem' },
+      //                     height: { xs: 18, sm: 20 },
+      //                   }}
+      //                 />
+      //               </TableCell>
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Typography
+      //                   // variant="body2"
+      //                   color="text.secondary"
+      //                   sx={{
+      //                     maxWidth: { xs: 100, sm: 130, md: 180 },
+      //                     fontSize: { xs: '0.6rem', sm: '0.77rem' },
+      //                     overflow: "hidden",
+      //                     textOverflow: "ellipsis",
+      //                     whiteSpace: "nowrap",
+      //                   }}
+      //                 >
+      //                   {plan.description}
+      //                 </Typography>
+      //               </TableCell>
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
+      //                   ₹{plan.price}
+      //                 </Typography>
+      //               </TableCell>
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Chip
+      //                   label={plan.duration}
+      //                   size="small"
+      //                   sx={{
+      //                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+      //                     color: theme.palette.primary.main,
+      //                     fontWeight: 500,
+      //                     fontSize: { xs: '0.6rem', sm: '0.65rem' },
+      //                     height: { xs: 18, sm: 20 },
+      //                   }}
+      //                 />
+      //               </TableCell>
+      //               <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Chip
+      //                   label={plan.status}
+      //                   size="small"
+      //                   icon={plan.status === "active" ? <FaCheckCircle size={12} /> : <FaTimesCircle size={12} />}
+      //                   sx={{
+      //                     bgcolor: plan.status === "active"
+      //                       ? alpha("#22c55e", 0.1)
+      //                       : alpha(theme.palette.text.secondary, 0.1),
+      //                     color: plan.status === "active" ? "#22c55e" : theme.palette.text.secondary,
+      //                     fontWeight: 600,
+      //                     fontSize: { xs: '0.6rem', sm: '0.65rem' },
+      //                     height: { xs: 18, sm: 20 },
+      //                     gap: 0.5,
+      //                   }}
+      //                 />
+      //               </TableCell>
+      //               <TableCell align="center" sx={{ bgcolor: rowBg, py: 1 }}>
+      //                 <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center" }}>
+      //                   <Tooltip title="Edit Plan">
+      //                     <IconButton
+      //                       size="small"
+      //                       onClick={() => handleEdit(plan)}
+      //                       sx={{
+      //                         color: theme.palette.primary.main,
+      //                         bgcolor: alpha(theme.palette.primary.main, 0.1),
+      //                         width: 26,
+      //                         height: 26,
+      //                         "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+      //                       }}
+      //                     >
+      //                       <EditIcon sx={{ fontSize: 14 }} />
+      //                     </IconButton>
+      //                   </Tooltip>
+      //                   <Tooltip title="Delete Plan">
+      //                     <IconButton
+      //                       size="small"
+      //                       onClick={() => confirmDelete(plan._id)}
+      //                       sx={{
+      //                         color: "#ef4444",
+      //                         bgcolor: alpha("#ef4444", 0.1),
+      //                         width: 26,
+      //                         height: 26,
+      //                         "&:hover": { bgcolor: alpha("#ef4444", 0.2) },
+      //                       }}
+      //                     >
+      //                       <DeleteIcon sx={{ fontSize: 14 }} />
+      //                     </IconButton>
+      //                   </Tooltip>
+      //                 </Box>
+      //               </TableCell>
+      //             </TableRow>
+      //           );
+      //         })}
+      //       </AnimatePresence>
+      //     </TableBody>
+      //   </Table>
+      // </TableContainer>
+    <TableContainer sx={{
+  overflowX: 'auto',
+  maxHeight: { xs: '450px', sm: '550px', md: '650px' },
+  '&::-webkit-scrollbar': {
+    width: '6px',
+    height: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+    borderRadius: '3px',
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.5),
+    },
+  },
+  scrollBehavior: 'smooth',
+}}>
+  <Table sx={{ minWidth: isTablet ? 800 : 900 }}>
+    <TableHead>
+      <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Plan Details
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Users
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Description
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Price
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Duration
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Status
+        </TableCell>
+        <TableCell align="center" sx={{ fontWeight: 600, color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem' }, py: 1.5 }}>
+          Actions
+        </TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <AnimatePresence>
+        {filteredPlans.map((plan, index) => {
+          const rowBg = index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02);
+          return (
+            <TableRow
+              key={plan._id}
+              component={motion.tr}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.02 }}
+              sx={{
+                "&:hover": {
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                },
+              }}
+            >
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                  <Avatar
                     sx={{
-                      "&:hover": {
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                      },
+                      width: { xs: 28, sm: 30, md: 32 },
+                      height: { xs: 28, sm: 30, md: 32 },
+                      bgcolor: alpha(getPlanColor(plan.name), 0.1),
+                      color: getPlanColor(plan.name),
+                      fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
                     }}
                   >
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Avatar
-                          sx={{
-                            width: { xs: 24, sm: 26, md: 28 },
-                            height: { xs: 24, sm: 26, md: 28 },
-                            bgcolor: alpha(getPlanColor(plan.name), 0.1),
-                            color: getPlanColor(plan.name),
-                            fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                          }}
-                        >
-                          {getPlanIcon(plan.name)}
-                        </Avatar>
-                        <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: 'text.primary' }}>
-                          {plan.name}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Chip
-                        label={`${plan.minUsers} - ${plan.maxUsers}`}
-                        size="small"
-                        sx={{
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                          color: theme.palette.primary.main,
-                          fontWeight: 500,
-                          fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                          height: { xs: 18, sm: 20 },
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          maxWidth: { xs: 100, sm: 130, md: 180 },
-                          fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {plan.description}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
-                        ₹{plan.price}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Chip
-                        label={plan.duration}
-                        size="small"
-                        sx={{
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                          color: theme.palette.primary.main,
-                          fontWeight: 500,
-                          fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                          height: { xs: 18, sm: 20 },
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Chip
-                        label={plan.status}
-                        size="small"
-                        icon={plan.status === "active" ? <FaCheckCircle size={12} /> : <FaTimesCircle size={12} />}
-                        sx={{
-                          bgcolor: plan.status === "active"
-                            ? alpha("#22c55e", 0.1)
-                            : alpha(theme.palette.text.secondary, 0.1),
-                          color: plan.status === "active" ? "#22c55e" : theme.palette.text.secondary,
-                          fontWeight: 600,
-                          fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                          height: { xs: 18, sm: 20 },
-                          gap: 0.5,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="center" sx={{ bgcolor: rowBg, py: 1 }}>
-                      <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center" }}>
-                        <Tooltip title="Edit Plan">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEdit(plan)}
-                            sx={{
-                              color: theme.palette.primary.main,
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                              width: 26,
-                              height: 26,
-                              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-                            }}
-                          >
-                            <EditIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete Plan">
-                          <IconButton
-                            size="small"
-                            onClick={() => confirmDelete(plan._id)}
-                            sx={{
-                              color: "#ef4444",
-                              bgcolor: alpha("#ef4444", 0.1),
-                              width: 26,
-                              height: 26,
-                              "&:hover": { bgcolor: alpha("#ef4444", 0.2) },
-                            }}
-                          >
-                            <DeleteIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </AnimatePresence>
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    {getPlanIcon(plan.name)}
+                  </Avatar>
+                  <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' }, color: 'text.primary' }}>
+                    {plan.name}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Chip
+                  label={`${plan.minUsers} - ${plan.maxUsers}`}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    fontWeight: 500,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                    height: { xs: 22, sm: 24, md: 26 },
+                  }}
+                />
+              </TableCell>
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Typography
+                  color="text.secondary"
+                  sx={{
+                    maxWidth: { xs: 120, sm: 150, md: 200 },
+                    fontSize: { xs: '0.65rem', sm: '0.77rem', md: '0.8rem' },
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {plan.description}
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
+                  ₹{plan.price}
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Chip
+                  label={plan.duration}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    fontWeight: 500,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                    height: { xs: 22, sm: 24, md: 26 },
+                  }}
+                />
+              </TableCell>
+              <TableCell sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Chip
+                  label={plan.status}
+                  size="small"
+                  icon={plan.status === "active" ? <FaCheckCircle size={14} /> : <FaTimesCircle size={14} />}
+                  sx={{
+                    bgcolor: plan.status === "active"
+                      ? alpha("#22c55e", 0.1)
+                      : alpha(theme.palette.text.secondary, 0.1),
+                    color: plan.status === "active" ? "#22c55e" : theme.palette.text.secondary,
+                    fontWeight: 600,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                    height: { xs: 22, sm: 24, md: 26 },
+                    gap: 0.5,
+                  }}
+                />
+              </TableCell>
+              <TableCell align="center" sx={{ bgcolor: rowBg, py: 1.5 }}>
+                <Box sx={{ display: "flex", gap: 0.8, justifyContent: "center" }}>
+                  <Tooltip title="Edit Plan">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEdit(plan)}
+                      sx={{
+                        color: theme.palette.primary.main,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        width: 30,
+                        height: 30,
+                        "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete Plan">
+                    <IconButton
+                      size="small"
+                      onClick={() => confirmDelete(plan._id)}
+                      sx={{
+                        color: "#ef4444",
+                        bgcolor: alpha("#ef4444", 0.1),
+                        width: 30,
+                        height: 30,
+                        "&:hover": { bgcolor: alpha("#ef4444", 0.2) },
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </AnimatePresence>
+    </TableBody>
+  </Table>
+</TableContainer>
     );
   };
 

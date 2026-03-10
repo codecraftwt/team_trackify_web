@@ -1017,156 +1017,306 @@ const RevenueTable = ({
     };
 
     return (
-      <TableContainer sx={{ 
-        overflowX: 'auto',
-        maxHeight: { xs: '400px', sm: '500px', md: '600px' },
-        '&::-webkit-scrollbar': {
-          width: '6px',
-          height: '6px',
-        },
-        '&::-webkit-scrollbar-track': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.1),
-          borderRadius: '3px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.3),
-          borderRadius: '3px',
-          '&:hover': {
-            backgroundColor: alpha(theme.palette.primary.main, 0.5),
-          },
-        },
-        scrollBehavior: 'smooth',
-      }}>
-        <Table sx={{ minWidth: getMinWidth() }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                Admin
-              </TableCell>
-              {showEmail && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                  Email
-                </TableCell>
-              )}
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                Plan
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                Date
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                Amount
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                Status
-              </TableCell>
-              {showPaymentMethod && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                  Method
-                </TableCell>
-              )}
-              {showDuration && (
-                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: theme.palette.primary.main, py: 1 }}>
-                  Duration
-                </TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <AnimatePresence>
-              {filteredPayments.map((payment, index) => (
-                <motion.tr
-                  key={payment.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, delay: index * 0.02 }}
-                  style={{
-                    backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
+      // <TableContainer sx={{ 
+      //   overflowX: 'auto',
+      //   maxHeight: { xs: '400px', sm: '500px', md: '600px' },
+      //   '&::-webkit-scrollbar': {
+      //     width: '6px',
+      //     height: '6px',
+      //   },
+      //   '&::-webkit-scrollbar-track': {
+      //     backgroundColor: alpha(theme.palette.primary.main, 0.1),
+      //     borderRadius: '3px',
+      //   },
+      //   '&::-webkit-scrollbar-thumb': {
+      //     backgroundColor: alpha(theme.palette.primary.main, 0.3),
+      //     borderRadius: '3px',
+      //     '&:hover': {
+      //       backgroundColor: alpha(theme.palette.primary.main, 0.5),
+      //     },
+      //   },
+      //   scrollBehavior: 'smooth',
+      // }}>
+      //   <Table sx={{ minWidth: getMinWidth() }}>
+      //     <TableHead>
+      //       <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+      //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //           Admin
+      //         </TableCell>
+      //         {showEmail && (
+      //           <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //             Email
+      //           </TableCell>
+      //         )}
+      //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //           Plan
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //           Date
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //           Amount
+      //         </TableCell>
+      //         <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //           Status
+      //         </TableCell>
+      //         {showPaymentMethod && (
+      //           <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //             Method
+      //           </TableCell>
+      //         )}
+      //         {showDuration && (
+      //           <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1 }}>
+      //             Duration
+      //           </TableCell>
+      //         )}
+      //       </TableRow>
+      //     </TableHead>
+      //     <TableBody>
+      //       <AnimatePresence>
+      //         {filteredPayments.map((payment, index) => (
+      //           <motion.tr
+      //             key={payment.id}
+      //             initial={{ opacity: 0, y: 10 }}
+      //             animate={{ opacity: 1, y: 0 }}
+      //             exit={{ opacity: 0 }}
+      //             transition={{ duration: 0.2, delay: index * 0.02 }}
+      //             style={{
+      //               backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
+      //             }}
+      //           >
+      //             <TableCell sx={{ py: 0.75 }}>
+      //               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      //                 <Avatar
+      //                   sx={{
+      //                     width: { xs: 24, sm: 26, md: 28 },
+      //                     height: { xs: 24, sm: 26, md: 28 },
+      //                     bgcolor: alpha(theme.palette.primary.main, 0.1),
+      //                     color: theme.palette.primary.main,
+      //                     fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
+      //                   }}
+      //                 >
+      //                   {payment.name?.charAt(0) || "A"}
+      //                 </Avatar>
+      //                 <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.90rem' }, color: 'text.primary' }}>
+      //                   {payment.name}
+      //                 </Typography>
+      //               </Box>
+      //             </TableCell>
+      //             {showEmail && (
+      //               <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.7rem' }, color: 'text.secondary', py: 0.75 }}>
+      //                 {payment.email}
+      //               </TableCell>
+      //             )}
+      //             <TableCell sx={{ py: 0.75 }}>
+      //               <Chip
+      //                 label={payment.plan}
+      //                 size="small"
+      //                 sx={{
+      //                   bgcolor: alpha(theme.palette.primary.main, 0.1),
+      //                   color: theme.palette.primary.main,
+      //                   fontWeight: 500,
+      //                   fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+      //                   height: { xs: 18, sm: 20, md: 22 },
+      //                 }}
+      //               />
+      //             </TableCell>
+      //             <TableCell sx={{ py: 0.75 }}>
+      //               <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+      //                 <CalendarIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 11, md: 12 } }} />
+      //                 <Typography variant="body2" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.primary' }}>
+      //                   {moment(payment.date).format("DD MMM YY")}
+      //                 </Typography>
+      //               </Box>
+      //             </TableCell>
+      //             <TableCell sx={{ py: 0.75 }}>
+      //               <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
+      //                 {formatCurrency(payment.amount)}
+      //               </Typography>
+      //             </TableCell>
+      //             <TableCell sx={{ py: 0.75 }}>
+      //               <Chip
+      //                 icon={getStatusIcon(payment.status)}
+      //                 label={payment.status}
+      //                 size="small"
+      //                 sx={{
+      //                   bgcolor: alpha(getStatusColor(payment.status), 0.1),
+      //                   color: getStatusColor(payment.status),
+      //                   fontWeight: 600,
+      //                   fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+      //                   height: { xs: 18, sm: 20, md: 22 },
+      //                   '& .MuiChip-icon': {
+      //                     fontSize: { xs: 10, sm: 11, md: 12 }
+      //                   }
+      //                 }}
+      //               />
+      //             </TableCell>
+      //             {showPaymentMethod && (
+      //               <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.70rem' }, color: 'text.secondary', py: 0.75 }}>
+      //                 {payment.paymentMethod || "Online"}
+      //               </TableCell>
+      //             )}
+      //             {showDuration && (
+      //               <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.70rem' }, color: 'text.secondary', py: 0.75 }}>
+      //                 {payment.duration || "-"}
+      //               </TableCell>
+      //             )}
+      //           </motion.tr>
+      //         ))}
+      //       </AnimatePresence>
+      //     </TableBody>
+      //   </Table>
+      // </TableContainer>
+    <TableContainer sx={{ 
+  overflowX: 'auto',
+  maxHeight: { xs: '400px', sm: '500px', md: '600px' },
+  '&::-webkit-scrollbar': {
+    width: '6px',
+    height: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+    borderRadius: '3px',
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.5),
+    },
+  },
+  scrollBehavior: 'smooth',
+}}>
+  <Table sx={{ minWidth: getMinWidth() }}>
+    <TableHead>
+      <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Admin
+        </TableCell>
+        {showEmail && (
+          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+            Email
+          </TableCell>
+        )}
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Plan
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Date
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Amount
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Status
+        </TableCell>
+        {showPaymentMethod && (
+          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+            Method
+          </TableCell>
+        )}
+        {showDuration && (
+          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.80rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+            Duration
+          </TableCell>
+        )}
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <AnimatePresence>
+        {filteredPayments.map((payment, index) => (
+          <motion.tr
+            key={payment.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, delay: index * 0.02 }}
+            style={{
+              backgroundColor: index % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.02),
+            }}
+          >
+            <TableCell sx={{ py: 1.2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                <Avatar
+                  sx={{
+                    width: { xs: 28, sm: 30, md: 32 },
+                    height: { xs: 28, sm: 30, md: 32 },
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
                   }}
                 >
-                  <TableCell sx={{ py: 0.75 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Avatar
-                        sx={{
-                          width: { xs: 24, sm: 26, md: 28 },
-                          height: { xs: 24, sm: 26, md: 28 },
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                          color: theme.palette.primary.main,
-                          fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' },
-                        }}
-                      >
-                        {payment.name?.charAt(0) || "A"}
-                      </Avatar>
-                      <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.primary' }}>
-                        {payment.name}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  {showEmail && (
-                    <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.secondary', py: 0.75 }}>
-                      {payment.email}
-                    </TableCell>
-                  )}
-                  <TableCell sx={{ py: 0.75 }}>
-                    <Chip
-                      label={payment.plan}
-                      size="small"
-                      sx={{
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: theme.palette.primary.main,
-                        fontWeight: 500,
-                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                        height: { xs: 18, sm: 20, md: 22 },
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ py: 0.75 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
-                      <CalendarIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 11, md: 12 } }} />
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.primary' }}>
-                        {moment(payment.date).format("DD MMM YY")}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell sx={{ py: 0.75 }}>
-                    <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' } }}>
-                      {formatCurrency(payment.amount)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ py: 0.75 }}>
-                    <Chip
-                      icon={getStatusIcon(payment.status)}
-                      label={payment.status}
-                      size="small"
-                      sx={{
-                        bgcolor: alpha(getStatusColor(payment.status), 0.1),
-                        color: getStatusColor(payment.status),
-                        fontWeight: 600,
-                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                        height: { xs: 18, sm: 20, md: 22 },
-                        '& .MuiChip-icon': {
-                          fontSize: { xs: 10, sm: 11, md: 12 }
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  {showPaymentMethod && (
-                    <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.secondary', py: 0.75 }}>
-                      {payment.paymentMethod || "Online"}
-                    </TableCell>
-                  )}
-                  {showDuration && (
-                    <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.secondary', py: 0.75 }}>
-                      {payment.duration || "-"}
-                    </TableCell>
-                  )}
-                </motion.tr>
-              ))}
-            </AnimatePresence>
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  {payment.name?.charAt(0) || "A"}
+                </Avatar>
+                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: 'text.primary' }}>
+                  {payment.name}
+                </Typography>
+              </Box>
+            </TableCell>
+            {showEmail && (
+              <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.78rem' }, color: 'text.secondary', py: 1.2 }}>
+                {payment.email}
+              </TableCell>
+            )}
+            <TableCell sx={{ py: 1.2 }}>
+              <Chip
+                label={payment.plan}
+                size="small"
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  fontWeight: 500,
+                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                  height: { xs: 22, sm: 24, md: 26 },
+                }}
+              />
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <CalendarIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 12, sm: 13, md: 14 } }} />
+                <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
+                  {moment(payment.date).format("DD MMM YY")}
+                </Typography>
+              </Box>
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
+                {formatCurrency(payment.amount)}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Chip
+                icon={getStatusIcon(payment.status)}
+                label={payment.status}
+                size="small"
+                sx={{
+                  bgcolor: alpha(getStatusColor(payment.status), 0.1),
+                  color: getStatusColor(payment.status),
+                  fontWeight: 600,
+                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                  height: { xs: 22, sm: 24, md: 26 },
+                  '& .MuiChip-icon': {
+                    fontSize: { xs: 12, sm: 13, md: 14 }
+                  }
+                }}
+              />
+            </TableCell>
+            {showPaymentMethod && (
+              <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.secondary', py: 1.2 }}>
+                {payment.paymentMethod || "Online"}
+              </TableCell>
+            )}
+            {showDuration && (
+              <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.secondary', py: 1.2 }}>
+                {payment.duration || "-"}
+              </TableCell>
+            )}
+          </motion.tr>
+        ))}
+      </AnimatePresence>
+    </TableBody>
+  </Table>
+</TableContainer>
     );
   };
 

@@ -5312,7 +5312,7 @@ const TransactionHistory = () => {
           >
             {viewMode === "table" ? (
               <>
-                <TableContainer sx={{ 
+                {/* <TableContainer sx={{ 
                   overflowX: 'auto',
                   maxHeight: { xs: '450px', sm: '500px', md: '550px' },
                   '&::-webkit-scrollbar': {
@@ -5448,7 +5448,144 @@ const TransactionHistory = () => {
                       </AnimatePresence>
                     </TableBody>
                   </Table>
-                </TableContainer>
+                </TableContainer> */}
+                <TableContainer sx={{ 
+  overflowX: 'auto',
+  maxHeight: { xs: '450px', sm: '500px', md: '550px' },
+  '&::-webkit-scrollbar': {
+    width: '4px',
+    height: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+    borderRadius: '2px',
+  },
+}}>
+  <Table sx={{ minWidth: isMobile ? 700 : isTablet ? 800 : 900 }}>
+    <TableHead>
+      <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          #
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Plan
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Description
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Date
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Amount
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Status
+        </TableCell>
+        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Payment
+        </TableCell>
+        <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: theme.palette.primary.main, py: 1.5 }}>
+          Actions
+        </TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      <AnimatePresence>
+        {sortedTransactions.map((transaction, index) => (
+          <motion.tr
+            key={transaction._id || index}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, py: 1.2 }}>
+              {page * rowsPerPage + index + 1}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              {transaction.planId ? (
+                <Box>
+                  <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.primary' }}>
+                    {transaction.planId.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' } }}>
+                    {transaction.planId.duration}
+                  </Typography>
+                </Box>
+              ) : "-"}
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.74rem' }, color: 'text.primary' }}>
+                {transaction.description?.substring(0, 30) || `Payment for ${transaction.planId?.name || "Plan"}`}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.primary' }}>
+                {formatDate(transaction.createdAt)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem', md: '0.6rem' } }}>
+                {formatTime(transaction.createdAt)}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                sx={{ 
+                  color: transaction.amount > 0 ? theme.palette.primary.main : "#ef4444",
+                  fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }
+                }}
+              >
+                {formatAmount(transaction.amount)}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Chip
+                icon={getStatusIcon(transaction.status)}
+                label={transaction.status}
+                size="small"
+                sx={{
+                  bgcolor: alpha(getStatusColor(transaction.status), 0.1),
+                  color: getStatusColor(transaction.status),
+                  fontWeight: 600,
+                  fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+                  height: { xs: 22, sm: 24 },
+                  '& .MuiChip-icon': {
+                    fontSize: { xs: 12, sm: 13 }
+                  }
+                }}
+              />
+            </TableCell>
+            <TableCell sx={{ py: 1.2 }}>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.secondary' }}>
+                {transaction.paymentMethod || "-"}
+              </Typography>
+            </TableCell>
+            <TableCell align="right" sx={{ py: 1.2 }}>
+              <Tooltip title="View Receipt">
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setSelectedTransaction(transaction);
+                    setShowReceipt(true);
+                  }}
+                  sx={{ 
+                    color: theme.palette.primary.main,
+                    width: 30,
+                    height: 30,
+                  }}
+                >
+                  <ReceiptIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            </TableCell>
+          </motion.tr>
+        ))}
+      </AnimatePresence>
+    </TableBody>
+  </Table>
+</TableContainer>
                 <TablePagination
                   component="div"
                   count={totalItems}

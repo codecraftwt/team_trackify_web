@@ -401,7 +401,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme, alpha } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import logoImage from '../../assets/Team-Trackify-logo.png';
+// import logoImage from '../../assets/Team-Trackify-logo.png';
+import logoImage from '../../assets/logo31.png';
 
 const Header = ({ onMenuClick }) => {
   const theme = useTheme();
@@ -454,7 +455,8 @@ const Header = ({ onMenuClick }) => {
               <img
                 src={logoImage}
                 alt="Team Trackify Logo"
-                className="h-14 md:h-16 lg:h-18 w-auto object-contain"
+            className="h-10 md:h-12 lg:h-14 w-auto max-w-[120px] md:max-w-[140px] object-contain"
+    style={{ borderRadius: '4px' }}
               />
             </Link>
           </motion.div>
