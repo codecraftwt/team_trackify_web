@@ -24,21 +24,42 @@ api.interceptors.request.use(
 );
 
 // Async thunks for API calls
+// export const createPaymentOrder = createAsyncThunk(
+//   "payment/createOrder",
+//   async ({ adminId, planId }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.post("/payments/create-order", {
+//         adminId,
+//         planId,
+//       }); 
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+// UPDATED: Create payment order with coupon support
 export const createPaymentOrder = createAsyncThunk(
   "payment/createOrder",
-  async ({ adminId, planId }, { rejectWithValue }) => {
+  async ({ adminId, planId, couponCode }, { rejectWithValue }) => {
     try {
       const response = await api.post("/payments/create-order", {
         adminId,
         planId,
-      }); 
+        couponCode, // Added coupon code support
+      });
+      
+      if (couponCode && response.data.data.discountApplied) {
+        toast.success(`Coupon applied! You saved ₹${response.data.data.discountAmount}`);
+      }
+      
       return response.data;
     } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create order");
       return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
-
 export const verifyPayment = createAsyncThunk(
   "payment/verifyPayment",
   async (
@@ -113,14 +134,30 @@ export const getPaymentById = createAsyncThunk(
 );
 
 // Add-On Payment API calls
+// export const createAddOnOrder = createAsyncThunk(
+//   "payment/createAddOnOrder",
+//   async ({ adminId, addOnPlanId, paymentId }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.post("/payments/create-addon-order", {
+//         adminId,
+//         addOnPlanId,
+//         paymentId,
+//       });
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+// Create add-on order with coupon support
 export const createAddOnOrder = createAsyncThunk(
   "payment/createAddOnOrder",
-  async ({ adminId, addOnPlanId, paymentId }, { rejectWithValue }) => {
+  async ({ adminId, addOnPlanId, couponCode }, { rejectWithValue }) => {
     try {
       const response = await api.post("/payments/create-addon-order", {
         adminId,
         addOnPlanId,
-        paymentId,
+        couponCode, // Optional coupon code
       });
       return response.data;
     } catch (error) {
@@ -128,7 +165,6 @@ export const createAddOnOrder = createAsyncThunk(
     }
   }
 );
-
 export const verifyAddOnPayment = createAsyncThunk(
   "payment/verifyAddOnPayment",
   async (
@@ -215,6 +251,8 @@ const initialState = {
   addOnVerificationLoading: false,
   addOnVerificationError: null,
   addOnVerificationData: null,
+
+  
 
   // Test API
   testLoading: false,

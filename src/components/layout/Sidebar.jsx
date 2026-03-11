@@ -1011,6 +1011,7 @@ import {
   Description as ReportIcon,
   ManageAccounts as ProfileIcon,
   ChevronLeft as ChevronLeftIcon,
+   Redeem as RedeemIcon
 } from '@mui/icons-material';
 import { logout } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
@@ -1079,6 +1080,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+    { text: 'Coopon Management', icon: <RedeemIcon  />, path: '/super-admin/couponmanagment' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },

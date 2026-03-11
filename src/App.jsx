@@ -45,6 +45,7 @@ import ListUsers from './pages/SuperAdmin/Listusers.jsx';
 import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
 import ExpiringPlansPage from './pages/SuperAdmin/Expiringplanspage.jsx';
 import PrivacyPolicy from './components/layout/PrivacyPolicy.jsx';
+import CouponManagement from './pages/SuperAdmin/CouponManagement.jsx';
 
 // Settings page (shared)
 
@@ -144,6 +145,7 @@ function App() {
                 <Route path="/super-admin/contacts" element={<ContactList />} />
                 <Route path="/list-users/:adminId" element={<ListUsers />} />
                 <Route path="/admin/expiringplanspage" element={<ExpiringPlansPage />} />
+                <Route path="/super-admin/couponmanagment" element={<CouponManagement />} />
 
                 {/* <Route path="/super-admin/profile" element={<SuperAdminProfile />} /> */}
               </Route>
