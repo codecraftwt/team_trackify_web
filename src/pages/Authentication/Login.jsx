@@ -51,7 +51,7 @@
 //     if (isAuthenticated && user && role_id) {
 //       // Show success message
 //       setOpenSuccessAlert(true);
-      
+
 //       // Determine redirect path based on role_id
 //       let redirectPath = '/';
 //       if (role_id === 2) {
@@ -59,14 +59,14 @@
 //       } else if (role_id === 1) {
 //         redirectPath = '/admin/dashboard';
 //       }
-      
+
 //       // Redirect after a short delay
 //       const timer = setTimeout(() => {
 //         setOpenSuccessAlert(false);
 //         dispatch(clearMessage());
 //         navigate(redirectPath, { replace: true });
 //       }, 2000);
-      
+
 //       return () => clearTimeout(timer);
 //     }
 //   }, [isAuthenticated, user, role_id, dispatch, navigate]);
@@ -97,7 +97,7 @@
 //     dispatch(clearMessage());
 //     setOpenSuccessAlert(false);
 //     setOpenErrorAlert(false);
-    
+
 //     await dispatch(loginUser(data));
 //   };
 
@@ -400,7 +400,7 @@
 //     if (isAuthenticated && user && role_id) {
 //       // Show success message
 //       setOpenSuccessAlert(true);
-      
+
 //       // Determine redirect path based on role_id
 //       let redirectPath = '/';
 //       if (role_id === 2) {
@@ -408,14 +408,14 @@
 //       } else if (role_id === 1) {
 //         redirectPath = '/admin/dashboard';
 //       }
-      
+
 //       // Redirect after a short delay
 //       const timer = setTimeout(() => {
 //         setOpenSuccessAlert(false);
 //         dispatch(clearMessage());
 //         navigate(redirectPath, { replace: true });
 //       }, 2000);
-      
+
 //       return () => clearTimeout(timer);
 //     }
 //   }, [isAuthenticated, user, role_id, dispatch, navigate]);
@@ -446,7 +446,7 @@
 //     dispatch(clearMessage());
 //     setOpenSuccessAlert(false);
 //     setOpenErrorAlert(false);
-    
+
 //     await dispatch(loginUser(data));
 //   };
 
@@ -740,7 +740,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import {
-  TextField, 
+  TextField,
   Button,
   Box,
   Typography,
@@ -761,6 +761,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { loginUser, clearError, clearMessage } from '../../redux/slices/authSlice';
+import Logo from '../../assets/logo31.png'
 
 const Login = () => {
   const theme = useTheme();
@@ -796,7 +797,7 @@ const Login = () => {
     if (isAuthenticated && user && role_id) {
       // Show success message
       setOpenSuccessAlert(true);
-      
+
       // Determine redirect path based on role_id
       let redirectPath = '/';
       if (role_id === 2) {
@@ -804,14 +805,14 @@ const Login = () => {
       } else if (role_id === 1) {
         redirectPath = '/admin/dashboard';
       }
-      
+
       // Redirect after a short delay
       const timer = setTimeout(() => {
         setOpenSuccessAlert(false);
         dispatch(clearMessage());
         navigate(redirectPath, { replace: true });
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, user, role_id, dispatch, navigate]);
@@ -842,7 +843,7 @@ const Login = () => {
     dispatch(clearMessage());
     setOpenSuccessAlert(false);
     setOpenErrorAlert(false);
-    
+
     await dispatch(loginUser(data));
   };
 
@@ -866,15 +867,15 @@ const Login = () => {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         sx={{ mt: { xs: 7, sm: 8 } }}
       >
-        <Alert 
-          severity="success" 
+        <Alert
+          severity="success"
           variant="filled"
           onClose={() => {
             setOpenSuccessAlert(false);
             dispatch(clearMessage());
           }}
-          sx={{ 
-            width: '100%', 
+          sx={{
+            width: '100%',
             boxShadow: 3,
             fontSize: { xs: '0.75rem', sm: '0.8rem' },
             py: 0.5,
@@ -892,15 +893,15 @@ const Login = () => {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         sx={{ mt: { xs: 7, sm: 8 } }}
       >
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           variant="filled"
           onClose={() => {
             setOpenErrorAlert(false);
             dispatch(clearError());
           }}
-          sx={{ 
-            width: '100%', 
+          sx={{
+            width: '100%',
             boxShadow: 3,
             fontSize: { xs: '0.75rem', sm: '0.8rem' },
             py: 0.5,
@@ -919,7 +920,7 @@ const Login = () => {
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Link to="/" style={{ textDecoration: 'none' }}>
               <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box
+                {/* <Box
                   sx={{
                     width: { xs: 40, sm: 44 },
                     height: { xs: 40, sm: 44 },
@@ -933,11 +934,23 @@ const Login = () => {
                   <Typography variant="h6" fontWeight="bold" color="white" sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}>
                     T
                   </Typography>
-                </Box>
-                <Typography 
-                  variant="h6" 
-                  fontWeight="bold" 
-                  sx={{ 
+                </Box> */}
+                <Box
+                  component="img"
+                  src={Logo}
+                  alt="Company Logo"
+                  sx={{
+                    height: { xs: '28px', sm: '32px', md: '36px' },
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                    borderRadius:0.8
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{
                     color: theme.palette.primary.main,
                     fontSize: { xs: '1.1rem', sm: '1.2rem' }
                   }}
@@ -946,20 +959,20 @@ const Login = () => {
                 </Typography>
               </Box>
             </Link>
-            <Typography 
-              variant="h5" 
-              fontWeight="700" 
-              sx={{ 
-                color: 'text.primary', 
+            <Typography
+              variant="h5"
+              fontWeight="700"
+              sx={{
+                color: 'text.primary',
                 mb: 0.5,
                 fontSize: { xs: '1.3rem', sm: '1.5rem' }
               }}
             >
               Welcome Back
             </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
+            <Typography
+              variant="body2"
+              sx={{
                 color: 'text.secondary',
                 fontSize: { xs: '0.75rem', sm: '0.8rem' }
               }}
@@ -974,8 +987,8 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card sx={{ 
-            p: { xs: 2, sm: 2.5 }, 
+          <Card sx={{
+            p: { xs: 2, sm: 2.5 },
             boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
             border: '1px solid',
             borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -1080,9 +1093,9 @@ const Login = () => {
                   }}
                 />
 
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
                   gap: 1
@@ -1094,7 +1107,7 @@ const Login = () => {
                       type="checkbox"
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       disabled={isLoading}
-                      style={{ 
+                      style={{
                         accentColor: theme.palette.primary.main,
                         marginRight: '6px',
                         width: '14px',
@@ -1108,7 +1121,7 @@ const Login = () => {
 
                   <Link
                     to="/forgot-password"
-                    style={{ 
+                    style={{
                       color: theme.palette.primary.main,
                       textDecoration: 'none',
                       fontSize: isMobile ? '0.7rem' : '0.75rem',
@@ -1147,13 +1160,13 @@ const Login = () => {
               </Box>
             </form>
 
-            <Divider sx={{ 
-              my: { xs: 2, sm: 2.5 }, 
-              borderColor: alpha(theme.palette.primary.main, 0.1) 
+            <Divider sx={{
+              my: { xs: 2, sm: 2.5 },
+              borderColor: alpha(theme.palette.primary.main, 0.1)
             }}>
-              <Typography 
-                variant="caption" 
-                sx={{ 
+              <Typography
+                variant="caption"
+                sx={{
                   color: 'text.secondary',
                   px: 1,
                   fontSize: { xs: '0.65rem', sm: '0.7rem' }
@@ -1165,9 +1178,9 @@ const Login = () => {
 
             {/* Register Link */}
             <Box sx={{ textAlign: 'center' }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                sx={{
                   color: 'text.secondary',
                   fontSize: { xs: '0.7rem', sm: '0.75rem' }
                 }}
@@ -1175,7 +1188,7 @@ const Login = () => {
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  style={{ 
+                  style={{
                     color: theme.palette.primary.main,
                     textDecoration: 'none',
                     fontWeight: 600,
@@ -1194,7 +1207,7 @@ const Login = () => {
           <Box sx={{ mt: 2.5, textAlign: 'center' }}>
             <Link
               to="/"
-              style={{ 
+              style={{
                 color: theme.palette.text.secondary,
                 textDecoration: 'none',
                 fontSize: isMobile ? '0.7rem' : '0.75rem',

@@ -1424,7 +1424,7 @@ import SendIcon from '@mui/icons-material/Send';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import axios from 'axios';
 import { resendEmailOTP, verifyEmailOTP } from '../../redux/slices/authSlice';
-
+import Logo from '../../assets/logo31.png'
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api';
 
 const Register = () => {
@@ -1683,7 +1683,7 @@ const Register = () => {
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Link to="/" style={{ textDecoration: 'none' }}>
               <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box
+                {/* <Box
                   sx={{
                     width: { xs: 40, sm: 44 },
                     height: { xs: 40, sm: 44 },
@@ -1697,7 +1697,20 @@ const Register = () => {
                   <Typography variant="h6" fontWeight="bold" color="white" sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}>
                     T
                   </Typography>
-                </Box>
+                </Box> */}
+
+                   <Box
+                                  component="img"
+                                  src={Logo}
+                                  alt="Company Logo"
+                                  sx={{
+                                    height: { xs: '28px', sm: '32px', md: '36px' },
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    display: 'block',
+                                    borderRadius:0.8
+                                  }}
+                                />
                 <Typography 
                   variant="h6" 
                   fontWeight="bold" 
