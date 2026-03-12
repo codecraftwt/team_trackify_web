@@ -8,7 +8,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
 const api = axios.create({
   baseURL: BASE_URL,
 });
- 
+
 // Add token to requests if it exists
 api.interceptors.request.use(
   (config) => {
@@ -26,7 +26,7 @@ api.interceptors.request.use(
 // Async Thunks
 export const createPlan = createAsyncThunk(
   "plan/createPlan",
-  async (payload, { rejectWithValue }) => { 
+  async (payload, { rejectWithValue }) => {
     try {
       const response = await api.post("/plans/create", payload);
       toast.success(response.data?.message || "Plan created successfully!");
@@ -124,6 +124,87 @@ export const getUsersWithExpiringPlans = createAsyncThunk(
   }
 );
 
+
+// NEW: Create Custom Plan (for authenticated users)
+export const createCustomPlan = createAsyncThunk(
+  "plan/createCustomPlan",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/plans/custom", payload);
+      toast.success(response.data?.message || "Custom plan created successfully!");
+      return response.data;
+    } catch (error) {
+      console.error("Error creating custom plan:", error);
+      const errorMessage = error.response?.data?.message || "Failed to create custom plan";
+
+      // Special handling for duplicate plan error
+      if (error.response?.data?.existingPlanId) {
+        toast.error("You already have a custom plan. Only one custom plan per user is allowed.");
+      } else {
+        toast.error(errorMessage);
+      }
+
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
+// NEW: Get User's Custom Plan
+export const getUserCustomPlan = createAsyncThunk(
+  "plan/getUserCustomPlan",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/plans/custom/my-plan");
+      return response.data;
+      console.log(response.data);
+
+    } catch (error) {
+      console.error("Error fetching user custom plan:", error);
+      const errorMessage = error.response?.data?.message || "Failed to fetch custom plan";
+
+      // Don't show error toast for 404 (no custom plan found)
+      if (error.response?.status !== 404) {
+        toast.error(errorMessage);
+      }
+
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
+// NEW: Update Custom Plan
+export const updateCustomPlan = createAsyncThunk(
+  "plan/updateCustomPlan",
+  async ({ planId, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/plans/custom/${planId}`, data);
+      toast.success(response.data?.message || "Custom plan updated successfully!");
+      return response.data;
+    } catch (error) {
+      console.error("Error updating custom plan:", error);
+      const errorMessage = error.response?.data?.message || "Failed to update custom plan";
+      toast.error(errorMessage);
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
+// NEW: Get Available Plans for Pricing (excludes Add on and Customize plans)
+export const getAvailablePlans = createAsyncThunk(
+  "plan/getAvailablePlans",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/plans/pricingplans");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching available plans:", error);
+      const errorMessage = error.response?.data?.message || "Failed to fetch available plans";
+      toast.error(errorMessage);
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
 // Slice
 const planSlice = createSlice({
   name: "plan",
@@ -133,6 +214,8 @@ const planSlice = createSlice({
     expiringUsers: [],
     selectedPlan: null,
     error: null,
+    userCustomPlan: null,
+    availablePlans: [],
   },
   reducers: {
     clearPlanStore: (state) => {
@@ -141,6 +224,7 @@ const planSlice = createSlice({
       state.selectedPlan = null;
       state.error = null;
       state.loading = false;
+      state.userCustomPlan = null;
     },
   },
   extraReducers: (builder) => {
@@ -238,6 +322,82 @@ const planSlice = createSlice({
         state.expiringUsers = action.payload?.data || action.payload || [];
       })
       .addCase(getUsersWithExpiringPlans.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+
+      // NEW: Create custom plan
+      .addCase(createCustomPlan.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCustomPlan.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userCustomPlan = action.payload?.plan || action.payload;
+        // Also add to plansList if needed
+        if (action.payload?.plan) {
+          state.plansList.push(action.payload.plan);
+        }
+      })
+      .addCase(createCustomPlan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // NEW: Get user custom plan
+      .addCase(getUserCustomPlan.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserCustomPlan.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userCustomPlan = action.payload?.plan || action.payload;
+      })
+      .addCase(getUserCustomPlan.rejected, (state, action) => {
+        state.loading = false;
+        // Don't set error for 404 (no custom plan found)
+        if (action.payload?.statusCode !== 404) {
+          state.error = action.payload;
+        }
+      })
+
+      // NEW: Update custom plan
+      .addCase(updateCustomPlan.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCustomPlan.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedPlan = action.payload?.plan || action.payload;
+
+        // Update userCustomPlan
+        if (updatedPlan?._id) {
+          state.userCustomPlan = updatedPlan;
+
+          // Also update in plansList if present
+          const index = state.plansList.findIndex(
+            (plan) => plan._id === updatedPlan._id
+          );
+          if (index !== -1) {
+            state.plansList[index] = updatedPlan;
+          }
+        }
+      })
+      .addCase(updateCustomPlan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // NEW: Get available plans
+      .addCase(getAvailablePlans.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAvailablePlans.fulfilled, (state, action) => {
+        state.loading = false;
+        state.availablePlans = action.payload?.data || action.payload || [];
+      })
+      .addCase(getAvailablePlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
