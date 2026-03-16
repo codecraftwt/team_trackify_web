@@ -3534,7 +3534,7 @@ import {
   IconButton,
   Container,
   Divider,
-  LinearProgress, 
+  LinearProgress,
   Stack,
   alpha,
   useTheme,
@@ -4354,10 +4354,10 @@ const RecentActivities = ({ users, loading }) => {
                     {activity.name || "Unknown User"}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-                    {activity.status || "No action"} 
+                    {activity.status || "No action"}
                   </Typography>
                 </Box>
-               
+
               </Paper>
             </motion.div>
           ))}
@@ -4409,7 +4409,9 @@ const AdminDashboard = () => {
 
       const userResult = await dispatch(getUserById(userData._id)).unwrap();
 
-      if (userResult?.user?.currentPaymentId?.addOns?.length > 0) {
+      console.log("yser data ->", userResult)
+
+      if (userResult?.user?.currentPaymentId) {
         const plan = userResult.user.currentPaymentId;
         setPlanData({
           description: plan.description,

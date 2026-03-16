@@ -1,9 +1,9 @@
-// import React, { useEffect, useState, useCallback } from "react";
+// import React, { useEffect, useState, useCallback, useMemo } from "react";
 // import {
 //   Box,
-//   Typography,
-//   Paper,
 //   Grid,
+//   Paper,
+//   Typography,
 //   Chip,
 //   IconButton,
 //   Button,
@@ -61,7 +61,7 @@
 // import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 // import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 // import { motion, AnimatePresence } from "framer-motion";
-// import { useNavigate } from "react-router-dom";
+// import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 // import { useDispatch, useSelector } from "react-redux";
 // import { toast } from "react-toastify";
 // import moment from "moment";
@@ -72,6 +72,12 @@
 //   getAllUsers,
 //   deleteUser,
 //   getUserById,
+//   //New
+//   getUsersUnderAdmin,
+//   getUserAvailableDates,
+//   getUserSessionsByDate,
+//   getSessionDetails,
+//   getUserSummary
 // } from "../../redux/slices/userSlice";
 // import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 // import AddUserModal from "./component/AddUser";
@@ -556,12 +562,12 @@
 //                     >
 //                       {user.name?.charAt(0)}
 //                     </Avatar>
-//                     <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }, color: 'text.primary' }}>
+//                     <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
 //                       {user.name}
 //                     </Typography>
 //                   </Box>
 //                 </TableCell>
-//                 <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.7rem' }, color: 'text.secondary' }}>
+//                 <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
 //                   {user.email}
 //                 </TableCell>
 //                 <TableCell>
@@ -572,12 +578,12 @@
 //                       bgcolor: user.isActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
 //                       color: user.isActive ? '#22c55e' : theme.palette.text.secondary,
 //                       fontWeight: 600,
-//                       fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+//                       fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.70rem' },
 //                       height: { xs: 18, sm: 20 },
 //                     }}
 //                   />
 //                 </TableCell>
-//                 <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }, color: 'text.secondary' }}>
+//                 <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
 //                   {moment(user.createdAt).format('MMM D, YYYY')}
 //                 </TableCell>
 //                 <TableCell align="right">
@@ -623,12 +629,13 @@
 // // Main Component
 // const UserManagement = () => {
 //   const theme = useTheme();
+//   const location = useLocation(); // Add useLocation for URL params
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
 //   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 //   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 //   const isSmallMobile = useMediaQuery('(max-width:400px)');
-
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch();
 
 //   // Add modal state
 //   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
@@ -654,6 +661,18 @@
 //   const [dateFilterAnchor, setDateFilterAnchor] = useState(null);
 //   const [startDate, setStartDate] = useState(null);
 //   const [endDate, setEndDate] = useState(null);
+
+//   // Read filter from URL query params on component mount and when URL changes
+//   useEffect(() => {
+//     const params = new URLSearchParams(location.search);
+//     const filter = params.get('filter');
+
+//     if (filter === 'active') {
+//       setTabValue(0); // Active tab
+//     } else if (filter === 'inactive') {
+//       setTabValue(1); // Inactive tab
+//     }
+//   }, [location.search]); // Re-run when URL changes
 
 //   const userState = useSelector((state) => state.user || {});
 //   const userData = userState.userInfo || {};
@@ -801,6 +820,15 @@
 //   const handleTabChange = (event, newValue) => {
 //     setTabValue(newValue);
 //     setPage(0);
+
+//     // Update URL with filter parameter when tab changes
+//     const params = new URLSearchParams(location.search);
+//     if (newValue === 0) {
+//       params.set('filter', 'active');
+//     } else if (newValue === 1) {
+//       params.set('filter', 'inactive');
+//     }
+//     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
 //   };
 
 //   const handleView = (user) => {
@@ -978,9 +1006,6 @@
 //                   xl: '1.8rem'     // 29px on large screens
 //                 },
 //               }}
-
-
-
 //             >
 //               {role_id === 1 ? 'User Management' : 'Organization Management'}
 //             </Typography>
@@ -1039,9 +1064,6 @@
 //                 xl: '1.8rem'     // 29px on large screens
 //               },
 //             }}
-
-
-
 //           >
 //             {role_id === 1 ? 'User Management' : 'Organization Management'}
 //           </Typography>
@@ -1292,207 +1314,242 @@
 //         </Grid>
 //       </Paper>
 
-
+//       {/* Date Filter Menu */}
 //       <Menu
 //         anchorEl={dateFilterAnchor}
 //         open={Boolean(dateFilterAnchor)}
 //         onClose={handleDateFilterClose}
 //         PaperProps={{
 //           sx: {
-//             p: 0.5,
-//             width: { xs: 180, sm: 200 },
-//             borderRadius: { xs: 1.5, sm: 2 },
-//             boxShadow: '0 5px 15px rgba(0,0,0,0.08)',
+//             p: 2,
+//             width: { xs: 280, sm: 320 },
+//             borderRadius: { xs: 2, sm: 3 },
+//             boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
 //             border: '1px solid',
 //             borderColor: alpha(theme.palette.primary.main, 0.1),
 //           },
 //         }}
 //       >
-//         <LocalizationProvider dateAdapter={AdapterDateFns}>
-//           <Box sx={{ mb: 0.5 }}>
-//             <Typography
-//               variant="caption"
-//               sx={{
-//                 fontSize: { xs: '0.5rem', sm: '0.55rem' },
-//                 color: theme.palette.primary.main,
-//                 fontWeight: 500,
-//                 display: 'block',
-//                 mb: 0.1,
-//                 ml: 0.5
-//               }}
-//             >
-//               Start
+//         {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
+//           <Box sx={{ mb: 2 }}>
+//             <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' }, color: theme.palette.primary.main }}>
+//               Start Date
 //             </Typography>
 //             <DatePicker
 //               value={startDate}
 //               onChange={setStartDate}
-//               componentsProps={{
-//                 actionBar: {
-//                   sx: {
-//                     '& .MuiButton-root': {
-//                       fontSize: '0.7rem',
-//                       minHeight: 28,
-//                     }
-//                   }
-//                 },
-//                 popper: {
-//                   sx: {
-//                     '& .MuiPickersDay-root': {
-//                       fontSize: '0.7rem',
-//                       width: 28,
-//                       height: 28,
-//                     },
-//                     '& .MuiPickersCalendarHeader-root': {
-//                       minHeight: 36,
-//                     },
-//                     '& .MuiPickersCalendarHeader-label': {
-//                       fontSize: '0.75rem',
-//                     },
-//                     '& .MuiDayCalendar-weekDayLabel': {
-//                       fontSize: '0.65rem',
-//                       width: 28,
-//                     },
-//                     '& .MuiPickersArrowSwitcher-button': {
-//                       width: 28,
-//                       height: 28,
-//                     }
-//                   }
-//                 }
-//               }}
 //               renderInput={(params) => (
-//                 <TextField
-//                   {...params}
-//                   fullWidth
-//                   size="small"
-//                   placeholder="DD/MM/YY"
-//                   sx={{
-//                     '& .MuiInputBase-input': {
-//                       fontSize: '0.6rem',
-//                       py: 0.1,
-//                       px: 0.5
-//                     },
-//                     '& .MuiOutlinedInput-root': {
-//                       height: 22,
-//                       borderRadius: 1.5
-//                     },
-//                     '& .MuiOutlinedInput-notchedOutline': {
-//                       borderWidth: 0.5
-//                     }
-//                   }}
-//                 />
+//                 <TextField {...params} fullWidth size="small" />
 //               )}
 //             />
 //           </Box>
-//           <Box sx={{ mb: 0.5 }}>
-//             <Typography
-//               variant="caption"
-//               sx={{
-//                 fontSize: { xs: '0.5rem', sm: '0.55rem' },
-//                 color: theme.palette.primary.main,
-//                 fontWeight: 500,
-//                 display: 'block',
-//                 mb: 0.1,
-//                 ml: 0.5
-//               }}
-//             >
-//               End
+//           <Box sx={{ mb: 2 }}>
+//             <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' }, color: theme.palette.primary.main }}>
+//               End Date
 //             </Typography>
 //             <DatePicker
 //               value={endDate}
 //               onChange={setEndDate}
-//               componentsProps={{
-//                 actionBar: {
-//                   sx: {
-//                     '& .MuiButton-root': {
-//                       fontSize: '0.7rem',
-//                       minHeight: 28,
-//                     }
-//                   }
-//                 },
-//                 popper: {
-//                   sx: {
-//                     '& .MuiPickersDay-root': {
-//                       fontSize: '0.7rem',
-//                       width: 28,
-//                       height: 28,
-//                     },
-//                     '& .MuiPickersCalendarHeader-root': {
-//                       minHeight: 36,
-//                     },
-//                     '& .MuiPickersCalendarHeader-label': {
-//                       fontSize: '0.75rem',
-//                     },
-//                     '& .MuiDayCalendar-weekDayLabel': {
-//                       fontSize: '0.65rem',
-//                       width: 28,
-//                     },
-//                     '& .MuiPickersArrowSwitcher-button': {
-//                       width: 28,
-//                       height: 28,
-//                     }
-//                   }
-//                 }
-//               }}
 //               renderInput={(params) => (
-//                 <TextField
-//                   {...params}
-//                   fullWidth
-//                   size="small"
-//                   placeholder="DD/MM/YY"
-//                   sx={{
-//                     '& .MuiInputBase-input': {
-//                       fontSize: '0.6rem',
-//                       py: 0.1,
-//                       px: 0.5
-//                     },
-//                     '& .MuiOutlinedInput-root': {
-//                       height: 22,
-//                       borderRadius: 1.5
-//                     },
-//                     '& .MuiOutlinedInput-notchedOutline': {
-//                       borderWidth: 0.5
-//                     }
-//                   }}
-//                 />
+//                 <TextField {...params} fullWidth size="small" />
 //               )}
 //             />
 //           </Box>
-//           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', mt: 0.5 }}>
-//             <Button
-//               size="small"
-//               onClick={clearDateFilter}
-//               sx={{
-//                 fontSize: { xs: '0.5rem', sm: '0.55rem' },
-//                 color: 'text.secondary',
-//                 height: 20,
-//                 minWidth: 36,
-//                 px: 0.5,
-//                 borderRadius: 1.5
-//               }}
-//             >
+//           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+//             <Button size="small" onClick={clearDateFilter} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' }, color: '#64748b' }}>
 //               Clear
 //             </Button>
-//             <Button
-//               size="small"
-//               variant="contained"
-//               onClick={applyDateFilter}
-//               sx={{
-//                 fontSize: { xs: '0.5rem', sm: '0.55rem' },
+//             <Button 
+//               size="small" 
+//               variant="contained" 
+//               onClick={applyDateFilter} 
+//               sx={{ 
+//                 fontSize: { xs: '0.7rem', sm: '0.8rem' },
 //                 bgcolor: theme.palette.primary.main,
-//                 height: 20,
-//                 minWidth: 36,
-//                 px: 0.5,
-//                 borderRadius: 1.5,
 //                 '&:hover': { bgcolor: theme.palette.primary.dark },
 //               }}
 //             >
 //               Apply
 //             </Button>
 //           </Box>
+//         </LocalizationProvider> */}
+//         <LocalizationProvider dateAdapter={AdapterDateFns}>
+//           <Box sx={{
+//             display: 'flex',
+//             flexDirection: 'column',
+//             gap: 0.5,
+//             p: 0.5,
+//             minWidth: 200,
+//           }}>
+//             {/* Start */}
+//             <Box>
+//               <Typography
+//                 variant="caption"
+//                 sx={{
+//                   fontSize: '0.65rem',
+//                   fontWeight: 600,
+//                   color: theme.palette.primary.main,
+//                   mb: 0.2,
+//                   lineHeight: 1,
+//                   display: 'block',
+//                 }}
+//               >
+//                 Start
+//               </Typography>
+//               <DatePicker
+//                 value={startDate}
+//                 onChange={setStartDate}
+//                 slotProps={{
+//                   textField: {
+//                     size: "small",
+//                     fullWidth: true,
+//                     placeholder: "Start",
+//                     sx: {
+//                       '& .MuiInputBase-root': {
+//                         height: 22,
+//                         fontSize: '0.7rem',
+//                         borderRadius: '4px',
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         padding: '2px 6px !important',
+//                       },
+//                       '& .MuiInputBase-input::placeholder': {
+//                         fontSize: '0.65rem',
+//                         opacity: 0.6,
+//                       },
+//                       '& fieldset': {
+//                         borderWidth: '1px',
+//                       }
+//                     }
+//                   },
+//                   inputAdornment: {
+//                     sx: {
+//                       '& .MuiSvgIcon-root': {
+//                         fontSize: '0.9rem',
+//                       }
+//                     }
+//                   }
+//                 }}
+//               />
+//             </Box>
+
+//             {/* End */}
+//             <Box>
+//               <Typography
+//                 variant="caption"
+//                 sx={{
+//                   fontSize: '0.65rem',
+//                   fontWeight: 600,
+//                   color: theme.palette.primary.main,
+//                   mb: 0.2,
+//                   lineHeight: 1,
+//                   display: 'block',
+//                 }}
+//               >
+//                 End
+//               </Typography>
+//               <DatePicker
+//                 value={endDate}
+//                 onChange={setEndDate}
+//                 slotProps={{
+//                   textField: {
+//                     size: "small",
+//                     fullWidth: true,
+//                     placeholder: "End",
+//                     sx: {
+//                       '& .MuiInputBase-root': {
+//                         height: 22,
+//                         fontSize: '0.7rem',
+//                         borderRadius: '4px',
+//                       },
+//                       '& .MuiInputBase-input': {
+//                         padding: '2px 6px !important',
+//                       },
+//                       '& .MuiInputBase-input::placeholder': {
+//                         fontSize: '0.65rem',
+//                         opacity: 0.6,
+//                       },
+//                       '& fieldset': {
+//                         borderWidth: '1px',
+//                       }
+//                     }
+//                   },
+//                   inputAdornment: {
+//                     sx: {
+//                       '& .MuiSvgIcon-root': {
+//                         fontSize: '0.9rem',
+//                       }
+//                     }
+//                   }
+//                 }}
+//               />
+//             </Box>
+
+//             {/* Heavier / more prominent buttons */}
+//             <Box sx={{
+//               display: 'flex',
+//               gap: 0.8,
+//               justifyContent: 'flex-end',
+//               mt: 0.5,
+//             }}>
+//               <Button
+//                 size="small"
+//                 onClick={clearDateFilter}
+//                 sx={{
+//                   fontSize: '0.68rem',          // slightly larger text
+//                   fontWeight: 700,              // very bold
+//                   minWidth: 'auto',
+//                   px: 1.8,                      // wider
+//                   py: 0.6,                      // thicker vertically
+//                   lineHeight: 1,
+//                   color: 'text.primary',
+//                   textTransform: 'none',
+//                   border: '1.5px solid',
+//                   borderColor: 'divider',
+//                   borderRadius: '8px',          // softer but prominent pill shape
+//                   boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+//                   '&:hover': {
+//                     bgcolor: 'action.hover',
+//                     borderColor: 'text.primary',
+//                     boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+//                   }
+//                 }}
+//               >
+//                 Clear
+//               </Button>
+
+//               <Button
+//                 size="small"
+//                 variant="contained"
+//                 disableElevation={false}        // allow shadow
+//                 onClick={applyDateFilter}
+//                 sx={{
+//                   fontSize: '0.7rem',
+//                   fontWeight: 700,              // extra bold
+//                   minWidth: 'auto',
+//                   px: 2.5,                      // noticeably wider
+//                   py: 0.7,                      // thicker / heavier feel
+//                   lineHeight: 1,
+//                   textTransform: 'none',
+//                   borderRadius: '8px',
+//                   boxShadow: '0 3px 8px rgba(0,0,0,0.15)',     // stronger initial shadow
+//                   bgcolor: theme.palette.primary.main,
+//                   color: theme.palette.primary.contrastText,
+//                   '&:hover': {
+//                     bgcolor: theme.palette.primary.dark,
+//                     boxShadow: '0 5px 14px rgba(0,0,0,0.22)',   // lift + deeper shadow on hover
+//                     transform: 'translateY(-1px)',              // subtle "press up" effect
+//                   },
+//                   transition: 'all 0.15s ease',   // smooth hover animation
+//                 }}
+//               >
+//                 Apply
+//               </Button>
+//             </Box>
+//           </Box>
 //         </LocalizationProvider>
 //       </Menu>
-   
-   
+
 //       {/* Tabs */}
 //       <Paper
 //         elevation={0}
@@ -1844,9 +1901,6 @@
 
 
 
-
-
-
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -1921,6 +1975,12 @@ import {
   getAllUsers,
   deleteUser,
   getUserById,
+  //New
+  getUsersUnderAdmin,
+  getUserAvailableDates,
+  getUserSessionsByDate,
+  getSessionDetails,
+  getUserSummary
 } from "../../redux/slices/userSlice";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import AddUserModal from "./component/AddUser";
@@ -2410,7 +2470,7 @@ const ResponsiveTable = ({
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell fontWeight={500}  sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+                <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                   {user.email}
                 </TableCell>
                 <TableCell>
@@ -2475,7 +2535,7 @@ const UserManagement = () => {
   const location = useLocation(); // Add useLocation for URL params
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isSmallMobile = useMediaQuery('(max-width:400px)');
@@ -2484,7 +2544,7 @@ const UserManagement = () => {
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [editingUserData, setEditingUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // New state for first render loading effect (1 second)
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 
@@ -2509,7 +2569,7 @@ const UserManagement = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const filter = params.get('filter');
-    
+
     if (filter === 'active') {
       setTabValue(0); // Active tab
     } else if (filter === 'inactive') {
@@ -2663,7 +2723,7 @@ const UserManagement = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setPage(0);
-    
+
     // Update URL with filter parameter when tab changes
     const params = new URLSearchParams(location.search);
     if (newValue === 0) {
@@ -3173,7 +3233,7 @@ const UserManagement = () => {
           },
         }}
       >
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' }, color: theme.palette.primary.main }}>
               Start Date
@@ -3214,6 +3274,181 @@ const UserManagement = () => {
             >
               Apply
             </Button>
+          </Box>
+        </LocalizationProvider> */}
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5,
+            p: 0.5,
+            minWidth: 200,
+          }}>
+            {/* Start */}
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  mb: 0.2,
+                  lineHeight: 1,
+                  display: 'block',
+                }}
+              >
+                Start
+              </Typography>
+              <DatePicker
+                value={startDate}
+                onChange={setStartDate}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    fullWidth: true,
+                    placeholder: "Start",
+                    sx: {
+                      '& .MuiInputBase-root': {
+                        height: 22,
+                        fontSize: '0.7rem',
+                        borderRadius: '4px',
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '2px 6px !important',
+                      },
+                      '& .MuiInputBase-input::placeholder': {
+                        fontSize: '0.65rem',
+                        opacity: 0.6,
+                      },
+                      '& fieldset': {
+                        borderWidth: '1px',
+                      }
+                    }
+                  },
+                  inputAdornment: {
+                    sx: {
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '0.9rem',
+                      }
+                    }
+                  }
+                }}
+              />
+            </Box>
+
+            {/* End */}
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  mb: 0.2,
+                  lineHeight: 1,
+                  display: 'block',
+                }}
+              >
+                End
+              </Typography>
+              <DatePicker
+                value={endDate}
+                onChange={setEndDate}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    fullWidth: true,
+                    placeholder: "End",
+                    sx: {
+                      '& .MuiInputBase-root': {
+                        height: 22,
+                        fontSize: '0.7rem',
+                        borderRadius: '4px',
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '2px 6px !important',
+                      },
+                      '& .MuiInputBase-input::placeholder': {
+                        fontSize: '0.65rem',
+                        opacity: 0.6,
+                      },
+                      '& fieldset': {
+                        borderWidth: '1px',
+                      }
+                    }
+                  },
+                  inputAdornment: {
+                    sx: {
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '0.9rem',
+                      }
+                    }
+                  }
+                }}
+              />
+            </Box>
+
+            {/* Heavier / more prominent buttons */}
+            <Box sx={{
+              display: 'flex',
+              gap: 0.8,
+              justifyContent: 'flex-end',
+              mt: 0.5,
+            }}>
+              <Button
+                size="small"
+                onClick={clearDateFilter}
+                sx={{
+                  fontSize: '0.68rem',          // slightly larger text
+                  fontWeight: 700,              // very bold
+                  minWidth: 'auto',
+                  px: 1.8,                      // wider
+                  py: 0.6,                      // thicker vertically
+                  lineHeight: 1,
+                  color: 'text.primary',
+                  textTransform: 'none',
+                  border: '1.5px solid',
+                  borderColor: 'divider',
+                  borderRadius: '8px',          // softer but prominent pill shape
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    borderColor: 'text.primary',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                  }
+                }}
+              >
+                Clear
+              </Button>
+
+              <Button
+                size="small"
+                variant="contained"
+                disableElevation={false}        // allow shadow
+                onClick={applyDateFilter}
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,              // extra bold
+                  minWidth: 'auto',
+                  px: 2.5,                      // noticeably wider
+                  py: 0.7,                      // thicker / heavier feel
+                  lineHeight: 1,
+                  textTransform: 'none',
+                  borderRadius: '8px',
+                  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',     // stronger initial shadow
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                    boxShadow: '0 5px 14px rgba(0,0,0,0.22)',   // lift + deeper shadow on hover
+                    transform: 'translateY(-1px)',              // subtle "press up" effect
+                  },
+                  transition: 'all 0.15s ease',   // smooth hover animation
+                }}
+              >
+                Apply
+              </Button>
+            </Box>
           </Box>
         </LocalizationProvider>
       </Menu>

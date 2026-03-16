@@ -1450,6 +1450,93 @@ export const deleteConfig = createAsyncThunk(
   }
 );
 
+
+
+
+
+////////////////////////////////////////////New APIS Tracking///////////////////////////////////
+// ============ ADMIN USER MANAGEMENT APIS ============
+
+// Get Users Under Admin (with pagination and search)
+export const getUsersUnderAdmin = createAsyncThunk(
+  "user/getUsersUnderAdmin",
+  async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
+    try {
+      // Change this line to match backend
+      const response = await api.get(`/admin/users/${adminId}`, {
+        params: { page, limit, search }
+      });
+      return response.data.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch users");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Get User Available Dates (for calendar view)
+export const getUserAvailableDates = createAsyncThunk(
+  "user/getUserAvailableDates",
+  async (userId, { rejectWithValue }) => {
+    try {
+      // Add /Tracking here
+      const response = await api.get(`/Tracking/admin/users/${userId}/sessions/dates`);
+      return response.data.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch available dates");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Get User Sessions By Date (with cursor pagination)
+export const getUserSessionsByDate = createAsyncThunk(
+  "user/getUserSessionsByDate",
+  async ({ userId, date, cursor = null, limit = 10 }, { rejectWithValue }) => {
+    try {
+      const params = { date, limit };
+      if (cursor) params.cursor = cursor;
+
+      // Add /Tracking here
+      const response = await api.get(`/Tracking/admin/users/${userId}/sessions`, { params });
+      return response.data.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch sessions");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Get Session Details
+export const getSessionDetails = createAsyncThunk(
+  "user/getSessionDetails",
+  async ({ userId, sessionId }, { rejectWithValue }) => {
+    try {
+      // Add /Tracking here
+      const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
+      return response.data.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch session details");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+// Get User Summary (for dashboard/overview)
+export const getUserSummary = createAsyncThunk(
+  "user/getUserSummary",
+  async ({ adminId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/Tracking/admin/${adminId}/users/${userId}/summary`);
+      return response.data.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch user summary");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -1479,6 +1566,51 @@ const userSlice = createSlice({
     configUpdateError: null,
     configDeleteLoading: false,
     configDeleteError: null,
+    // Admin User Management States
+    adminUsersList: [],           // For users under admin
+    adminUsersPagination: {
+      currentPage: 1,
+      totalPages: 1,
+      totalUsers: 0,
+      hasMore: false
+    },
+    adminUsersLoading: false,
+    adminUsersError: null,
+
+    userAvailableDates: [],       // For calendar dates
+    userAvailableDatesLoading: false,
+    userAvailableDatesError: null,
+    currentMonthSummary: null,
+    totalAvailableDays: 0,
+
+    userSessionsList: [],         // For sessions by date
+    userSessionsSummary: null,
+    userSessionsPagination: {
+      nextCursor: null,
+      hasMore: false,
+      totalForDay: 0
+    },
+    userSessionsLoading: false,
+    userSessionsError: null,
+    selectedDate: null,
+
+    sessionDetails: null,         // For single session details
+    sessionDetailsLoading: false,
+    sessionDetailsError: null,
+    sessionLocations: [],
+    sessionPhotos: [],
+    sessionBounds: null,
+    sessionStats: null,
+    sessionTimeline: [],
+
+    // User Summary States
+    userSummary: null,              // User details and stats
+    userSummaryStats: null,         // Aggregated statistics
+    userRecentSessions: [],         // Last 5 sessions
+    userAvailableDates: [],         // Recent available dates
+    userSummaryLoading: false,
+    userSummaryError: null,
+    isUserActiveToday: false,
   },
   reducers: {
     logoutUser: (state) => {
@@ -1722,6 +1854,93 @@ const userSlice = createSlice({
       .addCase(deleteConfig.rejected, (state, action) => {
         state.configDeleteLoading = false;
         state.configDeleteError = action.payload?.message || "Failed to delete configuration";
+      })
+
+      // ============ ADMIN USER MANAGEMENT CASES ============
+
+      // Get Users Under Admin
+      .addCase(getUsersUnderAdmin.pending, (state) => {
+        state.adminUsersLoading = true;
+        state.adminUsersError = null;
+      })
+      .addCase(getUsersUnderAdmin.fulfilled, (state, action) => {
+        state.adminUsersLoading = false;
+        state.adminUsersList = action.payload.users;
+        state.adminUsersPagination = action.payload.pagination;
+      })
+      .addCase(getUsersUnderAdmin.rejected, (state, action) => {
+        state.adminUsersLoading = false;
+        state.adminUsersError = action.payload?.message || "Failed to fetch users";
+      })
+
+      // Get User Available Dates
+      .addCase(getUserAvailableDates.pending, (state) => {
+        state.userAvailableDatesLoading = true;
+        state.userAvailableDatesError = null;
+      })
+      .addCase(getUserAvailableDates.fulfilled, (state, action) => {
+        state.userAvailableDatesLoading = false;
+        state.userAvailableDates = action.payload.dates;
+        state.currentMonthSummary = action.payload.currentMonth;
+        state.totalAvailableDays = action.payload.totalAvailableDays;
+      })
+      .addCase(getUserAvailableDates.rejected, (state, action) => {
+        state.userAvailableDatesLoading = false;
+        state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
+      })
+
+      // Get User Sessions By Date
+      .addCase(getUserSessionsByDate.pending, (state) => {
+        state.userSessionsLoading = true;
+        state.userSessionsError = null;
+      })
+      .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
+        state.userSessionsLoading = false;
+        state.userSessionsList = action.payload.sessions;
+        state.userSessionsSummary = action.payload.summary;
+        state.userSessionsPagination = action.payload.pagination;
+        state.selectedDate = action.payload.date;
+      })
+      .addCase(getUserSessionsByDate.rejected, (state, action) => {
+        state.userSessionsLoading = false;
+        state.userSessionsError = action.payload?.message || "Failed to fetch sessions";
+      })
+
+      // Get Session Details
+      .addCase(getSessionDetails.pending, (state) => {
+        state.sessionDetailsLoading = true;
+        state.sessionDetailsError = null;
+      })
+      .addCase(getSessionDetails.fulfilled, (state, action) => {
+        state.sessionDetailsLoading = false;
+        state.sessionDetails = action.payload;
+        state.sessionLocations = action.payload.locations || [];
+        state.sessionPhotos = action.payload.photos || [];
+        state.sessionBounds = action.payload.bounds || null;
+        state.sessionStats = action.payload.stats || null;
+        state.sessionTimeline = action.payload.timeline || [];
+      })
+      .addCase(getSessionDetails.rejected, (state, action) => {
+        state.sessionDetailsLoading = false;
+        state.sessionDetailsError = action.payload?.message || "Failed to fetch session details";
+      })
+
+      // Get User Summary
+      .addCase(getUserSummary.pending, (state) => {
+        state.userSummaryLoading = true;
+        state.userSummaryError = null;
+      })
+      .addCase(getUserSummary.fulfilled, (state, action) => {
+        state.userSummaryLoading = false;
+        state.userSummary = action.payload.user;
+        state.userSummaryStats = action.payload.stats;
+        state.userRecentSessions = action.payload.recentSessions;
+        state.userAvailableDates = action.payload.availableDates;
+        state.isUserActiveToday = action.payload.stats?.isActiveToday || false;
+      })
+      .addCase(getUserSummary.rejected, (state, action) => {
+        state.userSummaryLoading = false;
+        state.userSummaryError = action.payload?.message || "Failed to fetch user summary";
       });
   },
 });

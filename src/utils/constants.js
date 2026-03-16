@@ -16,8 +16,11 @@ export const baseURL = "https://trackingapp-backend-6ny6.onrender.com/api/";
 // export const baseURL = "https://trackingapp.instantwebsitedevelopment.com/";
 
 // Razorpay Configuration
-export const RAZORPAY_KEY_ID = "rzp_live_0fMe7hBqXJktWH";
-// export const RAZORPAY_KEY_ID = "rzp_test_eXyUgxz2VtmepU";
+// export const RAZORPAY_KEY_ID = "rzp_live_0fMe7hBqXJktWH";
+export const RAZORPAY_KEY_ID = "rzp_test_SN1JoYwhNqRjPV";
+
+
+
 
 // export const baseURL = import.meta.env.VITE_BASE_URL;
 // export const API_KEY = import.meta.env.VITE_API_KEY;
