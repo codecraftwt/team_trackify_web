@@ -2171,24 +2171,6 @@
 
 
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////List 
-
->>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 // import React, { useEffect, useState, useRef, useCallback } from "react";
 // import { useLocation } from "react-router-dom";
 // import { useDispatch, useSelector } from "react-redux";
@@ -2989,7 +2971,6 @@
 
 
 
-<<<<<<< HEAD
 
 
 
@@ -2997,8 +2978,6 @@
 // Refresh auto
 
 
-=======
->>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
