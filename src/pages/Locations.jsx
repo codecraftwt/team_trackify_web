@@ -1,2713 +1,3 @@
-// import { useLocation } from "react-router-dom";
-// import { useEffect, useState, useRef, useCallback } from "react";
-// import {
-//   Box,
-//   Container,
-//   Paper,
-//   Typography,
-//   IconButton,
-//   Chip,
-//   CircularProgress,
-//   alpha,
-//   AppBar,
-//   Toolbar,
-//   Grid,
-//   Card,
-//   CardContent,
-// } from "@mui/material";
-// import {
-//   ArrowBack as ArrowBackIcon,
-//   ArrowForward as ArrowForwardIcon,
-//   Close as CloseIcon,
-//   Route as RouteIcon,
-//   Timeline as TimelineIcon,
-//   Image as ImageIcon,
-// } from "@mui/icons-material";
-// import {
-//   GoogleMap,
-//   useJsApiLoader,
-//   Marker,
-//   Polyline,
-// } from "@react-google-maps/api";
-// import L from "leaflet";
-// import "leaflet/dist/leaflet.css";
-
-// const mapContainerStyle = {
-//   width: "100%",
-//   height: "50vh",
-// };
-
-// const leafletMapContainerStyle = {
-//   width: "100%",
-//   height: "50vh",
-// };
-
-// const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
-
-// const Locations = () => {
-//   const location = useLocation();
-//   const { locations } = location.state || {};
-//   const [coordinates, setCoordinates] = useState([]);
-//   const [rawCoordinates, setRawCoordinates] = useState([]);
-//   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
-//   const [mapZoom, setMapZoom] = useState(14);
-//   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-//   const mapRef = useRef(null);
-//   const rawMapRef = useRef(null);
-
-//   const leafletMapRef = useRef(null);
-//   const leafletMapInstance = useRef(null);
-//   const leafletPolylines = useRef([]);
-//   const leafletMarkers = useRef([]);
-
-//   const { isLoaded, loadError } = useJsApiLoader({
-//     googleMapsApiKey: GOOGLE_MAPS_APIKEY,
-//     libraries: ["places"],
-//   });
-
-//   // Initialize Leaflet map
-//   const initLeafletMap = useCallback(() => {
-//     if (
-//       !leafletMapInstance.current &&
-//       leafletMapRef.current &&
-//       rawCoordinates.length > 0
-//     ) {
-//       const center = rawCoordinates[Math.floor(rawCoordinates.length / 2)];
-
-//       leafletMapInstance.current = L.map(leafletMapRef.current).setView(
-//         [center.lat, center.lng],
-//         14
-//       );
-
-//       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-//         attribution:
-//           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-//         maxZoom: 19,
-//       }).addTo(leafletMapInstance.current);
-
-//       updateLeafletMap();
-//     }
-//   }, [rawCoordinates]);
-
-//   // Custom icons for Leaflet markers
-//   const createLeafletIcon = (label, color) => {
-//     return L.divIcon({
-//       html: `
-//       <div style="
-//         background-color: ${color};
-//         color: white;
-//         border-radius: 50%;
-//         width: 32px;
-//         height: 32px;
-//         display: flex;
-//         align-items: center;
-//         justify-content: center;
-//         font-weight: bold;
-//         font-size: 12px;
-//         border: 2px solid white;
-//         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-//       ">
-//         ${label}
-//       </div>
-//     `,
-//       className: "",
-//       iconSize: [32, 32],
-//       iconAnchor: [16, 32],
-//     });
-//   };
-
-//   // Update the Leaflet map initialization
-//   const updateLeafletMap = useCallback(() => {
-//     if (!leafletMapInstance.current || rawCoordinates.length === 0) return;
-
-//     // Clear existing elements
-//     leafletPolylines.current.forEach((line) =>
-//       leafletMapInstance.current.removeLayer(line)
-//     );
-//     leafletMarkers.current.forEach((marker) =>
-//       leafletMapInstance.current.removeLayer(marker)
-//     );
-//     leafletPolylines.current = [];
-//     leafletMarkers.current = [];
-
-//     // Add polyline
-//     if (rawCoordinates.length > 1) {
-//       const polyline = L.polyline(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng]),
-//         {
-//           color: "#2563EB",
-//           weight: 4,
-//           lineJoin: "round",
-//         }
-//       ).addTo(leafletMapInstance.current);
-//       leafletPolylines.current.push(polyline);
-//     }
-
-//     // Add start marker
-//     if (rawCoordinates.length > 0) {
-//       const startCoord = rawCoordinates[0];
-//       const startMarker = L.marker([startCoord.lat, startCoord.lng], {
-//         icon: createLeafletIcon("S", "#22c55e"),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       startMarker.bindPopup(`
-//       <div style="font-weight: bold;">START POINT</div>
-//       <div>Lat: ${startCoord.lat.toFixed(6)}</div>
-//       <div>Lng: ${startCoord.lng.toFixed(6)}</div>
-//       ${
-//         startCoord.timestamp
-//           ? `<div>${new Date(startCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(startMarker);
-//     }
-
-//     // Add end marker
-//     if (rawCoordinates.length > 1) {
-//       const endCoord = rawCoordinates[rawCoordinates.length - 1];
-//       const endMarker = L.marker([endCoord.lat, endCoord.lng], {
-//         icon: createLeafletIcon("E", "#ef4444"),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       endMarker.bindPopup(`
-//       <div style="font-weight: bold;">END POINT</div>
-//       <div>Lat: ${endCoord.lat.toFixed(6)}</div>
-//       <div>Lng: ${endCoord.lng.toFixed(6)}</div>
-//       ${
-//         endCoord.timestamp
-//           ? `<div>${new Date(endCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(endMarker);
-//     }
-
-//     // Add image markers
-//     rawCoordinates.forEach((coord, index) => {
-//       if (coord.location_image) {
-//         const cameraIcon = L.divIcon({
-//           html: `
-//           <div style="
-//             background-color: white;
-//             border-radius: 50%;
-//             width: 28px;
-//             height: 28px;
-//             display: flex;
-//             align-items: center;
-//             justify-content: center;
-//             border: 2px solid #2563EB;
-//             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-//           ">
-//             <img src="https://cdn-icons-png.freepik.com/512/609/609673.png" 
-//                  style="width: 16px; height: 16px;"/>
-//           </div>
-//         `,
-//           className: "",
-//           iconSize: [28, 28],
-//           iconAnchor: [14, 28],
-//         });
-
-//         const marker = L.marker([coord.lat, coord.lng], {
-//           icon: cameraIcon,
-//           riseOnHover: true,
-//         })
-//           .addTo(leafletMapInstance.current)
-//           .bindPopup(
-//             `
-//         <div style="text-align: center;">
-//           <img src="${coord.location_image}" 
-//                style="max-width: 200px; max-height: 150px; margin-bottom: 5px;"/>
-//           <div>Lat: ${coord.lat.toFixed(6)}</div>
-//           <div>Lng: ${coord.lng.toFixed(6)}</div>
-//           ${
-//             coord.timestamp
-//               ? `<div>${new Date(coord.timestamp).toLocaleString()}</div>`
-//               : ""
-//           }
-//         </div>
-//       `
-//           )
-//           .on("click", () => handleImageMarkerClick(coord, true, true));
-
-//         leafletMarkers.current.push(marker);
-//       }
-//     });
-
-//     // Fit bounds with padding
-//     if (rawCoordinates.length > 0) {
-//       const bounds = L.latLngBounds(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng])
-//       );
-//       leafletMapInstance.current.fitBounds(bounds, { padding: [50, 50] });
-//     }
-//   }, [rawCoordinates]);
-
-//   // Initialize/update Leaflet map when data changes
-//   useEffect(() => {
-//     if (rawCoordinates.length > 0) {
-//       if (!leafletMapInstance.current) {
-//         initLeafletMap();
-//       } else {
-//         updateLeafletMap();
-//       }
-//     }
-
-//     return () => {
-//       if (leafletMapInstance.current) {
-//         leafletMapInstance.current.remove();
-//         leafletMapInstance.current = null;
-//       }
-//     };
-//   }, [rawCoordinates, initLeafletMap, updateLeafletMap]);
-
-//   const imageCoordinates = coordinates.filter((c) => c.location_image);
-//   const rawImageCoordinates = rawCoordinates.filter((c) => c.location_image);
-
-//   // Get icon configuration
-//   const getIconConfig = useCallback(
-//     (color, size = 32) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   // Get camera icon
-//   const getCameraIcon = useCallback(
-//     (size = 28) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `https://cdn-icons-png.freepik.com/512/609/609673.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   const snapToRoads = async (rawCoords) => {
-//     if (!rawCoords || rawCoords.length === 0) return [];
-
-//     const chunkCoords = (coords, chunkSize = 100) => {
-//       const chunks = [];
-//       for (let i = 0; i < coords.length; i += chunkSize) {
-//         chunks.push(coords.slice(i, i + chunkSize));
-//       }
-//       return chunks;
-//     };
-
-//     const coordChunks = chunkCoords(rawCoords, 100);
-//     const allSnappedPoints = [];
-
-//     // First, identify all points with images
-//     const pointsWithImages = rawCoords.filter((coord) => coord.location_image);
-
-//     for (const chunk of coordChunks) {
-//       const path = chunk.map((coord) => `${coord.lat},${coord.lng}`).join("|");
-//       const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
-//         path
-//       )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
-
-//       try {
-//         const response = await fetch(url);
-//         const data = await response.json();
-
-//         if (!data.snappedPoints) {
-//           allSnappedPoints.push(...chunk);
-//         } else {
-//           // Create a map of original indices to their full data
-//           const originalMap = {};
-//           chunk.forEach((coord, index) => {
-//             originalMap[index] = coord;
-//           });
-
-//           const snapped = data.snappedPoints.map((point) => {
-//             const original = originalMap[point.originalIndex] || {};
-
-//             // Always preserve the original data for points with images
-//             if (original.location_image) {
-//               return {
-//                 ...original,
-//                 lat: point.location.latitude,
-//                 lng: point.location.longitude,
-//               };
-//             }
-
-//             return {
-//               lat: point.location.latitude,
-//               lng: point.location.longitude,
-//               timestamp: original.timestamp || null,
-//               accuracy: original.accuracy || null,
-//               location_image: original.location_image || null,
-//               id:
-//                 original.id ||
-//                 `${point.location.latitude},${point.location.longitude}`,
-//             };
-//           });
-
-//           allSnappedPoints.push(...snapped);
-//         }
-//       } catch (err) {
-//         console.error("Failed to snap to roads:", err);
-//         allSnappedPoints.push(...chunk);
-//       }
-//     }
-
-//     // Now ensure all points with images are included
-//     pointsWithImages.forEach((imagePoint) => {
-//       const exists = allSnappedPoints.some(
-//         (point) =>
-//           point.id === imagePoint.id ||
-//           (point.lat === imagePoint.lat && point.lng === imagePoint.lng)
-//       );
-
-//       if (!exists) {
-//         // Find the closest position in the snapped points to insert this image point
-//         let minDistance = Infinity;
-//         let insertIndex = -1;
-
-//         for (let i = 0; i < allSnappedPoints.length; i++) {
-//           const distance = Math.sqrt(
-//             Math.pow(imagePoint.lat - allSnappedPoints[i].lat, 2) +
-//               Math.pow(imagePoint.lng - allSnappedPoints[i].lng, 2)
-//           );
-
-//           if (distance < minDistance) {
-//             minDistance = distance;
-//             insertIndex = i;
-//           }
-//         }
-
-//         if (insertIndex !== -1) {
-//           allSnappedPoints.splice(insertIndex, 0, imagePoint);
-//         } else {
-//           allSnappedPoints.push(imagePoint);
-//         }
-//       }
-//     });
-
-//     return allSnappedPoints;
-//   };
-
-//   // Process locations and set coordinates
-//   useEffect(() => {
-//     const processCoordinates = async () => {
-//       if (isLoaded && locations?.length) {
-//         const rawCoords = locations
-//           .map((loc) => ({
-//             lat: parseFloat(loc.latitude),
-//             lng: parseFloat(loc.longitude),
-//             timestamp: loc.timestamp || loc.createdAt,
-//             accuracy: loc.accuracy,
-//             location_image: loc.location_image || null,
-//             id: loc._id,
-//           }))
-//           .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-//         setRawCoordinates(rawCoords);
-//         const snappedCoords = await snapToRoads(rawCoords);
-//         setCoordinates(snappedCoords);
-
-//         if (rawCoords.length > 0) {
-//           const midIndex = Math.floor(rawCoords.length / 2);
-//           setMapCenter(rawCoords[midIndex]);
-
-//           try {
-//             const bounds = new window.google.maps.LatLngBounds();
-//             rawCoords.forEach((coord) => bounds.extend(coord));
-//             const ne = bounds.getNorthEast();
-//             const sw = bounds.getSouthWest();
-//             const latDiff = Math.abs(ne.lat() - sw.lat());
-//             const lngDiff = Math.abs(ne.lng() - sw.lng());
-//             const maxDiff = Math.max(latDiff, lngDiff);
-
-//             if (maxDiff > 0.1) setMapZoom(10);
-//             else if (maxDiff > 0.05) setMapZoom(12);
-//             else if (maxDiff > 0.01) setMapZoom(14);
-//             else setMapZoom(16);
-//           } catch (error) {
-//             console.error("Error calculating bounds:", error);
-//             setMapZoom(14);
-//           }
-//         }
-//       }
-//     };
-
-//     processCoordinates();
-//   }, [locations, isLoaded]);
-
-//   useEffect(() => {
-//     const handleKeyDown = (e) => {
-//       if (selectedImageIndex !== null) {
-//         if (e.key === "ArrowRight") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex + 1) % imageCoordinates.length
-//           );
-//         } else if (e.key === "ArrowLeft") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex - 1 + imageCoordinates.length) %
-//               imageCoordinates.length
-//           );
-//         } else if (e.key === "Escape") {
-//           handleCloseInfoWindow();
-//         }
-//       }
-//     };
-
-//     window.addEventListener("keydown", handleKeyDown);
-//     return () => window.removeEventListener("keydown", handleKeyDown);
-//   }, [selectedImageIndex, imageCoordinates.length]);
-
-//   const handleMapLoad = useCallback(
-//     (map) => {
-//       mapRef.current = map;
-
-//       if (coordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           coordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [coordinates, isLoaded]
-//   );
-
-//   const handleRawMapLoad = useCallback(
-//     (map) => {
-//       rawMapRef.current = map;
-
-//       if (rawCoordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           rawCoordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [rawCoordinates, isLoaded]
-//   );
-
-//   const handleImageMarkerClick = (coord, isRawMap = false) => {
-//     const index = (isRawMap ? rawImageCoordinates : imageCoordinates).findIndex(
-//       (c) => c.id === coord.id
-//     );
-//     if (index !== -1) {
-//       setSelectedImageIndex({ index, isRawMap });
-//     }
-//   };
-
-//   const handleCloseInfoWindow = () => {
-//     setSelectedImageIndex(null);
-//   };
-
-//   if (loadError) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: "#f8fafc",
-//         }}
-//       >
-//         <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-//           <Typography variant="h5" color="error" gutterBottom>
-//             Error loading maps
-//           </Typography>
-//           <Typography color="text.secondary">
-//             Please check your internet connection
-//           </Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (!isLoaded) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: "#f8fafc",
-//         }}
-//       >
-//         <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-//           <CircularProgress sx={{ color: "#2563EB", mb: 2 }} />
-//           <Typography color="text.secondary">Loading Maps...</Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   const renderMap = (isRawMap = false) => {
-//     const coords = isRawMap ? rawCoordinates : coordinates;
-//     const imgCoords = isRawMap ? rawImageCoordinates : imageCoordinates;
-//     const currentSelectedIndex =
-//       selectedImageIndex?.isRawMap === isRawMap
-//         ? selectedImageIndex.index
-//         : null;
-
-//     return (
-//       <GoogleMap
-//         mapContainerStyle={mapContainerStyle}
-//         onLoad={isRawMap ? handleRawMapLoad : handleMapLoad}
-//         center={mapCenter}
-//         zoom={mapZoom}
-//         options={{
-//           streetViewControl: false,
-//           mapTypeControl: true,
-//           fullscreenControl: true,
-//           zoomControl: true,
-//           scaleControl: true,
-//           styles: [
-//             {
-//               featureType: "poi",
-//               elementType: "labels",
-//               stylers: [{ visibility: "off" }],
-//             },
-//           ],
-//         }}
-//       >
-//         {/* Route Polyline */}
-//         {coords.length > 1 && (
-//           <Polyline
-//             path={coords}
-//             options={{
-//               strokeColor: isRawMap ? "#f59e0b" : "#2563EB",
-//               strokeOpacity: 0.8,
-//               strokeWeight: 4,
-//               geodesic: true,
-//               icons: [
-//                 {
-//                   icon: {
-//                     path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-//                     scale: 3,
-//                     strokeColor: isRawMap ? "#f59e0b" : "#2563EB",
-//                   },
-//                   offset: "50%",
-//                   repeat: "100px",
-//                 },
-//               ],
-//             }}
-//           />
-//         )}
-
-//         {/* Start Marker */}
-//         {coords.length > 0 && (
-//           <Marker
-//             position={coords[0]}
-//             title="Start Location"
-//             icon={getIconConfig("green")}
-//             label={{
-//               text: "START",
-//               className: "marker-label start-label",
-//               color: "white",
-//               fontSize: "12px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* End Marker */}
-//         {coords.length > 1 && (
-//           <Marker
-//             position={coords[coords.length - 1]}
-//             title="End Location"
-//             icon={getIconConfig("red")}
-//             label={{
-//               text: "END",
-//               className: "marker-label end-label",
-//               color: "white",
-//               fontSize: "12px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* Image Markers */}
-//         {coords.map(
-//           (coord, index) =>
-//             coord.location_image && (
-//               <Marker
-//                 key={`${isRawMap ? "raw-" : ""}image-${coord.id || index}`}
-//                 position={coord}
-//                 icon={getCameraIcon()}
-//                 clickable={true}
-//                 onClick={() => handleImageMarkerClick(coord, isRawMap)}
-//               />
-//             )
-//         )}
-
-//         {currentSelectedIndex !== null && (
-//           <Box
-//             sx={{
-//               position: "fixed",
-//               top: 0,
-//               left: 0,
-//               right: 0,
-//               bottom: 0,
-//               bgcolor: "rgba(0,0,0,0.9)",
-//               zIndex: 9999,
-//               display: "flex",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             }}
-//             onClick={handleCloseInfoWindow}
-//           >
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 top: 20,
-//                 right: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 handleCloseInfoWindow();
-//               }}
-//             >
-//               <CloseIcon />
-//             </IconButton>
-
-//             {/* Prev Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 left: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index:
-//                     (currentSelectedIndex - 1 + imgCoords.length) %
-//                     imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowBackIcon />
-//             </IconButton>
-
-//             {/* Image */}
-//             <Box
-//               component="img"
-//               src={imgCoords[currentSelectedIndex].location_image}
-//               alt="Location fullscreen"
-//               sx={{
-//                 maxWidth: "90%",
-//                 maxHeight: "80%",
-//                 objectFit: "contain",
-//               }}
-//             />
-
-//             {/* Timestamp */}
-//             {imgCoords[currentSelectedIndex]?.timestamp && (
-//               <Typography
-//                 sx={{
-//                   position: "absolute",
-//                   bottom: 20,
-//                   color: "white",
-//                   bgcolor: "rgba(0,0,0,0.5)",
-//                   px: 2,
-//                   py: 1,
-//                   borderRadius: 2,
-//                 }}
-//               >
-//                 {new Date(imgCoords[currentSelectedIndex].timestamp).toLocaleString()}
-//               </Typography>
-//             )}
-
-//             {/* Next Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 right: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index: (currentSelectedIndex + 1) % imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowForwardIcon />
-//             </IconButton>
-//           </Box>
-//         )}
-//       </GoogleMap>
-//     );
-//   };
-
-//   return (
-//     <Box sx={{ minHeight: "100vh", bgcolor: "#ffffff" }}>
-//       <AppBar
-//         position="static"
-//         sx={{
-//           bgcolor: "white",
-//           color: "#1e293b",
-//           boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-//           borderBottom: "1px solid #e2e8f0",
-//         }}
-//       >
-//         <Toolbar>
-//           <IconButton
-//             onClick={() => window.history.back()}
-//             sx={{
-//               color: "#2563EB",
-//               "&:hover": { bgcolor: alpha("#2563EB", 0.1) },
-//             }}
-//           >
-//             <ArrowBackIcon />
-//           </IconButton>
-//           <Typography variant="h6" sx={{ ml: 2, color: "#2563EB", fontWeight: 600 }}>
-//             Route Tracking
-//           </Typography>
-//         </Toolbar>
-//       </AppBar>
-
-//       <Container maxWidth="xl" sx={{ py: 0 }}>
-//         <Grid container spacing={0}>
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha("#2563EB", 0.1),
-//                 bgcolor: "#f8fafc",
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <RouteIcon sx={{ color: "#2563EB" }} />
-//                 <Typography variant="subtitle1" fontWeight={600} color="#1e293b">
-//                   Snapped to Roads (Google Roads API)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(false)}
-//           </Grid>
-
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha("#2563EB", 0.1),
-//                 bgcolor: "#f8fafc",
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <TimelineIcon sx={{ color: "#2563EB" }} />
-//                 <Typography variant="subtitle1" fontWeight={600} color="#1e293b">
-//                   Raw GPS Data (No API Cost)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(true)}
-//           </Grid>
-
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha("#2563EB", 0.1),
-//                 bgcolor: "#f8fafc",
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <ImageIcon sx={{ color: "#2563EB" }} />
-//                 <Typography variant="subtitle1" fontWeight={600} color="#1e293b">
-//                   OpenStreetMap (100% Free)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             <div ref={leafletMapRef} style={leafletMapContainerStyle} />
-//           </Grid>
-//         </Grid>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// export default Locations;
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////    Centralised Color     ///////////////////////////////
-
-
-// import { useLocation } from "react-router-dom";
-// import { useEffect, useState, useRef, useCallback } from "react";
-// import {
-//   Box,
-//   Container,
-//   Paper,
-//   Typography,
-//   IconButton,
-//   Chip,
-//   CircularProgress,
-//   alpha,
-//   AppBar,
-//   Toolbar,
-//   Grid,
-//   Card,
-//   CardContent,
-//   useTheme,
-// } from "@mui/material";
-// import {
-//   ArrowBack as ArrowBackIcon,
-//   ArrowForward as ArrowForwardIcon,
-//   Close as CloseIcon,
-//   Route as RouteIcon,
-//   Timeline as TimelineIcon,
-//   Image as ImageIcon,
-// } from "@mui/icons-material";
-// import {
-//   GoogleMap,
-//   useJsApiLoader,
-//   Marker,
-//   Polyline,
-// } from "@react-google-maps/api";
-// import L from "leaflet";
-// import "leaflet/dist/leaflet.css";
-
-// const mapContainerStyle = {
-//   width: "100%",
-//   height: "50vh",
-// };
-
-// const leafletMapContainerStyle = {
-//   width: "100%",
-//   height: "50vh",
-// };
-
-// const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
-
-// const Locations = () => {
-//   const theme = useTheme();
-//   const location = useLocation();
-//   const { locations } = location.state || {};
-//   const [coordinates, setCoordinates] = useState([]);
-//   const [rawCoordinates, setRawCoordinates] = useState([]);
-//   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
-//   const [mapZoom, setMapZoom] = useState(14);
-//   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-//   const mapRef = useRef(null);
-//   const rawMapRef = useRef(null);
-
-//   const leafletMapRef = useRef(null);
-//   const leafletMapInstance = useRef(null);
-//   const leafletPolylines = useRef([]);
-//   const leafletMarkers = useRef([]);
-
-//   const { isLoaded, loadError } = useJsApiLoader({
-//     googleMapsApiKey: GOOGLE_MAPS_APIKEY,
-//     libraries: ["places"],
-//   });
-
-//   // Initialize Leaflet map
-//   const initLeafletMap = useCallback(() => {
-//     if (
-//       !leafletMapInstance.current &&
-//       leafletMapRef.current &&
-//       rawCoordinates.length > 0
-//     ) {
-//       const center = rawCoordinates[Math.floor(rawCoordinates.length / 2)];
-
-//       leafletMapInstance.current = L.map(leafletMapRef.current).setView(
-//         [center.lat, center.lng],
-//         14
-//       );
-
-//       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-//         attribution:
-//           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-//         maxZoom: 19,
-//       }).addTo(leafletMapInstance.current);
-
-//       updateLeafletMap();
-//     }
-//   }, [rawCoordinates]);
-
-//   // Custom icons for Leaflet markers
-//   const createLeafletIcon = (label, color) => {
-//     return L.divIcon({
-//       html: `
-//       <div style="
-//         background-color: ${color};
-//         color: white;
-//         border-radius: 50%;
-//         width: 32px;
-//         height: 32px;
-//         display: flex;
-//         align-items: center;
-//         justify-content: center;
-//         font-weight: bold;
-//         font-size: 12px;
-//         border: 2px solid white;
-//         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-//       ">
-//         ${label}
-//       </div>
-//     `,
-//       className: "",
-//       iconSize: [32, 32],
-//       iconAnchor: [16, 32],
-//     });
-//   };
-
-//   // Update the Leaflet map initialization
-//   const updateLeafletMap = useCallback(() => {
-//     if (!leafletMapInstance.current || rawCoordinates.length === 0) return;
-
-//     // Clear existing elements
-//     leafletPolylines.current.forEach((line) =>
-//       leafletMapInstance.current.removeLayer(line)
-//     );
-//     leafletMarkers.current.forEach((marker) =>
-//       leafletMapInstance.current.removeLayer(marker)
-//     );
-//     leafletPolylines.current = [];
-//     leafletMarkers.current = [];
-
-//     // Add polyline
-//     if (rawCoordinates.length > 1) {
-//       const polyline = L.polyline(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng]),
-//         {
-//           color: theme.palette.primary.main,
-//           weight: 4,
-//           lineJoin: "round",
-//         }
-//       ).addTo(leafletMapInstance.current);
-//       leafletPolylines.current.push(polyline);
-//     }
-
-//     // Add start marker
-//     if (rawCoordinates.length > 0) {
-//       const startCoord = rawCoordinates[0];
-//       const startMarker = L.marker([startCoord.lat, startCoord.lng], {
-//         icon: createLeafletIcon("S", "#22c55e"),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       startMarker.bindPopup(`
-//       <div style="font-weight: bold;">START POINT</div>
-//       <div>Lat: ${startCoord.lat.toFixed(6)}</div>
-//       <div>Lng: ${startCoord.lng.toFixed(6)}</div>
-//       ${
-//         startCoord.timestamp
-//           ? `<div>${new Date(startCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(startMarker);
-//     }
-
-//     // Add end marker
-//     if (rawCoordinates.length > 1) {
-//       const endCoord = rawCoordinates[rawCoordinates.length - 1];
-//       const endMarker = L.marker([endCoord.lat, endCoord.lng], {
-//         icon: createLeafletIcon("E", "#ef4444"),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       endMarker.bindPopup(`
-//       <div style="font-weight: bold;">END POINT</div>
-//       <div>Lat: ${endCoord.lat.toFixed(6)}</div>
-//       <div>Lng: ${endCoord.lng.toFixed(6)}</div>
-//       ${
-//         endCoord.timestamp
-//           ? `<div>${new Date(endCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(endMarker);
-//     }
-
-//     // Add image markers
-//     rawCoordinates.forEach((coord, index) => {
-//       if (coord.location_image) {
-//         const cameraIcon = L.divIcon({
-//           html: `
-//           <div style="
-//             background-color: white;
-//             border-radius: 50%;
-//             width: 28px;
-//             height: 28px;
-//             display: flex;
-//             align-items: center;
-//             justify-content: center;
-//             border: 2px solid ${theme.palette.primary.main};
-//             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-//           ">
-//             <img src="https://cdn-icons-png.freepik.com/512/609/609673.png" 
-//                  style="width: 16px; height: 16px;"/>
-//           </div>
-//         `,
-//           className: "",
-//           iconSize: [28, 28],
-//           iconAnchor: [14, 28],
-//         });
-
-//         const marker = L.marker([coord.lat, coord.lng], {
-//           icon: cameraIcon,
-//           riseOnHover: true,
-//         })
-//           .addTo(leafletMapInstance.current)
-//           .bindPopup(
-//             `
-//         <div style="text-align: center;">
-//           <img src="${coord.location_image}" 
-//                style="max-width: 200px; max-height: 150px; margin-bottom: 5px;"/>
-//           <div>Lat: ${coord.lat.toFixed(6)}</div>
-//           <div>Lng: ${coord.lng.toFixed(6)}</div>
-//           ${
-//             coord.timestamp
-//               ? `<div>${new Date(coord.timestamp).toLocaleString()}</div>`
-//               : ""
-//           }
-//         </div>
-//       `
-//           )
-//           .on("click", () => handleImageMarkerClick(coord, true, true));
-
-//         leafletMarkers.current.push(marker);
-//       }
-//     });
-
-//     // Fit bounds with padding
-//     if (rawCoordinates.length > 0) {
-//       const bounds = L.latLngBounds(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng])
-//       );
-//       leafletMapInstance.current.fitBounds(bounds, { padding: [50, 50] });
-//     }
-//   }, [rawCoordinates, theme.palette.primary.main]);
-
-//   // Initialize/update Leaflet map when data changes
-//   useEffect(() => {
-//     if (rawCoordinates.length > 0) {
-//       if (!leafletMapInstance.current) {
-//         initLeafletMap();
-//       } else {
-//         updateLeafletMap();
-//       }
-//     }
-
-//     return () => {
-//       if (leafletMapInstance.current) {
-//         leafletMapInstance.current.remove();
-//         leafletMapInstance.current = null;
-//       }
-//     };
-//   }, [rawCoordinates, initLeafletMap, updateLeafletMap]);
-
-//   const imageCoordinates = coordinates.filter((c) => c.location_image);
-//   const rawImageCoordinates = rawCoordinates.filter((c) => c.location_image);
-
-//   // Get icon configuration
-//   const getIconConfig = useCallback(
-//     (color, size = 32) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   // Get camera icon
-//   const getCameraIcon = useCallback(
-//     (size = 28) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `https://cdn-icons-png.freepik.com/512/609/609673.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   const snapToRoads = async (rawCoords) => {
-//     if (!rawCoords || rawCoords.length === 0) return [];
-
-//     const chunkCoords = (coords, chunkSize = 100) => {
-//       const chunks = [];
-//       for (let i = 0; i < coords.length; i += chunkSize) {
-//         chunks.push(coords.slice(i, i + chunkSize));
-//       }
-//       return chunks;
-//     };
-
-//     const coordChunks = chunkCoords(rawCoords, 100);
-//     const allSnappedPoints = [];
-
-//     // First, identify all points with images
-//     const pointsWithImages = rawCoords.filter((coord) => coord.location_image);
-
-//     for (const chunk of coordChunks) {
-//       const path = chunk.map((coord) => `${coord.lat},${coord.lng}`).join("|");
-//       const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
-//         path
-//       )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
-
-//       try {
-//         const response = await fetch(url);
-//         const data = await response.json();
-
-//         if (!data.snappedPoints) {
-//           allSnappedPoints.push(...chunk);
-//         } else {
-//           // Create a map of original indices to their full data
-//           const originalMap = {};
-//           chunk.forEach((coord, index) => {
-//             originalMap[index] = coord;
-//           });
-
-//           const snapped = data.snappedPoints.map((point) => {
-//             const original = originalMap[point.originalIndex] || {};
-
-//             // Always preserve the original data for points with images
-//             if (original.location_image) {
-//               return {
-//                 ...original,
-//                 lat: point.location.latitude,
-//                 lng: point.location.longitude,
-//               };
-//             }
-
-//             return {
-//               lat: point.location.latitude,
-//               lng: point.location.longitude,
-//               timestamp: original.timestamp || null,
-//               accuracy: original.accuracy || null,
-//               location_image: original.location_image || null,
-//               id:
-//                 original.id ||
-//                 `${point.location.latitude},${point.location.longitude}`,
-//             };
-//           });
-
-//           allSnappedPoints.push(...snapped);
-//         }
-//       } catch (err) {
-//         console.error("Failed to snap to roads:", err);
-//         allSnappedPoints.push(...chunk);
-//       }
-//     }
-
-//     // Now ensure all points with images are included
-//     pointsWithImages.forEach((imagePoint) => {
-//       const exists = allSnappedPoints.some(
-//         (point) =>
-//           point.id === imagePoint.id ||
-//           (point.lat === imagePoint.lat && point.lng === imagePoint.lng)
-//       );
-
-//       if (!exists) {
-//         // Find the closest position in the snapped points to insert this image point
-//         let minDistance = Infinity;
-//         let insertIndex = -1;
-
-//         for (let i = 0; i < allSnappedPoints.length; i++) {
-//           const distance = Math.sqrt(
-//             Math.pow(imagePoint.lat - allSnappedPoints[i].lat, 2) +
-//               Math.pow(imagePoint.lng - allSnappedPoints[i].lng, 2)
-//           );
-
-//           if (distance < minDistance) {
-//             minDistance = distance;
-//             insertIndex = i;
-//           }
-//         }
-
-//         if (insertIndex !== -1) {
-//           allSnappedPoints.splice(insertIndex, 0, imagePoint);
-//         } else {
-//           allSnappedPoints.push(imagePoint);
-//         }
-//       }
-//     });
-
-//     return allSnappedPoints;
-//   };
-
-//   // Process locations and set coordinates
-//   useEffect(() => {
-//     const processCoordinates = async () => {
-//       if (isLoaded && locations?.length) {
-//         const rawCoords = locations
-//           .map((loc) => ({
-//             lat: parseFloat(loc.latitude),
-//             lng: parseFloat(loc.longitude),
-//             timestamp: loc.timestamp || loc.createdAt,
-//             accuracy: loc.accuracy,
-//             location_image: loc.location_image || null,
-//             id: loc._id,
-//           }))
-//           .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-//         setRawCoordinates(rawCoords);
-//         const snappedCoords = await snapToRoads(rawCoords);
-//         setCoordinates(snappedCoords);
-
-//         if (rawCoords.length > 0) {
-//           const midIndex = Math.floor(rawCoords.length / 2);
-//           setMapCenter(rawCoords[midIndex]);
-
-//           try {
-//             const bounds = new window.google.maps.LatLngBounds();
-//             rawCoords.forEach((coord) => bounds.extend(coord));
-//             const ne = bounds.getNorthEast();
-//             const sw = bounds.getSouthWest();
-//             const latDiff = Math.abs(ne.lat() - sw.lat());
-//             const lngDiff = Math.abs(ne.lng() - sw.lng());
-//             const maxDiff = Math.max(latDiff, lngDiff);
-
-//             if (maxDiff > 0.1) setMapZoom(10);
-//             else if (maxDiff > 0.05) setMapZoom(12);
-//             else if (maxDiff > 0.01) setMapZoom(14);
-//             else setMapZoom(16);
-//           } catch (error) {
-//             console.error("Error calculating bounds:", error);
-//             setMapZoom(14);
-//           }
-//         }
-//       }
-//     };
-
-//     processCoordinates();
-//   }, [locations, isLoaded]);
-
-//   useEffect(() => {
-//     const handleKeyDown = (e) => {
-//       if (selectedImageIndex !== null) {
-//         if (e.key === "ArrowRight") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex + 1) % imageCoordinates.length
-//           );
-//         } else if (e.key === "ArrowLeft") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex - 1 + imageCoordinates.length) %
-//               imageCoordinates.length
-//           );
-//         } else if (e.key === "Escape") {
-//           handleCloseInfoWindow();
-//         }
-//       }
-//     };
-
-//     window.addEventListener("keydown", handleKeyDown);
-//     return () => window.removeEventListener("keydown", handleKeyDown);
-//   }, [selectedImageIndex, imageCoordinates.length]);
-
-//   const handleMapLoad = useCallback(
-//     (map) => {
-//       mapRef.current = map;
-
-//       if (coordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           coordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [coordinates, isLoaded]
-//   );
-
-//   const handleRawMapLoad = useCallback(
-//     (map) => {
-//       rawMapRef.current = map;
-
-//       if (rawCoordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           rawCoordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [rawCoordinates, isLoaded]
-//   );
-
-//   const handleImageMarkerClick = (coord, isRawMap = false) => {
-//     const index = (isRawMap ? rawImageCoordinates : imageCoordinates).findIndex(
-//       (c) => c.id === coord.id
-//     );
-//     if (index !== -1) {
-//       setSelectedImageIndex({ index, isRawMap });
-//     }
-//   };
-
-//   const handleCloseInfoWindow = () => {
-//     setSelectedImageIndex(null);
-//   };
-
-//   if (loadError) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: alpha(theme.palette.primary.main, 0.05),
-//         }}
-//       >
-//         <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-//           <Typography variant="h5" color="error" gutterBottom>
-//             Error loading maps
-//           </Typography>
-//           <Typography color="text.secondary">
-//             Please check your internet connection
-//           </Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (!isLoaded) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: alpha(theme.palette.primary.main, 0.05),
-//         }}
-//       >
-//         <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-//           <CircularProgress sx={{ color: theme.palette.primary.main, mb: 2 }} />
-//           <Typography color="text.secondary">Loading Maps...</Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   const renderMap = (isRawMap = false) => {
-//     const coords = isRawMap ? rawCoordinates : coordinates;
-//     const imgCoords = isRawMap ? rawImageCoordinates : imageCoordinates;
-//     const currentSelectedIndex =
-//       selectedImageIndex?.isRawMap === isRawMap
-//         ? selectedImageIndex.index
-//         : null;
-
-//     return (
-//       <GoogleMap
-//         mapContainerStyle={mapContainerStyle}
-//         onLoad={isRawMap ? handleRawMapLoad : handleMapLoad}
-//         center={mapCenter}
-//         zoom={mapZoom}
-//         options={{
-//           streetViewControl: false,
-//           mapTypeControl: true,
-//           fullscreenControl: true,
-//           zoomControl: true,
-//           scaleControl: true,
-//           styles: [
-//             {
-//               featureType: "poi",
-//               elementType: "labels",
-//               stylers: [{ visibility: "off" }],
-//             },
-//           ],
-//         }}
-//       >
-//         {/* Route Polyline */}
-//         {coords.length > 1 && (
-//           <Polyline
-//             path={coords}
-//             options={{
-//               strokeColor: isRawMap ? theme.palette.secondary.main : theme.palette.primary.main,
-//               strokeOpacity: 0.8,
-//               strokeWeight: 4,
-//               geodesic: true,
-//               icons: [
-//                 {
-//                   icon: {
-//                     path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-//                     scale: 3,
-//                     strokeColor: isRawMap ? theme.palette.secondary.main : theme.palette.primary.main,
-//                   },
-//                   offset: "50%",
-//                   repeat: "100px",
-//                 },
-//               ],
-//             }}
-//           />
-//         )}
-
-//         {/* Start Marker */}
-//         {coords.length > 0 && (
-//           <Marker
-//             position={coords[0]}
-//             title="Start Location"
-//             icon={getIconConfig("green")}
-//             label={{
-//               text: "START",
-//               className: "marker-label start-label",
-//               color: "white",
-//               fontSize: "12px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* End Marker */}
-//         {coords.length > 1 && (
-//           <Marker
-//             position={coords[coords.length - 1]}
-//             title="End Location"
-//             icon={getIconConfig("red")}
-//             label={{
-//               text: "END",
-//               className: "marker-label end-label",
-//               color: "white",
-//               fontSize: "12px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* Image Markers */}
-//         {coords.map(
-//           (coord, index) =>
-//             coord.location_image && (
-//               <Marker
-//                 key={`${isRawMap ? "raw-" : ""}image-${coord.id || index}`}
-//                 position={coord}
-//                 icon={getCameraIcon()}
-//                 clickable={true}
-//                 onClick={() => handleImageMarkerClick(coord, isRawMap)}
-//               />
-//             )
-//         )}
-
-//         {currentSelectedIndex !== null && (
-//           <Box
-//             sx={{
-//               position: "fixed",
-//               top: 0,
-//               left: 0,
-//               right: 0,
-//               bottom: 0,
-//               bgcolor: "rgba(0,0,0,0.9)",
-//               zIndex: 9999,
-//               display: "flex",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             }}
-//             onClick={handleCloseInfoWindow}
-//           >
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 top: 20,
-//                 right: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 handleCloseInfoWindow();
-//               }}
-//             >
-//               <CloseIcon />
-//             </IconButton>
-
-//             {/* Prev Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 left: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index:
-//                     (currentSelectedIndex - 1 + imgCoords.length) %
-//                     imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowBackIcon />
-//             </IconButton>
-
-//             {/* Image */}
-//             <Box
-//               component="img"
-//               src={imgCoords[currentSelectedIndex].location_image}
-//               alt="Location fullscreen"
-//               sx={{
-//                 maxWidth: "90%",
-//                 maxHeight: "80%",
-//                 objectFit: "contain",
-//               }}
-//             />
-
-//             {/* Timestamp */}
-//             {imgCoords[currentSelectedIndex]?.timestamp && (
-//               <Typography
-//                 sx={{
-//                   position: "absolute",
-//                   bottom: 20,
-//                   color: "white",
-//                   bgcolor: "rgba(0,0,0,0.5)",
-//                   px: 2,
-//                   py: 1,
-//                   borderRadius: 2,
-//                 }}
-//               >
-//                 {new Date(imgCoords[currentSelectedIndex].timestamp).toLocaleString()}
-//               </Typography>
-//             )}
-
-//             {/* Next Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 right: 20,
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index: (currentSelectedIndex + 1) % imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowForwardIcon />
-//             </IconButton>
-//           </Box>
-//         )}
-//       </GoogleMap>
-//     );
-//   };
-
-//   return (
-//     <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper }}>
-//       <AppBar
-//         position="static"
-//         sx={{
-//           bgcolor: theme.palette.background.paper,
-//           color: "text.primary",
-//           boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-//           borderBottom: "1px solid",
-//           borderColor: alpha(theme.palette.divider, 0.5),
-//         }}
-//       >
-//         <Toolbar>
-//           <IconButton
-//             onClick={() => window.history.back()}
-//             sx={{
-//               color: theme.palette.primary.main,
-//               "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-//             }}
-//           >
-//             <ArrowBackIcon />
-//           </IconButton>
-//           <Typography variant="h6" sx={{ ml: 2, fontSize: "1rem", color: theme.palette.primary.main, fontWeight: 600 }}>
-//             Route Tracking
-//           </Typography>
-//         </Toolbar>
-//       </AppBar>
-
-//       <Container maxWidth="xl" sx={{ py: 0 }}>
-//         <Grid container spacing={0}>
-//           {/* <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha(theme.palette.primary.main, 0.1),
-//                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <RouteIcon sx={{ color: theme.palette.primary.main }} />
-//                 <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-//                   Snapped to Roads (Google Roads API)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(false)}
-//           </Grid>
-
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha(theme.palette.primary.main, 0.1),
-//                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <TimelineIcon sx={{ color: theme.palette.primary.main }} />
-//                 <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-//                   Raw GPS Data (No API Cost)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(true)}
-//           </Grid> */}
-
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: 2,
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha(theme.palette.primary.main, 0.1),
-//                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <ImageIcon sx={{ color: theme.palette.primary.main }} />
-//                 <Typography variant="subtitle1" fontWeight={600} fontSize={12} color="text.primary">
-//                   OpenStreetMap (100% Free)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             <div ref={leafletMapRef} style={leafletMapContainerStyle} />
-//           </Grid>
-//         </Grid>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// export default Locations;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useLocation } from "react-router-dom";
-// import { useEffect, useState, useRef, useCallback } from "react";
-// import {
-//   Box,
-//   Container,
-//   Paper,
-//   Typography,
-//   IconButton,
-//   Chip,
-//   CircularProgress,
-//   alpha,
-//   AppBar,
-//   Toolbar,
-//   Grid,
-//   Card,
-//   CardContent,
-//   useTheme,
-//   useMediaQuery,
-// } from "@mui/material";
-// import {
-//   ArrowBack as ArrowBackIcon,
-//   ArrowForward as ArrowForwardIcon,
-//   Close as CloseIcon,
-//   Route as RouteIcon,
-//   Timeline as TimelineIcon,
-//   Image as ImageIcon,
-// } from "@mui/icons-material";
-// import {
-//   GoogleMap,
-//   useJsApiLoader,
-//   Marker,
-//   Polyline,
-// } from "@react-google-maps/api";
-// import L from "leaflet";
-// import "leaflet/dist/leaflet.css";
-
-// const mapContainerStyle = {
-//   width: "100%",
-//   height: "70vh",
-// };
-
-// const leafletMapContainerStyle = {
-//   width: "100%",
-//   height: "70vh",
-// };
-
-// const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
-
-// const Locations = () => {
-//   const theme = useTheme();
-//   const location = useLocation();
-//   const { locations } = location.state || {};
-//   const [coordinates, setCoordinates] = useState([]);
-//   const [rawCoordinates, setRawCoordinates] = useState([]);
-//   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
-//   const [mapZoom, setMapZoom] = useState(14);
-//   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-//   const mapRef = useRef(null);
-//   const rawMapRef = useRef(null);
-
-//   // Responsive breakpoints
-//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-//   const leafletMapRef = useRef(null);
-//   const leafletMapInstance = useRef(null);
-//   const leafletPolylines = useRef([]);
-//   const leafletMarkers = useRef([]);
-
-//   const { isLoaded, loadError } = useJsApiLoader({
-//     googleMapsApiKey: GOOGLE_MAPS_APIKEY,
-//     libraries: ["places"],
-//   });
-
-//   // Initialize Leaflet map
-//   const initLeafletMap = useCallback(() => {
-//     if (
-//       !leafletMapInstance.current &&
-//       leafletMapRef.current &&
-//       rawCoordinates.length > 0
-//     ) {
-//       const center = rawCoordinates[Math.floor(rawCoordinates.length / 2)];
-
-//       leafletMapInstance.current = L.map(leafletMapRef.current).setView(
-//         [center.lat, center.lng],
-//         14
-//       );
-
-//       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-//         attribution:
-//           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-//         maxZoom: 19,
-//       }).addTo(leafletMapInstance.current);
-
-//       updateLeafletMap();
-//     }
-//   }, [rawCoordinates]);
-
-//   // Custom icons for Leaflet markers
-//   const createLeafletIcon = (label, color, size = 28) => {
-//     return L.divIcon({
-//       html: `
-//       <div style="
-//         background-color: ${color};
-//         color: white;
-//         border-radius: 50%;
-//         width: ${size}px;
-//         height: ${size}px;
-//         display: flex;
-//         align-items: center;
-//         justify-content: center;
-//         font-weight: bold;
-//         font-size: ${size === 24 ? '10px' : '11px'};
-//         border: 2px solid white;
-//         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-//       ">
-//         ${label}
-//       </div>
-//     `,
-//       className: "",
-//       iconSize: [size, size],
-//       iconAnchor: [size / 2, size],
-//     });
-//   };
-
-//   // Update the Leaflet map initialization
-//   const updateLeafletMap = useCallback(() => {
-//     if (!leafletMapInstance.current || rawCoordinates.length === 0) return;
-
-//     // Clear existing elements
-//     leafletPolylines.current.forEach((line) =>
-//       leafletMapInstance.current.removeLayer(line)
-//     );
-//     leafletMarkers.current.forEach((marker) =>
-//       leafletMapInstance.current.removeLayer(marker)
-//     );
-//     leafletPolylines.current = [];
-//     leafletMarkers.current = [];
-
-//     // Add polyline
-//     if (rawCoordinates.length > 1) {
-//       const polyline = L.polyline(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng]),
-//         {
-//           color: theme.palette.primary.main,
-//           weight: 4,
-//           lineJoin: "round",
-//         }
-//       ).addTo(leafletMapInstance.current);
-//       leafletPolylines.current.push(polyline);
-//     }
-
-//     // Add start marker
-//     if (rawCoordinates.length > 0) {
-//       const startCoord = rawCoordinates[0];
-//       const startMarker = L.marker([startCoord.lat, startCoord.lng], {
-//         icon: createLeafletIcon("S", "#22c55e", isMobile ? 24 : 28),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       startMarker.bindPopup(`
-//       <div style="font-weight: bold; font-size: 12px;">START POINT</div>
-//       <div style="font-size: 11px;">Lat: ${startCoord.lat.toFixed(6)}</div>
-//       <div style="font-size: 11px;">Lng: ${startCoord.lng.toFixed(6)}</div>
-//       ${
-//         startCoord.timestamp
-//           ? `<div style="font-size: 11px;">${new Date(startCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(startMarker);
-//     }
-
-//     // Add end marker
-//     if (rawCoordinates.length > 1) {
-//       const endCoord = rawCoordinates[rawCoordinates.length - 1];
-//       const endMarker = L.marker([endCoord.lat, endCoord.lng], {
-//         icon: createLeafletIcon("E", "#ef4444", isMobile ? 24 : 28),
-//         riseOnHover: true,
-//       }).addTo(leafletMapInstance.current);
-
-//       endMarker.bindPopup(`
-//       <div style="font-weight: bold; font-size: 12px;">END POINT</div>
-//       <div style="font-size: 11px;">Lat: ${endCoord.lat.toFixed(6)}</div>
-//       <div style="font-size: 11px;">Lng: ${endCoord.lng.toFixed(6)}</div>
-//       ${
-//         endCoord.timestamp
-//           ? `<div style="font-size: 11px;">${new Date(endCoord.timestamp).toLocaleString()}</div>`
-//           : ""
-//       }
-//     `);
-
-//       leafletMarkers.current.push(endMarker);
-//     }
-
-//     // Add image markers
-//     rawCoordinates.forEach((coord, index) => {
-//       if (coord.location_image) {
-//         const cameraIcon = L.divIcon({
-//           html: `
-//           <div style="
-//             background-color: white;
-//             border-radius: 50%;
-//             width: ${isMobile ? 24 : 28}px;
-//             height: ${isMobile ? 24 : 28}px;
-//             display: flex;
-//             align-items: center;
-//             justify-content: center;
-//             border: 2px solid ${theme.palette.primary.main};
-//             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-//           ">
-//             <img src="https://cdn-icons-png.freepik.com/512/609/609673.png" 
-//                  style="width: ${isMobile ? 12 : 16}px; height: ${isMobile ? 12 : 16}px;"/>
-//           </div>
-//         `,
-//           className: "",
-//           iconSize: [isMobile ? 24 : 28, isMobile ? 24 : 28],
-//           iconAnchor: [isMobile ? 12 : 14, isMobile ? 24 : 28],
-//         });
-
-//         const marker = L.marker([coord.lat, coord.lng], {
-//           icon: cameraIcon,
-//           riseOnHover: true,
-//         })
-//           .addTo(leafletMapInstance.current)
-//           .bindPopup(
-//             `
-//         <div style="text-align: center;">
-//           <img src="${coord.location_image}" 
-//                style="max-width: ${isMobile ? 150 : 200}px; max-height: ${isMobile ? 100 : 150}px; margin-bottom: 5px; border-radius: 4px;"/>
-//           <div style="font-size: 11px;">Lat: ${coord.lat.toFixed(6)}</div>
-//           <div style="font-size: 11px;">Lng: ${coord.lng.toFixed(6)}</div>
-//           ${
-//             coord.timestamp
-//               ? `<div style="font-size: 11px;">${new Date(coord.timestamp).toLocaleString()}</div>`
-//               : ""
-//           }
-//         </div>
-//       `
-//           )
-//           .on("click", () => handleImageMarkerClick(coord, true, true));
-
-//         leafletMarkers.current.push(marker);
-//       }
-//     });
-
-//     // Fit bounds with padding
-//     if (rawCoordinates.length > 0) {
-//       const bounds = L.latLngBounds(
-//         rawCoordinates.map((coord) => [coord.lat, coord.lng])
-//       );
-//       leafletMapInstance.current.fitBounds(bounds, { padding: [30, 30] });
-//     }
-//   }, [rawCoordinates, theme.palette.primary.main, isMobile]);
-
-//   // Initialize/update Leaflet map when data changes
-//   useEffect(() => {
-//     if (rawCoordinates.length > 0) {
-//       if (!leafletMapInstance.current) {
-//         initLeafletMap();
-//       } else {
-//         updateLeafletMap();
-//       }
-//     }
-
-//     return () => {
-//       if (leafletMapInstance.current) {
-//         leafletMapInstance.current.remove();
-//         leafletMapInstance.current = null;
-//       }
-//     };
-//   }, [rawCoordinates, initLeafletMap, updateLeafletMap]);
-
-//   const imageCoordinates = coordinates.filter((c) => c.location_image);
-//   const rawImageCoordinates = rawCoordinates.filter((c) => c.location_image);
-
-//   // Get icon configuration
-//   const getIconConfig = useCallback(
-//     (color, size = 28) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   // Get camera icon
-//   const getCameraIcon = useCallback(
-//     (size = 24) => {
-//       if (!isLoaded) return undefined;
-
-//       return {
-//         url: `https://cdn-icons-png.freepik.com/512/609/609673.png`,
-//         scaledSize: new window.google.maps.Size(size, size),
-//         anchor: new window.google.maps.Point(size / 2, size),
-//       };
-//     },
-//     [isLoaded]
-//   );
-
-//   const snapToRoads = async (rawCoords) => {
-//     if (!rawCoords || rawCoords.length === 0) return [];
-
-//     const chunkCoords = (coords, chunkSize = 100) => {
-//       const chunks = [];
-//       for (let i = 0; i < coords.length; i += chunkSize) {
-//         chunks.push(coords.slice(i, i + chunkSize));
-//       }
-//       return chunks;
-//     };
-
-//     const coordChunks = chunkCoords(rawCoords, 100);
-//     const allSnappedPoints = [];
-
-//     // First, identify all points with images
-//     const pointsWithImages = rawCoords.filter((coord) => coord.location_image);
-
-//     for (const chunk of coordChunks) {
-//       const path = chunk.map((coord) => `${coord.lat},${coord.lng}`).join("|");
-//       const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
-//         path
-//       )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
-
-//       try {
-//         const response = await fetch(url);
-//         const data = await response.json();
-
-//         if (!data.snappedPoints) {
-//           allSnappedPoints.push(...chunk);
-//         } else {
-//           // Create a map of original indices to their full data
-//           const originalMap = {};
-//           chunk.forEach((coord, index) => {
-//             originalMap[index] = coord;
-//           });
-
-//           const snapped = data.snappedPoints.map((point) => {
-//             const original = originalMap[point.originalIndex] || {};
-
-//             // Always preserve the original data for points with images
-//             if (original.location_image) {
-//               return {
-//                 ...original,
-//                 lat: point.location.latitude,
-//                 lng: point.location.longitude,
-//               };
-//             }
-
-//             return {
-//               lat: point.location.latitude,
-//               lng: point.location.longitude,
-//               timestamp: original.timestamp || null,
-//               accuracy: original.accuracy || null,
-//               location_image: original.location_image || null,
-//               id:
-//                 original.id ||
-//                 `${point.location.latitude},${point.location.longitude}`,
-//             };
-//           });
-
-//           allSnappedPoints.push(...snapped);
-//         }
-//       } catch (err) {
-//         console.error("Failed to snap to roads:", err);
-//         allSnappedPoints.push(...chunk);
-//       }
-//     }
-
-//     // Now ensure all points with images are included
-//     pointsWithImages.forEach((imagePoint) => {
-//       const exists = allSnappedPoints.some(
-//         (point) =>
-//           point.id === imagePoint.id ||
-//           (point.lat === imagePoint.lat && point.lng === imagePoint.lng)
-//       );
-
-//       if (!exists) {
-//         // Find the closest position in the snapped points to insert this image point
-//         let minDistance = Infinity;
-//         let insertIndex = -1;
-
-//         for (let i = 0; i < allSnappedPoints.length; i++) {
-//           const distance = Math.sqrt(
-//             Math.pow(imagePoint.lat - allSnappedPoints[i].lat, 2) +
-//               Math.pow(imagePoint.lng - allSnappedPoints[i].lng, 2)
-//           );
-
-//           if (distance < minDistance) {
-//             minDistance = distance;
-//             insertIndex = i;
-//           }
-//         }
-
-//         if (insertIndex !== -1) {
-//           allSnappedPoints.splice(insertIndex, 0, imagePoint);
-//         } else {
-//           allSnappedPoints.push(imagePoint);
-//         }
-//       }
-//     });
-
-//     return allSnappedPoints;
-//   };
-
-//   // Process locations and set coordinates
-//   useEffect(() => {
-//     const processCoordinates = async () => {
-//       if (isLoaded && locations?.length) {
-//         const rawCoords = locations
-//           .map((loc) => ({
-//             lat: parseFloat(loc.latitude),
-//             lng: parseFloat(loc.longitude),
-//             timestamp: loc.timestamp || loc.createdAt,
-//             accuracy: loc.accuracy,
-//             location_image: loc.location_image || null,
-//             id: loc._id,
-//           }))
-//           .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
-
-//         setRawCoordinates(rawCoords);
-//         const snappedCoords = await snapToRoads(rawCoords);
-//         setCoordinates(snappedCoords);
-
-//         if (rawCoords.length > 0) {
-//           const midIndex = Math.floor(rawCoords.length / 2);
-//           setMapCenter(rawCoords[midIndex]);
-
-//           try {
-//             const bounds = new window.google.maps.LatLngBounds();
-//             rawCoords.forEach((coord) => bounds.extend(coord));
-//             const ne = bounds.getNorthEast();
-//             const sw = bounds.getSouthWest();
-//             const latDiff = Math.abs(ne.lat() - sw.lat());
-//             const lngDiff = Math.abs(ne.lng() - sw.lng());
-//             const maxDiff = Math.max(latDiff, lngDiff);
-
-//             if (maxDiff > 0.1) setMapZoom(10);
-//             else if (maxDiff > 0.05) setMapZoom(12);
-//             else if (maxDiff > 0.01) setMapZoom(14);
-//             else setMapZoom(16);
-//           } catch (error) {
-//             console.error("Error calculating bounds:", error);
-//             setMapZoom(14);
-//           }
-//         }
-//       }
-//     };
-
-//     processCoordinates();
-//   }, [locations, isLoaded]);
-
-//   useEffect(() => {
-//     const handleKeyDown = (e) => {
-//       if (selectedImageIndex !== null) {
-//         if (e.key === "ArrowRight") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex + 1) % imageCoordinates.length
-//           );
-//         } else if (e.key === "ArrowLeft") {
-//           setSelectedImageIndex(
-//             (selectedImageIndex - 1 + imageCoordinates.length) %
-//               imageCoordinates.length
-//           );
-//         } else if (e.key === "Escape") {
-//           handleCloseInfoWindow();
-//         }
-//       }
-//     };
-
-//     window.addEventListener("keydown", handleKeyDown);
-//     return () => window.removeEventListener("keydown", handleKeyDown);
-//   }, [selectedImageIndex, imageCoordinates.length]);
-
-//   const handleMapLoad = useCallback(
-//     (map) => {
-//       mapRef.current = map;
-
-//       if (coordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           coordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [coordinates, isLoaded]
-//   );
-
-//   const handleRawMapLoad = useCallback(
-//     (map) => {
-//       rawMapRef.current = map;
-
-//       if (rawCoordinates.length > 0 && isLoaded) {
-//         try {
-//           const bounds = new window.google.maps.LatLngBounds();
-//           rawCoordinates.forEach((coord) => bounds.extend(coord));
-//           map.fitBounds(bounds);
-
-//           window.google.maps.event.addListenerOnce(
-//             map,
-//             "bounds_changed",
-//             () => {
-//               map.setZoom(Math.min(map.getZoom(), 16));
-//             }
-//           );
-//         } catch (error) {
-//           console.error("Error fitting bounds:", error);
-//         }
-//       }
-//     },
-//     [rawCoordinates, isLoaded]
-//   );
-
-//   const handleImageMarkerClick = (coord, isRawMap = false) => {
-//     const index = (isRawMap ? rawImageCoordinates : imageCoordinates).findIndex(
-//       (c) => c.id === coord.id
-//     );
-//     if (index !== -1) {
-//       setSelectedImageIndex({ index, isRawMap });
-//     }
-//   };
-
-//   const handleCloseInfoWindow = () => {
-//     setSelectedImageIndex(null);
-//   };
-
-//   if (loadError) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: alpha(theme.palette.primary.main, 0.05),
-//           p: { xs: 2, sm: 3 },
-//         }}
-//       >
-//         <Paper sx={{ p: { xs: 2, sm: 3 }, textAlign: "center", borderRadius: 2.5 }}>
-//           <Typography variant="h6" color="error" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-//             Error loading maps
-//           </Typography>
-//           <Typography color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
-//             Please check your internet connection
-//           </Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (!isLoaded) {
-//     return (
-//       <Box
-//         sx={{
-//           minHeight: "100vh",
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           bgcolor: alpha(theme.palette.primary.main, 0.05),
-//           p: { xs: 2, sm: 3 },
-//         }}
-//       >
-//         <Paper sx={{ p: { xs: 2, sm: 3 }, textAlign: "center", borderRadius: 2.5 }}>
-//           <CircularProgress size={32} sx={{ color: theme.palette.primary.main, mb: 1.5 }} />
-//           <Typography color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Loading Maps...</Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   const renderMap = (isRawMap = false) => {
-//     const coords = isRawMap ? rawCoordinates : coordinates;
-//     const imgCoords = isRawMap ? rawImageCoordinates : imageCoordinates;
-//     const currentSelectedIndex =
-//       selectedImageIndex?.isRawMap === isRawMap
-//         ? selectedImageIndex.index
-//         : null;
-
-//     return (
-//       <GoogleMap
-//         mapContainerStyle={mapContainerStyle}
-//         onLoad={isRawMap ? handleRawMapLoad : handleMapLoad}
-//         center={mapCenter}
-//         zoom={mapZoom}
-//         options={{
-//           streetViewControl: false,
-//           mapTypeControl: true,
-//           fullscreenControl: true,
-//           zoomControl: true,
-//           scaleControl: true,
-//           styles: [
-//             {
-//               featureType: "poi",
-//               elementType: "labels",
-//               stylers: [{ visibility: "off" }],
-//             },
-//           ],
-//         }}
-//       >
-//         {/* Route Polyline */}
-//         {coords.length > 1 && (
-//           <Polyline
-//             path={coords}
-//             options={{
-//               strokeColor: isRawMap ? theme.palette.secondary.main : theme.palette.primary.main,
-//               strokeOpacity: 0.8,
-//               strokeWeight: 4,
-//               geodesic: true,
-//               icons: [
-//                 {
-//                   icon: {
-//                     path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-//                     scale: 3,
-//                     strokeColor: isRawMap ? theme.palette.secondary.main : theme.palette.primary.main,
-//                   },
-//                   offset: "50%",
-//                   repeat: "100px",
-//                 },
-//               ],
-//             }}
-//           />
-//         )}
-
-//         {/* Start Marker */}
-//         {coords.length > 0 && (
-//           <Marker
-//             position={coords[0]}
-//             title="Start Location"
-//             icon={getIconConfig("green", isMobile ? 24 : 28)}
-//             label={{
-//               text: "START",
-//               className: "marker-label start-label",
-//               color: "white",
-//               fontSize: isMobile ? "10px" : "11px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* End Marker */}
-//         {coords.length > 1 && (
-//           <Marker
-//             position={coords[coords.length - 1]}
-//             title="End Location"
-//             icon={getIconConfig("red", isMobile ? 24 : 28)}
-//             label={{
-//               text: "END",
-//               className: "marker-label end-label",
-//               color: "white",
-//               fontSize: isMobile ? "10px" : "11px",
-//               fontWeight: "bold",
-//             }}
-//           />
-//         )}
-
-//         {/* Image Markers */}
-//         {coords.map(
-//           (coord, index) =>
-//             coord.location_image && (
-//               <Marker
-//                 key={`${isRawMap ? "raw-" : ""}image-${coord.id || index}`}
-//                 position={coord}
-//                 icon={getCameraIcon(isMobile ? 20 : 24)}
-//                 clickable={true}
-//                 onClick={() => handleImageMarkerClick(coord, isRawMap)}
-//               />
-//             )
-//         )}
-
-//         {currentSelectedIndex !== null && (
-//           <Box
-//             sx={{
-//               position: "fixed",
-//               top: 0,
-//               left: 0,
-//               right: 0,
-//               bottom: 0,
-//               bgcolor: "rgba(0,0,0,0.9)",
-//               zIndex: 9999,
-//               display: "flex",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             }}
-//             onClick={handleCloseInfoWindow}
-//           >
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 top: { xs: 10, sm: 20 },
-//                 right: { xs: 10, sm: 20 },
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 width: { xs: 32, sm: 40 },
-//                 height: { xs: 32, sm: 40 },
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 handleCloseInfoWindow();
-//               }}
-//             >
-//               <CloseIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-//             </IconButton>
-
-//             {/* Prev Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 left: { xs: 10, sm: 20 },
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 width: { xs: 32, sm: 40 },
-//                 height: { xs: 32, sm: 40 },
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index:
-//                     (currentSelectedIndex - 1 + imgCoords.length) %
-//                     imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-//             </IconButton>
-
-//             {/* Image */}
-//             <Box
-//               component="img"
-//               src={imgCoords[currentSelectedIndex].location_image}
-//               alt="Location fullscreen"
-//               sx={{
-//                 maxWidth: { xs: "85%", sm: "90%" },
-//                 maxHeight: { xs: "70%", sm: "80%" },
-//                 objectFit: "contain",
-//                 borderRadius: 1,
-//               }}
-//             />
-
-//             {/* Timestamp */}
-//             {imgCoords[currentSelectedIndex]?.timestamp && (
-//               <Typography
-//                 sx={{
-//                   position: "absolute",
-//                   bottom: { xs: 10, sm: 20 },
-//                   color: "white",
-//                   bgcolor: "rgba(0,0,0,0.5)",
-//                   px: { xs: 1, sm: 2 },
-//                   py: { xs: 0.5, sm: 1 },
-//                   borderRadius: 1.5,
-//                   fontSize: { xs: '0.6rem', sm: '0.7rem' },
-//                 }}
-//               >
-//                 {new Date(imgCoords[currentSelectedIndex].timestamp).toLocaleString()}
-//               </Typography>
-//             )}
-
-//             {/* Next Button */}
-//             <IconButton
-//               sx={{
-//                 position: "absolute",
-//                 right: { xs: 10, sm: 20 },
-//                 color: "white",
-//                 bgcolor: "rgba(255,255,255,0.2)",
-//                 width: { xs: 32, sm: 40 },
-//                 height: { xs: 32, sm: 40 },
-//                 "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-//               }}
-//               onClick={(e) => {
-//                 e.stopPropagation();
-//                 setSelectedImageIndex({
-//                   index: (currentSelectedIndex + 1) % imgCoords.length,
-//                   isRawMap,
-//                 });
-//               }}
-//             >
-//               <ArrowForwardIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-//             </IconButton>
-//           </Box>
-//         )}
-//       </GoogleMap>
-//     );
-//   };
-
-//   return (
-//     <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper }}>
-//       <AppBar
-//         position="static"
-//         sx={{
-//           bgcolor: theme.palette.background.paper,
-//           color: "text.primary",
-//           boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-//           borderBottom: "1px solid",
-//           borderColor: alpha(theme.palette.divider, 0.5),
-//         }}
-//       >
-//         <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }}>
-//           <IconButton
-//             onClick={() => window.history.back()}
-//             sx={{
-//               color: theme.palette.primary.main,
-//               width: { xs: 32, sm: 40 },
-//               height: { xs: 32, sm: 40 },
-//               "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-//             }}
-//           >
-//             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-//           </IconButton>
-//           <Typography 
-//             variant="h6" 
-//             sx={{ 
-//               ml: { xs: 1, sm: 2 }, 
-//               fontSize: { xs: '0.9rem', sm: '1rem' }, 
-//               color: theme.palette.primary.main, 
-//               fontWeight: 600 
-//             }}
-//           >
-//             Route Tracking
-//           </Typography>
-//         </Toolbar>
-//       </AppBar>
-
-//       <Container maxWidth="xl" sx={{ py: 0, px: { xs: 0, sm: 2 } }}>
-//         <Grid container spacing={0}>
-//           {/* Google Maps - Snapped to Roads (Commented out) */}
-//           {/* <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: { xs: 1.5, sm: 2 },
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha(theme.palette.primary.main, 0.1),
-//                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <RouteIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 18, sm: 20 } }} />
-//                 <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
-//                   Snapped to Roads (Google Roads API)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(false)}
-//           </Grid>
-
-//           <Grid item xs={12}>
-//             <Paper
-//               elevation={0}
-//               sx={{
-//                 p: { xs: 1.5, sm: 2 },
-//                 borderRadius: 0,
-//                 borderBottom: "1px solid",
-//                 borderColor: alpha(theme.palette.primary.main, 0.1),
-//                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-//               }}
-//             >
-//               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//                 <TimelineIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 18, sm: 20 } }} />
-//                 <Typography variant="subtitle2" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
-//                   Raw GPS Data (No API Cost)
-//                 </Typography>
-//               </Box>
-//             </Paper>
-//             {renderMap(true)}
-//           </Grid> */}
-
-//           {/* OpenStreetMap - Currently Active */}
-//           <Grid item xs={12}>
-           
-//             <div ref={leafletMapRef} style={leafletMapContainerStyle} />
-//           </Grid>
-//         </Grid>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// export default Locations;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // New All List
 
 // import React, { useEffect, useState, useRef, useCallback } from "react";
@@ -3589,8 +879,1301 @@
 // export default Locations;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Final Live
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import { useLocation } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
+// import {
+//   Box,
+//   Container,
+//   Paper,
+//   Typography,
+//   IconButton,
+//   Chip,
+//   alpha,
+//   AppBar,
+//   Toolbar,
+//   Grid,
+//   Card,
+//   CardContent,
+//   useTheme,
+//   useMediaQuery,
+//   Drawer,
+//   Fab,
+//   Button,
+//   Stack,
+//   Alert,
+//   CircularProgress,
+// } from "@mui/material";
+// import {
+//   ArrowBack as ArrowBackIcon,
+//   Close as CloseIcon,
+//   Route as RouteIcon,
+//   Image as ImageIcon,
+//   LocationOn as LocationOnIcon,
+//   AccessTime as AccessTimeIcon,
+//   Menu as MenuIcon,
+//   Photo as PhotoIcon,
+//   Info as InfoIcon,
+//   PlayArrow as PlayArrowIcon,
+//   Stop as StopIcon,
+//   DirectionsWalk as DirectionsWalkIcon,
+//   Pause as PauseIcon,
+// } from "@mui/icons-material";
+// import { getSessionDetails } from "../redux/slices/userSlice";
+// import L from "leaflet";
+// import "leaflet/dist/leaflet.css";
+
+// // Fix for default markers in Leaflet
+// delete L.Icon.Default.prototype._getIconUrl;
+// L.Icon.Default.mergeOptions({
+//   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+//   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+//   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+// });
+
+// const leafletMapContainerStyle = {
+//   width: "100%",
+//   height: "100%",
+//   minHeight: "500px",
+//   backgroundColor: "#f0f0f0",
+// };
+
+// // Stop detection configuration
+// const STOP_CONFIG = {
+//   MIN_DURATION: 180000, // 3 minutes in milliseconds
+//   MAX_SPEED_KMH: 2, // Speed threshold to consider as stopped (km/h)
+//   GROUP_RADIUS_METERS: 50, // Radius to group nearby points
+// };
+
+// // Calculate distance between two coordinates in meters (Haversine formula)
+// const calculateDistance = (lat1, lon1, lat2, lon2) => {
+//   const R = 6371e3; // Earth's radius in meters
+//   const φ1 = (lat1 * Math.PI) / 180;
+//   const φ2 = (lat2 * Math.PI) / 180;
+//   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+//   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+//   const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+//             Math.cos(φ1) * Math.cos(φ2) *
+//             Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+//   return R * c; // Distance in meters
+// };
+
+// // Calculate speed between two points (km/h)
+// const calculateSpeed = (point1, point2) => {
+//   const distance = calculateDistance(
+//     point1.latitude, point1.longitude,
+//     point2.latitude, point2.longitude
+//   );
+  
+//   const time1 = new Date(point1.timestamp).getTime();
+//   const time2 = new Date(point2.timestamp).getTime();
+//   const durationHours = (time2 - time1) / (1000 * 60 * 60); // Convert to hours
+  
+//   if (durationHours <= 0) return Infinity;
+  
+//   return (distance / 1000) / durationHours; // Speed in km/h
+// };
+
+// // Detect stops from location points
+// const detectStops = (locations) => {
+//   if (!locations || locations.length < 2) return [];
+
+//   const stops = [];
+//   let currentStopPoints = [];
+//   let stopStartTime = null;
+  
+//   for (let i = 1; i < locations.length; i++) {
+//     const prevPoint = locations[i - 1];
+//     const currPoint = locations[i];
+    
+//     const speed = calculateSpeed(prevPoint, currPoint);
+//     const distance = calculateDistance(
+//       prevPoint.latitude, prevPoint.longitude,
+//       currPoint.latitude, currPoint.longitude
+//     );
+    
+//     // If moving slowly, consider as potential stop
+//     if (speed < STOP_CONFIG.MAX_SPEED_KMH && distance < STOP_CONFIG.GROUP_RADIUS_METERS) {
+//       if (currentStopPoints.length === 0) {
+//         // Start of a potential stop
+//         currentStopPoints.push(prevPoint);
+//         stopStartTime = new Date(prevPoint.timestamp);
+//       }
+//       currentStopPoints.push(currPoint);
+//     } else {
+//       // Movement detected, check if we have a valid stop
+//       if (currentStopPoints.length > 1) {
+//         const stopEndTime = new Date(prevPoint.timestamp);
+//         const stopDuration = stopEndTime - stopStartTime;
+        
+//         if (stopDuration >= STOP_CONFIG.MIN_DURATION) {
+//           // Calculate stop center (average of all points)
+//           const center = currentStopPoints.reduce(
+//             (acc, point) => {
+//               acc.lat += point.latitude;
+//               acc.lng += point.longitude;
+//               return acc;
+//             },
+//             { lat: 0, lng: 0 }
+//           );
+          
+//           center.lat /= currentStopPoints.length;
+//           center.lng /= currentStopPoints.length;
+          
+//           // Get images taken during stop
+//           const stopImages = currentStopPoints
+//             .filter(point => point.photo || point.location_image)
+//             .map(point => ({
+//               url: point.photo || point.location_image,
+//               timestamp: point.timestamp,
+//               location: { lat: point.latitude, lng: point.longitude }
+//             }));
+          
+//           stops.push({
+//             id: `stop-${stopStartTime.getTime()}`,
+//             center,
+//             startTime: stopStartTime,
+//             endTime: stopEndTime,
+//             duration: stopDuration,
+//             pointCount: currentStopPoints.length,
+//             images: stopImages,
+//             points: currentStopPoints,
+//           });
+//         }
+//       }
+      
+//       // Reset current stop
+//       currentStopPoints = [];
+//       stopStartTime = null;
+//     }
+//   }
+  
+//   // Check for stop at the end
+//   if (currentStopPoints.length > 1) {
+//     const stopEndTime = new Date(locations[locations.length - 1].timestamp);
+//     const stopDuration = stopEndTime - stopStartTime;
+    
+//     if (stopDuration >= STOP_CONFIG.MIN_DURATION) {
+//       const center = currentStopPoints.reduce(
+//         (acc, point) => {
+//           acc.lat += point.latitude;
+//           acc.lng += point.longitude;
+//           return acc;
+//         },
+//         { lat: 0, lng: 0 }
+//       );
+      
+//       center.lat /= currentStopPoints.length;
+//       center.lng /= currentStopPoints.length;
+      
+//       const stopImages = currentStopPoints
+//         .filter(point => point.photo || point.location_image)
+//         .map(point => ({
+//           url: point.photo || point.location_image,
+//           timestamp: point.timestamp,
+//           location: { lat: point.latitude, lng: point.longitude }
+//         }));
+      
+//       stops.push({
+//         id: `stop-${stopStartTime.getTime()}`,
+//         center,
+//         startTime: stopStartTime,
+//         endTime: stopEndTime,
+//         duration: stopDuration,
+//         pointCount: currentStopPoints.length,
+//         images: stopImages,
+//         points: currentStopPoints,
+//       });
+//     }
+//   }
+  
+//   return stops;
+// };
+
+// // Get all image locations
+// const getImageLocations = (locations) => {
+//   return locations
+//     .filter(loc => loc.photo || loc.location_image)
+//     .map((loc, index) => ({
+//       id: `img-${index}-${loc.timestamp}`,
+//       url: loc.photo || loc.location_image,
+//       timestamp: loc.timestamp,
+//       location: { lat: loc.latitude, lng: loc.longitude },
+//       accuracy: loc.accuracy,
+//     }));
+// };
+
+// const Locations = () => {
+//   const theme = useTheme();
+//   const location = useLocation();
+//   const dispatch = useDispatch();
+  
+//   // Get data from location state
+//   const { 
+//     sessions = [], 
+//     selectedSessionId: initialSelectedSessionId,
+//     summary = {}, 
+//     metadata = {} 
+//   } = location.state || {};
+  
+//   // Redux state for session details
+//   const sessionDetails = useSelector((state) => state.user?.sessionDetails);
+//   const sessionDetailsLoading = useSelector((state) => state.user?.sessionDetailsLoading);
+//   const sessionDetailsError = useSelector((state) => state.user?.sessionDetailsError);
+  
+//   const [allSessions, setAllSessions] = useState([]);
+//   const [selectedSessionId, setSelectedSessionId] = useState(initialSelectedSessionId || null);
+//   const [selectedSession, setSelectedSession] = useState(null);
+//   const [stops, setStops] = useState([]);
+//   const [imageLocations, setImageLocations] = useState([]);
+//   const [selectedStop, setSelectedStop] = useState(null);
+//   const [selectedImage, setSelectedImage] = useState(null);
+//   const [showStops, setShowStops] = useState(true);
+//   const [showImages, setShowImages] = useState(true);
+//   const [drawerOpen, setDrawerOpen] = useState(false);
+//   const [mapInitialized, setMapInitialized] = useState(false);
+//   const [hasLocations, setHasLocations] = useState(false);
+//   const [fetchingSession, setFetchingSession] = useState(false);
+  
+//   const mapRef = useRef(null);
+//   const leafletMapInstance = useRef(null);
+//   const leafletPolylines = useRef([]);
+//   const leafletMarkers = useRef([]);
+//   const fetchedSessions = useRef(new Set());
+
+//   // Responsive breakpoints
+//   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+//   // Debug logs
+//   console.log("Locations component mounted", {
+//     sessions,
+//     metadata,
+//     sessionDetails,
+//     selectedSessionId
+//   });
+
+//   // Initialize sessions from props
+//   useEffect(() => {
+//     if (sessions && sessions.length > 0) {
+//       console.log("Setting all sessions:", sessions);
+//       setAllSessions(sessions);
+//     }
+//   }, [sessions]);
+
+//   // Fetch session details when selectedSessionId changes
+//   useEffect(() => {
+//     if (!selectedSessionId || !metadata?.userId) {
+//       console.log("Missing selectedSessionId or userId", { selectedSessionId, userId: metadata?.userId });
+//       return;
+//     }
+
+//     // Check if already fetched
+//     if (fetchedSessions.current.has(selectedSessionId)) {
+//       console.log("Session already fetched:", selectedSessionId);
+//       return;
+//     }
+
+//     console.log('Fetching session details for:', {
+//       userId: metadata.userId,
+//       sessionId: selectedSessionId
+//     });
+
+//     setFetchingSession(true);
+    
+//     dispatch(getSessionDetails({
+//       userId: metadata.userId,
+//       sessionId: selectedSessionId
+//     })).then(() => {
+//       fetchedSessions.current.add(selectedSessionId);
+//       setFetchingSession(false);
+//     }).catch(() => {
+//       setFetchingSession(false);
+//     });
+//   }, [selectedSessionId, metadata?.userId, dispatch]);
+
+//   // Process session data when details are fetched
+//   useEffect(() => {
+//     if (sessionDetails && sessionDetails.sessionId === selectedSessionId) {
+//       console.log('Session details received:', sessionDetails);
+//       console.log('Locations count:', sessionDetails.locations?.length);
+
+//       setSelectedSession(sessionDetails);
+
+//       // Check if we have locations
+//       if (sessionDetails.locations && sessionDetails.locations.length > 0) {
+//         setHasLocations(true);
+
+//         // Detect stops from locations
+//         const detectedStops = detectStops(sessionDetails.locations);
+//         console.log('Detected stops:', detectedStops.length);
+//         setStops(detectedStops);
+
+//         // Get image locations
+//         const images = getImageLocations(sessionDetails.locations);
+//         console.log('Image locations:', images.length);
+//         setImageLocations(images);
+//       } else {
+//         setHasLocations(false);
+//         setStops([]);
+//         setImageLocations([]);
+//       }
+//     }
+//   }, [sessionDetails, selectedSessionId]);
+
+//   // Get route points and check-in/out locations
+//   const getSessionRouteData = useCallback((session) => {
+//     if (!session || !session.locations || session.locations.length === 0) {
+//       return {
+//         routePoints: [],
+//         checkIn: null,
+//         checkOut: null,
+//       };
+//     }
+
+//     const locations = session.locations;
+
+//     // Get all points for the route line
+//     const routePoints = locations.map(loc => ({
+//       lat: parseFloat(loc.latitude),
+//       lng: parseFloat(loc.longitude),
+//     })).filter(point => !isNaN(point.lat) && !isNaN(point.lng));
+
+//     // Check-in is first location
+//     const checkIn = locations[0];
+
+//     // Check-out is last location
+//     const checkOut = locations.length > 1 ? locations[locations.length - 1] : null;
+
+//     return {
+//       routePoints,
+//       checkIn,
+//       checkOut,
+//       totalLocations: locations.length,
+//     };
+//   }, []);
+
+//   // Handle session selection from sidebar
+//   const handleSessionSelect = (sessionId) => {
+//     if (sessionId === selectedSessionId) return;
+    
+//     setSelectedSessionId(sessionId);
+//     setSelectedStop(null);
+//     setSelectedImage(null);
+//     setMapInitialized(false);
+    
+//     // On mobile, close drawer after selection
+//     if (isMobile) {
+//       setDrawerOpen(false);
+//     }
+
+    
+//   };
+
+//   // Create marker for check-in/out
+//   const createCheckMarker = (type, color, time, locationData) => {
+//     const size = isMobile ? 32 : 36;
+//     const icon = type === 'checkin' ? '🚀' : '🏁';
+//     const label = type === 'checkin' ? 'START' : 'END';
+//     const hasImage = (locationData?.photo || locationData?.location_image) ? '📸' : '';
+
+//     return L.divIcon({
+//       html: `
+//         <div style="
+//           position: relative;
+//           width: ${size}px;
+//           height: ${size}px;
+//         ">
+//           <div style="
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             width: 100%;
+//             height: 100%;
+//             background-color: ${color};
+//             border-radius: 50%;
+//             display: flex;
+//             flex-direction: column;
+//             align-items: center;
+//             justify-content: center;
+//             color: white;
+//             font-weight: bold;
+//             font-size: ${size/3.5}px;
+//             border: 2px solid white;
+//             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+//             z-index: 2;
+//           ">
+//             <span style="font-size: ${size/3}px; line-height: 1;">${icon}</span>
+//             <span style="font-size: ${size/6}px; line-height: 1; margin-top: 1px;">${label}</span>
+//           </div>
+//           <div style="
+//             position: absolute;
+//             bottom: -20px;
+//             left: 50%;
+//             transform: translateX(-50%);
+//             background-color: rgba(0,0,0,0.9);
+//             color: white;
+//             padding: 2px 6px;
+//             border-radius: 12px;
+//             font-size: 9px;
+//             white-space: nowrap;
+//             border: 1px solid ${color};
+//             z-index: 1;
+//           ">
+//             ${time} ${hasImage}
+//           </div>
+//         </div>
+//       `,
+//       className: "",
+//       iconSize: [size, size + 24],
+//       iconAnchor: [size/2, size + 12],
+//     });
+//   };
+
+//   // Create marker for stop
+//   const createStopMarker = (stop, index) => {
+//     const size = isMobile ? 36 : 40;
+//     const duration = Math.round(stop.duration / 60000); // minutes
+//     const imageCount = stop.images.length;
+
+//     return L.divIcon({
+//       html: `
+//         <div style="
+//           position: relative;
+//           width: ${size}px;
+//           height: ${size}px;
+//         ">
+//           <div style="
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             width: 100%;
+//             height: 100%;
+//             background-color: #FF9800;
+//             border-radius: 50%;
+//             display: flex;
+//             flex-direction: column;
+//             align-items: center;
+//             justify-content: center;
+//             color: white;
+//             font-weight: bold;
+//             font-size: ${size/3}px;
+//             border: 2px solid white;
+//             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+//             z-index: 2;
+//             animation: pulse 2s infinite;
+//           ">
+//             <span style="font-size: ${size/3}px;">⏸️</span>
+//             <span style="font-size: ${size/6}px; line-height: 1; margin-top: 1px;">STOP</span>
+//           </div>
+//           <div style="
+//             position: absolute;
+//             bottom: -24px;
+//             left: 50%;
+//             transform: translateX(-50%);
+//             background-color: rgba(0,0,0,0.9);
+//             color: white;
+//             padding: 2px 8px;
+//             border-radius: 12px;
+//             font-size: 9px;
+//             white-space: nowrap;
+//             border: 1px solid #FF9800;
+//             z-index: 1;
+//           ">
+//             ${duration} min ${imageCount > 0 ? `• ${imageCount} 📸` : ''}
+//           </div>
+//         </div>
+//       `,
+//       className: "",
+//       iconSize: [size, size + 28],
+//       iconAnchor: [size/2, size + 14],
+//     });
+//   };
+
+//   // Create marker for image
+//   const createImageMarker = (image, index) => {
+//     const size = isMobile ? 28 : 32;
+
+//     return L.divIcon({
+//       html: `
+//         <div style="
+//           position: relative;
+//           width: ${size}px;
+//           height: ${size}px;
+//         ">
+//           <div style="
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             width: 100%;
+//             height: 100%;
+//             background-color: #9C27B0;
+//             border-radius: 50%;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             color: white;
+//             font-size: ${size/2}px;
+//             border: 2px solid white;
+//             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+//             z-index: 2;
+//             cursor: pointer;
+//           ">
+//             📸
+//           </div>
+//           <div style="
+//             position: absolute;
+//             bottom: -16px;
+//             left: 50%;
+//             transform: translateX(-50%);
+//             background-color: rgba(0,0,0,0.8);
+//             color: white;
+//             padding: 2px 4px;
+//             border-radius: 8px;
+//             font-size: 7px;
+//             white-space: nowrap;
+//             z-index: 1;
+//           ">
+//             Photo ${index + 1}
+//           </div>
+//         </div>
+//       `,
+//       className: "",
+//       iconSize: [size, size + 20],
+//       iconAnchor: [size/2, size + 10],
+//     });
+//   };
+
+//   // Update Leaflet map
+//   const updateLeafletMap = useCallback((session, stopsList, imagesList) => {
+//     if (!leafletMapInstance.current) {
+//       console.log("Map instance not available for update");
+//       return;
+//     }
+
+//     if (!session) {
+//       console.log("No session for map update");
+//       return;
+//     }
+
+//     const { routePoints, checkIn, checkOut } = getSessionRouteData(session);
+
+//     console.log("Updating map with:", {
+//       routePoints: routePoints.length,
+//       stops: stopsList.length,
+//       images: imagesList.length,
+//       checkIn: checkIn ? "yes" : "no"
+//     });
+
+//     if (routePoints.length === 0) {
+//       console.log("No route points to display");
+//       return;
+//     }
+
+//     if (!checkIn) {
+//       console.log("No check-in point");
+//       return;
+//     }
+
+//     // Clear existing elements
+//     leafletPolylines.current.forEach((line) => {
+//       if (leafletMapInstance.current) {
+//         leafletMapInstance.current.removeLayer(line);
+//       }
+//     });
+//     leafletMarkers.current.forEach((marker) => {
+//       if (leafletMapInstance.current) {
+//         leafletMapInstance.current.removeLayer(marker);
+//       }
+//     });
+//     leafletPolylines.current = [];
+//     leafletMarkers.current = [];
+
+//     const routeColor = '#2196F3';
+
+//     // Add route polyline
+//     if (routePoints.length > 1) {
+//       const polyline = L.polyline(routePoints, {
+//         color: routeColor,
+//         weight: 4,
+//         opacity: 0.8,
+//         lineJoin: "round",
+//         lineCap: "round",
+//       }).addTo(leafletMapInstance.current);
+//       leafletPolylines.current.push(polyline);
+//     }
+
+//     // Format time for markers
+//     const formatMarkerTime = (timestamp) => {
+//       if (!timestamp) return "";
+//       return new Date(timestamp).toLocaleTimeString("en-US", {
+//         hour: "2-digit",
+//         minute: "2-digit",
+//         hour12: true,
+//       });
+//     };
+
+//     // Add check-in marker (first location - START)
+//     const checkInMarker = L.marker(
+//       [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
+//       {
+//         icon: createCheckMarker(
+//           'checkin',
+//           '#22c55e',
+//           formatMarkerTime(checkIn.timestamp),
+//           checkIn
+//         ),
+//         riseOnHover: true,
+//         zIndexOffset: 1000,
+//       }
+//     ).addTo(leafletMapInstance.current);
+
+//     checkInMarker.bindPopup(`
+//       <div style="min-width: 180px;">
+//         <div style="font-weight: bold; color: #22c55e; margin-bottom: 5px;">🚀 START LOCATION</div>
+//         <div><strong>Time:</strong> ${formatMarkerTime(checkIn.timestamp)}</div>
+//         <div><strong>Address:</strong> ${checkIn.address || 'N/A'}</div>
+//         ${(checkIn.photo || checkIn.location_image) ? '<div style="margin-top: 5px;">📸 Has photo</div>' : ''}
+//       </div>
+//     `);
+//     leafletMarkers.current.push(checkInMarker);
+
+//     // Add check-out marker (last location - END)
+//     if (checkOut) {
+//       const checkOutMarker = L.marker(
+//         [parseFloat(checkOut.latitude), parseFloat(checkOut.longitude)],
+//         {
+//           icon: createCheckMarker(
+//             'checkout',
+//             '#ef4444',
+//             formatMarkerTime(checkOut.timestamp),
+//             checkOut
+//           ),
+//           riseOnHover: true,
+//           zIndexOffset: 1000,
+//         }
+//       ).addTo(leafletMapInstance.current);
+
+//       checkOutMarker.bindPopup(`
+//         <div style="min-width: 180px;">
+//           <div style="font-weight: bold; color: #ef4444; margin-bottom: 5px;">🏁 END LOCATION</div>
+//           <div><strong>Time:</strong> ${formatMarkerTime(checkOut.timestamp)}</div>
+//           <div><strong>Address:</strong> ${checkOut.address || 'N/A'}</div>
+//           ${(checkOut.photo || checkOut.location_image) ? '<div style="margin-top: 5px;">📸 Has photo</div>' : ''}
+//         </div>
+//       `);
+//       leafletMarkers.current.push(checkOutMarker);
+//     }
+
+//     // Add stop markers if enabled
+//     if (showStops && stopsList.length > 0) {
+//       stopsList.forEach((stop, index) => {
+//         const stopMarker = L.marker(
+//           [stop.center.lat, stop.center.lng],
+//           {
+//             icon: createStopMarker(stop, index),
+//             riseOnHover: true,
+//           }
+//         ).addTo(leafletMapInstance.current);
+
+//         // Create popup with stop details and images
+//         let popupContent = `
+//           <div style="min-width: 200px; max-width: 250px;">
+//             <div style="font-weight: bold; color: #FF9800; margin-bottom: 8px;">⏸️ STOP DETECTED</div>
+//             <div><strong>Duration:</strong> ${Math.round(stop.duration / 60000)} minutes</div>
+//             <div><strong>Start:</strong> ${new Date(stop.startTime).toLocaleTimeString()}</div>
+//             <div><strong>End:</strong> ${new Date(stop.endTime).toLocaleTimeString()}</div>
+//             <div><strong>Points:</strong> ${stop.pointCount} locations</div>
+//         `;
+
+//         if (stop.images.length > 0) {
+//           popupContent += `<div style="margin-top: 8px;"><strong>Images:</strong></div>`;
+//           stop.images.forEach((img, i) => {
+//             popupContent += `
+//               <div style="margin-top: 5px; text-align: center;">
+//                 <img src="${img.url}"
+//                      style="max-width: 100%; max-height: 80px; border-radius: 4px; cursor: pointer;"
+//                      onclick="window.open('${img.url}', '_blank')"/>
+//               </div>
+//             `;
+//           });
+//         }
+
+//         popupContent += `</div>`;
+//         stopMarker.bindPopup(popupContent);
+
+//         stopMarker.on('click', () => {
+//           setSelectedStop(stop);
+//         });
+
+//         leafletMarkers.current.push(stopMarker);
+//       });
+//     }
+
+//     // Add image markers if enabled
+//     if (showImages && imagesList.length > 0) {
+//       imagesList.forEach((image, index) => {
+//         const imageMarker = L.marker(
+//           [image.location.lat, image.location.lng],
+//           {
+//             icon: createImageMarker(image, index),
+//             riseOnHover: true,
+//           }
+//         ).addTo(leafletMapInstance.current);
+
+//         imageMarker.bindPopup(`
+//           <div style="min-width: 200px; text-align: center;">
+//             <div style="font-weight: bold; color: #9C27B0; margin-bottom: 5px;">📸 PHOTO</div>
+//             <div><small>${new Date(image.timestamp).toLocaleString()}</small></div>
+//             <div style="margin-top: 5px;">
+//               <img src="${image.url}"
+//                    style="max-width: 100%; max-height: 150px; border-radius: 4px; cursor: pointer;"
+//                    onclick="window.open('${image.url}', '_blank')"/>
+//             </div>
+//           </div>
+//         `);
+
+//         imageMarker.on('click', () => {
+//           setSelectedImage(image);
+//         });
+
+//         leafletMarkers.current.push(imageMarker);
+//       });
+//     }
+
+//     // Fit bounds to show all points
+//     if (routePoints.length > 0) {
+//       const bounds = L.latLngBounds(routePoints);
+
+//       // Add stop points to bounds if showing
+//       if (showStops && stopsList.length > 0) {
+//         stopsList.forEach(stop => {
+//           bounds.extend([stop.center.lat, stop.center.lng]);
+//         });
+//       }
+
+//       // Add image points to bounds if showing
+//       if (showImages && imagesList.length > 0) {
+//         imagesList.forEach(image => {
+//           bounds.extend([image.location.lat, image.location.lng]);
+//         });
+//       }
+
+//       leafletMapInstance.current.fitBounds(bounds, { padding: [40, 40] });
+//       setMapInitialized(true);
+//     }
+//   }, [isMobile, getSessionRouteData, showStops, showImages, createCheckMarker, createStopMarker, createImageMarker]);
+
+//   // Initialize map
+//   const initLeafletMap = useCallback(() => {
+//     if (!mapRef.current) {
+//       console.log("Map ref not available");
+//       return;
+//     }
+
+//     if (!selectedSession) {
+//       console.log("No session selected for map");
+//       return;
+//     }
+
+//     if (!selectedSession.locations || selectedSession.locations.length === 0) {
+//       console.log("No locations in selected session");
+//       setHasLocations(false);
+//       return;
+//     }
+
+//     const { checkIn } = getSessionRouteData(selectedSession);
+
+//     if (!checkIn) {
+//       console.log("No check-in point available");
+//       return;
+//     }
+
+//     // Clean up existing map instance
+//     if (leafletMapInstance.current) {
+//       leafletMapInstance.current.remove();
+//       leafletMapInstance.current = null;
+//     }
+
+//     console.log("Initializing map at:", checkIn.latitude, checkIn.longitude);
+
+//     // Create new map instance
+//     leafletMapInstance.current = L.map(mapRef.current, {
+//       zoomControl: true,
+//       attributionControl: true,
+//     }).setView(
+//       [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
+//       14
+//     );
+
+//     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+//       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+//       maxZoom: 19,
+//     }).addTo(leafletMapInstance.current);
+
+//     // Force a resize after initialization
+//     setTimeout(() => {
+//       if (leafletMapInstance.current) {
+//         leafletMapInstance.current.invalidateSize();
+//         updateLeafletMap(selectedSession, stops, imageLocations);
+//       }
+//     }, 200);
+//   }, [selectedSession, getSessionRouteData, stops, imageLocations, updateLeafletMap]);
+
+//   // Effect to initialize or update map when session changes
+//   useEffect(() => {
+//     if (selectedSession && selectedSession.locations && selectedSession.locations.length > 0) {
+//       console.log("Session ready for map, initializing...");
+//       setHasLocations(true);
+
+//       // Small delay to ensure DOM is ready
+//       const timer = setTimeout(() => {
+//         initLeafletMap();
+//       }, 300);
+
+//       return () => clearTimeout(timer);
+//     } else if (selectedSession) {
+//       setHasLocations(false);
+//     }
+//   }, [selectedSession, initLeafletMap]);
+
+//   // Update map when stops/images/filters change
+//   useEffect(() => {
+//     if (leafletMapInstance.current && selectedSession && hasLocations && mapInitialized) {
+//       console.log("Updating map with new data");
+//       updateLeafletMap(selectedSession, stops, imageLocations);
+//     }
+//   }, [stops, imageLocations, showStops, showImages, selectedSession, updateLeafletMap, mapInitialized, hasLocations]);
+
+//   // Handle window resize
+//   useEffect(() => {
+//     const handleResize = () => {
+//       if (leafletMapInstance.current) {
+//         leafletMapInstance.current.invalidateSize();
+//       }
+//     };
+    
+//     window.addEventListener('resize', handleResize);
+//     return () => window.removeEventListener('resize', handleResize);
+//   }, []);
+
+//   // Cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       if (leafletMapInstance.current) {
+//         leafletMapInstance.current.remove();
+//         leafletMapInstance.current = null;
+//       }
+//     };
+//   }, []);
+
+//   const formatTime = (timestamp) => {
+//     if (!timestamp) return "N/A";
+//     return new Date(timestamp).toLocaleTimeString("en-US", {
+//       hour: "2-digit",
+//       minute: "2-digit",
+//       hour12: true,
+//     });
+//   };
+
+//   const formatDuration = (ms) => {
+//     const minutes = Math.floor(ms / 60000);
+//     const seconds = Math.floor((ms % 60000) / 1000);
+//     return `${minutes}m ${seconds}s`;
+//   };
+
+//   const formatDistance = (meters) => {
+//     if (!meters) return "0 km";
+//     const km = meters / 1000;
+//     return `${km.toFixed(2)} km`;
+//   };
+
+//   // Session List Component
+//   const SessionList = () => (
+//     <Paper elevation={0} sx={{ height: '100%', overflow: 'auto', borderRadius: 0 }}>
+//       {/* Summary */}
+//       {summary && Object.keys(summary).length > 0 && (
+//         <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+//           <Typography variant="body2" fontWeight={600} color="#2196F3" sx={{ fontSize: '0.75rem' }}>
+//             {summary.formattedDate || 'Selected Date'}
+//           </Typography>
+//           <Grid container spacing={0.5} sx={{ mt: 0.5 }}>
+//             <Grid item xs={3}>
+//               <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Sessions</Typography>
+//               <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{allSessions.length}</Typography>
+//             </Grid>
+//             <Grid item xs={3}>
+//               <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Stops</Typography>
+//               <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{stops.length}</Typography>
+//             </Grid>
+//             <Grid item xs={3}>
+//               <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Photos</Typography>
+//               <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{imageLocations.length}</Typography>
+//             </Grid>
+//             <Grid item xs={3}>
+//               <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Distance</Typography>
+//               <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>
+//                 {selectedSession?.stats ? formatDistance(selectedSession.stats.totalDistance) : '0 km'}
+//               </Typography>
+//             </Grid>
+//           </Grid>
+//         </Box>
+//       )}
+
+//       {/* Filter Toggles */}
+//       <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+//         <Stack direction="row" spacing={0.5}>
+//           <Chip
+//             size="small"
+//             label={`Stops (${stops.length})`}
+//             onClick={() => setShowStops(!showStops)}
+//             color={showStops ? "warning" : "default"}
+//             icon={<PauseIcon />}
+//             sx={{ height: 24, fontSize: '0.65rem' }}
+//           />
+//           <Chip
+//             size="small"
+//             label={`Photos (${imageLocations.length})`}
+//             onClick={() => setShowImages(!showImages)}
+//             color={showImages ? "secondary" : "default"}
+//             icon={<PhotoIcon />}
+//             sx={{ height: 24, fontSize: '0.65rem' }}
+//           />
+//         </Stack>
+//       </Box>
+
+//       {/* Sessions List */}
+//       <Box sx={{ p: 1.5 }}>
+//         <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.75rem', mb: 1 }}>
+//           Sessions ({allSessions.length})
+//         </Typography>
+
+//         <Stack spacing={1}>
+//           {allSessions.map((session, index) => {
+//             const isSelected = selectedSessionId === (session.sessionId || session._id);
+//             const isLoading = isSelected && fetchingSession;
+
+//             return (
+//               <Card
+//                 key={session.sessionId || session._id || index}
+//                 onClick={() => handleSessionSelect(session.sessionId || session._id)}
+//                 sx={{
+//                   cursor: 'pointer',
+//                   border: isSelected ? `1.5px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+//                   bgcolor: isSelected ? alpha('#2196F3', 0.03) : 'transparent',
+//                   opacity: isLoading ? 0.7 : 1,
+//                 }}
+//               >
+//                 <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+//                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+//                     <Box sx={{
+//                       width: 24,
+//                       height: 24,
+//                       borderRadius: '50%',
+//                       bgcolor: isLoading ? alpha('#2196F3', 0.3) : '#2196F3',
+//                       display: 'flex',
+//                       alignItems: 'center',
+//                       justifyContent: 'center',
+//                       color: 'white',
+//                       fontSize: '0.7rem',
+//                       fontWeight: 'bold',
+//                     }}>
+//                       {isLoading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : index + 1}
+//                     </Box>
+//                     <Box>
+//                       <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem' }}>
+//                         Session #{index + 1}
+//                       </Typography>
+//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
+//                         {formatTime(session.startTime)}
+//                       </Typography>
+//                     </Box>
+//                   </Box>
+
+//                   <Grid container spacing={0.5}>
+//                     <Grid item xs={4}>
+//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Duration</Typography>
+//                       <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>
+//                         {session.duration ? `${Math.round(session.duration / 60)} min` : 'N/A'}
+//                       </Typography>
+//                     </Grid>
+//                     <Grid item xs={4}>
+//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Locations</Typography>
+//                       <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>{session.locationCount || 0}</Typography>
+//                     </Grid>
+//                     <Grid item xs={4}>
+//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Distance</Typography>
+//                       <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>
+//                         {session.totalDistance ? (session.totalDistance / 1000).toFixed(1) : 0} km
+//                       </Typography>
+//                     </Grid>
+//                   </Grid>
+//                 </CardContent>
+//               </Card>
+//             );
+//           })}
+//         </Stack>
+//       </Box>
+//     </Paper>
+//   );
+
+//   // Mobile drawer
+//   const MobileDrawer = () => (
+//     <>
+//       <Fab
+//         color="primary"
+//         sx={{
+//           position: 'fixed',
+//           bottom: 16,
+//           right: 16,
+//           zIndex: 1000,
+//           display: { md: 'none' },
+//           bgcolor: '#2196F3',
+//           width: 48,
+//           height: 48,
+//         }}
+//         onClick={() => setDrawerOpen(true)}
+//       >
+//         <MenuIcon />
+//       </Fab>
+
+//       <Drawer
+//         anchor="right"
+//         open={drawerOpen}
+//         onClose={() => setDrawerOpen(false)}
+//         PaperProps={{
+//           sx: {
+//             width: '80%',
+//             maxWidth: 320,
+//             borderTopLeftRadius: 12,
+//             borderBottomLeftRadius: 12,
+//           }
+//         }}
+//       >
+//         <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+//           <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.9rem' }}>Sessions</Typography>
+//           <IconButton onClick={() => setDrawerOpen(false)}>
+//             <CloseIcon />
+//           </IconButton>
+//         </Box>
+//         <Box sx={{ height: 'calc(100% - 60px)', overflow: 'auto' }}>
+//           <SessionList />
+//         </Box>
+//       </Drawer>
+//     </>
+//   );
+
+//   // Loading state
+//   if (fetchingSession && !selectedSession) {
+//     return (
+//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
+//         <Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
+//           <CircularProgress size={40} sx={{ color: '#2196F3', mb: 2 }} />
+//           <Typography variant="body1" sx={{ fontSize: '0.9rem' }}>Loading session details...</Typography>
+//         </Paper>
+//       </Box>
+//     );
+//   }
+
+//   // Error state
+//   if (sessionDetailsError) {
+//     return (
+//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
+//         <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
+//           <InfoIcon sx={{ fontSize: 36, color: theme.palette.error.main, mb: 1 }} />
+//           <Typography variant="body1" sx={{ fontSize: '0.9rem' }} color="error">
+//             Error loading session data
+//           </Typography>
+//           <Typography variant="caption" sx={{ fontSize: '0.7rem' }} color="text.secondary">
+//             {sessionDetailsError}
+//           </Typography>
+//           <Button
+//             variant="contained"
+//             size="small"
+//             onClick={() => window.history.back()}
+//             sx={{ mt: 2, fontSize: '0.7rem' }}
+//           >
+//             Go Back
+//           </Button>
+//         </Paper>
+//       </Box>
+//     );
+//   }
+
+//   // No session data
+//   if (!selectedSession && allSessions.length === 0) {
+//     return (
+//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
+//         <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
+//           <InfoIcon sx={{ fontSize: 36, color: theme.palette.primary.main, mb: 1 }} />
+//           <Typography variant="body1" sx={{ fontSize: '0.9rem' }}>No Session Data</Typography>
+//           <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 1, fontSize: '0.7rem' }}>
+//             Go Back
+//           </Button>
+//         </Paper>
+//       </Box>
+//     );
+//   }
+
+//   return (
+//     <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper }}>
+//       <AppBar position="static" sx={{ bgcolor: 'background.paper', boxShadow: '0 1px 5px rgba(0,0,0,0.05)' }}>
+//         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: 1 }}>
+//           <IconButton onClick={() => window.history.back()} sx={{ color: '#2196F3', width: 28, height: 28 }}>
+//             <ArrowBackIcon sx={{ fontSize: 16 }} />
+//           </IconButton>
+//           <Typography sx={{ ml: 1, fontSize: '0.8rem', color: '#2196F3', fontWeight: 600, flex: 1 }}>
+//             {summary.formattedDate || 'Route Tracking'}
+//           </Typography>
+//           {selectedSession && !isMobile && (
+//             <Chip
+//               label={`Session ${allSessions.findIndex(s => (s.sessionId || s._id) === selectedSessionId) + 1}`}
+//               size="small"
+//               sx={{ height: 20, bgcolor: alpha('#2196F3', 0.1), color: '#2196F3', fontSize: '0.6rem' }}
+//             />
+//           )}
+//           {isMobile && (
+//             <Button
+//               variant="outlined"
+//               size="small"
+//               startIcon={<MenuIcon />}
+//               onClick={() => setDrawerOpen(true)}
+//               sx={{
+//                 fontSize: '0.65rem',
+//                 borderColor: alpha('#2196F3', 0.3),
+//                 color: '#2196F3',
+//               }}
+//             >
+//               {allSessions.length}
+//             </Button>
+//           )}
+//         </Toolbar>
+//       </AppBar>
+
+//       <Container maxWidth="xl" sx={{ py: 0, px: 0 }}>
+//         <Grid container sx={{ height: 'calc(100vh - 48px)' }}>
+//           <Grid item xs={12} md={8} sx={{ height: '100%', position: 'relative' }}>
+//             {/* Map container */}
+//             <div
+//               ref={mapRef}
+//               style={{
+//                 width: "100%",
+//                 height: "100%",
+//                 minHeight: "500px",
+//                 backgroundColor: "#e0e0e0",
+//               }}
+//             />
+
+//             {/* Show message if no locations */}
+//             {selectedSession && !hasLocations && (
+//               <Paper sx={{
+//                 position: 'absolute',
+//                 top: '50%',
+//                 left: '50%',
+//                 transform: 'translate(-50%, -50%)',
+//                 p: 2,
+//                 textAlign: 'center',
+//                 zIndex: 1000,
+//                 maxWidth: '80%',
+//               }}>
+//                 <InfoIcon sx={{ fontSize: 40, color: '#2196F3', mb: 1 }} />
+//                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+//                   No location data available for this session
+//                 </Typography>
+//               </Paper>
+//             )}
+
+//             {/* Info Overlay */}
+//             {selectedSession && hasLocations && (
+//               <Paper sx={{ position: 'absolute', top: 12, left: 12, p: 1, borderRadius: 1.5, maxWidth: 240, zIndex: 500 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: '#2196F3', fontSize: '0.7rem' }}>
+//                   Session #{allSessions.findIndex(s => (s.sessionId || s._id) === selectedSessionId) + 1}
+//                 </Typography>
+//                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+//                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e' }} />
+//                   <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>
+//                     START: {selectedSession.locations?.[0] ? formatTime(selectedSession.locations[0].timestamp) : 'N/A'}
+//                   </Typography>
+//                 </Box>
+//                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+//                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#ef4444' }} />
+//                   <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>
+//                     END: {selectedSession.locations?.length > 1 ?
+//                       formatTime(selectedSession.locations[selectedSession.locations.length - 1].timestamp) : 'N/A'}
+//                   </Typography>
+//                 </Box>
+//                 <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+//                   <Chip size="small" label={`${stops.length} stops`} sx={{ height: 16, fontSize: '0.55rem' }} />
+//                   <Chip size="small" label={`${imageLocations.length} photos`} sx={{ height: 16, fontSize: '0.55rem' }} />
+//                 </Box>
+//                 {selectedSession.stats && (
+//                   <Box sx={{ mt: 0.5, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+//                     <Typography variant="caption" sx={{ fontSize: '0.55rem', display: 'block' }}>
+//                       Distance: {formatDistance(selectedSession.stats.totalDistance)}
+//                     </Typography>
+//                     <Typography variant="caption" sx={{ fontSize: '0.55rem', display: 'block' }}>
+//                       Duration: {Math.round(selectedSession.stats.duration / 60)} min
+//                     </Typography>
+//                   </Box>
+//                 )}
+//               </Paper>
+//             )}
+//           </Grid>
+
+//           {/* Desktop Sidebar */}
+//           {!isMobile && (
+//             <Grid item md={4} sx={{ height: '100%', borderLeft: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+//               <SessionList />
+//             </Grid>
+//           )}
+//         </Grid>
+//       </Container>
+
+//       {/* Mobile Drawer */}
+//       {isMobile && <MobileDrawer />}
+//     </Box>
+//   );
+// };
+
+// export default Locations;
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Container,
@@ -3606,829 +2189,606 @@ import {
   CardContent,
   useTheme,
   useMediaQuery,
-  Divider,
   Drawer,
   Fab,
   Button,
   Stack,
-  Alert,
+  CircularProgress,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Close as CloseIcon,
-  Route as RouteIcon,
   Image as ImageIcon,
-  LocationOn as LocationOnIcon,
-  AccessTime as AccessTimeIcon,
   Menu as MenuIcon,
   Photo as PhotoIcon,
   Info as InfoIcon,
-  PlayArrow as PlayArrowIcon,
-  Stop as StopIcon,
-  DirectionsWalk as DirectionsWalkIcon,
   Pause as PauseIcon,
 } from "@mui/icons-material";
+import { getSessionDetails } from "../redux/slices/userSlice";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix for default markers in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const leafletMapContainerStyle = {
-  width: "100%",
-  height: "100%",
-  minHeight: "500px",
-};
-
-// Stop detection configuration
+// ─── Constants ───────────────────────────────────────────────────────────────
 const STOP_CONFIG = {
-  MIN_DURATION: 180000, // 3 minutes in milliseconds
-  MAX_SPEED_KMH: 2, // Speed threshold to consider as stopped (km/h)
-  GROUP_RADIUS_METERS: 50, // Radius to group nearby points
+  MIN_DURATION: 180000,       // 3 minutes
+  MAX_SPEED_KMH: 2,
+  GROUP_RADIUS_METERS: 50,
 };
 
-// Calculate distance between two coordinates in meters (Haversine formula)
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371e3; // Earth's radius in meters
+// ─── Pure Helpers (stable, defined outside component) ────────────────────────
+const calcDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in meters
+  const a =
+    Math.sin(Δφ / 2) ** 2 +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-// Calculate speed between two points (km/h)
-const calculateSpeed = (point1, point2) => {
-  const distance = calculateDistance(
-    point1.latitude, point1.longitude,
-    point2.latitude, point2.longitude
-  );
-  
-  const time1 = new Date(point1.timestamp).getTime();
-  const time2 = new Date(point2.timestamp).getTime();
-  const durationHours = (time2 - time1) / (1000 * 60 * 60); // Convert to hours
-  
-  if (durationHours <= 0) return Infinity;
-  
-  return (distance / 1000) / durationHours; // Speed in km/h
+const calcSpeed = (p1, p2) => {
+  const dist = calcDistance(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
+  const hrs = (new Date(p2.timestamp) - new Date(p1.timestamp)) / 3_600_000;
+  return hrs <= 0 ? Infinity : dist / 1000 / hrs;
 };
 
-// Detect stops from location points
 const detectStops = (locations) => {
   if (!locations || locations.length < 2) return [];
-
   const stops = [];
-  let currentStopPoints = [];
-  let stopStartTime = null;
-  
-  for (let i = 1; i < locations.length; i++) {
-    const prevPoint = locations[i - 1];
-    const currPoint = locations[i];
-    
-    const speed = calculateSpeed(prevPoint, currPoint);
-    const distance = calculateDistance(
-      prevPoint.latitude, prevPoint.longitude,
-      currPoint.latitude, currPoint.longitude
+  let group = [];
+  let startTime = null;
+
+  const flush = (endIdx) => {
+    if (group.length < 2) return;
+    const endTime = new Date(locations[endIdx].timestamp);
+    const duration = endTime - startTime;
+    if (duration < STOP_CONFIG.MIN_DURATION) return;
+
+    const center = group.reduce(
+      (a, p) => { a.lat += p.latitude; a.lng += p.longitude; return a; },
+      { lat: 0, lng: 0 }
     );
-    
-    const timeDiff = new Date(currPoint.timestamp) - new Date(prevPoint.timestamp);
-    
-    // If moving slowly, consider as potential stop
-    if (speed < STOP_CONFIG.MAX_SPEED_KMH && distance < STOP_CONFIG.GROUP_RADIUS_METERS) {
-      if (currentStopPoints.length === 0) {
-        // Start of a potential stop
-        currentStopPoints.push(prevPoint);
-        stopStartTime = new Date(prevPoint.timestamp);
-      }
-      currentStopPoints.push(currPoint);
+    center.lat /= group.length;
+    center.lng /= group.length;
+
+    const images = group
+      .filter((p) => p.photo || p.location_image)
+      .map((p) => ({ url: p.photo || p.location_image, timestamp: p.timestamp }));
+
+    stops.push({
+      id: `stop-${startTime.getTime()}`,
+      center, startTime, endTime, duration,
+      pointCount: group.length, images, points: group,
+    });
+  };
+
+  for (let i = 1; i < locations.length; i++) {
+    const prev = locations[i - 1];
+    const curr = locations[i];
+    const speed = calcSpeed(prev, curr);
+    const dist = calcDistance(prev.latitude, prev.longitude, curr.latitude, curr.longitude);
+
+    if (speed < STOP_CONFIG.MAX_SPEED_KMH && dist < STOP_CONFIG.GROUP_RADIUS_METERS) {
+      if (group.length === 0) { group.push(prev); startTime = new Date(prev.timestamp); }
+      group.push(curr);
     } else {
-      // Movement detected, check if we have a valid stop
-      if (currentStopPoints.length > 1) {
-        const stopEndTime = new Date(prevPoint.timestamp);
-        const stopDuration = stopEndTime - stopStartTime;
-        
-        if (stopDuration >= STOP_CONFIG.MIN_DURATION) {
-          // Calculate stop center (average of all points)
-          const center = currentStopPoints.reduce(
-            (acc, point) => {
-              acc.lat += point.latitude;
-              acc.lng += point.longitude;
-              return acc;
-            },
-            { lat: 0, lng: 0 }
-          );
-          
-          center.lat /= currentStopPoints.length;
-          center.lng /= currentStopPoints.length;
-          
-          // Get images taken during stop
-          const stopImages = currentStopPoints
-            .filter(point => point.location_image)
-            .map(point => ({
-              url: point.location_image,
-              timestamp: point.timestamp,
-              location: { lat: point.latitude, lng: point.longitude }
-            }));
-          
-          stops.push({
-            id: `stop-${stopStartTime.getTime()}`,
-            center,
-            startTime: stopStartTime,
-            endTime: stopEndTime,
-            duration: stopDuration,
-            pointCount: currentStopPoints.length,
-            images: stopImages,
-            points: currentStopPoints,
-          });
-        }
-      }
-      
-      // Reset current stop
-      currentStopPoints = [];
-      stopStartTime = null;
+      flush(i - 1);
+      group = [];
+      startTime = null;
     }
   }
-  
-  // Check for stop at the end
-  if (currentStopPoints.length > 1) {
-    const stopEndTime = new Date(locations[locations.length - 1].timestamp);
-    const stopDuration = stopEndTime - stopStartTime;
-    
-    if (stopDuration >= STOP_CONFIG.MIN_DURATION) {
-      const center = currentStopPoints.reduce(
-        (acc, point) => {
-          acc.lat += point.latitude;
-          acc.lng += point.longitude;
-          return acc;
-        },
-        { lat: 0, lng: 0 }
-      );
-      
-      center.lat /= currentStopPoints.length;
-      center.lng /= currentStopPoints.length;
-      
-      const stopImages = currentStopPoints
-        .filter(point => point.location_image)
-        .map(point => ({
-          url: point.location_image,
-          timestamp: point.timestamp,
-          location: { lat: point.latitude, lng: point.longitude }
-        }));
-      
-      stops.push({
-        id: `stop-${stopStartTime.getTime()}`,
-        center,
-        startTime: stopStartTime,
-        endTime: stopEndTime,
-        duration: stopDuration,
-        pointCount: currentStopPoints.length,
-        images: stopImages,
-        points: currentStopPoints,
-      });
-    }
-  }
-  
+  flush(locations.length - 1);
   return stops;
 };
 
-// Get all image locations
-const getImageLocations = (locations) => {
-  return locations
-    .filter(loc => loc.location_image)
-    .map((loc, index) => ({
-      id: `img-${index}-${loc.timestamp}`,
-      url: loc.location_image,
-      timestamp: loc.timestamp,
-      location: { lat: loc.latitude, lng: loc.longitude },
-      accuracy: loc.accuracy,
+const getImageLocations = (locations) =>
+  locations
+    .filter((l) => l.photo || l.location_image)
+    .map((l, i) => ({
+      id: `img-${i}-${l.timestamp}`,
+      url: l.photo || l.location_image,
+      timestamp: l.timestamp,
+      location: { lat: l.latitude, lng: l.longitude },
     }));
+
+// Calculate total distance from locations array
+const calcTotalDistance = (locations) => {
+  if (!locations || locations.length < 2) return 0;
+  let total = 0;
+  for (let i = 1; i < locations.length; i++) {
+    total += calcDistance(
+      locations[i - 1].latitude, locations[i - 1].longitude,
+      locations[i].latitude, locations[i].longitude
+    );
+  }
+  return total; // meters
 };
 
+const fmtTime = (ts) =>
+  ts
+    ? new Date(ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+    : "N/A";
+
+const fmtDist = (meters) => {
+  if (!meters) return "0 km";
+  return `${(meters / 1000).toFixed(2)} km`;
+};
+
+// ─── Marker factories (pure functions, no closures on component state) ────────
+const makeCheckIcon = (type, color, time, hasPhoto, size = 36) => {
+  const icon = type === "checkin" ? "🚀" : "🏁";
+  const label = type === "checkin" ? "START" : "END";
+  return L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
+        <span style="font-size:${size / 3}px;line-height:1">${icon}</span>
+        <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">${label}</span>
+      </div>
+      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 6px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid ${color};z-index:1">
+        ${time}${hasPhoto ? " 📸" : ""}
+      </div>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 24],
+    iconAnchor: [size / 2, size + 12],
+  });
+};
+
+const makeStopIcon = (stop, size = 40) => {
+  const mins = Math.round(stop.duration / 60000);
+  return L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#FF9800;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
+        <span style="font-size:${size / 3}px">⏸️</span>
+        <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">STOP</span>
+      </div>
+      <div style="position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid #FF9800;z-index:1">
+        ${mins} min${stop.images.length > 0 ? ` • ${stop.images.length} 📸` : ""}
+      </div>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 28],
+    iconAnchor: [size / 2, size + 14],
+  });
+};
+
+const makeImageIcon = (index, size = 32) =>
+  L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#9C27B0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:${size / 2}px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;cursor:pointer;">📸</div>
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:2px 4px;border-radius:8px;font-size:7px;white-space:nowrap;z-index:1">Photo ${index + 1}</div>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 20],
+    iconAnchor: [size / 2, size + 10],
+  });
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const Locations = () => {
   const theme = useTheme();
   const location = useLocation();
-  
-  // Get data from location state
-  const { 
-    sessions = [], 
-    summary = {}, 
-    metadata = {} 
+  const dispatch = useDispatch();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const {
+    sessions = [],
+    selectedSessionId: initialSelectedSessionId,
+    summary = {},
+    metadata = {},
   } = location.state || {};
-  
-  const [allSessions, setAllSessions] = useState([]);
-  const [selectedSessionId, setSelectedSessionId] = useState(null);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [stops, setStops] = useState([]);
-  const [imageLocations, setImageLocations] = useState([]);
-  const [selectedStop, setSelectedStop] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [showStops, setShowStops] = useState(true);
-  const [showImages, setShowImages] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  const mapRef = useRef(null);
-  const leafletMapInstance = useRef(null);
-  const leafletPolylines = useRef([]);
-  const leafletMarkers = useRef([]);
 
-  // Responsive breakpoints
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const sessionDetails = useSelector((s) => s.user?.sessionDetails);
+  const sessionDetailsLoading = useSelector((s) => s.user?.sessionDetailsLoading);
+  const sessionDetailsError = useSelector((s) => s.user?.sessionDetailsError);
 
-  // Initialize sessions
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [allSessions, setAllSessions]           = useState([]);
+  const [selectedSessionId, setSelectedSessionId] = useState(
+    initialSelectedSessionId ? String(initialSelectedSessionId) : null
+  );
+  const [selectedSession, setSelectedSession]   = useState(null);
+  const [stops, setStops]                       = useState([]);
+  const [imageLocations, setImageLocations]     = useState([]);
+  const [totalDistance, setTotalDistance]       = useState(0);
+  const [showStops, setShowStops]               = useState(true);
+  const [showImages, setShowImages]             = useState(true);
+  const [drawerOpen, setDrawerOpen]             = useState(false);
+  const [hasLocations, setHasLocations]         = useState(false);
+  const [fetchingSession, setFetchingSession]   = useState(false);
+
+  // ── Refs ───────────────────────────────────────────────────────────────────
+  const mapRef          = useRef(null);
+  const mapInstance     = useRef(null);   // L.Map
+  const polylines       = useRef([]);
+  const markers         = useRef([]);
+  const fetchedSessions = useRef(new Set());
+  // Keep a ref to latest session so map callbacks don't go stale
+  const sessionRef      = useRef(null);
+  const stopsRef        = useRef([]);
+  const imagesRef       = useRef([]);
+  const showStopsRef    = useRef(true);
+  const showImagesRef   = useRef(true);
+
+  // Sync refs with state
+  useEffect(() => { sessionRef.current    = selectedSession; }, [selectedSession]);
+  useEffect(() => { stopsRef.current      = stops; },          [stops]);
+  useEffect(() => { imagesRef.current     = imageLocations; }, [imageLocations]);
+  useEffect(() => { showStopsRef.current  = showStops; },      [showStops]);
+  useEffect(() => { showImagesRef.current = showImages; },     [showImages]);
+
+  // ── Init sessions from props ───────────────────────────────────────────────
   useEffect(() => {
-    if (sessions && sessions.length > 0) {
-      setAllSessions(sessions);
-      // Select first session by default
-      setSelectedSessionId(sessions[0]._id);
-      setSelectedSession(sessions[0]);
-    }
+    if (sessions.length > 0) setAllSessions(sessions);
   }, [sessions]);
 
-  // Process session data to detect stops and image locations
-  useEffect(() => {
-    if (selectedSession && selectedSession.locations) {
-      // Detect stops
-      const detectedStops = detectStops(selectedSession.locations);
+  // ── Process session data ───────────────────────────────────────────────────
+  const processSessionData = useCallback((session) => {
+    if (!session) return;
+    setSelectedSession(session);
+
+    if (session.locations?.length > 0) {
+      setHasLocations(true);
+      const detectedStops = detectStops(session.locations);
+      const images = getImageLocations(session.locations);
+      const dist = calcTotalDistance(session.locations);
       setStops(detectedStops);
-      
-      // Get all image locations
-      const images = getImageLocations(selectedSession.locations);
       setImageLocations(images);
-      
-      // Update map with new data
-      if (leafletMapInstance.current) {
-        updateLeafletMap(selectedSession, detectedStops, images);
-      }
+      setTotalDistance(dist);
+    } else {
+      setHasLocations(false);
+      setStops([]);
+      setImageLocations([]);
+      setTotalDistance(0);
     }
+  }, []);
+
+  // ── Handle session click ───────────────────────────────────────────────────
+  const handleSessionSelect = useCallback(
+    (rawId) => {
+      const sessionId = String(rawId);
+      if (sessionId === String(selectedSessionId)) return;
+
+      setSelectedSessionId(sessionId);
+      setSelectedSession(null);
+      setHasLocations(false);
+      setStops([]);
+      setImageLocations([]);
+      setTotalDistance(0);
+
+      // Try to find in allSessions
+      const found = allSessions.find(
+        (s) => String(s.sessionId || s._id) === sessionId
+      );
+
+      if (found?.locations?.length > 0) {
+        processSessionData(found);
+      } else if (sessionDetails && String(sessionDetails.sessionId) === sessionId) {
+        processSessionData(sessionDetails);
+      }
+      // Otherwise the fetch useEffect below will handle it
+
+      if (isMobile) setDrawerOpen(false);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedSessionId, allSessions, sessionDetails, isMobile]
+  );
+
+  // ── Fetch session details ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (!selectedSessionId) return;
+
+    // Already have data loaded?
+    if (selectedSession?.locations?.length > 0) return;
+
+    // Already fetched successfully?
+    if (fetchedSessions.current.has(selectedSessionId)) return;
+
+    let userId = metadata?.userId;
+    if (!userId) {
+      const s = allSessions.find(
+        (s) => String(s.sessionId || s._id) === selectedSessionId
+      );
+      userId = s?.userId;
+    }
+    if (!userId) return;
+
+    setFetchingSession(true);
+    dispatch(getSessionDetails({ userId, sessionId: selectedSessionId }))
+      .finally(() => {
+        fetchedSessions.current.add(selectedSessionId);
+        setFetchingSession(false);
+      });
+  }, [selectedSessionId]); // Only re-run when sessionId changes
+
+  // ── Process Redux session details when they arrive ─────────────────────────
+  useEffect(() => {
+    if (
+      sessionDetails &&
+      String(sessionDetails.sessionId) === String(selectedSessionId)
+    ) {
+      processSessionData(sessionDetails);
+    }
+  }, [sessionDetails]);
+
+  // ── Map: clear helpers ─────────────────────────────────────────────────────
+  const clearMap = () => {
+    if (!mapInstance.current) return;
+    polylines.current.forEach((l) => mapInstance.current.removeLayer(l));
+    markers.current.forEach((m) => mapInstance.current.removeLayer(m));
+    polylines.current = [];
+    markers.current = [];
+  };
+
+  // ── Map: draw session ──────────────────────────────────────────────────────
+  const drawSession = useCallback((session, stopsList, imagesList, showS, showI) => {
+    if (!mapInstance.current || !session?.locations?.length) return;
+
+    clearMap();
+
+    const locs = session.locations;
+    const routePoints = locs
+      .map((l) => [parseFloat(l.latitude), parseFloat(l.longitude)])
+      .filter(([a, b]) => !isNaN(a) && !isNaN(b));
+
+    if (routePoints.length === 0) return;
+
+    // Route polyline
+    if (routePoints.length > 1) {
+      const pl = L.polyline(routePoints, {
+        color: "#2196F3", weight: 4, opacity: 0.8,
+      }).addTo(mapInstance.current);
+      polylines.current.push(pl);
+    }
+
+    const checkIn  = locs[0];
+    const checkOut = locs.length > 1 ? locs[locs.length - 1] : null;
+
+    // START marker
+    const startM = L.marker(
+      [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
+      { icon: makeCheckIcon("checkin", "#22c55e", fmtTime(checkIn.timestamp), !!(checkIn.photo || checkIn.location_image)), zIndexOffset: 1000 }
+    )
+      .bindPopup(`<b style="color:#22c55e">🚀 START</b><br/>Time: ${fmtTime(checkIn.timestamp)}<br/>Address: ${checkIn.address || "N/A"}`)
+      .addTo(mapInstance.current);
+    markers.current.push(startM);
+
+    // END marker
+    if (checkOut) {
+      const endM = L.marker(
+        [parseFloat(checkOut.latitude), parseFloat(checkOut.longitude)],
+        { icon: makeCheckIcon("checkout", "#ef4444", fmtTime(checkOut.timestamp), !!(checkOut.photo || checkOut.location_image)), zIndexOffset: 1000 }
+      )
+        .bindPopup(`<b style="color:#ef4444">🏁 END</b><br/>Time: ${fmtTime(checkOut.timestamp)}<br/>Address: ${checkOut.address || "N/A"}`)
+        .addTo(mapInstance.current);
+      markers.current.push(endM);
+    }
+
+    // Stop markers
+    if (showS) {
+      stopsList.forEach((stop) => {
+        let popup = `<div style="min-width:200px"><b style="color:#FF9800">⏸️ STOP</b><br/>
+          Duration: ${Math.round(stop.duration / 60000)} min<br/>
+          From: ${fmtTime(stop.startTime)}<br/>
+          To: ${fmtTime(stop.endTime)}<br/>
+          Points: ${stop.pointCount}`;
+        stop.images.forEach((img) => {
+          popup += `<br/><img src="${img.url}" style="max-width:100%;max-height:80px;border-radius:4px;margin-top:4px"/>`;
+        });
+        popup += `</div>`;
+        const m = L.marker([stop.center.lat, stop.center.lng], { icon: makeStopIcon(stop) })
+          .bindPopup(popup)
+          .addTo(mapInstance.current);
+        markers.current.push(m);
+      });
+    }
+
+    // Image markers
+    if (showI) {
+      imagesList.forEach((img, idx) => {
+        const m = L.marker([img.location.lat, img.location.lng], { icon: makeImageIcon(idx) })
+          .bindPopup(`<div style="text-align:center"><b style="color:#9C27B0">📸 PHOTO</b><br/><small>${new Date(img.timestamp).toLocaleString()}</small><br/><img src="${img.url}" style="max-width:100%;max-height:150px;border-radius:4px;margin-top:4px"/></div>`)
+          .addTo(mapInstance.current);
+        markers.current.push(m);
+      });
+    }
+
+    // Fit bounds
+    const allPoints = [...routePoints];
+    if (showS) stopsList.forEach((s) => allPoints.push([s.center.lat, s.center.lng]));
+    if (showI) imagesList.forEach((i) => allPoints.push([i.location.lat, i.location.lng]));
+
+    if (allPoints.length > 0) {
+      mapInstance.current.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
+    }
+  }, []); // No external deps — uses params only
+
+  // ── Map: initialize once, update on session change ─────────────────────────
+  useEffect(() => {
+    if (!selectedSession?.locations?.length || !mapRef.current) return;
+
+    const locs = selectedSession.locations;
+    const first = locs[0];
+    if (!first) return;
+
+    // Destroy old map
+    if (mapInstance.current) {
+      mapInstance.current.remove();
+      mapInstance.current = null;
+      polylines.current = [];
+      markers.current = [];
+    }
+
+    const map = L.map(mapRef.current, { zoomControl: true }).setView(
+      [parseFloat(first.latitude), parseFloat(first.longitude)],
+      14
+    );
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
+    mapInstance.current = map;
+
+    // Draw after tiles settle
+    const t = setTimeout(() => {
+      map.invalidateSize();
+      drawSession(selectedSession, stops, imageLocations, showStops, showImages);
+    }, 250);
+
+    return () => clearTimeout(t);
+  // Only re-run when the session itself changes (not showStops/showImages)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSession]);
 
-  // Get route points
-  const getSessionRouteData = useCallback((session) => {
-    if (!session || !session.locations || session.locations.length === 0) {
-      return { 
-        routePoints: [], 
-        checkIn: null, 
-        checkOut: null,
-      };
-    }
-    
-    const locations = session.locations;
-    
-    // Get all points for the route line
-    const routePoints = locations.map(loc => ({
-      lat: parseFloat(loc.latitude),
-      lng: parseFloat(loc.longitude),
-    }));
-    
-    // Check-in is first location
-    const checkIn = locations[0];
-    
-    // Check-out is last location
-    const checkOut = locations.length > 1 ? locations[locations.length - 1] : null;
-    
-    return {
-      routePoints,
-      checkIn,
-      checkOut,
-      totalLocations: locations.length,
+  // ── Map: redraw when filters or overlay data change (no re-init) ───────────
+  useEffect(() => {
+    if (!mapInstance.current || !selectedSession?.locations?.length) return;
+    drawSession(selectedSession, stops, imageLocations, showStops, showImages);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops, imageLocations, showStops, showImages]);
+
+  // ── Window resize ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    const onResize = () => mapInstance.current?.invalidateSize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // ── Cleanup ────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
     };
   }, []);
 
-  // Handle session selection
-  const handleSessionSelect = (sessionId) => {
-    const session = allSessions.find(s => s._id === sessionId);
-    setSelectedSessionId(sessionId);
-    setSelectedSession(session);
-    setSelectedStop(null);
-    setSelectedImage(null);
-  };
-
-  // Create marker for check-in/out
-  const createCheckMarker = (type, color, time, locationData) => {
-    const size = isMobile ? 32 : 36;
-    const icon = type === 'checkin' ? '🚀' : '🏁';
-    const label = type === 'checkin' ? 'IN' : 'OUT';
-    const hasImage = locationData?.location_image ? '📸' : '';
-    
-    return L.divIcon({
-      html: `
-        <div style="
-          position: relative;
-          width: ${size}px;
-          height: ${size}px;
-        ">
-          <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: ${color};
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: ${size/3.5}px;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 2;
-          ">
-            <span style="font-size: ${size/3}px; line-height: 1;">${icon}</span>
-            <span style="font-size: ${size/6}px; line-height: 1; margin-top: 1px;">${label}</span>
-          </div>
-          <div style="
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0,0,0,0.9);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 9px;
-            white-space: nowrap;
-            border: 1px solid ${color};
-            z-index: 1;
-          ">
-            ${time} ${hasImage}
-          </div>
-        </div>
-      `,
-      className: "",
-      iconSize: [size, size + 24],
-      iconAnchor: [size/2, size + 12],
-    });
-  };
-
-  // Create marker for stop
-  const createStopMarker = (stop, index) => {
-    const size = isMobile ? 36 : 40;
-    const duration = Math.round(stop.duration / 60000); // minutes
-    const imageCount = stop.images.length;
-    
-    return L.divIcon({
-      html: `
-        <div style="
-          position: relative;
-          width: ${size}px;
-          height: ${size}px;
-        ">
-          <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #FF9800;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: ${size/3}px;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 2;
-            animation: pulse 2s infinite;
-          ">
-            <span style="font-size: ${size/3}px;">⏸️</span>
-            <span style="font-size: ${size/6}px; line-height: 1; margin-top: 1px;">STOP</span>
-          </div>
-          <div style="
-            position: absolute;
-            bottom: -24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0,0,0,0.9);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 9px;
-            white-space: nowrap;
-            border: 1px solid #FF9800;
-            z-index: 1;
-          ">
-            ${duration} min ${imageCount > 0 ? `• ${imageCount} 📸` : ''}
-          </div>
-        </div>
-      `,
-      className: "",
-      iconSize: [size, size + 28],
-      iconAnchor: [size/2, size + 14],
-    });
-  };
-
-  // Create marker for image
-  const createImageMarker = (image, index) => {
-    const size = isMobile ? 28 : 32;
-    
-    return L.divIcon({
-      html: `
-        <div style="
-          position: relative;
-          width: ${size}px;
-          height: ${size}px;
-        ">
-          <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #9C27B0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: ${size/2}px;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 2;
-            cursor: pointer;
-          ">
-            📸
-          </div>
-          <div style="
-            position: absolute;
-            bottom: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0,0,0,0.8);
-            color: white;
-            padding: 2px 4px;
-            border-radius: 8px;
-            font-size: 7px;
-            white-space: nowrap;
-            z-index: 1;
-          ">
-            Photo ${index + 1}
-          </div>
-        </div>
-      `,
-      className: "",
-      iconSize: [size, size + 20],
-      iconAnchor: [size/2, size + 10],
-    });
-  };
-
-  // Update Leaflet map
-  const updateLeafletMap = useCallback((session, stopsList, imagesList) => {
-    if (!leafletMapInstance.current || !session) return;
-
-    const { routePoints, checkIn, checkOut } = getSessionRouteData(session);
-    
-    if (routePoints.length === 0 || !checkIn) return;
-
-    // Clear existing elements
-    leafletPolylines.current.forEach((line) =>
-      leafletMapInstance.current.removeLayer(line)
-    );
-    leafletMarkers.current.forEach((marker) =>
-      leafletMapInstance.current.removeLayer(marker)
-    );
-    leafletPolylines.current = [];
-    leafletMarkers.current = [];
-
-    const routeColor = '#2196F3';
-
-    // Add route polyline
-    if (routePoints.length > 1) {
-      const polyline = L.polyline(routePoints, {
-        color: routeColor,
-        weight: 4,
-        opacity: 0.8,
-        lineJoin: "round",
-        lineCap: "round",
-      }).addTo(leafletMapInstance.current);
-      leafletPolylines.current.push(polyline);
-    }
-
-    // Format time for markers
-    const formatMarkerTime = (timestamp) => {
-      if (!timestamp) return "";
-      return new Date(timestamp).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    };
-
-    // Add check-in marker
-    const checkInMarker = L.marker(
-      [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
-      {
-        icon: createCheckMarker(
-          'checkin', 
-          '#22c55e',
-          formatMarkerTime(checkIn.timestamp || session.checkIn),
-          checkIn
-        ),
-        riseOnHover: true,
-        zIndexOffset: 1000,
-      }
-    ).addTo(leafletMapInstance.current);
-
-    checkInMarker.bindPopup(`
-      <div style="min-width: 180px;">
-        <div style="font-weight: bold; color: #22c55e; margin-bottom: 5px;">🚀 CHECK-IN</div>
-        <div><strong>Time:</strong> ${formatMarkerTime(checkIn.timestamp || session.checkIn)}</div>
-        ${checkIn.location_image ? '<div style="margin-top: 5px;">📸 Has photo</div>' : ''}
-      </div>
-    `);
-    leafletMarkers.current.push(checkInMarker);
-
-    // Add check-out marker
-    if (checkOut) {
-      const checkOutMarker = L.marker(
-        [parseFloat(checkOut.latitude), parseFloat(checkOut.longitude)],
-        {
-          icon: createCheckMarker(
-            'checkout', 
-            '#ef4444',
-            formatMarkerTime(checkOut.timestamp || session.checkOut),
-            checkOut
-          ),
-          riseOnHover: true,
-          zIndexOffset: 1000,
-        }
-      ).addTo(leafletMapInstance.current);
-
-      checkOutMarker.bindPopup(`
-        <div style="min-width: 180px;">
-          <div style="font-weight: bold; color: #ef4444; margin-bottom: 5px;">🏁 CHECK-OUT</div>
-          <div><strong>Time:</strong> ${formatMarkerTime(checkOut.timestamp || session.checkOut)}</div>
-          ${checkOut.location_image ? '<div style="margin-top: 5px;">📸 Has photo</div>' : ''}
-        </div>
-      `);
-      leafletMarkers.current.push(checkOutMarker);
-    }
-
-    // Add stop markers if enabled
-    if (showStops && stopsList.length > 0) {
-      stopsList.forEach((stop, index) => {
-        const stopMarker = L.marker(
-          [stop.center.lat, stop.center.lng],
-          {
-            icon: createStopMarker(stop, index),
-            riseOnHover: true,
-          }
-        ).addTo(leafletMapInstance.current);
-
-        // Create popup with stop details and images
-        let popupContent = `
-          <div style="min-width: 200px; max-width: 250px;">
-            <div style="font-weight: bold; color: #FF9800; margin-bottom: 8px;">⏸️ STOP DETECTED</div>
-            <div><strong>Duration:</strong> ${Math.round(stop.duration / 60000)} minutes</div>
-            <div><strong>Start:</strong> ${new Date(stop.startTime).toLocaleTimeString()}</div>
-            <div><strong>End:</strong> ${new Date(stop.endTime).toLocaleTimeString()}</div>
-            <div><strong>Points:</strong> ${stop.pointCount} locations</div>
-        `;
-
-        if (stop.images.length > 0) {
-          popupContent += `<div style="margin-top: 8px;"><strong>Images:</strong></div>`;
-          stop.images.forEach((img, i) => {
-            popupContent += `
-              <div style="margin-top: 5px; text-align: center;">
-                <img src="${img.url}" 
-                     style="max-width: 100%; max-height: 80px; border-radius: 4px; cursor: pointer;"
-                     onclick="window.open('${img.url}', '_blank')"/>
-              </div>
-            `;
-          });
-        }
-
-        popupContent += `</div>`;
-        stopMarker.bindPopup(popupContent);
-        
-        stopMarker.on('click', () => {
-          setSelectedStop(stop);
-        });
-
-        leafletMarkers.current.push(stopMarker);
-      });
-    }
-
-    // Add image markers if enabled
-    if (showImages && imagesList.length > 0) {
-      imagesList.forEach((image, index) => {
-        const imageMarker = L.marker(
-          [image.location.lat, image.location.lng],
-          {
-            icon: createImageMarker(image, index),
-            riseOnHover: true,
-          }
-        ).addTo(leafletMapInstance.current);
-
-        imageMarker.bindPopup(`
-          <div style="min-width: 200px; text-align: center;">
-            <div style="font-weight: bold; color: #9C27B0; margin-bottom: 5px;">📸 PHOTO</div>
-            <div><small>${new Date(image.timestamp).toLocaleString()}</small></div>
-            <div style="margin-top: 5px;">
-              <img src="${image.url}" 
-                   style="max-width: 100%; max-height: 150px; border-radius: 4px; cursor: pointer;"
-                   onclick="window.open('${image.url}', '_blank')"/>
-            </div>
-          </div>
-        `);
-        
-        imageMarker.on('click', () => {
-          setSelectedImage(image);
-        });
-
-        leafletMarkers.current.push(imageMarker);
-      });
-    }
-
-    // Fit bounds to show all points
-    const allPoints = [
-      ...routePoints,
-      ...(showStops ? stopsList.map(s => ({ lat: s.center.lat, lng: s.center.lng })) : []),
-      ...(showImages ? imagesList.map(i => i.location) : []),
-    ];
-    
-    if (allPoints.length > 0) {
-      const bounds = L.latLngBounds(allPoints);
-      leafletMapInstance.current.fitBounds(bounds, { padding: [40, 40] });
-    }
-  }, [isMobile, getSessionRouteData, showStops, showImages]);
-
-  // Initialize map
-  const initLeafletMap = useCallback(() => {
-    if (!leafletMapInstance.current && mapRef.current && selectedSession) {
-      const { checkIn } = getSessionRouteData(selectedSession);
-      
-      if (!checkIn) return;
-
-      leafletMapInstance.current = L.map(mapRef.current, {
-        zoomControl: true,
-        attributionControl: true,
-      }).setView(
-        [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
-        14
-      );
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(leafletMapInstance.current);
-
-      updateLeafletMap(selectedSession, stops, imageLocations);
-    }
-  }, [selectedSession, getSessionRouteData, updateLeafletMap, stops, imageLocations]);
-
-  // Update map when session or filters change
-  useEffect(() => {
-    if (selectedSession) {
-      if (!leafletMapInstance.current) {
-        initLeafletMap();
-      } else {
-        updateLeafletMap(selectedSession, stops, imageLocations);
-      }
-    }
-
-    return () => {
-      if (leafletMapInstance.current) {
-        leafletMapInstance.current.remove();
-        leafletMapInstance.current = null;
-      }
-    };
-  }, [selectedSession, stops, imageLocations, showStops, showImages, initLeafletMap, updateLeafletMap]);
-
-  const formatTime = (timestamp) => {
-    if (!timestamp) return "N/A";
-    return new Date(timestamp).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const formatDuration = (ms) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  };
-
-  // Session List Component
-  const SessionList = () => (
-    <Paper elevation={0} sx={{ height: '100%', overflow: 'auto', borderRadius: 0 }}>
+  // ─── Session list (render fn, NOT a component — avoids remount) ─────────────
+  const renderSessionList = () => (
+    <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
       {/* Summary */}
       {summary && Object.keys(summary).length > 0 && (
         <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-          <Typography variant="body2" fontWeight={600} color="#2196F3" sx={{ fontSize: '0.75rem' }}>
-            {summary.formattedDate || 'Selected Date'}
+          <Typography variant="body2" fontWeight={600} color="#2196F3" sx={{ fontSize: "0.75rem" }}>
+            {summary.formattedDate || "Selected Date"}
           </Typography>
           <Grid container spacing={0.5} sx={{ mt: 0.5 }}>
-            <Grid item xs={3}>
-              <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Sessions</Typography>
-              <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{allSessions.length}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Stops</Typography>
-              <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{stops.length}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Photos</Typography>
-              <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>{imageLocations.length}</Typography>
-            </Grid>
-            <Grid item xs={3}>
-              <Typography variant="caption" sx={{ fontSize: '0.6rem' }} color="text.secondary">Distance</Typography>
-              <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.7rem' }}>
-                {selectedSession?.totalDistance?.toFixed(1) || 0} km
-              </Typography>
-            </Grid>
+            {[
+              ["Sessions", allSessions.length],
+              ["Stops", stops.length],
+              ["Photos", imageLocations.length],
+              ["Distance", fmtDist(totalDistance)],
+            ].map(([label, val]) => (
+              <Grid item xs={3} key={label}>
+                <Typography variant="caption" sx={{ fontSize: "0.6rem" }} color="text.secondary">{label}</Typography>
+                <Typography variant="body2" fontWeight={500} sx={{ fontSize: "0.7rem" }}>{val}</Typography>
+              </Grid>
+            ))}
           </Grid>
         </Box>
       )}
 
-      {/* Filter Toggles */}
+      {/* Toggles */}
       <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
         <Stack direction="row" spacing={0.5}>
           <Chip
             size="small"
             label={`Stops (${stops.length})`}
-            onClick={() => setShowStops(!showStops)}
+            onClick={() => setShowStops((v) => !v)}
             color={showStops ? "warning" : "default"}
             icon={<PauseIcon />}
-            sx={{ height: 24, fontSize: '0.65rem' }}
+            sx={{ height: 24, fontSize: "0.65rem" }}
           />
           <Chip
             size="small"
             label={`Photos (${imageLocations.length})`}
-            onClick={() => setShowImages(!showImages)}
+            onClick={() => setShowImages((v) => !v)}
             color={showImages ? "secondary" : "default"}
             icon={<PhotoIcon />}
-            sx={{ height: 24, fontSize: '0.65rem' }}
+            sx={{ height: 24, fontSize: "0.65rem" }}
           />
         </Stack>
       </Box>
 
-      {/* Sessions List */}
+      {/* Sessions */}
       <Box sx={{ p: 1.5 }}>
-        <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: '0.75rem', mb: 1 }}>
+        <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.75rem", mb: 1 }}>
           Sessions ({allSessions.length})
         </Typography>
-        
         <Stack spacing={1}>
           {allSessions.map((session, index) => {
-            const isSelected = selectedSessionId === session._id;
-            const sessionStops = detectStops(session.locations || []);
-            const sessionImages = getImageLocations(session.locations || []);
-            
+            const sessionId = String(session.sessionId || session._id);
+            const isSelected = String(selectedSessionId) === sessionId;
+            const isLoading = isSelected && fetchingSession;
+
+            // Distance: prefer stats, fallback to live calc
+            const distMeters =
+              session.stats?.totalDistance ??
+              session.totalDistance ??
+              (session.locations ? calcTotalDistance(session.locations) : 0);
+
             return (
               <Card
-                key={session._id}
-                onClick={() => handleSessionSelect(session._id)}
+                key={sessionId || index}
+                onClick={() => handleSessionSelect(sessionId)}
                 sx={{
-                  cursor: 'pointer',
-                  border: isSelected ? `1.5px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                  bgcolor: isSelected ? alpha('#2196F3', 0.03) : 'transparent',
+                  cursor: "pointer",
+                  border: isSelected
+                    ? `1.5px solid #2196F3`
+                    : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                  bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
+                  transition: "all 0.2s ease",
+                  "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02) },
                 }}
               >
-                <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#2196F3', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                      {index + 1}
+                <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Box sx={{
+                      width: 24, height: 24, borderRadius: "50%",
+                      bgcolor: "#2196F3", display: "flex", alignItems: "center",
+                      justifyContent: "center", color: "white", fontSize: "0.7rem", fontWeight: "bold",
+                    }}>
+                      {isLoading
+                        ? <CircularProgress size={14} sx={{ color: "white" }} />
+                        : index + 1}
                     </Box>
                     <Box>
-                      <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem' }}>
+                      <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.7rem" }}>
                         Session #{index + 1}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
-                        {formatTime(session.checkIn)}
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem" }}>
+                        {fmtTime(session.startTime)}
                       </Typography>
                     </Box>
                   </Box>
 
                   <Grid container spacing={0.5}>
                     <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Stops</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>{sessionStops.length}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Duration</Typography>
+                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
+                        {session.duration ? `${Math.round(session.duration / 60)} min` : "N/A"}
+                      </Typography>
                     </Grid>
                     <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Photos</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>{sessionImages.length}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Locations</Typography>
+                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
+                        {session.locationCount || session.locations?.length || 0}
+                      </Typography>
                     </Grid>
                     <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>Distance</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.65rem' }}>{session.totalDistance?.toFixed(1)} km</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Distance</Typography>
+                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
+                        {fmtDist(distMeters)}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </CardContent>
@@ -4440,50 +2800,26 @@ const Locations = () => {
     </Paper>
   );
 
-  // Mobile drawer
-  const MobileDrawer = () => (
-    <>
-      <Fab
-        color="primary"
-        sx={{
-          position: 'fixed',
-          bottom: 16,
-          right: 16,
-          zIndex: 1000,
-          display: { sm: 'none' },
-          bgcolor: '#2196F3',
-          width: 40,
-          height: 40,
-        }}
-        onClick={() => setDrawerOpen(true)}
-      >
-        <MenuIcon sx={{ fontSize: 20 }} />
-      </Fab>
-      
-      <Drawer
-        anchor="bottom"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { height: '75vh', borderTopLeftRadius: 12, borderTopRightRadius: 12 } }}
-      >
-        <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.85rem' }}>Sessions</Typography>
-          <IconButton sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => setDrawerOpen(false)}>
-            <CloseIcon sx={{ fontSize: 18 }} />
-          </IconButton>
-        </Box>
-        <SessionList />
-      </Drawer>
-    </>
-  );
-
-  if (allSessions.length === 0) {
+  // ─── Render ──────────────────────────────────────────────────────────────────
+  if (fetchingSession && !selectedSession) {
     return (
-      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
+          <CircularProgress size={40} sx={{ color: "#2196F3", mb: 2 }} />
+          <Typography>Loading session details…</Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
+  if (sessionDetailsError) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-          <InfoIcon sx={{ fontSize: 36, color: theme.palette.primary.main, mb: 1 }} />
-          <Typography variant="body1" sx={{ fontSize: '0.9rem' }}>No Session Data</Typography>
-          <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 1, fontSize: '0.7rem' }}>
+          <InfoIcon sx={{ fontSize: 36, color: "error.main", mb: 1 }} />
+          <Typography color="error">Error loading session data</Typography>
+          <Typography variant="caption" color="text.secondary">{sessionDetailsError}</Typography>
+          <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 2 }}>
             Go Back
           </Button>
         </Paper>
@@ -4491,62 +2827,141 @@ const Locations = () => {
     );
   }
 
+  if (!selectedSession && allSessions.length === 0) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
+          <InfoIcon sx={{ fontSize: 36, color: "primary.main", mb: 1 }} />
+          <Typography>No Session Data</Typography>
+          <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 1 }}>Go Back</Button>
+        </Paper>
+      </Box>
+    );
+  }
+
+  const sessionIndex = allSessions.findIndex(
+    (s) => String(s.sessionId || s._id) === String(selectedSessionId)
+  );
+
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper }}>
-      <AppBar position="static" sx={{ bgcolor: 'background.paper', boxShadow: '0 1px 5px rgba(0,0,0,0.05)' }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.paper" }}>
+      {/* AppBar */}
+      <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: 1 }}>
-          <IconButton onClick={() => window.history.back()} sx={{ color: '#2196F3', width: 28, height: 28 }}>
+          <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3", width: 28, height: 28 }}>
             <ArrowBackIcon sx={{ fontSize: 16 }} />
           </IconButton>
-          <Typography sx={{ ml: 1, fontSize: '0.8rem', color: '#2196F3', fontWeight: 600 }}>
-            {summary.formattedDate || 'Route Tracking'}
+          <Typography sx={{ ml: 1, fontSize: "0.8rem", color: "#2196F3", fontWeight: 600, flex: 1 }}>
+            {summary.formattedDate || "Route Tracking"}
           </Typography>
-          {selectedSession && (
+          {!isMobile && selectedSession && (
             <Chip
-              label={`Session ${allSessions.findIndex(s => s._id === selectedSessionId) + 1}`}
+              label={`Session ${sessionIndex + 1}`}
               size="small"
-              sx={{ ml: 'auto', height: 20, bgcolor: alpha('#2196F3', 0.1), color: '#2196F3', fontSize: '0.6rem' }}
+              sx={{ height: 20, bgcolor: alpha("#2196F3", 0.1), color: "#2196F3", fontSize: "0.6rem" }}
             />
+          )}
+          {isMobile && (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<MenuIcon />}
+              onClick={() => setDrawerOpen(true)}
+              sx={{ fontSize: "0.65rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3" }}
+            >
+              {allSessions.length}
+            </Button>
           )}
         </Toolbar>
       </AppBar>
 
       <Container maxWidth="xl" sx={{ py: 0, px: 0 }}>
-        <Grid container sx={{ height: 'calc(100vh - 48px)' }}>
-          <Grid item xs={12} md={8} sx={{ height: '100%', position: 'relative' }}>
-            <div ref={mapRef} style={leafletMapContainerStyle} />
-            
-            {/* Info Overlay */}
-            {selectedSession && (
-              <Paper sx={{ position: 'absolute', top: 12, left: 12, p: 1, borderRadius: 1.5, maxWidth: 240 }}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: '#2196F3', fontSize: '0.7rem' }}>
-                  Session #{allSessions.findIndex(s => s._id === selectedSessionId) + 1}
+        <Grid container sx={{ height: "calc(100vh - 48px)" }}>
+          {/* Map */}
+          <Grid item xs={12} md={8} sx={{ height: "100%", position: "relative" }}>
+            <div ref={mapRef} style={{ width: "100%", height: "100%", minHeight: 500, backgroundColor: "#e0e0e0" }} />
+
+            {selectedSession && !hasLocations && !fetchingSession && (
+              <Paper sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", p: 2, textAlign: "center", zIndex: 1000 }}>
+                <InfoIcon sx={{ fontSize: 40, color: "#2196F3", mb: 1 }} />
+                <Typography variant="body2">No location data for this session</Typography>
+              </Paper>
+            )}
+
+            {fetchingSession && selectedSessionId && !selectedSession && (
+              <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
+                <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+              </Box>
+            )}
+
+            {/* Overlay info */}
+            {selectedSession && hasLocations && (
+              <Paper sx={{ position: "absolute", top: 12, left: 12, p: 1, borderRadius: 1.5, maxWidth: 240, zIndex: 500 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: "0.7rem" }}>
+                  Session #{sessionIndex + 1}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e' }} />
-                  <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>IN: {formatTime(selectedSession.checkIn)}</Typography>
+                {[
+                  { color: "#22c55e", label: "START", ts: selectedSession.locations?.[0]?.timestamp },
+                  { color: "#ef4444", label: "END", ts: selectedSession.locations?.[selectedSession.locations.length - 1]?.timestamp },
+                ].map(({ color, label, ts }) => (
+                  <Box key={label} sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
+                    <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{label}: {fmtTime(ts)}</Typography>
+                  </Box>
+                ))}
+                <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
+                  <Chip size="small" label={`${stops.length} stops`} sx={{ height: 16, fontSize: "0.55rem" }} />
+                  <Chip size="small" label={`${imageLocations.length} photos`} sx={{ height: 16, fontSize: "0.55rem" }} />
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#ef4444' }} />
-                  <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>OUT: {selectedSession.checkOut ? formatTime(selectedSession.checkOut) : '—'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
-                  <Chip size="small" label={`${stops.length} stops`} sx={{ height: 16, fontSize: '0.55rem' }} />
-                  <Chip size="small" label={`${imageLocations.length} photos`} sx={{ height: 16, fontSize: '0.55rem' }} />
+                <Box sx={{ mt: 0.5, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+                  <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
+                    Distance: {fmtDist(totalDistance)}
+                  </Typography>
+                  {selectedSession.stats?.duration && (
+                    <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
+                      Duration: {Math.round(selectedSession.stats.duration / 60)} min
+                    </Typography>
+                  )}
                 </Box>
               </Paper>
             )}
           </Grid>
 
+          {/* Desktop sidebar */}
           {!isMobile && (
-            <Grid item md={4} sx={{ height: '100%', borderLeft: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-              <SessionList />
+            <Grid item md={4} sx={{ height: "100%", borderLeft: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+              {renderSessionList()}
             </Grid>
           )}
         </Grid>
       </Container>
 
-      {isMobile && <MobileDrawer />}
+      {/* Mobile FAB + Drawer */}
+      {isMobile && (
+        <>
+          <Fab
+            color="primary"
+            sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }}
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon />
+          </Fab>
+          <Drawer
+            anchor="right"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            PaperProps={{ sx: { width: "80%", maxWidth: 320, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 } }}
+          >
+            <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: "0.9rem" }}>Sessions</Typography>
+              <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
+            </Box>
+            <Box sx={{ height: "calc(100% - 60px)", overflow: "auto" }}>
+              {renderSessionList()}
+            </Box>
+          </Drawer>
+        </>
+      )}
     </Box>
   );
 };

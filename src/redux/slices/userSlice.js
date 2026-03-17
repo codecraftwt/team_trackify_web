@@ -23,590 +23,6 @@
 //   }
 // );
 
-// // Handle User Login
-// export const loginUser = createAsyncThunk(
-//   "user/loginUser",
-//   async ({ data }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/login", data);
-//       const user = response?.data?.user;
-
-//       if (![1, 2].includes(user?.role_id)) {
-//         const errorMessage =
-//           "You do not have the required permissions to log in.";
-//         toast.error(errorMessage);
-//         return rejectWithValue({ message: errorMessage });
-//       }
-
-//       localStorage.setItem("token", response?.data?.token);
-//       localStorage.setItem("user", JSON.stringify(user));
-//       toast.success(response?.data?.message);
-
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Handle User Registration
-// export const registerUser = createAsyncThunk(
-//   "user/registerUser",
-//   async (payload, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/register", payload, {
-//         headers: { "Content-Type": "multipart/form-data" },
-//       });
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Handle User Update
-// export const updateUser = createAsyncThunk(
-//   "user/updateUser",
-//   async ({ userId, formData }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.patch(
-//         `/users/updateuser/${userId}`,
-//         formData,
-//         { headers: { "Content-Type": "multipart/form-data" } }
-//       );
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Fetch All Users
-// export const getAllUsers = createAsyncThunk(
-//   "user/getAllUsers",
-//   async (adminId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/users/alluser/${adminId}`);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Fetch Single User by ID
-// export const getUserById = createAsyncThunk(
-//   "user/getUserById",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/users/user/${userId}`);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Delete User
-// export const deleteUser = createAsyncThunk(
-//   "user/deleteUser",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.delete(`/users/deleteuser/${userId}`);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// export const getUserCounts = createAsyncThunk(
-//   "user/getUserCounts",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/users/user-counts");
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getAllAdmins = createAsyncThunk(
-//   "user/getAllAdmins",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/users/alladmins");
-//       return response.data?.admins;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// export const getUserTrack = createAsyncThunk(
-//   "user/trackRecord",
-//   async ({ id, date = "" }, { rejectWithValue }) => {
-//     try {
-//       const url = date
-//         ? `/tracks/usertrack/${id}?date=${date}`
-//         : `/tracks/usertrack/${id}`;
-
-//       const response = await api.get(url);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Fetch all tracked dates for a user
-// export const getUserTrackedDates = createAsyncThunk(
-//   "user/getUserTrackedDates",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/tracks/user/${userId}/tracked-dates`);
-//       return response.data.trackedDates; // returns array of "YYYY-MM-DD" strings
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getActiveUserLocations = createAsyncThunk(
-//   "user/getActiveUserLocations",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/tracks/admin/active-user-locations");
-//       return response.data.users; // Array of users with latest locations
-//     } catch (error) {
-//       toast.error(
-//         error?.response?.data?.message || "Failed to fetch locations"
-//       );
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getLastFiveTrackedUsers = createAsyncThunk(
-//   "user/getLastFiveTrackedUsers",
-//   async (adminId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/tracks/last-five-tracked-users/${adminId}`);
-//       return response.data.users;
-//     } catch (error) {
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Thunk to handle reset password API request
-// export const resetPassword = createAsyncThunk(
-//   "user/resetPassword",
-//   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/reset-password", {
-//         oldPassword,
-//         newPassword,
-//       });
-
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to reset password");
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const forgotPassword = createAsyncThunk(
-//   "user/forgotPassword",
-//   async ({ email }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/forgot-password", {
-//         email,
-//       });
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Add new verifyOtp thunk
-// export const verifyOtp = createAsyncThunk(
-//   "user/verifyOtp",
-//   async ({ email, otp }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/verify-otp", {
-//         email,
-//         otp,
-//       });
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "OTP verification failed");
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Update your forgotPasswordReset thunk (replace the existing one)
-// export const forgotPasswordReset = createAsyncThunk(
-//   "user/forgotPasswordReset",
-//   async ({ email, otp, newPassword }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post(
-//         "/users/forgot-password-reset",
-//         { email, otp, newPassword }
-//       );
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to reset password");
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // User Slice
-// const userSlice = createSlice({
-//   name: "user",
-//   initialState: {
-//     loading: false,
-//     userInfo: JSON.parse(localStorage.getItem("user")) || {},
-//     usersList: [],
-//     totalUsers: null,
-//     adminList: [],
-//     userCounts: {},
-//     userTrackInfo: [],
-//     error: null,
-//     trackedDates: [],
-//     trackedDatesLoading: false,
-//     trackedDatesError: null,
-//     activeUserLocations: [],
-//     activeUserLocationsLoading: false,
-//     activeUserLocationsError: null,
-//     lastTrackedUsers: [],
-//     lastTrackedUsersLoading: false,
-//     lastTrackedUsersError: null,
-//     forgotPasswordLoading: false,
-//     forgotPasswordError: null,
-//     forgotPasswordSuccess: false,
-//     verifyOtpLoading: false,
-//     verifyOtpError: null,
-//     verifyOtpSuccess: false,
-//     resetToken: null,
-//     resetPasswordLoading: false,
-//     resetPasswordError: null,
-//     resetPasswordSuccess: false,
-//   },
-//   reducers: {
-//     logoutUser: (state) => {
-//       state.userInfo = {};
-//       state.usersList = [];
-//       state.adminList = [];
-//       state.userTrackInfo = [];
-//       state.userCounts = {};
-//       state.error = null;
-//       state.loading = false;
-//       localStorage.removeItem("token");
-//       localStorage.removeItem("user");
-//     },
-//     setUserInfo: (state, action) => {
-//       state.userInfo = action.payload;
-//       localStorage.setItem("user", JSON.stringify(action.payload));
-//     },
-//     clearResetStates: (state) => {
-//       state.forgotPasswordSuccess = false;
-//       state.verifyOtpSuccess = false;
-//       state.resetPasswordSuccess = false;
-//       state.resetToken = null;
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(getUserTrack.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserTrack.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userTrackInfo = action.payload?.user;
-//       })
-//       .addCase(getUserTrack.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-//       // Handle Login
-//       .addCase(loginUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(loginUser.fulfilled, (state, action) => {
-//         console.log("Login completed..", action.payload);
-//         state.loading = false;
-//         state.userInfo = action.payload.user;
-//       })
-//       .addCase(loginUser.rejected, (state, action) => {
-//         console.log("Login Failed..", action.payload);
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle Registration
-//       .addCase(registerUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(registerUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList.push(action.payload.user);
-//       })
-//       .addCase(registerUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle User Update
-//       .addCase(updateUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(updateUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         const updatedUser = action.payload.user;
-//         const userIndex = state.usersList.findIndex(
-//           (user) => user._id === updatedUser._id
-//         );
-//         if (userIndex !== -1) {
-//           state.usersList[userIndex] = updatedUser;
-//         }
-//         if (state.userInfo?._id === updatedUser._id) {
-//           state.userInfo = updatedUser;
-//           localStorage.setItem("user", JSON.stringify(updatedUser));
-//         }
-//       })
-//       .addCase(updateUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserById.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserById.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userInfo = action.payload.user;
-//       })
-//       .addCase(getUserById.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle Get All Users
-//       .addCase(getAllUsers.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getAllUsers.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList = action.payload.users;
-//         state.totalUsers = action.payload.userCount;
-//       })
-//       .addCase(getAllUsers.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getAllAdmins.pending, (state) => {
-//         state.loadingAdmin = true;
-//         state.error = null;
-//       })
-//       .addCase(getAllAdmins.fulfilled, (state, action) => {
-//         state.loadingAdmin = false;
-//         state.adminList = action.payload;
-//       })
-//       .addCase(getAllAdmins.rejected, (state, action) => {
-//         state.loadingAdmin = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserCounts.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserCounts.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userCounts = action.payload.count;
-//       })
-//       .addCase(getUserCounts.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(deleteUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(deleteUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList = state.usersList.filter(
-//           (item) => item._id !== action.payload.user._id
-//         );
-//       })
-//       .addCase(deleteUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserTrackedDates.pending, (state) => {
-//         state.trackedDatesLoading = true;
-//         state.trackedDatesError = null;
-//       })
-//       .addCase(getUserTrackedDates.fulfilled, (state, action) => {
-//         state.trackedDatesLoading = false;
-//         state.trackedDates = action.payload;
-//       })
-//       .addCase(getUserTrackedDates.rejected, (state, action) => {
-//         state.trackedDatesLoading = false;
-//         state.trackedDatesError = action.payload;
-//       })
-
-//       .addCase(getActiveUserLocations.pending, (state) => {
-//         state.activeUserLocationsLoading = true;
-//         state.activeUserLocationsError = null;
-//       })
-//       .addCase(getActiveUserLocations.fulfilled, (state, action) => {
-//         state.activeUserLocationsLoading = false;
-//         state.activeUserLocations = action.payload;
-//       })
-//       .addCase(getActiveUserLocations.rejected, (state, action) => {
-//         state.activeUserLocationsLoading = false;
-//         state.activeUserLocationsError = action.payload;
-//       })
-
-//       .addCase(getLastFiveTrackedUsers.pending, (state) => {
-//         state.lastTrackedUsersLoading = true;
-//         state.lastTrackedUsersError = null;
-//       })
-//       .addCase(getLastFiveTrackedUsers.fulfilled, (state, action) => {
-//         state.lastTrackedUsersLoading = false;
-//         state.lastTrackedUsers = action.payload;
-//       })
-//       .addCase(getLastFiveTrackedUsers.rejected, (state, action) => {
-//         state.lastTrackedUsersLoading = false;
-//         state.lastTrackedUsersError = action.payload;
-//       })
-
-//       .addCase(resetPassword.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(resetPassword.fulfilled, (state, action) => {
-//         state.loading = false;
-//       })
-//       .addCase(resetPassword.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle forgot password
-//       .addCase(forgotPassword.pending, (state) => {
-//         state.forgotPasswordLoading = true;
-//         state.forgotPasswordError = null;
-//         state.forgotPasswordSuccess = false;
-//       })
-//       .addCase(forgotPassword.fulfilled, (state, action) => {
-//         state.forgotPasswordLoading = false;
-//         state.forgotPasswordSuccess = true;
-//       })
-//       .addCase(forgotPassword.rejected, (state, action) => {
-//         state.forgotPasswordLoading = false;
-//         state.forgotPasswordError = action.payload?.message || "Failed to send OTP";
-//       })
-
-//       // Handle verify OTP
-//       .addCase(verifyOtp.pending, (state) => {
-//         state.verifyOtpLoading = true;
-//         state.verifyOtpError = null;
-//         state.verifyOtpSuccess = false;
-//       })
-//       .addCase(verifyOtp.fulfilled, (state, action) => {
-//         state.verifyOtpLoading = false;
-//         state.verifyOtpSuccess = true;
-//         state.resetToken = action.payload.resetToken;
-//       })
-//       .addCase(verifyOtp.rejected, (state, action) => {
-//         state.verifyOtpLoading = false;
-//         state.verifyOtpError = action.payload?.message || "OTP verification failed";
-//       })
-
-//       // Handle forgot password reset
-//       .addCase(forgotPasswordReset.pending, (state) => {
-//         state.resetPasswordLoading = true;
-//         state.resetPasswordError = null;
-//         state.resetPasswordSuccess = false;
-//       })
-//       .addCase(forgotPasswordReset.fulfilled, (state, action) => {
-//         state.resetPasswordLoading = false;
-//         state.resetPasswordSuccess = true;
-//       })
-//       .addCase(forgotPasswordReset.rejected, (state, action) => {
-//         state.resetPasswordLoading = false;
-//         state.resetPasswordError = action.payload?.message || "Password reset failed";
-//       });
-//   },
-// });
-
-// export const { logoutUser, setUserInfo, clearResetStates } = userSlice.actions;
-// export default userSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-
-// After Configuration
-
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import axios from "axios";
-// import { toast } from "react-toastify";
-
-// const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
-
-// // Create axios instance with base URL
-// const api = axios.create({
-//   baseURL: BASE_URL,
-// });
-
-// // Add token to requests if it exists
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
-
 // // Handle User Registration
 // export const registerUser = createAsyncThunk(
 //   "user/registerUser",
@@ -1187,7 +603,7 @@
 
 
 
-//With Configuration
+//With New Api Key Bind
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -1458,29 +874,67 @@ export const deleteConfig = createAsyncThunk(
 // ============ ADMIN USER MANAGEMENT APIS ============
 
 // Get Users Under Admin (with pagination and search)
+// export const getUsersUnderAdmin = createAsyncThunk(
+//   "user/getUsersUnderAdmin",
+//   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
+//     try {
+//       // Change this line to match backend
+//       const response = await api.get(`/admin/users/${adminId}`, {
+//         params: { page, limit, search }
+//       });
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch users");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
 export const getUsersUnderAdmin = createAsyncThunk(
   "user/getUsersUnderAdmin",
   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
     try {
-      // Change this line to match backend
-      const response = await api.get(`/admin/users/${adminId}`, {
+      if (!adminId) {
+        throw new Error('Admin ID is required');
+      }
+
+      console.log('Fetching users for admin:', adminId);
+
+      // Using /Tracking prefix as per your router
+      const response = await api.get(`/Tracking/admin/${adminId}/users`, {
         params: { page, limit, search }
       });
+
       return response.data.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch users");
+      console.error('Error in getUsersUnderAdmin:', error);
+      toast.error(error?.response?.data?.message || error.message || "Failed to fetch users");
       return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
-
 // Get User Available Dates (for calendar view)
+// export const getUserAvailableDates = createAsyncThunk(
+//   "user/getUserAvailableDates",
+//   async (userId, { rejectWithValue }) => {
+//     try {
+//       // Add /Tracking here
+//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/dates`);
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
 export const getUserAvailableDates = createAsyncThunk(
   "user/getUserAvailableDates",
-  async (userId, { rejectWithValue }) => {
+  async ({ id, date }, { rejectWithValue }) => {  // Accept object with id and date
     try {
-      // Add /Tracking here
-      const response = await api.get(`/Tracking/admin/users/${userId}/sessions/dates`);
+      // Add date as query parameter
+      const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
+        params: { date }  // Pass date as query param
+      });
+       console.log(response.data, "Availables dates from api <==============================")
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
@@ -1488,7 +942,6 @@ export const getUserAvailableDates = createAsyncThunk(
     }
   }
 );
-
 // Get User Sessions By Date (with cursor pagination)
 export const getUserSessionsByDate = createAsyncThunk(
   "user/getUserSessionsByDate",
@@ -1499,6 +952,7 @@ export const getUserSessionsByDate = createAsyncThunk(
 
       // Add /Tracking here
       const response = await api.get(`/Tracking/admin/users/${userId}/sessions`, { params });
+     
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch sessions");
@@ -1508,11 +962,24 @@ export const getUserSessionsByDate = createAsyncThunk(
 );
 
 // Get Session Details
+// export const getSessionDetails = createAsyncThunk(
+//   "user/getSessionDetails",
+//   async ({ userId, sessionId }, { rejectWithValue }) => {
+//     try {
+//       // Add /Tracking here
+//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch session details");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+// Get Session Details with full location data
 export const getSessionDetails = createAsyncThunk(
   "user/getSessionDetails",
   async ({ userId, sessionId }, { rejectWithValue }) => {
     try {
-      // Add /Tracking here
       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
       return response.data.data;
     } catch (error) {
@@ -1521,7 +988,6 @@ export const getSessionDetails = createAsyncThunk(
     }
   }
 );
-
 
 // Get User Summary (for dashboard/overview)
 export const getUserSummary = createAsyncThunk(
@@ -1874,13 +1340,31 @@ const userSlice = createSlice({
       })
 
       // Get User Available Dates
+      // .addCase(getUserAvailableDates.pending, (state) => {
+      //   state.userAvailableDatesLoading = true;
+      //   state.userAvailableDatesError = null;
+      // })
+      // .addCase(getUserAvailableDates.fulfilled, (state, action) => {
+      //   state.userAvailableDatesLoading = false;
+      //   state.userAvailableDates = action.payload.dates;
+      //   state.currentMonthSummary = action.payload.currentMonth;
+      //   state.totalAvailableDays = action.payload.totalAvailableDays;
+      // })
+      // .addCase(getUserAvailableDates.rejected, (state, action) => {
+      //   state.userAvailableDatesLoading = false;
+      //   state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
+      // })
+      // Get User Available Dates
       .addCase(getUserAvailableDates.pending, (state) => {
         state.userAvailableDatesLoading = true;
         state.userAvailableDatesError = null;
       })
       .addCase(getUserAvailableDates.fulfilled, (state, action) => {
         state.userAvailableDatesLoading = false;
-        state.userAvailableDates = action.payload.dates;
+        // Assuming the API returns sessions data
+        console.log("User availble dates ----->", action.payload)
+        state.userTrackInfo = action.payload.sessions || [];  // Store sessions data
+        state.userAvailableDates = action.payload.dates || [];
         state.currentMonthSummary = action.payload.currentMonth;
         state.totalAvailableDays = action.payload.totalAvailableDays;
       })
@@ -1888,7 +1372,22 @@ const userSlice = createSlice({
         state.userAvailableDatesLoading = false;
         state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
       })
-
+      // Get User Sessions By Date
+      // .addCase(getUserSessionsByDate.pending, (state) => {
+      //   state.userSessionsLoading = true;
+      //   state.userSessionsError = null;
+      // })
+      // .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
+      //   state.userSessionsLoading = false;
+      //   state.userSessionsList = action.payload.sessions;
+      //   state.userSessionsSummary = action.payload.summary;
+      //   state.userSessionsPagination = action.payload.pagination;
+      //   state.selectedDate = action.payload.date;
+      // })
+      // .addCase(getUserSessionsByDate.rejected, (state, action) => {
+      //   state.userSessionsLoading = false;
+      //   state.userSessionsError = action.payload?.message || "Failed to fetch sessions";
+      // })
       // Get User Sessions By Date
       .addCase(getUserSessionsByDate.pending, (state) => {
         state.userSessionsLoading = true;
@@ -1896,16 +1395,23 @@ const userSlice = createSlice({
       })
       .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
         state.userSessionsLoading = false;
-        state.userSessionsList = action.payload.sessions;
-        state.userSessionsSummary = action.payload.summary;
-        state.userSessionsPagination = action.payload.pagination;
-        state.selectedDate = action.payload.date;
+        // The API returns data in action.payload
+        // Based on your controller, it should have: sessions, summary, pagination
+
+        console.log("Data get from the get user sessions by date ----->", action.payload)
+        state.userSessionsList = action.payload?.sessions || [];
+        state.userSessionsSummary = action.payload?.summary || null;
+        state.userSessionsPagination = action.payload?.pagination || {
+          nextCursor: null,
+          hasMore: false,
+          totalForDay: 0
+        };
+        state.selectedDate = action.payload?.date || null;
       })
       .addCase(getUserSessionsByDate.rejected, (state, action) => {
         state.userSessionsLoading = false;
         state.userSessionsError = action.payload?.message || "Failed to fetch sessions";
       })
-
       // Get Session Details
       .addCase(getSessionDetails.pending, (state) => {
         state.sessionDetailsLoading = true;
@@ -1914,6 +1420,9 @@ const userSlice = createSlice({
       .addCase(getSessionDetails.fulfilled, (state, action) => {
         state.sessionDetailsLoading = false;
         state.sessionDetails = action.payload;
+
+        console.log("Data get from the API =---->", action.payload)
+
         state.sessionLocations = action.payload.locations || [];
         state.sessionPhotos = action.payload.photos || [];
         state.sessionBounds = action.payload.bounds || null;
@@ -1944,6 +1453,9 @@ const userSlice = createSlice({
       });
   },
 });
+
+
+
 
 export const { logoutUser, setUserInfo } = userSlice.actions;
 export default userSlice.reducer;

@@ -734,7 +734,13 @@
 //       if (role_id === 1) {
 //         await Promise.all([
 //           dispatch(getUserById(user._id)),
-//           dispatch(getAllUsers(user._id)),
+//           // dispatch(getAllUsers(user._id)),
+//           dispatch(getUsersUnderAdmin({
+//             adminId: user._id,
+//             page: 1,
+//             limit: 20,
+//             search: ''
+//           })),
 //         ]);
 //       } else if (role_id === 2) {
 //         await dispatch(getAllAdmins());
@@ -1899,9 +1905,7 @@
 
 
 
-
-
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Grid,
@@ -1955,16 +1959,12 @@ import {
   TableRows as TableRowsIcon,
   ArrowUpward as ArrowUpwardIcon,
   ArrowDownward as ArrowDownwardIcon,
-  Today as TodayIcon,
-  EventAvailable as EventAvailableIcon,
-  DateRange as DateRangeIcon,
-  ArrowForward as ArrowForwardIcon,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -1972,22 +1972,18 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
   getAllAdmins,
-  getAllUsers,
   deleteUser,
   getUserById,
-  //New
   getUsersUnderAdmin,
-  getUserAvailableDates,
-  getUserSessionsByDate,
-  getSessionDetails,
-  getUserSummary
 } from "../../redux/slices/userSlice";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import AddUserModal from "./component/AddUser";
 
-// Skeleton Components (keep as is, but they'll inherit smaller fonts from theme)
-const TableRowSkeleton = ({ isBulkMode, isMobile, isTablet }) => {
+// Skeleton Components
+const TableRowSkeleton = ({ isBulkMode, isMobile, isTablet, role_id }) => {
   const theme = useTheme();
+  const isSuperAdmin = role_id === 2;
+
   return (
     <TableRow>
       {isBulkMode && (
@@ -2004,6 +2000,11 @@ const TableRowSkeleton = ({ isBulkMode, isMobile, isTablet }) => {
       <TableCell>
         <Skeleton variant="text" width={130} height={18} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
       </TableCell>
+      {isSuperAdmin && (
+        <TableCell>
+          <Skeleton variant="text" width={100} height={18} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
+        </TableCell>
+      )}
       <TableCell>
         <Skeleton variant="rounded" width={55} height={22} sx={{ borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
       </TableCell>
@@ -2039,7 +2040,6 @@ const UserCardSkeleton = ({ isBulkMode, isMobile }) => {
               <Skeleton variant="circular" width={18} height={18} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             </Box>
           )}
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
             <Skeleton variant="circular" width={48} height={48} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             <Box sx={{ flex: 1 }}>
@@ -2047,7 +2047,6 @@ const UserCardSkeleton = ({ isBulkMode, isMobile }) => {
               <Skeleton variant="text" width="60%" height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             </Box>
           </Box>
-
           <Stack spacing={1} sx={{ mb: 1.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Skeleton variant="text" width={35} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
@@ -2058,9 +2057,7 @@ const UserCardSkeleton = ({ isBulkMode, isMobile }) => {
               <Skeleton variant="text" width={70} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             </Box>
           </Stack>
-
           <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
-
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
             <Skeleton variant="circular" width={28} height={28} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             <Skeleton variant="circular" width={28} height={28} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
@@ -2093,7 +2090,6 @@ const TabPanelSkeleton = () => {
   );
 };
 
-// Search and Filter Skeleton
 const SearchFilterSkeleton = ({ isMobile }) => {
   const theme = useTheme();
   return (
@@ -2131,7 +2127,6 @@ const SearchFilterSkeleton = ({ isMobile }) => {
   );
 };
 
-// Tabs Skeleton
 const TabsSkeleton = ({ isMobile }) => {
   const theme = useTheme();
   return (
@@ -2157,22 +2152,7 @@ const TabsSkeleton = ({ isMobile }) => {
   );
 };
 
-// TabPanel component
-function TabPanel({ children, value, index, ...other }) {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`user-tabpanel-${index}`}
-      aria-labelledby={`user-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ py: 2.5 }}>{children}</Box>}
-    </div>
-  );
-}
-
-// User Card Component - Smaller fonts
+// User Card Component
 const UserCard = ({
   user,
   onView,
@@ -2186,6 +2166,16 @@ const UserCard = ({
   isMobile
 }) => {
   const theme = useTheme();
+  const isSuperAdmin = role_id === 2;
+
+  const userId = user._id || user.id;
+  const userName = user.name || user.name;
+  const userEmail = user.email;
+  const userMobile = user.mobile_no;
+  const userIsActive = user.isActive;
+  const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
+  const userAvatar = user.avtar || user.profileImage;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -2213,7 +2203,7 @@ const UserCard = ({
           <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1 }}>
             <Checkbox
               checked={isSelected}
-              onChange={() => onSelect(user._id)}
+              onChange={() => onSelect(userId)}
               size="small"
               sx={{
                 color: theme.palette.primary.main,
@@ -2228,7 +2218,7 @@ const UserCard = ({
         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
             <Avatar
-              src={user?.avtar}
+              src={userAvatar}
               sx={{
                 width: { xs: 44, sm: 48 },
                 height: { xs: 44, sm: 48 },
@@ -2238,15 +2228,20 @@ const UserCard = ({
                 borderColor: alpha(theme.palette.primary.main, 0.2),
               }}
             >
-              {user?.name?.charAt(0) || 'U'}
+              {userName?.charAt(0) || 'U'}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user.name}
+                {userName}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user.email}
+                {userEmail}
               </Typography>
+              {isSuperAdmin && userMobile && (
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {userMobile}
+                </Typography>
+              )}
             </Box>
           </Box>
 
@@ -2256,11 +2251,11 @@ const UserCard = ({
                 Status
               </Typography>
               <Chip
-                label={user.isActive ? "Active" : "Inactive"}
+                label={userIsActive ? "Active" : "Inactive"}
                 size="small"
                 sx={{
-                  bgcolor: user.isActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
-                  color: user.isActive ? '#22c55e' : theme.palette.text.secondary,
+                  bgcolor: userIsActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
+                  color: userIsActive ? '#22c55e' : theme.palette.text.secondary,
                   fontWeight: 600,
                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
                   height: 18,
@@ -2272,7 +2267,7 @@ const UserCard = ({
                 Joined
               </Typography>
               <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                {moment(user.createdAt).format("MMM D, YYYY")}
+                {moment(userCreatedAt).format("MMM D, YYYY")}
               </Typography>
             </Box>
           </Stack>
@@ -2330,7 +2325,7 @@ const UserCard = ({
   );
 };
 
-// Responsive Table Component - Smaller fonts
+// Responsive Table Component
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -2349,17 +2344,17 @@ const ResponsiveTable = ({
   totalCount,
   isMobile,
   isTablet,
-  loading
+  loading,
+  role_id
 }) => {
   const theme = useTheme();
+  const isSuperAdmin = role_id === 2;
 
   if (loading) {
     return (
       <TableContainer sx={{
         overflowX: 'auto',
-        '&::-webkit-scrollbar': {
-          height: '6px',
-        },
+        '&::-webkit-scrollbar': { height: '6px' },
         '&::-webkit-scrollbar-thumb': {
           backgroundColor: alpha(theme.palette.primary.main, 0.3),
           borderRadius: '3px',
@@ -2369,8 +2364,9 @@ const ResponsiveTable = ({
           <TableHead>
             <TableRow>
               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
-              <TableCell>User</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
+              {isSuperAdmin && <TableCell>Mobile No</TableCell>}
               <TableCell>Status</TableCell>
               <TableCell>Joined Date</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -2378,7 +2374,13 @@ const ResponsiveTable = ({
           </TableHead>
           <TableBody>
             {[1, 2, 3, 4, 5].map((item) => (
-              <TableRowSkeleton key={item} isBulkMode={isBulkMode} isMobile={isMobile} isTablet={isTablet} />
+              <TableRowSkeleton
+                key={item}
+                isBulkMode={isBulkMode}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                role_id={role_id}
+              />
             ))}
           </TableBody>
         </Table>
@@ -2389,9 +2391,7 @@ const ResponsiveTable = ({
   return (
     <TableContainer sx={{
       overflowX: 'auto',
-      '&::-webkit-scrollbar': {
-        height: '6px',
-      },
+      '&::-webkit-scrollbar': { height: '6px' },
       '&::-webkit-scrollbar-thumb': {
         backgroundColor: alpha(theme.palette.primary.main, 0.3),
         borderRadius: '3px',
@@ -2402,11 +2402,16 @@ const ResponsiveTable = ({
           <TableRow>
             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-              User
+              Name
             </TableCell>
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Email
             </TableCell>
+            {isSuperAdmin && (
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                Mobile No
+              </TableCell>
+            )}
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Status
             </TableCell>
@@ -2425,7 +2430,7 @@ const ResponsiveTable = ({
           <AnimatePresence>
             {users.map((user) => (
               <motion.tr
-                key={user._id}
+                key={user._id || user.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -2445,8 +2450,8 @@ const ResponsiveTable = ({
                 {isBulkMode && (
                   <TableCell padding="checkbox" sx={{ pl: 2 }}>
                     <Checkbox
-                      checked={selectedUsers.includes(user._id)}
-                      onChange={() => handleSelectUser(user._id)}
+                      checked={selectedUsers.includes(user._id || user.id)}
+                      onChange={() => handleSelectUser(user._id || user.id)}
                       size="small"
                       sx={{ color: theme.palette.primary.main }}
                     />
@@ -2455,7 +2460,7 @@ const ResponsiveTable = ({
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
                     <Avatar
-                      src={user.avtar}
+                      src={user.avtar || user.profileImage}
                       sx={{
                         width: { xs: 28, sm: 32 },
                         height: { xs: 28, sm: 32 },
@@ -2463,16 +2468,21 @@ const ResponsiveTable = ({
                         color: theme.palette.primary.main,
                       }}
                     >
-                      {user.name?.charAt(0)}
+                      {(user.name || user.name)?.charAt(0)}
                     </Avatar>
                     <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
-                      {user.name}
+                      {user.name || user.name}
                     </Typography>
                   </Box>
                 </TableCell>
                 <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                   {user.email}
                 </TableCell>
+                {/* {isSuperAdmin && ( */}
+                <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+                  {user.mobile_no}
+                </TableCell>
+                {/* )} */}
                 <TableCell>
                   <Chip
                     label={user.isActive ? 'Active' : 'Inactive'}
@@ -2487,7 +2497,7 @@ const ResponsiveTable = ({
                   />
                 </TableCell>
                 <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
-                  {moment(user.createdAt).format('MMM D, YYYY')}
+                  {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
@@ -2532,7 +2542,7 @@ const ResponsiveTable = ({
 // Main Component
 const UserManagement = () => {
   const theme = useTheme();
-  const location = useLocation(); // Add useLocation for URL params
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -2540,12 +2550,10 @@ const UserManagement = () => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isSmallMobile = useMediaQuery('(max-width:400px)');
 
-  // Add modal state
+  // Modal state
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [editingUserData, setEditingUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // New state for first render loading effect (1 second)
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 
   const [tabValue, setTabValue] = useState(0);
@@ -2565,67 +2573,73 @@ const UserManagement = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  // Read filter from URL query params on component mount and when URL changes
+  // Read filter from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const filter = params.get('filter');
-
     if (filter === 'active') {
-      setTabValue(0); // Active tab
+      setTabValue(0);
     } else if (filter === 'inactive') {
-      setTabValue(1); // Inactive tab
+      setTabValue(1);
     }
-  }, [location.search]); // Re-run when URL changes
+  }, [location.search]);
 
   const userState = useSelector((state) => state.user || {});
   const userData = userState.userInfo || {};
-  const role_id = userData?.role_id;
-  const usersList = useSelector((state) =>
-    role_id === 1 ? state.user?.usersList || [] : state.user?.adminList || []
-  );
+  const role_id = userData?.role_id || 1; // Default to admin (1) if undefined
+
+  // Get users based on role
+  const usersList = useSelector((state) => {
+    if (role_id === 2) { // Super admin
+      return state.user?.adminList || [];
+    } else { // Admin
+      return state.user?.adminUsersList || [];
+    }
+  });
+
+  const totalUsers = useSelector((state) => {
+    if (role_id === 2) {
+      return state.user?.adminList?.length || 0;
+    } else {
+      return state.user?.adminUsersPagination?.totalUsers || 0;
+    }
+  });
+
   const loading = useSelector((state) => state.user?.loading || false);
-  const totalUsers = useSelector((state) => state.user?.totalUsers || 0);
   const maxUser = userData?.currentPaymentId?.maxUser;
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
-  // Effect for first render loading (1 second)
+  // First render loader
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowFirstRenderLoader(false);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
 
-  // Function to get user data from multiple sources
+  // Get user data
   const getUserData = useCallback(() => {
-    // First check Redux state
     if (userData?._id) {
       return userData;
     }
-
-    // Then check localStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        return parsedUser;
+        return JSON.parse(storedUser);
       } catch (e) {
         console.error('Error parsing stored user:', e);
       }
     }
-
     return null;
   }, [userData]);
 
   const canCreateUser = role_id === 2 ||
     (maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
-  // Consolidated data fetching function
+  // Fetch data
   const fetchAllData = useCallback(async () => {
     const user = getUserData();
-
     if (!user?._id) {
       console.log("No user data available");
       setIsLoading(false);
@@ -2637,7 +2651,12 @@ const UserManagement = () => {
       if (role_id === 1) {
         await Promise.all([
           dispatch(getUserById(user._id)),
-          dispatch(getAllUsers(user._id)),
+          dispatch(getUsersUnderAdmin({
+            adminId: user._id,
+            page: 1,
+            limit: 20,
+            search: ''
+          })),
         ]);
       } else if (role_id === 2) {
         await dispatch(getAllAdmins());
@@ -2655,9 +2674,7 @@ const UserManagement = () => {
   useEffect(() => {
     const initializeData = async () => {
       const user = getUserData();
-
       if (user?._id) {
-        // If we have user data but Redux state is empty, update Redux
         if (!userData?._id) {
           dispatch({ type: 'user/setUserInfo', payload: user });
         }
@@ -2666,9 +2683,8 @@ const UserManagement = () => {
         setIsLoading(false);
       }
     };
-
     initializeData();
-  }, []); // Empty dependency array - run only once on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Focus effect
   useEffect(() => {
@@ -2678,7 +2694,6 @@ const UserManagement = () => {
         fetchAllData();
       }
     };
-
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [fetchAllData, getUserData]);
@@ -2691,7 +2706,7 @@ const UserManagement = () => {
   const filterUsersByDateRange = (users) => {
     if (!startDate && !endDate) return users;
     return users.filter((user) => {
-      const joinedDate = moment(user.createdAt);
+      const joinedDate = moment(user.createdAt || user.registeredDate || user.createdAt);
       if (startDate && endDate) {
         return joinedDate.isBetween(moment(startDate), moment(endDate), null, "[]");
       } else if (startDate) {
@@ -2705,16 +2720,17 @@ const UserManagement = () => {
 
   // Sort users
   const sortedUsers = [...filterUsersByDateRange(usersList)].sort((a, b) => {
-    const dateA = new Date(a.createdAt);
-    const dateB = new Date(b.createdAt);
+    const dateA = new Date(a.createdAt || a.registeredDate || a.createdAt);
+    const dateB = new Date(b.createdAt || b.registeredDate || b.createdAt);
     return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
   });
 
   // Filter by search
   const filteredUsers = sortedUsers.filter(
     (user) =>
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.name || user.name)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (role_id === 2 && user.mobile_no?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const activeUsers = filteredUsers.filter((user) => user.isActive);
@@ -2723,8 +2739,6 @@ const UserManagement = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setPage(0);
-
-    // Update URL with filter parameter when tab changes
     const params = new URLSearchParams(location.search);
     if (newValue === 0) {
       params.set('filter', 'active');
@@ -2738,7 +2752,7 @@ const UserManagement = () => {
     if (role_id === 1) {
       navigate("/trackingdata", { state: { item: user } });
     } else if (role_id === 2) {
-      navigate(`/list-users/${user._id}`);
+      navigate(`/list-users/${user._id || user.id}`);
     }
   };
 
@@ -2754,7 +2768,7 @@ const UserManagement = () => {
 
   const handleDeleteConfirm = () => {
     setIsDeleting(true);
-    dispatch(deleteUser(selectedUser?._id))
+    dispatch(deleteUser(selectedUser?._id || selectedUser?.id))
       .unwrap()
       .then(() => {
         toast.success("User deleted successfully!");
@@ -2797,7 +2811,7 @@ const UserManagement = () => {
   const handleSelectAll = (event) => {
     const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
     if (event.target.checked) {
-      setSelectedUsers(currentUsers.map((user) => user._id));
+      setSelectedUsers(currentUsers.map((user) => user._id || user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -2805,33 +2819,45 @@ const UserManagement = () => {
 
   const handleDownloadPDF = async () => {
     const doc = new jsPDF();
-
     doc.setFontSize(18);
-    doc.setTextColor(theme.palette.primary.main); // #2563EB
+    doc.setTextColor(theme.palette.primary.main);
     doc.setFont(undefined, "bold");
     doc.text("Team Trackify", 105, 15, { align: "center" });
-
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
     doc.text("User List Report", 105, 30, { align: "center" });
-
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 40, { align: "center" });
 
-    const tableColumn = ["Name", "Email", "Status", "Joined Date"];
-    const tableRows = usersList.map((user) => [
-      user.name || "N/A",
-      user.email || "N/A",
-      user.isActive ? "Active" : "Inactive",
-      user.createdAt ? moment(user.createdAt).format("MMM D, YYYY") : "N/A",
-    ]);
+    const tableColumn = role_id === 2
+      ? ["Name", "Email", "Mobile No", "Status", "Joined Date"]
+      : ["Name", "Email", "Status", "Joined Date"];
+
+    const tableRows = usersList.map((user) => {
+      if (role_id === 2) {
+        return [
+          user.name || "N/A",
+          user.email || "N/A",
+          user.mobile_no || "N/A",
+          user.isActive ? "Active" : "Inactive",
+          user.createdAt ? moment(user.createdAt).format("MMM D, YYYY") : "N/A",
+        ];
+      } else {
+        return [
+          user.name || "N/A",
+          user.email || "N/A",
+          user.isActive ? "Active" : "Inactive",
+          user.registeredDate || user.createdAt ? moment(user.registeredDate || user.createdAt).format("MMM D, YYYY") : "N/A",
+        ];
+      }
+    });
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 50,
       styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [37, 99, 235], textColor: 255 }, // Using primary color
+      headStyles: { fillColor: [37, 99, 235], textColor: 255 },
       alternateRowStyles: { fillColor: [240, 240, 240] },
     });
 
@@ -2868,7 +2894,6 @@ const UserManagement = () => {
       toast.error("User data not available");
       return;
     }
-
     if (canCreateUser) {
       setAddUserModalOpen(true);
     } else {
@@ -2879,11 +2904,10 @@ const UserManagement = () => {
   const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
   const paginatedUsers = currentUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  // If first render loader is active, show skeletons for everything except title
+  // First render loader
   if (showFirstRenderLoader) {
     return (
       <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
-        {/* Header with title only (no loading) */}
         <Box sx={{
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
@@ -2902,19 +2926,17 @@ const UserManagement = () => {
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 fontSize: {
-                  xs: '1rem',      // 16px on mobile
-                  sm: '1.2rem',    // 19px on small tablets
-                  md: '1.4rem',    // 22px on tablets
-                  lg: '1.6rem',    // 26px on desktops
-                  xl: '1.8rem'     // 29px on large screens
+                  xs: '1rem',
+                  sm: '1.2rem',
+                  md: '1.4rem',
+                  lg: '1.6rem',
+                  xl: '1.8rem'
                 },
               }}
             >
               {role_id === 1 ? 'User Management' : 'Organization Management'}
             </Typography>
           </Box>
-
-          {/* Action buttons skeleton */}
           <Box sx={{
             display: 'flex',
             gap: 1,
@@ -2929,11 +2951,7 @@ const UserManagement = () => {
             <Skeleton variant="rounded" width={isMobile ? 90 : 110} height={isMobile ? 34 : 38} sx={{ borderRadius: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
           </Box>
         </Box>
-
-        {/* Search and Filters Skeleton */}
         <SearchFilterSkeleton isMobile={isMobile} />
-
-        {/* Tabs and Table/Card Skeleton */}
         <TabsSkeleton isMobile={isMobile} />
       </Box>
     );
@@ -2960,11 +2978,11 @@ const UserManagement = () => {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               fontSize: {
-                xs: '1rem',      // 16px on mobile
-                sm: '1.2rem',    // 19px on small tablets
-                md: '1.4rem',    // 22px on tablets
-                lg: '1.6rem',    // 26px on desktops
-                xl: '1.8rem'     // 29px on large screens
+                xs: '1rem',
+                sm: '1.2rem',
+                md: '1.4rem',
+                lg: '1.6rem',
+                xl: '1.8rem'
               },
             }}
           >
@@ -3131,7 +3149,7 @@ const UserManagement = () => {
         </Box>
       </Box>
 
-      {/* Search and Filters - Smaller */}
+      {/* Search and Filters */}
       <Paper
         elevation={0}
         sx={{
@@ -3233,49 +3251,6 @@ const UserManagement = () => {
           },
         }}
       >
-        {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' }, color: theme.palette.primary.main }}>
-              Start Date
-            </Typography>
-            <DatePicker
-              value={startDate}
-              onChange={setStartDate}
-              renderInput={(params) => (
-                <TextField {...params} fullWidth size="small" />
-              )}
-            />
-          </Box>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' }, color: theme.palette.primary.main }}>
-              End Date
-            </Typography>
-            <DatePicker
-              value={endDate}
-              onChange={setEndDate}
-              renderInput={(params) => (
-                <TextField {...params} fullWidth size="small" />
-              )}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <Button size="small" onClick={clearDateFilter} sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' }, color: '#64748b' }}>
-              Clear
-            </Button>
-            <Button 
-              size="small" 
-              variant="contained" 
-              onClick={applyDateFilter} 
-              sx={{ 
-                fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                bgcolor: theme.palette.primary.main,
-                '&:hover': { bgcolor: theme.palette.primary.dark },
-              }}
-            >
-              Apply
-            </Button>
-          </Box>
-        </LocalizationProvider> */}
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Box sx={{
             display: 'flex',
@@ -3284,7 +3259,6 @@ const UserManagement = () => {
             p: 0.5,
             minWidth: 200,
           }}>
-            {/* Start */}
             <Box>
               <Typography
                 variant="caption"
@@ -3336,7 +3310,6 @@ const UserManagement = () => {
               />
             </Box>
 
-            {/* End */}
             <Box>
               <Typography
                 variant="caption"
@@ -3388,7 +3361,6 @@ const UserManagement = () => {
               />
             </Box>
 
-            {/* Heavier / more prominent buttons */}
             <Box sx={{
               display: 'flex',
               gap: 0.8,
@@ -3399,17 +3371,17 @@ const UserManagement = () => {
                 size="small"
                 onClick={clearDateFilter}
                 sx={{
-                  fontSize: '0.68rem',          // slightly larger text
-                  fontWeight: 700,              // very bold
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
                   minWidth: 'auto',
-                  px: 1.8,                      // wider
-                  py: 0.6,                      // thicker vertically
+                  px: 1.8,
+                  py: 0.6,
                   lineHeight: 1,
                   color: 'text.primary',
                   textTransform: 'none',
                   border: '1.5px solid',
                   borderColor: 'divider',
-                  borderRadius: '8px',          // softer but prominent pill shape
+                  borderRadius: '8px',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                   '&:hover': {
                     bgcolor: 'action.hover',
@@ -3424,26 +3396,26 @@ const UserManagement = () => {
               <Button
                 size="small"
                 variant="contained"
-                disableElevation={false}        // allow shadow
+                disableElevation={false}
                 onClick={applyDateFilter}
                 sx={{
                   fontSize: '0.7rem',
-                  fontWeight: 700,              // extra bold
+                  fontWeight: 700,
                   minWidth: 'auto',
-                  px: 2.5,                      // noticeably wider
-                  py: 0.7,                      // thicker / heavier feel
+                  px: 2.5,
+                  py: 0.7,
                   lineHeight: 1,
                   textTransform: 'none',
                   borderRadius: '8px',
-                  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',     // stronger initial shadow
+                  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
                   bgcolor: theme.palette.primary.main,
                   color: theme.palette.primary.contrastText,
                   '&:hover': {
                     bgcolor: theme.palette.primary.dark,
-                    boxShadow: '0 5px 14px rgba(0,0,0,0.22)',   // lift + deeper shadow on hover
-                    transform: 'translateY(-1px)',              // subtle "press up" effect
+                    boxShadow: '0 5px 14px rgba(0,0,0,0.22)',
+                    transform: 'translateY(-1px)',
                   },
-                  transition: 'all 0.15s ease',   // smooth hover animation
+                  transition: 'all 0.15s ease',
                 }}
               >
                 Apply
@@ -3569,6 +3541,7 @@ const UserManagement = () => {
               isMobile={isMobile}
               isTablet={isTablet}
               loading={isLoading}
+              role_id={role_id}
             />
 
             {!isLoading && (
@@ -3627,17 +3600,17 @@ const UserManagement = () => {
                 <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                   <AnimatePresence>
                     {paginatedUsers.map((user) => (
-                      <Grid item xs={12} sm={6} md={4} key={user._id}>
+                      <Grid item xs={12} sm={6} md={4} key={user._id || user.id}>
                         <UserCard
                           user={user}
                           onView={handleView}
                           onEdit={handleEdit}
                           onDelete={handleDeleteClick}
-                          isSelected={selectedUsers.includes(user._id)}
+                          isSelected={selectedUsers.includes(user._id || user.id)}
                           onSelect={handleSelectUser}
                           isBulkMode={isBulkMode}
                           role_id={role_id}
-                          isDeleting={isDeleting && selectedUsers.includes(user._id)}
+                          isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
                           isMobile={isMobile}
                         />
                       </Grid>
@@ -3699,14 +3672,14 @@ const UserManagement = () => {
         title={selectedUser ? "Confirm Deletion" : "Confirm Bulk Deletion"}
         message={
           selectedUser
-            ? `Are you sure you want to delete ${selectedUser.name}?`
+            ? `Are you sure you want to delete ${selectedUser.name || selectedUser.name}?`
             : `Are you sure you want to delete ${selectedUsers.length} users?`
         }
         subMessage="This action cannot be undone."
         loading={isDeleting}
       />
 
-      {/* User Limit Modal - Smaller */}
+      {/* User Limit Modal */}
       <Dialog
         open={showLimitModal}
         onClose={() => setShowLimitModal(false)}
