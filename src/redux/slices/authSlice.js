@@ -122,7 +122,7 @@
 //         state.success = false;
 //         state.isAuthenticated = false; // Fix: Set to false
 //       })
-      
+
 //       // Forgot Password cases
 //       .addCase(forgotPassword.pending, (state) => {
 //         state.isLoading = true;
@@ -160,7 +160,7 @@
 //         state.success = false;
 //         state.otpVerified = false;
 //       })
-      
+
 //       // Reset Password cases
 //       .addCase(resetPassword.pending, (state) => {
 //         state.isLoading = true;
@@ -195,6 +195,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+
 
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api';
 
@@ -278,6 +279,90 @@ export const resendEmailOTP = createAsyncThunk(
   }
 );
 
+
+
+// ========== NEW IMPERSONATION CONTROLLERS ==========
+
+// Async thunk for impersonate user (Super Admin only)
+export const impersonateUser = createAsyncThunk(
+  'auth/impersonateUser',
+  async (userId, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.post(
+        `${BASE_URL}/users/impersonate`,
+        { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      // Store impersonation token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('isImpersonating', 'true');
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Impersonation failed');
+    }
+  }
+);
+
+// Async thunk for stop impersonation
+export const stopImpersonation = createAsyncThunk(
+  'auth/stopImpersonation',
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.post(
+        `${BASE_URL}/users/stop-impersonation`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      // Restore original token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.removeItem('isImpersonating');
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to stop impersonation');
+    }
+  }
+);
+
+// Async thunk for get impersonation status
+export const getImpersonationStatus = createAsyncThunk(
+  'auth/getImpersonationStatus',
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.get(
+        `${BASE_URL}/users/impersonation-status`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to get impersonation status');
+    }
+  }
+);
+
+// ========== END OF NEW IMPERSONATION CONTROLLERS ==========
+
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
@@ -293,6 +378,13 @@ const initialState = {
   isEmailVerified: false,
   emailVerificationMessage: null,
   emailVerificationError: null,
+
+  // ========== NEW IMPERSONATION STATE ==========
+  isImpersonating: localStorage.getItem('isImpersonating') === 'true' || false,
+  impersonatedBy: null,
+  originalUser: null,
+  impersonationStatus: null,
+  // ========== END OF NEW IMPERSONATION STATE ==========
 };
 
 const authSlice = createSlice({
@@ -329,6 +421,12 @@ const authSlice = createSlice({
       state.emailVerificationMessage = null;
       state.emailVerificationError = null;
     },
+    // ========== NEW IMPERSONATION REDUCERS ==========
+    clearImpersonationState: (state) => {
+      state.impersonationStatus = null;
+      state.impersonationError = null;
+    },
+    // ========== END OF NEW IMPERSONATION REDUCERS ==========
   },
   extraReducers: (builder) => {
     builder
@@ -353,7 +451,7 @@ const authSlice = createSlice({
         state.success = false;
         state.isAuthenticated = false;
       })
-      
+
       // Forgot Password cases
       .addCase(forgotPassword.pending, (state) => {
         state.isLoading = true;
@@ -391,7 +489,7 @@ const authSlice = createSlice({
         state.success = false;
         state.otpVerified = false;
       })
-      
+
       // Reset Password cases
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
@@ -410,7 +508,7 @@ const authSlice = createSlice({
         state.error = action.payload?.message || 'Failed to reset password';
         state.success = false;
       })
-      
+
       // NEW: Verify Email OTP cases
       .addCase(verifyEmailOTP.pending, (state) => {
         state.isLoading = true;
@@ -431,7 +529,7 @@ const authSlice = createSlice({
         state.isEmailVerified = false;
         state.success = false;
       })
-      
+
       // NEW: Resend Email OTP cases
       .addCase(resendEmailOTP.pending, (state) => {
         state.isLoading = true;
@@ -449,17 +547,94 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.emailVerificationError = action.payload?.message || 'Failed to resend email OTP';
         state.success = false;
+      })
+
+      // ========== NEW IMPERSONATION CASES ==========
+
+      // Impersonate User cases
+      .addCase(impersonateUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.impersonationError = null;
+      })
+      .addCase(impersonateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        state.role_id = action.payload.user?.role_id;
+        state.isImpersonating = true;
+        state.impersonatedBy = action.payload.impersonatedBy || null;
+        state.originalUser = action.payload.originalUser || null;
+        state.success = true;
+        state.message = action.payload?.message || 'Impersonation successful';
+        state.error = null;
+      })
+      .addCase(impersonateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Impersonation failed';
+        state.impersonationError = action.payload?.message || 'Impersonation failed'; // Add this
+        state.success = false;
+        state.isImpersonating = false;
+      })
+
+      // Stop Impersonation cases
+      .addCase(stopImpersonation.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(stopImpersonation.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        state.role_id = action.payload.user?.role_id;
+        state.isImpersonating = false;
+        state.impersonatedBy = null;
+        state.originalUser = null;
+        state.success = true;
+        state.message = action.payload?.message || 'Returned to admin session';
+        state.error = null;
+
+        // Remove impersonation flag from localStorage
+        localStorage.removeItem('isImpersonating');
+      })
+      .addCase(stopImpersonation.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to stop impersonation';
+        state.success = false;
+      })
+
+      // Get Impersonation Status cases
+      .addCase(getImpersonationStatus.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getImpersonationStatus.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.impersonationStatus = action.payload;
+        state.isImpersonating = action.payload.isImpersonated || false;
+        state.impersonatedBy = action.payload.impersonatedBy || null;
+        state.originalUser = action.payload.originalUser || null;
+        state.success = true;
+      })
+      .addCase(getImpersonationStatus.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to get impersonation status';
+        state.success = false;
       });
+    // ========== END OF NEW IMPERSONATION CASES ==========
+
   },
 });
 
-export const { 
-  logout, 
-  clearError, 
-  clearMessage, 
-  setResetEmail, 
+export const {
+  logout,
+  clearError,
+  clearMessage,
+  setResetEmail,
   setOTPVerified,
-  clearEmailVerificationState 
+  clearEmailVerificationState
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -893,7 +893,7 @@ export const getUsersUnderAdmin = createAsyncThunk(
   "user/getUsersUnderAdmin",
   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
     try {
-      if (!adminId) {
+      if (!adminId) { 
         throw new Error('Admin ID is required');
       }
 
