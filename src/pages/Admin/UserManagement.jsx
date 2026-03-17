@@ -1869,6 +1869,7 @@
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -1882,6 +1883,8 @@
 
 //Latest Working Witm imperson 
 
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 // import React, { useEffect, useState, useCallback } from "react";
 // import {
 //   Box,
@@ -1920,7 +1923,10 @@
 //   Skeleton,
 //   useTheme,
 //   useMediaQuery,
+<<<<<<< HEAD
 //   Alert,
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 // } from "@mui/material";
 // import {
 //   Search as SearchIcon,
@@ -1937,8 +1943,11 @@
 //   TableRows as TableRowsIcon,
 //   ArrowUpward as ArrowUpwardIcon,
 //   ArrowDownward as ArrowDownwardIcon,
+<<<<<<< HEAD
 //   Login as LoginIcon,
 //   ExitToApp as ExitToAppIcon,
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 // } from "@mui/icons-material";
 // import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 // import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -1956,6 +1965,7 @@
 //   getUserById,
 //   getUsersUnderAdmin,
 // } from "../../redux/slices/userSlice";
+<<<<<<< HEAD
 // import {
 //   impersonateUser,
 //   stopImpersonation,
@@ -2016,6 +2026,11 @@
 //   );
 // };
 
+=======
+// import DeleteConfirmModal from "../../components/DeleteConfirmModal";
+// import AddUserModal from "./component/AddUser";
+
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 // // Skeleton Components
 // const TableRowSkeleton = ({ isBulkMode, isMobile, isTablet, role_id }) => {
 //   const theme = useTheme();
@@ -2195,7 +2210,10 @@
 //   onView,
 //   onEdit,
 //   onDelete,
+<<<<<<< HEAD
 //   onImpersonate,
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //   isSelected,
 //   onSelect,
 //   isBulkMode,
@@ -2327,6 +2345,7 @@
 //                 <VisibilityIcon sx={{ fontSize: 16 }} />
 //               </IconButton>
 //             </Tooltip>
+<<<<<<< HEAD
             
 //             {/* Impersonate button - only for super admin */}
 //             {isSuperAdmin && (
@@ -2348,6 +2367,8 @@
 //               </Tooltip>
 //             )}
             
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //             <Tooltip title="Edit">
 //               <IconButton
 //                 size="small"
@@ -2362,6 +2383,7 @@
 //                 <EditIcon sx={{ fontSize: 16 }} />
 //               </IconButton>
 //             </Tooltip>
+<<<<<<< HEAD
             
 //             <Tooltip title="Delete">
 //               <span>
@@ -2379,6 +2401,22 @@
 //                   {isDeleting ? <CircularProgress size={14} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
 //                 </IconButton>
 //               </span>
+=======
+//             <Tooltip title="Delete">
+//               <IconButton
+//                 size="small"
+//                 onClick={() => onDelete(user)}
+//                 disabled={isDeleting}
+//                 sx={{
+//                   color: '#ef4444',
+//                   '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
+//                   width: 28,
+//                   height: 28,
+//                 }}
+//               >
+//                 {isDeleting ? <CircularProgress size={14} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
+//               </IconButton>
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //             </Tooltip>
 //           </Box>
 //         </CardContent>
@@ -2397,7 +2435,10 @@
 //   handleView,
 //   handleEdit,
 //   handleDeleteClick,
+<<<<<<< HEAD
 //   handleImpersonate,
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //   sortOrder,
 //   onSort,
 //   page,
@@ -2491,7 +2532,11 @@
 //         </TableHead>
 //         <TableBody>
 //           <AnimatePresence>
+<<<<<<< HEAD
 //             {(users || []).map((user) => (
+=======
+//             {users.map((user) => (
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //               <motion.tr
 //                 key={user._id || user.id}
 //                 initial={{ opacity: 0 }}
@@ -2541,11 +2586,19 @@
 //                 <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
 //                   {user.email}
 //                 </TableCell>
+<<<<<<< HEAD
 //                 {isSuperAdmin && (
 //                   <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
 //                     {user.mobile_no}
 //                   </TableCell>
 //                 )}
+=======
+//                 {/* {isSuperAdmin && ( */}
+//                 <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+//                   {user.mobile_no}
+//                 </TableCell>
+//                 {/* )} */}
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //                 <TableCell>
 //                   <Chip
 //                     label={user.isActive ? 'Active' : 'Inactive'}
@@ -2573,6 +2626,7 @@
 //                         <VisibilityIcon sx={{ fontSize: 14 }} />
 //                       </IconButton>
 //                     </Tooltip>
+<<<<<<< HEAD
                     
 //                     {/* Impersonate button - only for super admin */}
 //                     {isSuperAdmin && (
@@ -2594,6 +2648,8 @@
 //                       </Tooltip>
 //                     )}
                     
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //                     <Tooltip title="Edit">
 //                       <IconButton
 //                         size="small"
@@ -2603,6 +2659,7 @@
 //                         <EditIcon sx={{ fontSize: 14 }} />
 //                       </IconButton>
 //                     </Tooltip>
+<<<<<<< HEAD
                     
 //                     <Tooltip title="Delete">
 //                       <span>
@@ -2614,6 +2671,16 @@
 //                           <DeleteIcon sx={{ fontSize: 14 }} />
 //                         </IconButton>
 //                       </span>
+=======
+//                     <Tooltip title="Delete">
+//                       <IconButton
+//                         size="small"
+//                         onClick={() => handleDeleteClick(user)}
+//                         sx={{ color: '#ef4444', width: 26, height: 26 }}
+//                       >
+//                         <DeleteIcon sx={{ fontSize: 14 }} />
+//                       </IconButton>
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //                     </Tooltip>
 //                   </Box>
 //                 </TableCell>
@@ -2642,8 +2709,11 @@
 //   const [editingUserData, setEditingUserData] = useState(null);
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
+<<<<<<< HEAD
 //   const [dataFetched, setDataFetched] = useState(false);
 //   const [fetchError, setFetchError] = useState(null);
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
 //   const [tabValue, setTabValue] = useState(0);
 //   const [searchQuery, setSearchQuery] = useState("");
@@ -2662,6 +2732,7 @@
 //   const [startDate, setStartDate] = useState(null);
 //   const [endDate, setEndDate] = useState(null);
 
+<<<<<<< HEAD
 //   // Impersonation state
 //   const [impersonating, setImpersonating] = useState(false);
 //   const [impersonatedUser, setImpersonatedUser] = useState(null);
@@ -2682,6 +2753,28 @@
 //     if (role_id === 2) {
 //       return state.user?.adminList || [];
 //     } else {
+=======
+//   // Read filter from URL
+//   useEffect(() => {
+//     const params = new URLSearchParams(location.search);
+//     const filter = params.get('filter');
+//     if (filter === 'active') {
+//       setTabValue(0);
+//     } else if (filter === 'inactive') {
+//       setTabValue(1);
+//     }
+//   }, [location.search]);
+
+//   const userState = useSelector((state) => state.user || {});
+//   const userData = userState.userInfo || {};
+//   const role_id = userData?.role_id || 1; // Default to admin (1) if undefined
+
+//   // Get users based on role
+//   const usersList = useSelector((state) => {
+//     if (role_id === 2) { // Super admin
+//       return state.user?.adminList || [];
+//     } else { // Admin
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       return state.user?.adminUsersList || [];
 //     }
 //   });
@@ -2699,6 +2792,7 @@
 //   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
 //   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
+<<<<<<< HEAD
 //   // Read filter from URL
 //   useEffect(() => {
 //     const params = new URLSearchParams(location.search);
@@ -2718,6 +2812,8 @@
 //     }
 //   }, [isImpersonating, authUser]);
 
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //   // First render loader
 //   useEffect(() => {
 //     const timer = setTimeout(() => {
@@ -2731,9 +2827,12 @@
 //     if (userData?._id) {
 //       return userData;
 //     }
+<<<<<<< HEAD
 //     if (auth?.user?._id) {
 //       return auth.user;
 //     }
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     const storedUser = localStorage.getItem('user');
 //     if (storedUser) {
 //       try {
@@ -2743,7 +2842,11 @@
 //       }
 //     }
 //     return null;
+<<<<<<< HEAD
 //   }, [userData, auth]);
+=======
+//   }, [userData]);
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
 //   const canCreateUser = role_id === 2 ||
 //     (maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
@@ -2754,13 +2857,19 @@
 //     if (!user?._id) {
 //       console.log("No user data available");
 //       setIsLoading(false);
+<<<<<<< HEAD
 //       setFetchError("User data not available");
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       return;
 //     }
 
 //     setIsRefreshing(true);
+<<<<<<< HEAD
 //     setFetchError(null);
     
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     try {
 //       if (role_id === 1) {
 //         await Promise.all([
@@ -2775,10 +2884,15 @@
 //       } else if (role_id === 2) {
 //         await dispatch(getAllAdmins());
 //       }
+<<<<<<< HEAD
 //       setDataFetched(true);
 //     } catch (error) {
 //       console.error("Error fetching data:", error);
 //       setFetchError(error?.message || "Failed to load data");
+=======
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       toast.error("Failed to load data");
 //     } finally {
 //       setIsRefreshing(false);
@@ -2790,20 +2904,29 @@
 //   useEffect(() => {
 //     const initializeData = async () => {
 //       const user = getUserData();
+<<<<<<< HEAD
 //       console.log("Initializing with user:", user);
       
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       if (user?._id) {
 //         if (!userData?._id) {
 //           dispatch({ type: 'user/setUserInfo', payload: user });
 //         }
 //         await fetchAllData();
 //       } else {
+<<<<<<< HEAD
 //         console.log("No user found, setting loading to false");
 //         setIsLoading(false);
 //         setFetchError("Please login to continue");
 //       }
 //     };
     
+=======
+//         setIsLoading(false);
+//       }
+//     };
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     initializeData();
 //   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2811,18 +2934,27 @@
 //   useEffect(() => {
 //     const handleFocus = () => {
 //       const user = getUserData();
+<<<<<<< HEAD
 //       if (user?._id && !isRefreshing && dataFetched) {
+=======
+//       if (user?._id) {
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //         fetchAllData();
 //       }
 //     };
 //     window.addEventListener('focus', handleFocus);
 //     return () => window.removeEventListener('focus', handleFocus);
+<<<<<<< HEAD
 //   }, [fetchAllData, getUserData, isRefreshing, dataFetched]);
+=======
+//   }, [fetchAllData, getUserData]);
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
 //   const refreshData = async () => {
 //     await fetchAllData();
 //   };
 
+<<<<<<< HEAD
 //   // Impersonation function
 //   // const handleImpersonate = async (user) => {
 //   //   try {
@@ -2950,6 +3082,12 @@
 //   const filterUsersByDateRange = (users) => {
 //     if (!startDate && !endDate) return users;
 //     return (users || []).filter((user) => {
+=======
+//   // Filter users by date range
+//   const filterUsersByDateRange = (users) => {
+//     if (!startDate && !endDate) return users;
+//     return users.filter((user) => {
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       const joinedDate = moment(user.createdAt || user.registeredDate || user.createdAt);
 //       if (startDate && endDate) {
 //         return joinedDate.isBetween(moment(startDate), moment(endDate), null, "[]");
@@ -2963,22 +3101,35 @@
 //   };
 
 //   // Sort users
+<<<<<<< HEAD
 //   const sortedUsers = [...filterUsersByDateRange(usersList || [])].sort((a, b) => {
+=======
+//   const sortedUsers = [...filterUsersByDateRange(usersList)].sort((a, b) => {
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     const dateA = new Date(a.createdAt || a.registeredDate || a.createdAt);
 //     const dateB = new Date(b.createdAt || b.registeredDate || b.createdAt);
 //     return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
 //   });
 
 //   // Filter by search
+<<<<<<< HEAD
 //   const filteredUsers = (sortedUsers || []).filter(
+=======
+//   const filteredUsers = sortedUsers.filter(
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     (user) =>
 //       (user.name || user.name)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
 //       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
 //       (role_id === 2 && user.mobile_no?.toLowerCase().includes(searchQuery.toLowerCase()))
 //   );
 
+<<<<<<< HEAD
 //   const activeUsers = (filteredUsers || []).filter((user) => user.isActive);
 //   const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+=======
+//   const activeUsers = filteredUsers.filter((user) => user.isActive);
+//   const inactiveUsers = filteredUsers.filter((user) => !user.isActive);
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
 //   const handleTabChange = (event, newValue) => {
 //     setTabValue(newValue);
@@ -3055,7 +3206,11 @@
 //   const handleSelectAll = (event) => {
 //     const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
 //     if (event.target.checked) {
+<<<<<<< HEAD
 //       setSelectedUsers((currentUsers || []).map((user) => user._id || user.id));
+=======
+//       setSelectedUsers(currentUsers.map((user) => user._id || user.id));
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     } else {
 //       setSelectedUsers([]);
 //     }
@@ -3077,7 +3232,11 @@
 //       ? ["Name", "Email", "Mobile No", "Status", "Joined Date"]
 //       : ["Name", "Email", "Status", "Joined Date"];
 
+<<<<<<< HEAD
 //     const tableRows = (usersList || []).map((user) => {
+=======
+//     const tableRows = usersList.map((user) => {
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //       if (role_id === 2) {
 //         return [
 //           user.name || "N/A",
@@ -3146,6 +3305,7 @@
 //   };
 
 //   const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
+<<<<<<< HEAD
 //   const paginatedUsers = (currentUsers || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
 //   // Debug logs
@@ -3168,6 +3328,9 @@
 //       </Box>
 //     );
 //   }
+=======
+//   const paginatedUsers = currentUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
 //   // First render loader
 //   if (showFirstRenderLoader) {
@@ -3222,6 +3385,7 @@
 //     );
 //   }
 
+<<<<<<< HEAD
 //   // Show loading if data not fetched yet
 //   if (isLoading || !dataFetched) {
 //     return (
@@ -3262,6 +3426,8 @@
 //     );
 //   }
 
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //   return (
 //     <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
 //       {/* Header */}
@@ -3330,6 +3496,7 @@
 //           width: { xs: '100%', sm: 'auto' }
 //         }}>
 //           <Tooltip title="Refresh">
+<<<<<<< HEAD
 //             <span>
 //               <IconButton
 //                 onClick={refreshData}
@@ -3345,6 +3512,21 @@
 //                 <RefreshIcon sx={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none', fontSize: { xs: 18, sm: 20 } }} />
 //               </IconButton>
 //             </span>
+=======
+//             <IconButton
+//               onClick={refreshData}
+//               disabled={isRefreshing}
+//               size={isMobile ? "small" : "small"}
+//               sx={{
+//                 color: theme.palette.primary.main,
+//                 '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                 width: 34,
+//                 height: 34,
+//               }}
+//             >
+//               <RefreshIcon sx={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none', fontSize: { xs: 18, sm: 20 } }} />
+//             </IconButton>
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //           </Tooltip>
 
 //           <Tooltip title={viewMode === 'table' ? 'Card View' : 'Table View'}>
@@ -3835,7 +4017,10 @@
 //               handleView={handleView}
 //               handleEdit={handleEdit}
 //               handleDeleteClick={handleDeleteClick}
+<<<<<<< HEAD
 //               handleImpersonate={handleImpersonate}
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //               sortOrder={sortOrder}
 //               onSort={handleSort}
 //               page={page}
@@ -3907,14 +4092,21 @@
 //               <>
 //                 <Grid container spacing={{ xs: 1.5, sm: 2 }}>
 //                   <AnimatePresence>
+<<<<<<< HEAD
 //                     {(paginatedUsers || []).map((user) => (
+=======
+//                     {paginatedUsers.map((user) => (
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //                       <Grid item xs={12} sm={6} md={4} key={user._id || user.id}>
 //                         <UserCard
 //                           user={user}
 //                           onView={handleView}
 //                           onEdit={handleEdit}
 //                           onDelete={handleDeleteClick}
+<<<<<<< HEAD
 //                           onImpersonate={handleImpersonate}
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //                           isSelected={selectedUsers.includes(user._id || user.id)}
 //                           onSelect={handleSelectUser}
 //                           isBulkMode={isBulkMode}
@@ -4076,6 +4268,7 @@
 //           </Button>
 //         </DialogActions>
 //       </Dialog>
+<<<<<<< HEAD
 
 //       {/* Impersonation Banner */}
 //       {impersonating && (
@@ -4084,12 +4277,15 @@
 //           impersonatedUser={impersonatedUser}
 //         />
 //       )}
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 //     </Box>
 //   );
 // };
 
 // export default UserManagement;
 
+<<<<<<< HEAD
 
 
 
@@ -4104,6 +4300,8 @@
 
 
 ///////////////////////////////////////////////////////////////////////////
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
@@ -4764,9 +4962,15 @@ const ResponsiveTable = ({
                   {user.email}
                 </TableCell>
                 {isSuperAdmin && (
+<<<<<<< HEAD
                   <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                     {user.mobile_no}
                   </TableCell>
+=======
+                <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+                  {user.mobile_no}
+                </TableCell>
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
                 )}
                 <TableCell>
                   <Chip
@@ -4865,7 +5069,10 @@ const UserManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
   const [dataFetched, setDataFetched] = useState(false);
+<<<<<<< HEAD
   const [fetchError, setFetchError] = useState(null);
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -4884,6 +5091,7 @@ const UserManagement = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+<<<<<<< HEAD
   // Impersonation state
   const [impersonating, setImpersonating] = useState(false);
   const [impersonatedUser, setImpersonatedUser] = useState(null);
@@ -4936,6 +5144,29 @@ const UserManagement = () => {
   }, [auth?.user?.role_id, userData?.role_id]);
 
   const role_id = getRoleId();
+=======
+  // Get user data from localStorage directly
+  const getUserData = useCallback(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+      }
+    }
+    return null;
+  }, []);
+
+  // Get token from localStorage
+  const getToken = useCallback(() => {
+    return localStorage.getItem('token');
+  }, []);
+
+  // Get user data
+  const userData = getUserData();
+  const role_id = userData?.role_id || 1;
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
 
   // Get users based on role
   const usersList = useSelector((state) => {
@@ -4971,6 +5202,7 @@ const UserManagement = () => {
     }
   }, [location.search]);
 
+<<<<<<< HEAD
   // Check impersonation status on mount
   useEffect(() => {
     if (isImpersonating) {
@@ -4979,6 +5211,8 @@ const UserManagement = () => {
     }
   }, [isImpersonating, authUser]);
 
+=======
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
   // First render loader
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -4987,6 +5221,7 @@ const UserManagement = () => {
     return () => clearTimeout(timer);
   }, []);
 
+<<<<<<< HEAD
   // Fetch data
   const fetchAllData = useCallback(async () => {
     const user = getUserData();
@@ -4997,6 +5232,27 @@ const UserManagement = () => {
     
     if (!userId) {
       console.log("No user ID available");
+=======
+  const canCreateUser = role_id === 2 ||
+    (maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
+
+  // Fetch data
+  const fetchAllData = useCallback(async () => {
+    const user = getUserData();
+    const token = getToken();
+    
+    console.log("FetchAllData - User from localStorage:", user);
+    console.log("FetchAllData - Token:", token ? "Present" : "Missing");
+    
+    if (!user?._id) {
+      console.log("No user data available in localStorage");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!token) {
+      console.log("No token available in localStorage");
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
       setIsLoading(false);
       setFetchError("User data not available");
       return;
@@ -5006,7 +5262,12 @@ const UserManagement = () => {
     setFetchError(null);
     
     try {
-      if (role_id === 1) {
+      // Get role_id from user object directly
+      const userRoleId = user?.role_id;
+      console.log("User Role ID from localStorage:", userRoleId);
+      
+      if (userRoleId === 1) {
+        console.log("Fetching admin data for user:", user._id);
         await Promise.all([
           dispatch(getUserById(userId)),
           dispatch(getUsersUnderAdmin({
@@ -5016,8 +5277,11 @@ const UserManagement = () => {
             search: ''
           })),
         ]);
-      } else if (role_id === 2) {
+      } else if (userRoleId === 2) {
+        console.log("Fetching super admin data");
         await dispatch(getAllAdmins());
+      } else {
+        console.log("Unknown role_id:", userRoleId);
       }
       setDataFetched(true);
     } catch (error) {
@@ -5027,19 +5291,31 @@ const UserManagement = () => {
     } finally {
       setIsRefreshing(false);
       setIsLoading(false);
+      setDataFetched(true);
     }
-  }, [dispatch, role_id, getUserData]);
+  }, [dispatch, getUserData, getToken]);
 
   // Initial load
   useEffect(() => {
     const initializeData = async () => {
       const user = getUserData();
+<<<<<<< HEAD
       console.log("Initializing with user:", user);
       
       if (user?._id || user?.id) {
         await fetchAllData();
       } else {
         console.log("No user found, setting loading to false");
+=======
+      console.log("Initializing with user from localStorage:", user);
+      
+      if (user?._id) {
+        // Set user info in Redux
+        dispatch({ type: 'user/setUserInfo', payload: user });
+        await fetchAllData();
+      } else {
+        console.log("No user found in localStorage, setting loading to false");
+>>>>>>> 09b59629d0f2b7c7900044a85b685cb5107949cd
         setIsLoading(false);
         setFetchError("Please login to continue");
       }
