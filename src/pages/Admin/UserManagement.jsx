@@ -747,7 +747,7 @@
 //           dispatch(getUserById(user._id)),
 //           dispatch(getUsersUnderAdmin({
 //             adminId: user._id,
-//             page: 1,
+//             page: 1,getUserData
 //             limit: 20,
 //             search: ''
 //           })),
@@ -2327,7 +2327,7 @@
 //                 <VisibilityIcon sx={{ fontSize: 16 }} />
 //               </IconButton>
 //             </Tooltip>
-            
+
 //             {/* Impersonate button - only for super admin */}
 //             {isSuperAdmin && (
 //               <Tooltip title="Login as User">
@@ -2347,7 +2347,7 @@
 //                 </span>
 //               </Tooltip>
 //             )}
-            
+
 //             <Tooltip title="Edit">
 //               <IconButton
 //                 size="small"
@@ -2362,7 +2362,7 @@
 //                 <EditIcon sx={{ fontSize: 16 }} />
 //               </IconButton>
 //             </Tooltip>
-            
+
 //             <Tooltip title="Delete">
 //               <span>
 //                 <IconButton
@@ -2573,7 +2573,7 @@
 //                         <VisibilityIcon sx={{ fontSize: 14 }} />
 //                       </IconButton>
 //                     </Tooltip>
-                    
+
 //                     {/* Impersonate button - only for super admin */}
 //                     {isSuperAdmin && (
 //                       <Tooltip title="Login as User">
@@ -2593,7 +2593,7 @@
 //                         </IconButton>
 //                       </Tooltip>
 //                     )}
-                    
+
 //                     <Tooltip title="Edit">
 //                       <IconButton
 //                         size="small"
@@ -2603,7 +2603,7 @@
 //                         <EditIcon sx={{ fontSize: 14 }} />
 //                       </IconButton>
 //                     </Tooltip>
-                    
+
 //                     <Tooltip title="Delete">
 //                       <span>
 //                         <IconButton
@@ -2673,7 +2673,7 @@
 //   // Get user state from Redux
 //   const userState = useSelector((state) => state.user || {});
 //   const userData = userState.userInfo || {};
-  
+
 //   // Get role_id from auth if available, fallback to userData
 //   const role_id = auth?.user?.role_id || userData?.role_id || 1;
 
@@ -2760,7 +2760,7 @@
 
 //     setIsRefreshing(true);
 //     setFetchError(null);
-    
+
 //     try {
 //       if (role_id === 1) {
 //         await Promise.all([
@@ -2791,7 +2791,7 @@
 //     const initializeData = async () => {
 //       const user = getUserData();
 //       console.log("Initializing with user:", user);
-      
+
 //       if (user?._id) {
 //         if (!userData?._id) {
 //           dispatch({ type: 'user/setUserInfo', payload: user });
@@ -2803,7 +2803,7 @@
 //         setFetchError("Please login to continue");
 //       }
 //     };
-    
+
 //     initializeData();
 //   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2827,7 +2827,7 @@
 //   // const handleImpersonate = async (user) => {
 //   //   try {
 //   //     const result = await dispatch(impersonateUser(user._id || user.id)).unwrap();
-      
+
 //   //     if (result.status === 1) {
 //   //       setImpersonating(true);
 //   //       setImpersonatedUser(result.user);
@@ -2847,14 +2847,14 @@
 //     // Store original token and user before impersonation
 //     const originalToken = localStorage.getItem('token');
 //     const originalUser = localStorage.getItem('user');
-    
+
 //     if (originalToken) {
 //       sessionStorage.setItem('originalToken', originalToken);
 //       sessionStorage.setItem('originalUser', originalUser);
 //     }
-    
+
 //     const result = await dispatch(impersonateUser(user._id || user.id)).unwrap();
-    
+
 //     if (result.status === 1) {
 //       setImpersonating(true);
 //       setImpersonatedUser(result.user);
@@ -2872,22 +2872,22 @@
 // const handleStopImpersonation = async () => {
 //   try {
 //     const result = await dispatch(stopImpersonation()).unwrap();
-    
+
 //     if (result.status === 1) {
 //       // Get the original token and user from sessionStorage
 //       const originalToken = sessionStorage.getItem('originalToken');
 //       const originalUserStr = sessionStorage.getItem('originalUser');
-      
+
 //       if (originalToken && originalUserStr) {
 //         const originalUser = JSON.parse(originalUserStr);
-        
+
 //         // Restore to localStorage
 //         localStorage.setItem('token', originalToken);
 //         localStorage.setItem('user', originalUserStr);
-        
+
 //         // Update axios default headers if needed
 //         // axios.defaults.headers.common['Authorization'] = `Bearer ${originalToken}`;
-        
+
 //         // Update Redux state
 //         dispatch({
 //           type: 'auth/loginSuccess',
@@ -2896,23 +2896,23 @@
 //             token: originalToken
 //           }
 //         });
-        
+
 //         // Clear sessionStorage
 //         sessionStorage.removeItem('originalToken');
 //         sessionStorage.removeItem('originalUser');
 //       }
-      
+
 //       setImpersonating(false);
 //       setImpersonatedUser(null);
 //       toast.success('Returned to admin view');
-      
+
 //       // Navigate based on role
 //       if (originalUser?.role_id === 2) {
 //         navigate('/super-admin/dashboard');
 //       } else {
 //         navigate('/admin/dashboard');
 //       }
-      
+
 //       // Refresh the page to ensure all states are reset
 //       window.location.reload();
 //     } else {
@@ -2927,7 +2927,7 @@
 //   // const handleStopImpersonation = async () => {
 //   //   try {
 //   //     const result = await dispatch(stopImpersonation()).unwrap();
-      
+
 //   //     if (result.status === 1) {
 //   //       setImpersonating(false);
 //   //       setImpersonatedUser(null);
@@ -4177,12 +4177,16 @@ import {
   deleteUser,
   getUserById,
   getUsersUnderAdmin,
+ 
 } from "../../redux/slices/userSlice";
 import {
   impersonateUser,
   stopImpersonation,
   getImpersonationStatus,
 } from "../../redux/slices/authSlice";
+import {
+  getPaymentById
+} from "../../redux/slices/paymentSlice";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import AddUserModal from "./component/AddUser";
 
@@ -4549,7 +4553,7 @@ const UserCard = ({
                 <VisibilityIcon sx={{ fontSize: 16 }} />
               </IconButton>
             </Tooltip>
-            
+
             {/* Impersonate button - only for super admin */}
             {isSuperAdmin && (
               <Tooltip title="Login as User">
@@ -4569,7 +4573,7 @@ const UserCard = ({
                 </span>
               </Tooltip>
             )}
-            
+
             <Tooltip title="Edit">
               <IconButton
                 size="small"
@@ -4584,7 +4588,7 @@ const UserCard = ({
                 <EditIcon sx={{ fontSize: 16 }} />
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title="Delete">
               <span>
                 <IconButton
@@ -4795,19 +4799,19 @@ const ResponsiveTable = ({
                         <VisibilityIcon sx={{ fontSize: 14 }} />
                       </IconButton>
                     </Tooltip>
-                    
+
                     {/* Impersonate button - only for super admin */}
                     {isSuperAdmin && (
                       <Tooltip title="Login as User">
                         <IconButton
                           size="small"
                           onClick={() => handleImpersonate(user)}
-                          sx={{ 
-                            color: theme.palette.secondary.main, 
-                            width: 26, 
+                          sx={{
+                            color: theme.palette.secondary.main,
+                            width: 26,
                             height: 26,
-                            '&:hover': { 
-                              bgcolor: alpha(theme.palette.secondary.main, 0.1) 
+                            '&:hover': {
+                              bgcolor: alpha(theme.palette.secondary.main, 0.1)
                             }
                           }}
                         >
@@ -4815,7 +4819,7 @@ const ResponsiveTable = ({
                         </IconButton>
                       </Tooltip>
                     )}
-                    
+
                     <Tooltip title="Edit">
                       <IconButton
                         size="small"
@@ -4825,7 +4829,7 @@ const ResponsiveTable = ({
                         <EditIcon sx={{ fontSize: 14 }} />
                       </IconButton>
                     </Tooltip>
-                    
+
                     <Tooltip title="Delete">
                       <span>
                         <IconButton
@@ -4909,7 +4913,7 @@ const UserManagement = () => {
         console.error('Error parsing stored user:', e);
       }
     }
-    
+
     // Fallback to Redux state
     if (userData?._id) {
       return userData;
@@ -4917,7 +4921,7 @@ const UserManagement = () => {
     if (auth?.user?._id) {
       return auth.user;
     }
-    
+
     return null;
   }, [userData, auth]);
 
@@ -4954,11 +4958,63 @@ const UserManagement = () => {
     }
   });
 
+
+
+
   const loading = useSelector((state) => state.user?.loading || false);
   const currentUser = getUserData();
-  const maxUser = currentUser?.currentPaymentId?.maxUser;
+  // const maxUser = currentUser?.currentPaymentId?.maxUser;
   const subscriptionExpiry = currentUser?.currentPaymentId?.expiresAt;
   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
+
+
+  const [maxUser, setMaxUser] = useState(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+
+  useEffect(() => {
+    const fetchPaymentData = async () => {
+      const user = getUserData();
+      const paymentId = user?.currentPaymentId;
+
+      // console.log("Payment ID to fetch:", paymentId);
+
+      if (paymentId && typeof paymentId === 'string') {
+        setIsLoadingPayment(true);
+        try {
+          // Dispatch getPaymentById and unwrap the result
+          const result = await dispatch(getPaymentById(paymentId)).unwrap();
+
+          console.log("Payment data received:", result);
+
+          // Extract and set maxUser from the response
+          const maxUserValue = result?.data?.maxUser || result?.maxUser;
+          setMaxUser(maxUserValue);
+
+          console.log("Max User set to:", maxUserValue);
+
+        } catch (error) {
+          console.error("Error fetching payment data:", error);
+          setMaxUser(null);
+        } finally {
+          setIsLoadingPayment(false);
+        }
+      } else {
+        // If paymentId is not a string (maybe it's already an object with maxUser)
+        if (paymentId && typeof paymentId === 'object' && paymentId.maxUser) {
+          setMaxUser(paymentId.maxUser);
+        } else {
+          setMaxUser(null);
+        }
+      }
+    };
+
+    fetchPaymentData();
+  }, [dispatch, getUserData, currentUser?._id]);
+
+  // Now you can use maxUser directly
+  console.log("Max User from state:", maxUser);
+  // console.log("-----------------------", getUserData());
+  // console.log("current>-----------------------", currentUser.currentPaymentId);
 
   // Read filter from URL
   useEffect(() => {
@@ -4991,10 +5047,10 @@ const UserManagement = () => {
   const fetchAllData = useCallback(async () => {
     const user = getUserData();
     const userId = user?._id || user?.id; // Ensure we get the ID
-    
+
     console.log("Fetching data for user:", user);
     console.log("User ID:", userId);
-    
+
     if (!userId) {
       console.log("No user ID available");
       setIsLoading(false);
@@ -5004,7 +5060,7 @@ const UserManagement = () => {
 
     setIsRefreshing(true);
     setFetchError(null);
-    
+
     try {
       if (role_id === 1) {
         await Promise.all([
@@ -5035,7 +5091,7 @@ const UserManagement = () => {
     const initializeData = async () => {
       const user = getUserData();
       console.log("Initializing with user:", user);
-      
+
       if (user?._id || user?.id) {
         await fetchAllData();
       } else {
@@ -5044,7 +5100,7 @@ const UserManagement = () => {
         setFetchError("Please login to continue");
       }
     };
-    
+
     initializeData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -5056,6 +5112,7 @@ const UserManagement = () => {
         fetchAllData();
       }
     };
+
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [fetchAllData, getUserData, isRefreshing, dataFetched]);
@@ -5070,14 +5127,14 @@ const UserManagement = () => {
       // Store original token and user before impersonation
       const originalToken = localStorage.getItem('token');
       const originalUser = localStorage.getItem('user');
-      
+
       if (originalToken) {
         sessionStorage.setItem('originalToken', originalToken);
         sessionStorage.setItem('originalUser', originalUser);
       }
-      
+
       const result = await dispatch(impersonateUser(user._id || user.id)).unwrap();
-      
+
       if (result.status === 1) {
         // The impersonateUser thunk should already set localStorage
         // But let's verify and set if needed
@@ -5087,11 +5144,11 @@ const UserManagement = () => {
         if (!localStorage.getItem('token')) {
           localStorage.setItem('token', result.token);
         }
-        
+
         setImpersonating(true);
         setImpersonatedUser(result.user);
         toast.success(`Now impersonating: ${user.name || user.email}`);
-        
+
         // Force a page reload to ensure all components get the new user data
         window.location.href = '/user';
       } else {
@@ -5106,30 +5163,30 @@ const UserManagement = () => {
   const handleStopImpersonation = async () => {
     try {
       const result = await dispatch(stopImpersonation()).unwrap();
-      
+
       if (result.status === 1) {
         // Get the original token and user from sessionStorage
         const originalToken = sessionStorage.getItem('originalToken');
         const originalUserStr = sessionStorage.getItem('originalUser');
-        
+
         if (originalToken && originalUserStr) {
           const originalUser = JSON.parse(originalUserStr);
-          
+
           // Restore to localStorage
           localStorage.setItem('token', originalToken);
           localStorage.setItem('user', originalUserStr);
-          
+
           // Clear sessionStorage
           sessionStorage.removeItem('originalToken');
           sessionStorage.removeItem('originalUser');
-          
+
           setImpersonating(false);
           setImpersonatedUser(null);
           toast.success('Returned to admin view');
-          
+
           // Force a complete page reload to reset all state
-          window.location.href = originalUser?.role_id === 2 
-            ? '/super-admin/dashboard' 
+          window.location.href = originalUser?.role_id === 2
+            ? '/super-admin/dashboard'
             : '/admin/dashboard';
         } else {
           // If no original data, logout and redirect to login
@@ -6283,8 +6340,8 @@ const UserManagement = () => {
 
       {/* Impersonation Banner */}
       {impersonating && (
-        <ImpersonationBanner 
-          onStopImpersonation={handleStopImpersonation} 
+        <ImpersonationBanner
+          onStopImpersonation={handleStopImpersonation}
           impersonatedUser={impersonatedUser}
         />
       )}
