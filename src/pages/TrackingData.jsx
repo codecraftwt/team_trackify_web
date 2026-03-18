@@ -1305,7 +1305,7 @@ const handleViewSingleSession = (session) => {
             {!loading && !sessionsLoading && !availableDatesLoading && sessions?.length > 0 && (
               <>
                 {/* View All Sessions Button */}
-                <Card
+                {/* <Card
                   className="border-0 shadow-sm mb-3"
                   style={{
                     borderRadius: "8px",
@@ -1342,7 +1342,7 @@ const handleViewSingleSession = (session) => {
                       </Button>
                     </div>
                   </Card.Body>
-                </Card>
+                </Card> */}
 
                 {/* Individual Session Cards */}
                 <div
