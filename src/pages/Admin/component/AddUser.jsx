@@ -1375,7 +1375,7 @@ console.log(editingUser,"#############################");
       if (editingUser) {
         console.log("calling the updare user API.......................")
         await dispatch(
-          updateUser({ userId: editingUser.id, formData: payload })
+          updateUser({ userId: editingUser._id, formData: payload })
         ).unwrap();
         toast.success("User updated successfully!");
       } else {

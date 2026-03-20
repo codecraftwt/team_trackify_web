@@ -307,23 +307,7 @@ const PrivacyPolicy = () => {
       <Header />
 
       <Container className="py-5 py-lg-7">
-        {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-4"
-        >
-          <Button
-            variant="link"
-            onClick={() => navigate(-1)}
-            className="text-decoration-none d-inline-flex align-items-center gap-2 p-0"
-            style={{ color: '#2f6eaa' }}
-          >
-            <FiArrowLeft size={20} />
-            <span>Back</span>
-          </Button>
-        </motion.div>
+
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -331,7 +315,7 @@ const PrivacyPolicy = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-5"
         >
-          <h1 className="fw-bold display-6 mb-3" style={{ color: '#2f6eaa' }}>
+          <h1 className="fw-bold display-6 mb-3 mt-5" style={{ color: '#2f6eaa' }}>
             Privacy Policy
           </h1>
           <p className="lead text-muted">
