@@ -893,7 +893,7 @@ export const getUsersUnderAdmin = createAsyncThunk(
   "user/getUsersUnderAdmin",
   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
     try {
-      if (!adminId) { 
+      if (!adminId) {
         throw new Error('Admin ID is required');
       }
 
@@ -903,6 +903,8 @@ export const getUsersUnderAdmin = createAsyncThunk(
       const response = await api.get(`/Tracking/admin/${adminId}/users`, {
         params: { page, limit, search }
       });
+
+      console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
 
       return response.data.data;
     } catch (error) {
@@ -934,7 +936,7 @@ export const getUserAvailableDates = createAsyncThunk(
       const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
         params: { date }  // Pass date as query param
       });
-       console.log(response.data, "Availables dates from api <==============================")
+      console.log(response.data, "Availables dates from api <==============================")
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
@@ -952,7 +954,7 @@ export const getUserSessionsByDate = createAsyncThunk(
 
       // Add /Tracking here
       const response = await api.get(`/Tracking/admin/users/${userId}/sessions`, { params });
-     
+
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch sessions");
