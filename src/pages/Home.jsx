@@ -1287,6 +1287,8 @@ const Home = () => {
   const navigate = useNavigate();
   const appDownloadRef = useRef(null);
 
+
+  
   const handleAppStoreClick = () => {
     window.open(
       'https://apps.apple.com/in/app/team-trackify/id6744400871',
@@ -1302,7 +1304,8 @@ const Home = () => {
   };
 
   const handleGetStartedClick = () => {
-    appDownloadRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // appDownloadRef.current?.scrollIntoView({ behavior: 'smooth' });
+    navigate('/pricing')
   };
 
   const features = [

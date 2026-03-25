@@ -1131,11 +1131,31 @@ const UserManagement = () => {
       (role_id === 2 && user.mobile_no?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  console.log("Filtered users ---------->", filteredUsers)
+  // console.log("Filtered users ---------->", filteredUsers)
+  // const activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
+  //   const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false") ;
 
-  const activeUsers = (filteredUsers || []).filter((user) => user.isActive);
-  const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
 
+  // const activeUsers = (filteredUsers || []).filter((user) => user.isActive);
+  // const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+
+  let activeUsers = [];
+  let inactiveUsers = [];
+
+  if (role_id === 2) {
+    // For roleId = 2, filter users where isActive and deleted === "false"
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
+    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
+  } else if (role_id === 1) {
+    // For roleId = 1, filter users based on isActive only
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive);
+    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+  } else {
+    // Default case (if roleId is neither 1 nor 2)
+    // You can either use the roleId=1 logic or roleId=2 logic, or handle as needed
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive);
+    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+  }
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     setPage(0);
@@ -1168,6 +1188,7 @@ const UserManagement = () => {
 
   const handleDeleteConfirm = () => {
     setIsDeleting(true);
+    console.log(selectedUser, "<---------------- seleed user ")
     dispatch(deleteUser(selectedUser?._id || selectedUser?.id))
       .unwrap()
       .then(() => {
@@ -1414,7 +1435,8 @@ const UserManagement = () => {
                 },
               }}
             >
-              Loading...
+              {/* Loading... */}
+              User Management
             </Typography>
           </Box>
         </Box>

@@ -1,843 +1,3 @@
-// import React, { useEffect, useState, useRef, useCallback } from "react";
-// import { useLocation } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import {
-//   Box,
-//   Container,
-//   Paper,
-//   Typography,
-//   IconButton,
-//   Chip,
-//   alpha,
-//   AppBar,
-//   Toolbar,
-//   Grid,
-//   Card,
-//   CardContent,
-//   useTheme,
-//   useMediaQuery,
-//   Drawer,
-//   Fab,
-//   Button,
-//   Stack,
-//   CircularProgress,
-// } from "@mui/material";
-// import {
-//   ArrowBack as ArrowBackIcon,
-//   Close as CloseIcon,
-//   Image as ImageIcon,
-//   Menu as MenuIcon,
-//   Photo as PhotoIcon,
-//   Info as InfoIcon,
-//   Pause as PauseIcon,
-//   Refresh as RefreshIcon,
-// } from "@mui/icons-material";
-// import { getSessionDetails } from "../redux/slices/userSlice";
-// import L from "leaflet";
-// import "leaflet/dist/leaflet.css";
-
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-//   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-//   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-// });
-
-// // ─── Constants ───────────────────────────────────────────────────────────────
-// const STOP_CONFIG = {
-//   MIN_DURATION: 180000,       // 3 minutes
-//   MAX_SPEED_KMH: 2,
-//   GROUP_RADIUS_METERS: 50,
-// };
-
-// // ─── Pure Helpers (stable, defined outside component) ────────────────────────
-// const calcDistance = (lat1, lon1, lat2, lon2) => {
-//   const R = 6371e3;
-//   const φ1 = (lat1 * Math.PI) / 180;
-//   const φ2 = (lat2 * Math.PI) / 180;
-//   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-//   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-//   const a =
-//     Math.sin(Δφ / 2) ** 2 +
-//     Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-//   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-// };
-
-// const calcSpeed = (p1, p2) => {
-//   const dist = calcDistance(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-//   const hrs = (new Date(p2.timestamp) - new Date(p1.timestamp)) / 3_600_000;
-//   return hrs <= 0 ? Infinity : dist / 1000 / hrs;
-// };
-
-// const detectStops = (locations) => {
-//   if (!locations || locations.length < 2) return [];
-//   const stops = [];
-//   let group = [];
-//   let startTime = null;
-
-//   const flush = (endIdx) => {
-//     if (group.length < 2) return;
-//     const endTime = new Date(locations[endIdx].timestamp);
-//     const duration = endTime - startTime;
-//     if (duration < STOP_CONFIG.MIN_DURATION) return;
-
-//     const center = group.reduce(
-//       (a, p) => { a.lat += p.latitude; a.lng += p.longitude; return a; },
-//       { lat: 0, lng: 0 }
-//     );
-//     center.lat /= group.length;
-//     center.lng /= group.length;
-
-//     const images = group
-//       .filter((p) => p.photo || p.location_image)
-//       .map((p) => ({ url: p.photo || p.location_image, timestamp: p.timestamp }));
-
-//     stops.push({
-//       id: `stop-${startTime.getTime()}`,
-//       center, startTime, endTime, duration,
-//       pointCount: group.length, images, points: group,
-//     });
-//   };
-
-//   for (let i = 1; i < locations.length; i++) {
-//     const prev = locations[i - 1];
-//     const curr = locations[i];
-//     const speed = calcSpeed(prev, curr);
-//     const dist = calcDistance(prev.latitude, prev.longitude, curr.latitude, curr.longitude);
-
-//     if (speed < STOP_CONFIG.MAX_SPEED_KMH && dist < STOP_CONFIG.GROUP_RADIUS_METERS) {
-//       if (group.length === 0) { group.push(prev); startTime = new Date(prev.timestamp); }
-//       group.push(curr);
-//     } else {
-//       flush(i - 1);
-//       group = [];
-//       startTime = null;
-//     }
-//   }
-//   flush(locations.length - 1);
-//   return stops;
-// };
-
-// const getImageLocations = (locations) =>
-//   locations
-//     .filter((l) => l.photo || l.location_image)
-//     .map((l, i) => ({
-//       id: `img-${i}-${l.timestamp}`,
-//       url: l.photo || l.location_image,
-//       timestamp: l.timestamp,
-//       location: { lat: l.latitude, lng: l.longitude },
-//     }));
-
-// // Calculate total distance from locations array
-// const calcTotalDistance = (locations) => {
-//   if (!locations || locations.length < 2) return 0;
-//   let total = 0;
-//   for (let i = 1; i < locations.length; i++) {
-//     total += calcDistance(
-//       locations[i - 1].latitude, locations[i - 1].longitude,
-//       locations[i].latitude, locations[i].longitude
-//     );
-//   }
-//   return total; // meters
-// };
-
-// const fmtTime = (ts) =>
-//   ts
-//     ? new Date(ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
-//     : "N/A";
-
-// const fmtDist = (meters) => {
-//   if (!meters) return "0 km";
-//   return `${(meters / 1000).toFixed(2)} km`;
-// };
-
-// // ─── Marker factories (pure functions, no closures on component state) ────────
-// const makeCheckIcon = (type, color, time, hasPhoto, size = 36) => {
-//   const icon = type === "checkin" ? "🚀" : "🏁";
-//   const label = type === "checkin" ? "START" : "END";
-//   return L.divIcon({
-//     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-//       <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
-//         <span style="font-size:${size / 3}px;line-height:1">${icon}</span>
-//         <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">${label}</span>
-//       </div>
-//       <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 6px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid ${color};z-index:1">
-//         ${time}${hasPhoto ? " 📸" : ""}
-//       </div>
-//     </div>`,
-//     className: "",
-//     iconSize: [size, size + 24],
-//     iconAnchor: [size / 2, size + 12],
-//   });
-// };
-
-// const makeStopIcon = (stop, size = 40) => {
-//   const mins = Math.round(stop.duration / 60000);
-//   return L.divIcon({
-//     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-//       <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#FF9800;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
-//         <span style="font-size:${size / 3}px">⏸️</span>
-//         <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">STOP</span>
-//       </div>
-//       <div style="position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid #FF9800;z-index:1">
-//         ${mins} min${stop.images.length > 0 ? ` • ${stop.images.length} 📸` : ""}
-//       </div>
-//     </div>`,
-//     className: "",
-//     iconSize: [size, size + 28],
-//     iconAnchor: [size / 2, size + 14],
-//   });
-// };
-
-// const makeImageIcon = (index, size = 32) =>
-//   L.divIcon({
-//     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-//       <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#9C27B0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:${size / 2}px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;cursor:pointer;">📸</div>
-//       <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:2px 4px;border-radius:8px;font-size:7px;white-space:nowrap;z-index:1">Photo ${index + 1}</div>
-//     </div>`,
-//     className: "",
-//     iconSize: [size, size + 20],
-//     iconAnchor: [size / 2, size + 10],
-//   });
-
-// // ─── Main Component ───────────────────────────────────────────────────────────
-// const Locations = () => {
-//   const theme = useTheme();
-//   const location = useLocation();
-//   const dispatch = useDispatch();
-//   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-//   const {
-//     sessions = [],
-//     selectedSessionId: initialSelectedSessionId,
-//     summary = {},
-//     metadata = {},
-//   } = location.state || {};
-
-//   const sessionDetails = useSelector((s) => s.user?.sessionDetails);
-//   const sessionDetailsLoading = useSelector((s) => s.user?.sessionDetailsLoading);
-//   const sessionDetailsError = useSelector((s) => s.user?.sessionDetailsError);
-
-//   // ── State ──────────────────────────────────────────────────────────────────
-//   const [allSessions, setAllSessions]           = useState([]);
-//   const [selectedSessionId, setSelectedSessionId] = useState(
-//     initialSelectedSessionId ? String(initialSelectedSessionId) : null
-//   );
-//   const [selectedSession, setSelectedSession]   = useState(null);
-//   const [stops, setStops]                       = useState([]);
-//   const [imageLocations, setImageLocations]     = useState([]);
-//   const [totalDistance, setTotalDistance]       = useState(0);
-//   const [showStops, setShowStops]               = useState(true);
-//   const [showImages, setShowImages]             = useState(true);
-//   const [drawerOpen, setDrawerOpen]             = useState(false);
-//   const [hasLocations, setHasLocations]         = useState(false);
-//   const [fetchingSession, setFetchingSession]   = useState(false);
-//   const [isRefreshing, setIsRefreshing]         = useState(false);
-//   const [initialLoadDone, setInitialLoadDone]   = useState(true); // Set to true since we already have sessions from props
-
-//   // ── Refs ───────────────────────────────────────────────────────────────────
-//   const mapRef          = useRef(null);
-//   const mapInstance     = useRef(null);   // L.Map
-//   const polylines       = useRef([]);
-//   const markers         = useRef([]);
-//   const fetchedSessions = useRef(new Set());
-//   // Keep a ref to latest session so map callbacks don't go stale
-//   const sessionRef      = useRef(null);
-//   const stopsRef        = useRef([]);
-//   const imagesRef       = useRef([]);
-//   const showStopsRef    = useRef(true);
-//   const showImagesRef   = useRef(true);
-
-//   // Sync refs with state
-//   useEffect(() => { sessionRef.current    = selectedSession; }, [selectedSession]);
-//   useEffect(() => { stopsRef.current      = stops; },          [stops]);
-//   useEffect(() => { imagesRef.current     = imageLocations; }, [imageLocations]);
-//   useEffect(() => { showStopsRef.current  = showStops; },      [showStops]);
-//   useEffect(() => { showImagesRef.current = showImages; },     [showImages]);
-
-//   // ── Init sessions from props ───────────────────────────────────────────────
-//   useEffect(() => {
-//     if (sessions.length > 0) {
-//       setAllSessions(sessions);
-//     }
-//   }, [sessions]);
-
-//   // ── Process session data ───────────────────────────────────────────────────
-//   const processSessionData = useCallback((session) => {
-//     if (!session) return;
-//     setSelectedSession(session);
-
-//     if (session.locations?.length > 0) {
-//       setHasLocations(true);
-//       const detectedStops = detectStops(session.locations);
-//       const images = getImageLocations(session.locations);
-//       const dist = calcTotalDistance(session.locations);
-//       setStops(detectedStops);
-//       setImageLocations(images);
-//       setTotalDistance(dist);
-//     } else {
-//       setHasLocations(false);
-//       setStops([]);
-//       setImageLocations([]);
-//       setTotalDistance(0);
-//     }
-//   }, []);
-
-//   // ── Handle session click ───────────────────────────────────────────────────
-//   const handleSessionSelect = useCallback(
-//     (rawId) => {
-//       const sessionId = String(rawId);
-//       if (sessionId === String(selectedSessionId)) return;
-
-//       setSelectedSessionId(sessionId);
-//       setSelectedSession(null);
-//       setHasLocations(false);
-//       setStops([]);
-//       setImageLocations([]);
-//       setTotalDistance(0);
-
-//       // Try to find in allSessions
-//       const found = allSessions.find(
-//         (s) => String(s.sessionId || s._id) === sessionId
-//       );
-
-//       if (found?.locations?.length > 0) {
-//         processSessionData(found);
-//       } else if (sessionDetails && String(sessionDetails.sessionId) === sessionId) {
-//         processSessionData(sessionDetails);
-//       }
-//       // Otherwise the fetch useEffect below will handle it
-
-//       if (isMobile) setDrawerOpen(false);
-//     },
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//     [selectedSessionId, allSessions, sessionDetails, isMobile]
-//   );
-
-//   // ── Fetch session details ──────────────────────────────────────────────────
-//   useEffect(() => {
-//     if (!selectedSessionId) return;
-
-//     // Already have data loaded?
-//     if (selectedSession?.locations?.length > 0) return;
-
-//     // Already fetched successfully?
-//     if (fetchedSessions.current.has(selectedSessionId)) return;
-
-//     let userId = metadata?.userId;
-//     if (!userId) {
-//       const s = allSessions.find(
-//         (s) => String(s.sessionId || s._id) === selectedSessionId
-//       );
-//       userId = s?.userId;
-//     }
-//     if (!userId) return;
-
-//     setFetchingSession(true);
-//     dispatch(getSessionDetails({ userId, sessionId: selectedSessionId }))
-//       .finally(() => {
-//         fetchedSessions.current.add(selectedSessionId);
-//         setFetchingSession(false);
-//       });
-//   }, [selectedSessionId, selectedSession?.locations?.length, allSessions, metadata?.userId, dispatch]);
-
-//   // ── Process Redux session details when they arrive ─────────────────────────
-//   useEffect(() => {
-//     if (
-//       sessionDetails &&
-//       String(sessionDetails.sessionId) === String(selectedSessionId)
-//     ) {
-//       processSessionData(sessionDetails);
-//     }
-//   }, [sessionDetails, selectedSessionId, processSessionData]);
-
-//   // ── Map: clear helpers ─────────────────────────────────────────────────────
-//   const clearMap = () => {
-//     if (!mapInstance.current) return;
-//     polylines.current.forEach((l) => mapInstance.current.removeLayer(l));
-//     markers.current.forEach((m) => mapInstance.current.removeLayer(m));
-//     polylines.current = [];
-//     markers.current = [];
-//   };
-
-//   // ── Map: draw session ──────────────────────────────────────────────────────
-//   const drawSession = useCallback((session, stopsList, imagesList, showS, showI) => {
-//     if (!mapInstance.current || !session?.locations?.length) return;
-
-//     clearMap();
-
-//     const locs = session.locations;
-//     const routePoints = locs
-//       .map((l) => [parseFloat(l.latitude), parseFloat(l.longitude)])
-//       .filter(([a, b]) => !isNaN(a) && !isNaN(b));
-
-//     if (routePoints.length === 0) return;
-
-//     // Route polyline
-//     if (routePoints.length > 1) {
-//       const pl = L.polyline(routePoints, {
-//         color: "#2196F3", weight: 4, opacity: 0.8,
-//       }).addTo(mapInstance.current);
-//       polylines.current.push(pl);
-//     }
-
-//     const checkIn  = locs[0];
-//     const checkOut = locs.length > 1 ? locs[locs.length - 1] : null;
-
-//     // START marker
-//     const startM = L.marker(
-//       [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
-//       { icon: makeCheckIcon("checkin", "#22c55e", fmtTime(checkIn.timestamp), !!(checkIn.photo || checkIn.location_image)), zIndexOffset: 1000 }
-//     )
-//       .bindPopup(`<b style="color:#22c55e">🚀 START</b><br/>Time: ${fmtTime(checkIn.timestamp)}<br/>Address: ${checkIn.address || "N/A"}`)
-//       .addTo(mapInstance.current);
-//     markers.current.push(startM);
-
-//     // END marker
-//     if (checkOut) {
-//       const endM = L.marker(
-//         [parseFloat(checkOut.latitude), parseFloat(checkOut.longitude)],
-//         { icon: makeCheckIcon("checkout", "#ef4444", fmtTime(checkOut.timestamp), !!(checkOut.photo || checkOut.location_image)), zIndexOffset: 1000 }
-//       )
-//         .bindPopup(`<b style="color:#ef4444">🏁 END</b><br/>Time: ${fmtTime(checkOut.timestamp)}<br/>Address: ${checkOut.address || "N/A"}`)
-//         .addTo(mapInstance.current);
-//       markers.current.push(endM);
-//     }
-
-//     // Stop markers
-//     if (showS) {
-//       stopsList.forEach((stop) => {
-//         let popup = `<div style="min-width:200px"><b style="color:#FF9800">⏸️ STOP</b><br/>
-//           Duration: ${Math.round(stop.duration / 60000)} min<br/>
-//           From: ${fmtTime(stop.startTime)}<br/>
-//           To: ${fmtTime(stop.endTime)}<br/>
-//           Points: ${stop.pointCount}`;
-//         stop.images.forEach((img) => {
-//           popup += `<br/><img src="${img.url}" style="max-width:100%;max-height:80px;border-radius:4px;margin-top:4px"/>`;
-//         });
-//         popup += `</div>`;
-//         const m = L.marker([stop.center.lat, stop.center.lng], { icon: makeStopIcon(stop) })
-//           .bindPopup(popup)
-//           .addTo(mapInstance.current);
-//         markers.current.push(m);
-//       });
-//     }
-
-//     // Image markers
-//     if (showI) {
-//       imagesList.forEach((img, idx) => {
-//         const m = L.marker([img.location.lat, img.location.lng], { icon: makeImageIcon(idx) })
-//           .bindPopup(`<div style="text-align:center"><b style="color:#9C27B0">📸 PHOTO</b><br/><small>${new Date(img.timestamp).toLocaleString()}</small><br/><img src="${img.url}" style="max-width:100%;max-height:150px;border-radius:4px;margin-top:4px"/></div>`)
-//           .addTo(mapInstance.current);
-//         markers.current.push(m);
-//       });
-//     }
-
-//     // Fit bounds
-//     const allPoints = [...routePoints];
-//     if (showS) stopsList.forEach((s) => allPoints.push([s.center.lat, s.center.lng]));
-//     if (showI) imagesList.forEach((i) => allPoints.push([i.location.lat, i.location.lng]));
-
-//     if (allPoints.length > 0) {
-//       mapInstance.current.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
-//     }
-//   }, []); // No external deps — uses params only
-
-//   // ── Map: initialize once, update on session change ─────────────────────────
-//   useEffect(() => {
-//     if (!selectedSession?.locations?.length || !mapRef.current) return;
-
-//     const locs = selectedSession.locations;
-//     const first = locs[0];
-//     if (!first) return;
-
-//     // Destroy old map
-//     if (mapInstance.current) {
-//       mapInstance.current.remove();
-//       mapInstance.current = null;
-//       polylines.current = [];
-//       markers.current = [];
-//     }
-
-//     const map = L.map(mapRef.current, { zoomControl: true }).setView(
-//       [parseFloat(first.latitude), parseFloat(first.longitude)],
-//       14
-//     );
-//     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-//       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-//       maxZoom: 19,
-//     }).addTo(map);
-//     mapInstance.current = map;
-
-//     // Draw after tiles settle
-//     const t = setTimeout(() => {
-//       map.invalidateSize();
-//       drawSession(selectedSession, stops, imageLocations, showStops, showImages);
-//     }, 250);
-
-//     return () => clearTimeout(t);
-//   // Only re-run when the session itself changes (not showStops/showImages)
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [selectedSession]);
-
-//   // ── Map: redraw when filters or overlay data change (no re-init) ───────────
-//   useEffect(() => {
-//     if (!mapInstance.current || !selectedSession?.locations?.length) return;
-//     drawSession(selectedSession, stops, imageLocations, showStops, showImages);
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [stops, imageLocations, showStops, showImages]);
-
-//   // ── Window resize ──────────────────────────────────────────────────────────
-//   useEffect(() => {
-//     const onResize = () => mapInstance.current?.invalidateSize();
-//     window.addEventListener("resize", onResize);
-//     return () => window.removeEventListener("resize", onResize);
-//   }, []);
-
-//   // ── Cleanup ────────────────────────────────────────────────────────────────
-//   useEffect(() => {
-//     return () => {
-//       if (mapInstance.current) {
-//         mapInstance.current.remove();
-//         mapInstance.current = null;
-//       }
-//     };
-//   }, []);
-
-//   // ── Refresh function ───────────────────────────────────────────────────────
-//   const handleRefresh = () => {
-//     setIsRefreshing(true);
-    
-//     // Simulate refresh by re-setting the sessions from props
-//     setTimeout(() => {
-//       if (sessions.length > 0) {
-//         setAllSessions([...sessions]);
-//       }
-//       setIsRefreshing(false);
-//     }, 500);
-//   };
-
-//   // ─── Session list (render fn, NOT a component — avoids remount) ─────────────
-//   const renderSessionList = () => (
-//     <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
-//       {/* Summary */}
-//       {summary && Object.keys(summary).length > 0 && (
-//         <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-//           <Typography variant="body2" fontWeight={600} color="#2196F3" sx={{ fontSize: "0.75rem" }}>
-//             {summary.formattedDate || "Selected Date"}
-//           </Typography>
-//           <Grid container spacing={0.5} sx={{ mt: 0.5 }}>
-//             {[
-//               ["Sessions", allSessions.length],
-//               ["Stops", stops.length],
-//               ["Photos", imageLocations.length],
-//               ["Distance", fmtDist(totalDistance)],
-//             ].map(([label, val]) => (
-//               <Grid item xs={3} key={label}>
-//                 <Typography variant="caption" sx={{ fontSize: "0.6rem" }} color="text.secondary">{label}</Typography>
-//                 <Typography variant="body2" fontWeight={500} sx={{ fontSize: "0.7rem" }}>{val}</Typography>
-//               </Grid>
-//             ))}
-//           </Grid>
-//         </Box>
-//       )}
-
-//       {/* Toggles */}
-//       <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-//         <Stack direction="row" spacing={0.5}>
-//           <Chip
-//             size="small"
-//             label={`Stops (${stops.length})`}
-//             onClick={() => setShowStops((v) => !v)}
-//             color={showStops ? "warning" : "default"}
-//             icon={<PauseIcon />}
-//             sx={{ height: 24, fontSize: "0.65rem" }}
-//           />
-//           <Chip
-//             size="small"
-//             label={`Photos (${imageLocations.length})`}
-//             onClick={() => setShowImages((v) => !v)}
-//             color={showImages ? "secondary" : "default"}
-//             icon={<PhotoIcon />}
-//             sx={{ height: 24, fontSize: "0.65rem" }}
-//           />
-//         </Stack>
-//       </Box>
-
-//       {/* Sessions */}
-//       <Box sx={{ p: 1.5 }}>
-//         <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.75rem", mb: 1 }}>
-//           Sessions ({allSessions.length})
-//         </Typography>
-//         <Stack spacing={1}>
-//           {allSessions.map((session, index) => {
-//             const sessionId = String(session.sessionId || session._id);
-//             const isSelected = String(selectedSessionId) === sessionId;
-//             const isLoading = isSelected && fetchingSession;
-
-//             // Distance: prefer stats, fallback to live calc
-//             const distMeters =
-//               session.stats?.totalDistance ??
-//               session.totalDistance ??
-//               (session.locations ? calcTotalDistance(session.locations) : 0);
-
-//             return (
-//               <Card
-//                 key={sessionId || index}
-//                 onClick={() => handleSessionSelect(sessionId)}
-//                 sx={{
-//                   cursor: "pointer",
-//                   border: isSelected
-//                     ? `1.5px solid #2196F3`
-//                     : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-//                   bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
-//                   transition: "all 0.2s ease",
-//                   "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02) },
-//                 }}
-//               >
-//                 <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
-//                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-//                     <Box sx={{
-//                       width: 24, height: 24, borderRadius: "50%",
-//                       bgcolor: "#2196F3", display: "flex", alignItems: "center",
-//                       justifyContent: "center", color: "white", fontSize: "0.7rem", fontWeight: "bold",
-//                     }}>
-//                       {isLoading
-//                         ? <CircularProgress size={14} sx={{ color: "white" }} />
-//                         : index + 1}
-//                     </Box>
-//                     <Box>
-//                       <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.7rem" }}>
-//                         Session #{index + 1}
-//                       </Typography>
-//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem" }}>
-//                         {fmtTime(session.startTime)}
-//                       </Typography>
-//                     </Box>
-//                   </Box>
-
-//                   <Grid container spacing={0.5}>
-//                     <Grid item xs={4}>
-//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Duration</Typography>
-//                       <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-//                         {session.duration ? `${Math.round(session.duration / 60)} min` : "N/A"}
-//                       </Typography>
-//                     </Grid>
-//                     <Grid item xs={4}>
-//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Locations</Typography>
-//                       <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-//                         {session.locationCount || session.locations?.length || 0}
-//                       </Typography>
-//                     </Grid>
-//                     <Grid item xs={4}>
-//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Distance</Typography>
-//                       <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-//                         {fmtDist(distMeters)}
-//                       </Typography>
-//                     </Grid>
-//                   </Grid>
-//                 </CardContent>
-//               </Card>
-//             );
-//           })}
-//         </Stack>
-//       </Box>
-//     </Paper>
-//   );
-
-//   // ─── Render ──────────────────────────────────────────────────────────────────
-//   if (!initialLoadDone && isRefreshing) {
-//     return (
-//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-//         <Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
-//           <CircularProgress size={40} sx={{ color: "#2196F3", mb: 2 }} />
-//           <Typography>Loading sessions…</Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (fetchingSession && !selectedSession) {
-//     return (
-//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-//         <Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
-//           <CircularProgress size={40} sx={{ color: "#2196F3", mb: 2 }} />
-//           <Typography>Loading session details…</Typography>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (sessionDetailsError) {
-//     return (
-//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-//         <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-//           <InfoIcon sx={{ fontSize: 36, color: "error.main", mb: 1 }} />
-//           <Typography color="error">Error loading session data</Typography>
-//           <Typography variant="caption" color="text.secondary">{sessionDetailsError}</Typography>
-//           <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 2 }}>
-//             Go Back
-//           </Button>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   if (!selectedSession && allSessions.length === 0) {
-//     return (
-//       <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-//         <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-//           <InfoIcon sx={{ fontSize: 36, color: "primary.main", mb: 1 }} />
-//           <Typography>No Session Data</Typography>
-//           <Button variant="contained" size="small" onClick={() => window.history.back()} sx={{ mt: 1 }}>Go Back</Button>
-//         </Paper>
-//       </Box>
-//     );
-//   }
-
-//   const sessionIndex = allSessions.findIndex(
-//     (s) => String(s.sessionId || s._id) === String(selectedSessionId)
-//   );
-
-//   return (
-//     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper" }}>
-//       {/* AppBar */}
-//       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
-//         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: 1 }}>
-//           <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3", width: 28, height: 28 }}>
-//             <ArrowBackIcon sx={{ fontSize: 16 }} />
-//           </IconButton>
-//           <Typography sx={{ ml: 1, fontSize: "0.8rem", color: "#2196F3", fontWeight: 600, flex: 1 }}>
-//             {summary.formattedDate || "Route Tracking"}
-//           </Typography>
-          
-//           {/* Refresh Button */}
-//           <IconButton 
-//             onClick={handleRefresh} 
-//             disabled={isRefreshing}
-//             sx={{ color: "#2196F3", mr: 1 }}
-//             size="small"
-//           >
-//             <RefreshIcon sx={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none', fontSize: 18 }} />
-//           </IconButton>
-          
-//           {!isMobile && selectedSession && (
-//             <Chip
-//               label={`Session ${sessionIndex + 1}`}
-//               size="small"
-//               sx={{ height: 20, bgcolor: alpha("#2196F3", 0.1), color: "#2196F3", fontSize: "0.6rem" }}
-//             />
-//           )}
-//           {isMobile && (
-//             <Button
-//               variant="outlined"
-//               size="small"
-//               startIcon={<MenuIcon />}
-//               onClick={() => setDrawerOpen(true)}
-//               sx={{ fontSize: "0.65rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3" }}
-//             >
-//               {allSessions.length}
-//             </Button>
-//           )}
-//         </Toolbar>
-//       </AppBar>
-
-//       <Container maxWidth="xl" sx={{ py: 0, px: 0 }}>
-//         <Grid container sx={{ height: "calc(100vh - 48px)" }}>
-//           {/* Map */}
-//           <Grid item xs={12} md={8} sx={{ height: "100%", position: "relative" }}>
-//             <div ref={mapRef} style={{ width: "100%", height: "100%", minHeight: 500, backgroundColor: "#e0e0e0" }} />
-
-//             {selectedSession && !hasLocations && !fetchingSession && (
-//               <Paper sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", p: 2, textAlign: "center", zIndex: 1000 }}>
-//                 <InfoIcon sx={{ fontSize: 40, color: "#2196F3", mb: 1 }} />
-//                 <Typography variant="body2">No location data for this session</Typography>
-//               </Paper>
-//             )}
-
-//             {fetchingSession && selectedSessionId && !selectedSession && (
-//               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-//                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
-//               </Box>
-//             )}
-
-//             {/* Overlay info */}
-//             {selectedSession && hasLocations && (
-//               <Paper sx={{ position: "absolute", top: 12, left: 12, p: 1, borderRadius: 1.5, maxWidth: 240, zIndex: 500 }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: "0.7rem" }}>
-//                   Session #{sessionIndex + 1}
-//                 </Typography>
-//                 {[
-//                   { color: "#22c55e", label: "START", ts: selectedSession.locations?.[0]?.timestamp },
-//                   { color: "#ef4444", label: "END", ts: selectedSession.locations?.[selectedSession.locations.length - 1]?.timestamp },
-//                 ].map(({ color, label, ts }) => (
-//                   <Box key={label} sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
-//                     <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
-//                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{label}: {fmtTime(ts)}</Typography>
-//                   </Box>
-//                 ))}
-//                 <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
-//                   <Chip size="small" label={`${stops.length} stops`} sx={{ height: 16, fontSize: "0.55rem" }} />
-//                   <Chip size="small" label={`${imageLocations.length} photos`} sx={{ height: 16, fontSize: "0.55rem" }} />
-//                 </Box>
-//                 <Box sx={{ mt: 0.5, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-//                   <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
-//                     Distance: {fmtDist(totalDistance)}
-//                   </Typography>
-//                   {selectedSession.stats?.duration && (
-//                     <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
-//                       Duration: {Math.round(selectedSession.stats.duration / 60)} min
-//                     </Typography>
-//                   )}
-//                 </Box>
-//               </Paper>
-//             )}
-//           </Grid>
-
-//           {/* Desktop sidebar */}
-//           {!isMobile && (
-//             <Grid item md={4} sx={{ height: "100%", borderLeft: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-//               {renderSessionList()}
-//             </Grid>
-//           )}
-//         </Grid>
-//       </Container>
-
-//       {/* Mobile FAB + Drawer */}
-//       {isMobile && (
-//         <>
-//           <Fab
-//             color="primary"
-//             sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }}
-//             onClick={() => setDrawerOpen(true)}
-//           >
-//             <MenuIcon />
-//           </Fab>
-//           <Drawer
-//             anchor="right"
-//             open={drawerOpen}
-//             onClose={() => setDrawerOpen(false)}
-//             PaperProps={{ sx: { width: "80%", maxWidth: 320, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 } }}
-//           >
-//             <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-//               <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: "0.9rem" }}>Sessions</Typography>
-//               <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
-//             </Box>
-//             <Box sx={{ height: "calc(100% - 60px)", overflow: "auto" }}>
-//               {renderSessionList()}
-//             </Box>
-//           </Drawer>
-//         </>
-//       )}
-//     </Box>
-//   );
-// };
-
-// export default Locations;
-
-
-
-
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -861,21 +21,29 @@ import {
   Button,
   Stack,
   CircularProgress,
+  Tooltip,
+  Zoom,
+  Divider,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   Close as CloseIcon,
-  Image as ImageIcon,
   Menu as MenuIcon,
   Photo as PhotoIcon,
   Info as InfoIcon,
-  Pause as PauseIcon,
   Refresh as RefreshIcon,
+  Timer as TimerIcon,
+  Straighten as StraightenIcon,
+  Flag as FlagIcon,
+  Start as StartIcon,
+  PinDrop as PinDropIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import { getSessionDetails } from "../redux/slices/userSlice";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+// Fix Leaflet icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
@@ -883,14 +51,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-const STOP_CONFIG = {
-  MIN_DURATION: 180000,       // 3 minutes
-  MAX_SPEED_KMH: 2,
-  GROUP_RADIUS_METERS: 50,
-};
-
-// ─── Pure Helpers (stable, defined outside component) ────────────────────────
+// ─── Pure Helpers ────────────────────────────────────────────────────────────
 const calcDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
@@ -903,142 +64,158 @@ const calcDistance = (lat1, lon1, lat2, lon2) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-const calcSpeed = (p1, p2) => {
-  const dist = calcDistance(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-  const hrs = (new Date(p2.timestamp) - new Date(p1.timestamp)) / 3_600_000;
-  return hrs <= 0 ? Infinity : dist / 1000 / hrs;
+// Check if location has valid coordinates (not 0,0)
+const hasValidCoordinates = (location) => {
+  const lat = location.latitude || location.lat;
+  const lng = location.longitude || location.lng;
+  return (lat !== 0 && lat !== null && lat !== undefined) &&
+    (lng !== 0 && lng !== null && lng !== undefined) &&
+    !isNaN(lat) && !isNaN(lng);
 };
 
-const detectStops = (locations) => {
-  if (!locations || locations.length < 2) return [];
-  const stops = [];
-  let group = [];
-  let startTime = null;
+// Check if location has a valid photo
+const hasValidPhoto = (location) => {
+  return !!(location.photo &&
+    location.photo !== null &&
+    location.photo !== "" &&
+    location.photo !== "null" &&
+    location.photo !== "undefined" &&
+    typeof location.photo === 'string' &&
+    (location.photo.startsWith('http://') || location.photo.startsWith('https://')));
+};
 
-  const flush = (endIdx) => {
-    if (group.length < 2) return;
-    const endTime = new Date(locations[endIdx].timestamp);
-    const duration = endTime - startTime;
-    if (duration < STOP_CONFIG.MIN_DURATION) return;
+// Get coordinates from location
+const getLat = (location) => location?.latitude || location?.lat || 0;
+const getLng = (location) => location?.longitude || location?.lng || 0;
 
-    const center = group.reduce(
-      (a, p) => { a.lat += p.latitude; a.lng += p.longitude; return a; },
-      { lat: 0, lng: 0 }
-    );
-    center.lat /= group.length;
-    center.lng /= group.length;
-
-    const images = group
-      .filter((p) => p.photo || p.location_image)
-      .map((p) => ({ url: p.photo || p.location_image, timestamp: p.timestamp }));
-
-    stops.push({
-      id: `stop-${startTime.getTime()}`,
-      center, startTime, endTime, duration,
-      pointCount: group.length, images, points: group,
-    });
-  };
-
-  for (let i = 1; i < locations.length; i++) {
-    const prev = locations[i - 1];
-    const curr = locations[i];
-    const speed = calcSpeed(prev, curr);
-    const dist = calcDistance(prev.latitude, prev.longitude, curr.latitude, curr.longitude);
-
-    if (speed < STOP_CONFIG.MAX_SPEED_KMH && dist < STOP_CONFIG.GROUP_RADIUS_METERS) {
-      if (group.length === 0) { group.push(prev); startTime = new Date(prev.timestamp); }
-      group.push(curr);
-    } else {
-      flush(i - 1);
-      group = [];
-      startTime = null;
-    }
+// Get address from location
+const getAddress = (location) => {
+  if (location?.address && location.address !== "Unknown Address" && location.address !== "N/A") {
+    return location.address;
   }
-  flush(locations.length - 1);
-  return stops;
+  return "Address not available";
 };
 
-const getImageLocations = (locations) =>
-  locations
-    .filter((l) => l.photo || l.location_image)
-    .map((l, i) => ({
-      id: `img-${i}-${l.timestamp}`,
-      url: l.photo || l.location_image,
-      timestamp: l.timestamp,
-      location: { lat: l.latitude, lng: l.longitude },
-    }));
+// Filter and sort valid locations
+const getValidLocations = (locations) => {
+  if (!locations || locations.length === 0) return [];
+  const validLocations = locations.filter(loc => hasValidCoordinates(loc));
+  return validLocations.sort((a, b) => {
+    const timeA = a.timestamp || a.time || a.createdAt;
+    const timeB = b.timestamp || b.time || b.createdAt;
+    return new Date(timeA) - new Date(timeB);
+  });
+};
 
-// Calculate total distance from locations array
+// Calculate total distance
 const calcTotalDistance = (locations) => {
-  if (!locations || locations.length < 2) return 0;
+  const validLocations = getValidLocations(locations);
+  if (!validLocations || validLocations.length < 2) return 0;
   let total = 0;
-  for (let i = 1; i < locations.length; i++) {
+  for (let i = 1; i < validLocations.length; i++) {
     total += calcDistance(
-      locations[i - 1].latitude, locations[i - 1].longitude,
-      locations[i].latitude, locations[i].longitude
+      getLat(validLocations[i - 1]), getLng(validLocations[i - 1]),
+      getLat(validLocations[i]), getLng(validLocations[i])
     );
   }
-  return total; // meters
+  return total;
 };
 
-const fmtTime = (ts) =>
-  ts
-    ? new Date(ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
-    : "N/A";
+const fmtTime = (ts) => {
+  if (!ts) return "Active";
+  const date = new Date(ts);
+  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+};
+
+const fmtDate = (ts) => {
+  if (!ts) return "";
+  const date = new Date(ts);
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+const fmtDateTime = (ts) => {
+  if (!ts) return "N/A";
+  const date = new Date(ts);
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
+};
 
 const fmtDist = (meters) => {
-  if (!meters) return "0 km";
+  if (!meters || meters === 0) return "0 km";
+  if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(2)} km`;
 };
 
-// ─── Marker factories (pure functions, no closures on component state) ────────
-const makeCheckIcon = (type, color, time, hasPhoto, size = 36) => {
-  const icon = type === "checkin" ? "🚀" : "🏁";
-  const label = type === "checkin" ? "START" : "END";
+const fmtDuration = (seconds) => {
+  if (!seconds || seconds === 0) return "0 sec";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  }
+  return `${secs}s`;
+};
+
+// ─── Marker factories ────────────────────────────────────────────────────────
+const makeStartIcon = (color, time, hasPhoto = false, size = 32) => {
   return L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
-        <span style="font-size:${size / 3}px;line-height:1">${icon}</span>
-        <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">${label}</span>
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:2;">
+        <span style="font-size:${size / 2.8}px;line-height:1">🚀</span>
+        <span style="font-size:${size / 8}px;line-height:1;margin-top:1px">START</span>
       </div>
-      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 6px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid ${color};z-index:1">
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid ${color};z-index:1">
         ${time}${hasPhoto ? " 📸" : ""}
       </div>
-    </div>`,
-    className: "",
-    iconSize: [size, size + 24],
-    iconAnchor: [size / 2, size + 12],
-  });
-};
-
-const makeStopIcon = (stop, size = 40) => {
-  const mins = Math.round(stop.duration / 60000);
-  return L.divIcon({
-    html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#FF9800;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;">
-        <span style="font-size:${size / 3}px">⏸️</span>
-        <span style="font-size:${size / 6}px;line-height:1;margin-top:1px">STOP</span>
-      </div>
-      <div style="position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:2px 8px;border-radius:12px;font-size:9px;white-space:nowrap;border:1px solid #FF9800;z-index:1">
-        ${mins} min${stop.images.length > 0 ? ` • ${stop.images.length} 📸` : ""}
-      </div>
-    </div>`,
-    className: "",
-    iconSize: [size, size + 28],
-    iconAnchor: [size / 2, size + 14],
-  });
-};
-
-const makeImageIcon = (index, size = 32) =>
-  L.divIcon({
-    html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#9C27B0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:${size / 2}px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:2;cursor:pointer;">📸</div>
-      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:2px 4px;border-radius:8px;font-size:7px;white-space:nowrap;z-index:1">Photo ${index + 1}</div>
     </div>`,
     className: "",
     iconSize: [size, size + 20],
     iconAnchor: [size / 2, size + 10],
   });
+};
+
+const makeEndIcon = (color, time, hasPhoto = false, size = 32) => {
+  return L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:2;">
+        <span style="font-size:${size / 2.8}px;line-height:1">🏁</span>
+        <span style="font-size:${size / 8}px;line-height:1;margin-top:1px">END</span>
+      </div>
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid ${color};z-index:1">
+        ${time}${hasPhoto ? " 📸" : ""}
+      </div>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 20],
+    iconAnchor: [size / 2, size + 10],
+  });
+};
+
+const makePhotoIcon = (photoUrl, time, size = 32) => {
+  return L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, #FF9800, #F57C00);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);overflow:hidden;">
+        <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:16px\\'>📸</span>'"/>
+        <span style="position:absolute;bottom:0;right:0;background:#FF9800;border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;font-size:7px;border:1px solid #fff;">📸</span>
+      </div>
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid #FF9800;">
+        ${time}
+      </div>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 20],
+    iconAnchor: [size / 2, size + 10],
+  });
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const Locations = () => {
@@ -1054,26 +231,22 @@ const Locations = () => {
     metadata = {},
   } = location.state || {};
 
-  const sessionDetails = useSelector((s) => s.user?.sessionDetails);
-  const sessionDetailsLoading = useSelector((s) => s.user?.sessionDetailsLoading);
-  const sessionDetailsError = useSelector((s) => s.user?.sessionDetailsError);
+  // Get session details from Redux
+  const sessionDetails = useSelector((state) => state.user?.sessionDetails);
+  const sessionDetailsLoading = useSelector((state) => state.user?.sessionDetailsLoading);
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [allSessions, setAllSessions] = useState([]);
-  const [selectedSessionId, setSelectedSessionId] = useState(
-    initialSelectedSessionId ? String(initialSelectedSessionId) : null
-  );
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [stops, setStops] = useState([]);
-  const [imageLocations, setImageLocations] = useState([]);
   const [totalDistance, setTotalDistance] = useState(0);
-  const [showStops, setShowStops] = useState(true);
-  const [showImages, setShowImages] = useState(true);
+  const [totalDuration, setTotalDuration] = useState(0);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hasLocations, setHasLocations] = useState(false);
-  const [fetchingSession, setFetchingSession] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [sessionDistances, setSessionDistances] = useState({});
+  const [showPhotoMarkers, setShowPhotoMarkers] = useState(true);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
 
   // ── Refs ───────────────────────────────────────────────────────────────────
   const mapRef = useRef(null);
@@ -1081,308 +254,441 @@ const Locations = () => {
   const polylines = useRef([]);
   const markers = useRef([]);
   const fetchedSessions = useRef(new Set());
-  const sessionRef = useRef(null);
-  const stopsRef = useRef([]);
-  const imagesRef = useRef([]);
-  const showStopsRef = useRef(true);
-  const showImagesRef = useRef(true);
-
-  // Sync refs with state
-  useEffect(() => { sessionRef.current = selectedSession; }, [selectedSession]);
-  useEffect(() => { stopsRef.current = stops; }, [stops]);
-  useEffect(() => { imagesRef.current = imageLocations; }, [imageLocations]);
-  useEffect(() => { showStopsRef.current = showStops; }, [showStops]);
-  useEffect(() => { showImagesRef.current = showImages; }, [showImages]);
+  const sessionDataCache = useRef(new Map()); // Cache for session data
 
   // ── Init sessions from props ───────────────────────────────────────────────
   useEffect(() => {
-    if (sessions.length > 0) {
+    if (sessions && sessions.length > 0) {
       setAllSessions(sessions);
-      
-      // Pre-calculate distances for all sessions
-      const distances = {};
+      // Cache sessions that already have location data
       sessions.forEach(session => {
-        const sessionId = String(session.sessionId || session._id);
-        if (session.locations?.length > 0) {
-          distances[sessionId] = calcTotalDistance(session.locations);
+        if (session.locations && session.locations.length > 0) {
+          const sessionId = String(session.sessionId || session._id);
+          sessionDataCache.current.set(sessionId, session);
+          console.log("Cached session:", sessionId, "with locations:", session.locations.length);
         }
       });
-      setSessionDistances(distances);
     }
   }, [sessions]);
 
   // ── Process session data ───────────────────────────────────────────────────
-  const processSessionData = useCallback((session) => {
-    if (!session) return;
-    
-    setSelectedSession(session);
+  const processSessionData = useCallback((sessionData) => {
+    if (!sessionData) return;
 
-    const sessionId = String(session.sessionId || session._id);
-    
-    if (session.locations?.length > 0) {
+    console.log("Processing session data:", sessionData.sessionId, "Locations:", sessionData.locations?.length);
+
+    setSelectedSession(sessionData);
+
+    const allLocations = sessionData.locations || [];
+    const validLocations = getValidLocations(allLocations);
+
+    if (validLocations.length > 0) {
       setHasLocations(true);
-      const detectedStops = detectStops(session.locations);
-      const images = getImageLocations(session.locations);
-      const dist = calcTotalDistance(session.locations);
-      
-      setStops(detectedStops);
-      setImageLocations(images);
+      const dist = calcTotalDistance(allLocations);
+      const duration = sessionData.stats?.duration || 0;
+
+      const firstLoc = allLocations[0];
+      const lastLoc = allLocations[allLocations.length - 1];
+      const startTimeValue = firstLoc?.timestamp || sessionData.startTime;
+      const endTimeValue = lastLoc?.timestamp || sessionData.endTime;
+
+      setStartTime(startTimeValue);
+      setEndTime(endTimeValue);
       setTotalDistance(dist);
-      
-      // Store the calculated distance
-      setSessionDistances(prev => ({
-        ...prev,
-        [sessionId]: dist
-      }));
-      
-      // Update the session in allSessions with the full locations if needed
-      setAllSessions(prev => 
-        prev.map(s => {
-          const sId = String(s.sessionId || s._id);
-          if (sId === sessionId && (!s.locations || s.locations.length === 0)) {
-            return { ...s, locations: session.locations };
-          }
-          return s;
-        })
-      );
+      setTotalDuration(duration);
+
+      // Draw on map if map is ready
+      if (mapInstance.current) {
+        console.log("Drawing session immediately");
+        setTimeout(() => {
+          drawMapWithSession(sessionData, showPhotoMarkers);
+        }, 100);
+      }
     } else {
+      console.log("No valid locations found");
       setHasLocations(false);
-      setStops([]);
-      setImageLocations([]);
-      setTotalDistance(0);
     }
-  }, []);
+  }, [showPhotoMarkers]);
 
-  // ── Handle session click ───────────────────────────────────────────────────
+  // ── Handle session click - FIXED: Check cache first ───────────────────────
   const handleSessionSelect = useCallback(
-    (rawId) => {
-      const sessionId = String(rawId);
-      if (sessionId === String(selectedSessionId)) return;
+    (sessionId) => {
+      const id = String(sessionId);
 
-      // Update selected session ID immediately
-      setSelectedSessionId(sessionId);
+      console.log("=== Session Click ===");
+      console.log("Selected ID:", id);
+      console.log("Current selected ID:", selectedSessionId);
 
-      // Try to find in allSessions
-      const found = allSessions.find(
-        (s) => String(s.sessionId || s._id) === sessionId
+      // Always update the selected session ID
+      setSelectedSessionId(id);
+
+      // Check cache first
+      if (sessionDataCache.current.has(id)) {
+        const cachedSession = sessionDataCache.current.get(id);
+        console.log("Using cached session data:", id, "Locations:", cachedSession.locations?.length);
+        processSessionData(cachedSession);
+        return;
+      }
+
+      // Find session in allSessions
+      const foundSession = allSessions.find(
+        (s) => String(s.sessionId || s._id) === id
       );
 
-      if (found?.locations?.length > 0) {
-        // If we have locations, process immediately
-        processSessionData(found);
-      } else {
-        // Clear current session data but keep the list visible
+      if (foundSession?.locations && foundSession.locations.length > 0) {
+        // Session already has location data
+        console.log("Session has location data, using directly");
+        sessionDataCache.current.set(id, foundSession);
+        processSessionData(foundSession);
+      } else if (foundSession && !fetchedSessions.current.has(id)) {
+        // Need to fetch session details
+        const userId = metadata?.userId || foundSession?.userId;
+
+        if (userId) {
+          console.log("Fetching session details for:", id);
+          fetchedSessions.current.add(id);
+          dispatch(getSessionDetails({ userId, sessionId: id }));
+        } else {
+          console.log("No userId found for session:", id);
+          setSelectedSession(null);
+          setHasLocations(false);
+        }
+      } else if (foundSession && fetchedSessions.current.has(id)) {
+        // Already fetched, wait for Redux
+        console.log("Session already fetching, waiting for Redux data...");
         setSelectedSession(null);
         setHasLocations(false);
-        setStops([]);
-        setImageLocations([]);
-        setTotalDistance(0);
-        
-        // Check if we already have session details in Redux
-        if (sessionDetails && String(sessionDetails.sessionId) === sessionId) {
-          processSessionData(sessionDetails);
-        }
-        // Otherwise the fetch useEffect will handle it
+      } else {
+        console.log("Session not found in allSessions");
+        setSelectedSession(null);
+        setHasLocations(false);
       }
 
       if (isMobile) setDrawerOpen(false);
     },
-    [selectedSessionId, allSessions, sessionDetails, isMobile, processSessionData]
+    [selectedSessionId, allSessions, metadata?.userId, dispatch, isMobile, processSessionData]
   );
 
-  // ── Fetch session details ──────────────────────────────────────────────────
+  // ── Watch for sessionDetails from Redux ───────────────────────────────────
   useEffect(() => {
-    if (!selectedSessionId) return;
-
-    // Already have data loaded?
-    if (selectedSession?.locations?.length > 0) return;
-
-    // Already fetched successfully?
-    if (fetchedSessions.current.has(selectedSessionId)) return;
-
-    let userId = metadata?.userId;
-    if (!userId) {
-      const s = allSessions.find(
-        (s) => String(s.sessionId || s._id) === selectedSessionId
-      );
-      userId = s?.userId;
-    }
-    if (!userId) return;
-
-    setFetchingSession(true);
-    dispatch(getSessionDetails({ userId, sessionId: selectedSessionId }))
-      .finally(() => {
-        fetchedSessions.current.add(selectedSessionId);
-        setFetchingSession(false);
-      });
-  }, [selectedSessionId, selectedSession?.locations?.length, allSessions, metadata?.userId, dispatch]);
-
-  // ── Process Redux session details when they arrive ─────────────────────────
-  useEffect(() => {
-    if (
-      sessionDetails &&
-      String(sessionDetails.sessionId) === String(selectedSessionId)
-    ) {
+    if (sessionDetails && String(sessionDetails.sessionId) === String(selectedSessionId)) {
+      console.log("Received session details from Redux");
+      // Cache the fetched data
+      const sessionId = String(sessionDetails.sessionId);
+      sessionDataCache.current.set(sessionId, sessionDetails);
       processSessionData(sessionDetails);
     }
   }, [sessionDetails, selectedSessionId, processSessionData]);
 
+  // ── Auto-select first session on initial load ─────────────────────────────
+  useEffect(() => {
+    if (allSessions.length > 0 && !selectedSessionId && !selectedSession) {
+      let firstSessionId;
+      if (initialSelectedSessionId) {
+        firstSessionId = String(initialSelectedSessionId);
+        console.log("Using initial selected session ID:", firstSessionId);
+      } else {
+        firstSessionId = String(allSessions[0].sessionId || allSessions[0]._id);
+        console.log("Auto-selecting first session:", firstSessionId);
+      }
+      handleSessionSelect(firstSessionId);
+    }
+  }, [allSessions, selectedSessionId, selectedSession, initialSelectedSessionId, handleSessionSelect]);
+
   // ── Map: clear helpers ─────────────────────────────────────────────────────
   const clearMap = () => {
     if (!mapInstance.current) return;
-    
-    // Remove all layers
+
     polylines.current.forEach((l) => {
       if (mapInstance.current) mapInstance.current.removeLayer(l);
     });
     markers.current.forEach((m) => {
       if (mapInstance.current) mapInstance.current.removeLayer(m);
     });
-    
-    // Clear the arrays
+
     polylines.current = [];
     markers.current = [];
   };
 
   // ── Map: draw session ──────────────────────────────────────────────────────
-  const drawSession = useCallback((session, stopsList, imagesList, showS, showI) => {
-    if (!mapInstance.current || !session?.locations?.length) return;
+  const drawMapWithSession = useCallback((session, showPhotos) => {
+    if (!mapInstance.current) {
+      console.log("Map not initialized");
+      return;
+    }
 
-    // Clear existing layers first
+    if (!session?.locations || session.locations.length === 0) {
+      console.log("No locations to draw");
+      return;
+    }
+
+    console.log("Drawing session on map:", session.sessionId, "Locations:", session.locations.length);
     clearMap();
 
-    const locs = session.locations;
-    const routePoints = locs
-      .map((l) => [parseFloat(l.latitude), parseFloat(l.longitude)])
-      .filter(([a, b]) => !isNaN(a) && !isNaN(b));
+    const allLocations = session.locations || [];
+    const validLocations = getValidLocations(allLocations);
 
-    if (routePoints.length === 0) return;
-
-    // Route polyline
-    if (routePoints.length > 1) {
-      const pl = L.polyline(routePoints, {
-        color: "#2196F3", 
-        weight: 4, 
-        opacity: 0.8,
-      }).addTo(mapInstance.current);
-      polylines.current.push(pl);
+    if (validLocations.length === 0) {
+      console.log("No valid locations to draw");
+      return;
     }
 
-    const checkIn = locs[0];
-    const checkOut = locs.length > 1 ? locs[locs.length - 1] : null;
+    console.log("Valid locations:", validLocations.length);
+
+    // Draw polyline segments
+    for (let i = 0; i < validLocations.length - 1; i++) {
+      const currentLoc = validLocations[i];
+      const nextLoc = validLocations[i + 1];
+
+      const startPoint = [getLat(currentLoc), getLng(currentLoc)];
+      const endPoint = [getLat(nextLoc), getLng(nextLoc)];
+
+      const isOnline = currentLoc.isOnline === true;
+      const lineColor = isOnline ? "#3553ea" : "#ef4444";
+
+      const segmentLine = L.polyline([startPoint, endPoint], {
+        color: lineColor,
+        weight: 3,
+        opacity: 0.8,
+        lineJoin: 'round',
+        lineCap: 'round'
+      }).addTo(mapInstance.current);
+
+      polylines.current.push(segmentLine);
+    }
+
+    // Get start and end points
+    const startLocation = validLocations[0];
+    const endLocation = validLocations[validLocations.length - 1];
+
+    // Check for start and end points with photos in ALL locations
+    const allStartPoints = allLocations.filter(loc => loc.markerType === "start" || loc.id === 1);
+    const allEndPoints = allLocations.filter(loc => loc.markerType === "end");
+
+    console.log("Start points found:", allStartPoints.length);
+    console.log("End points found:", allEndPoints.length);
 
     // START marker
-    const startM = L.marker(
-      [parseFloat(checkIn.latitude), parseFloat(checkIn.longitude)],
-      { 
-        icon: makeCheckIcon("checkin", "#22c55e", fmtTime(checkIn.timestamp), !!(checkIn.photo || checkIn.location_image)), 
-        zIndexOffset: 1000 
+    let startPointToUse = startLocation;
+    let startHasPhoto = false;
+    let startPhoto = null;
+
+    if (allStartPoints.length > 0 && hasValidPhoto(allStartPoints[0])) {
+      startPointToUse = allStartPoints[0];
+      startHasPhoto = true;
+      startPhoto = allStartPoints[0].photo;
+      console.log("Using start point with photo");
+    } else if (startLocation && hasValidPhoto(startLocation)) {
+      startHasPhoto = true;
+      startPhoto = startLocation.photo;
+    }
+
+    if (startPointToUse) {
+      let markerLat = getLat(startPointToUse);
+      let markerLng = getLng(startPointToUse);
+
+      // If start point has 0,0 coordinates, use first valid location
+      if ((markerLat === 0 && markerLng === 0) && validLocations.length > 0) {
+        markerLat = getLat(validLocations[0]);
+        markerLng = getLng(validLocations[0]);
+        console.log("Start point had 0,0, using first valid location");
       }
-    )
-      .bindPopup(`<b style="color:#22c55e">🚀 START</b><br/>Time: ${fmtTime(checkIn.timestamp)}<br/>Address: ${checkIn.address || "N/A"}`)
-      .addTo(mapInstance.current);
-    markers.current.push(startM);
+
+      if (hasValidCoordinates({ latitude: markerLat, longitude: markerLng })) {
+        const startAddress = getAddress(startPointToUse);
+        const startIsOnline = startPointToUse.isOnline === true;
+        let popupContent = `
+          <div style="min-width: 240px; max-width: 300px;">
+            <div style="background: #22c55e; color: white; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 16px;">🚀</span>
+                <b>START POINT</b>
+                ${startIsOnline ? '<span style="margin-left: auto;">🟢 Online</span>' : '<span style="margin-left: auto;">🔴 Offline</span>'}
+              </div>
+            </div>
+            <div><b>Time:</b> ${fmtTime(startPointToUse.timestamp)}</div>
+            <div><b>Date:</b> ${fmtDate(startPointToUse.timestamp)}</div>
+            <div><b>Address:</b> ${startAddress}</div>
+        `;
+
+        if (startHasPhoto && startPhoto) {
+          popupContent += `
+            <div style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;">
+              <b>📸 Photo</b><br/>
+              <img src="${startPhoto}" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 6px; cursor: pointer; margin-top: 5px;" onclick="window.open('${startPhoto}', '_blank')"/>
+            </div>
+          `;
+        }
+        popupContent += `</div>`;
+
+        const startM = L.marker(
+          [markerLat, markerLng],
+          { icon: makeStartIcon("#22c55e", fmtTime(startPointToUse.timestamp), startHasPhoto, 32), zIndexOffset: 1000 }
+        ).bindPopup(popupContent).addTo(mapInstance.current);
+        markers.current.push(startM);
+        console.log("Start marker added at:", markerLat, markerLng);
+      }
+    }
 
     // END marker
-    if (checkOut) {
-      const endM = L.marker(
-        [parseFloat(checkOut.latitude), parseFloat(checkOut.longitude)],
-        { 
-          icon: makeCheckIcon("checkout", "#ef4444", fmtTime(checkOut.timestamp), !!(checkOut.photo || checkOut.location_image)), 
-          zIndexOffset: 1000 
+    let endPointToUse = endLocation;
+    let endHasPhoto = false;
+    let endPhoto = null;
+
+    if (allEndPoints.length > 0 && hasValidPhoto(allEndPoints[0])) {
+      endPointToUse = allEndPoints[0];
+      endHasPhoto = true;
+      endPhoto = allEndPoints[0].photo;
+      console.log("Using end point with photo");
+    } else if (endLocation && hasValidPhoto(endLocation)) {
+      endHasPhoto = true;
+      endPhoto = endLocation.photo;
+    }
+
+    if (endPointToUse) {
+      let markerLat = getLat(endPointToUse);
+      let markerLng = getLng(endPointToUse);
+
+      // If end point has 0,0 coordinates, use last valid location
+      if ((markerLat === 0 && markerLng === 0) && validLocations.length > 0) {
+        markerLat = getLat(validLocations[validLocations.length - 1]);
+        markerLng = getLng(validLocations[validLocations.length - 1]);
+        console.log("End point had 0,0, using last valid location");
+      }
+
+      if (hasValidCoordinates({ latitude: markerLat, longitude: markerLng })) {
+        const endAddress = getAddress(endPointToUse);
+        const endIsOnline = endPointToUse.isOnline === true;
+        let popupContent = `
+          <div style="min-width: 240px; max-width: 300px;">
+            <div style="background: #ef4444; color: white; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 16px;">🏁</span>
+                <b>END POINT</b>
+                ${endIsOnline ? '<span style="margin-left: auto;">🟢 Online</span>' : '<span style="margin-left: auto;">🔴 Offline</span>'}
+              </div>
+            </div>
+            <div><b>Time:</b> ${fmtTime(endPointToUse.timestamp)}</div>
+            <div><b>Date:</b> ${fmtDate(endPointToUse.timestamp)}</div>
+            <div><b>Address:</b> ${endAddress}</div>
+        `;
+
+        if (endHasPhoto && endPhoto) {
+          popupContent += `
+            <div style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;">
+              <b>📸 Photo</b><br/>
+              <img src="${endPhoto}" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 6px; cursor: pointer; margin-top: 5px;" onclick="window.open('${endPhoto}', '_blank')"/>
+            </div>
+          `;
         }
-      )
-        .bindPopup(`<b style="color:#ef4444">🏁 END</b><br/>Time: ${fmtTime(checkOut.timestamp)}<br/>Address: ${checkOut.address || "N/A"}`)
-        .addTo(mapInstance.current);
-      markers.current.push(endM);
+        popupContent += `</div>`;
+
+        const endM = L.marker(
+          [markerLat, markerLng],
+          { icon: makeEndIcon("#ef4444", fmtTime(endPointToUse.timestamp), endHasPhoto, 32), zIndexOffset: 1000 }
+        ).bindPopup(popupContent).addTo(mapInstance.current);
+        markers.current.push(endM);
+        console.log("End marker added at:", markerLat, markerLng);
+      }
     }
 
-    // Stop markers
-    if (showS) {
-      stopsList.forEach((stop) => {
-        let popup = `<div style="min-width:200px"><b style="color:#FF9800">⏸️ STOP</b><br/>
-          Duration: ${Math.round(stop.duration / 60000)} min<br/>
-          From: ${fmtTime(stop.startTime)}<br/>
-          To: ${fmtTime(stop.endTime)}<br/>
-          Points: ${stop.pointCount}`;
-        stop.images.forEach((img) => {
-          popup += `<br/><img src="${img.url}" style="max-width:100%;max-height:80px;border-radius:4px;margin-top:4px"/>`;
-        });
-        popup += `</div>`;
-        const m = L.marker([stop.center.lat, stop.center.lng], { icon: makeStopIcon(stop) })
-          .bindPopup(popup)
-          .addTo(mapInstance.current);
-        markers.current.push(m);
+    // Additional photo markers
+    if (showPhotos) {
+      const photoLocations = allLocations.filter(loc => {
+        const hasPhoto = hasValidPhoto(loc);
+        const isStart = loc.markerType === "start" || loc.id === 1;
+        const isEnd = loc.markerType === "end";
+        return hasPhoto && !isStart && !isEnd;
+      });
+
+      console.log("Additional photo locations:", photoLocations.length);
+
+      const firstValidLocation = validLocations.find(l => hasValidCoordinates(l));
+      const defaultPosition = firstValidLocation
+        ? { lat: getLat(firstValidLocation), lng: getLng(firstValidLocation) }
+        : { lat: 16.703, lng: 74.251 };
+
+      photoLocations.forEach((photoLoc, idx) => {
+        let markerLat = getLat(photoLoc);
+        let markerLng = getLng(photoLoc);
+
+        if (!hasValidCoordinates(photoLoc) || (markerLat === 0 && markerLng === 0)) {
+          markerLat = defaultPosition.lat;
+          markerLng = defaultPosition.lng;
+        }
+
+        const popupContent = `
+          <div style="min-width: 240px; max-width: 300px;">
+            <div style="background: #FF9800; color: white; padding: 8px 10px; border-radius: 8px; margin-bottom: 10px;">
+              <b>📸 PHOTO ${idx + 1}</b>
+            </div>
+            <div><b>Time:</b> ${fmtTime(photoLoc.timestamp)}</div>
+            <div><b>Date:</b> ${fmtDate(photoLoc.timestamp)}</div>
+            <div><b>Address:</b> ${getAddress(photoLoc)}</div>
+            <div style="margin-top: 8px;">
+              <img src="${photoLoc.photo}" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 6px; cursor: pointer;" onclick="window.open('${photoLoc.photo}', '_blank')"/>
+            </div>
+          </div>
+        `;
+
+        const photoMarker = L.marker([markerLat, markerLng], {
+          icon: makePhotoIcon(photoLoc.photo, fmtTime(photoLoc.timestamp), 32),
+          zIndexOffset: 950
+        }).bindPopup(popupContent).addTo(mapInstance.current);
+        markers.current.push(photoMarker);
       });
     }
 
-    // Image markers
-    if (showI) {
-      imagesList.forEach((img, idx) => {
-        const m = L.marker([img.location.lat, img.location.lng], { icon: makeImageIcon(idx) })
-          .bindPopup(`<div style="text-align:center"><b style="color:#9C27B0">📸 PHOTO</b><br/><small>${new Date(img.timestamp).toLocaleString()}</small><br/><img src="${img.url}" style="max-width:100%;max-height:150px;border-radius:4px;margin-top:4px"/></div>`)
-          .addTo(mapInstance.current);
-        markers.current.push(m);
-      });
-    }
-
-    // Fit bounds to show all points
-    if (routePoints.length > 0) {
-      mapInstance.current.fitBounds(L.latLngBounds(routePoints), { padding: [40, 40] });
+    // Fit bounds
+    if (validLocations.length > 0) {
+      const bounds = L.latLngBounds(validLocations.map(l => [getLat(l), getLng(l)]));
+      mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
+      console.log("Map bounds set");
     }
   }, []);
 
-  // ── Map: initialize and update when session changes ─────────────────────────
+  // ── Initialize Map once ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!selectedSession?.locations?.length || !mapRef.current) return;
+    if (!mapRef.current || isMapInitialized) return;
 
-    const locs = selectedSession.locations;
-    const first = locs[0];
-    if (!first) return;
+    const map = L.map(mapRef.current, {
+      zoomControl: true,
+      center: [16.703, 74.251],
+      zoom: 13
+    });
 
-    // If map doesn't exist, create it
-    if (!mapInstance.current) {
-      const map = L.map(mapRef.current, { 
-        zoomControl: true,
-        center: [parseFloat(first.latitude), parseFloat(first.longitude)],
-        zoom: 14
-      });
-      
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
-      
-      mapInstance.current = map;
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 19,
+    }).addTo(map);
+
+    mapInstance.current = map;
+    setIsMapInitialized(true);
+    console.log("Map initialized");
+
+    // Draw if we already have a selected session
+    if (selectedSession && selectedSession.locations) {
+      setTimeout(() => {
+        drawMapWithSession(selectedSession, showPhotoMarkers);
+      }, 200);
     }
+  }, [isMapInitialized, selectedSession, showPhotoMarkers, drawMapWithSession]);
 
-    // Clear existing layers and draw new session
-    const timeoutId = setTimeout(() => {
-      if (mapInstance.current) {
-        mapInstance.current.invalidateSize();
-        drawSession(selectedSession, stops, imageLocations, showStops, showImages);
-      }
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [selectedSession, stops, imageLocations, showStops, showImages, drawSession]);
-
-  // ── Map: redraw when filters change ───────────────────────────
+  // ── Draw session when selectedSession changes ────────────────────────────
   useEffect(() => {
-    if (!mapInstance.current || !selectedSession?.locations?.length) return;
-    
-    const timeoutId = setTimeout(() => {
-      drawSession(selectedSession, stops, imageLocations, showStops, showImages);
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [showStops, showImages, stops, imageLocations, selectedSession, drawSession]);
+    if (mapInstance.current && selectedSession?.locations && selectedSession.locations.length > 0) {
+      console.log("Redrawing session on map due to selectedSession change");
+      setTimeout(() => {
+        drawMapWithSession(selectedSession, showPhotoMarkers);
+      }, 100);
+    }
+  }, [selectedSession, showPhotoMarkers, drawMapWithSession]);
 
   // ── Window resize ──────────────────────────────────────────────────────────
   useEffect(() => {
     const onResize = () => {
       if (mapInstance.current) {
-        mapInstance.current.invalidateSize();
+        setTimeout(() => mapInstance.current.invalidateSize(), 100);
       }
     };
     window.addEventListener("resize", onResize);
@@ -1399,144 +705,120 @@ const Locations = () => {
     };
   }, []);
 
-  // ── Refresh function ───────────────────────────────────────────────────────
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    
-    setTimeout(() => {
-      if (sessions.length > 0) {
-        setAllSessions([...sessions]);
-      }
-      setIsRefreshing(false);
-    }, 500);
+  // Count total photo points
+  const getPhotoCount = (session) => {
+    if (!session?.locations) return 0;
+    return session.locations.filter(loc => hasValidPhoto(loc)).length;
   };
 
-  // ─── Session list (render fn) ─────────────────────────────────────────────
+  // ─── Session List Component ─────────────────────────────────────────────
   const renderSessionList = () => (
     <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
-      {/* Summary */}
-      {summary && Object.keys(summary).length > 0 && (
-        <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-          <Typography variant="body2" fontWeight={600} color="#2196F3" sx={{ fontSize: "0.75rem" }}>
-            {summary.formattedDate || "Selected Date"}
-          </Typography>
-          <Grid container spacing={0.5} sx={{ mt: 0.5 }}>
-            {[
-              ["Sessions", allSessions.length],
-              ["Stops", stops.length],
-              ["Photos", imageLocations.length],
-              ["Distance", fmtDist(totalDistance)],
-            ].map(([label, val]) => (
-              <Grid item xs={3} key={label}>
-                <Typography variant="caption" sx={{ fontSize: "0.6rem" }} color="text.secondary">{label}</Typography>
-                <Typography variant="body2" fontWeight={500} sx={{ fontSize: "0.7rem" }}>{val}</Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
-
-      {/* Toggles */}
-      <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-        <Stack direction="row" spacing={0.5}>
-          <Chip
-            size="small"
-            label={`Stops (${stops.length})`}
-            onClick={() => setShowStops((v) => !v)}
-            color={showStops ? "warning" : "default"}
-            icon={<PauseIcon />}
-            sx={{ height: 24, fontSize: "0.65rem" }}
-          />
-          <Chip
-            size="small"
-            label={`Photos (${imageLocations.length})`}
-            onClick={() => setShowImages((v) => !v)}
-            color={showImages ? "secondary" : "default"}
-            icon={<PhotoIcon />}
-            sx={{ height: 24, fontSize: "0.65rem" }}
-          />
-        </Stack>
-      </Box>
-
-      {/* Sessions */}
       <Box sx={{ p: 1.5 }}>
-        <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.75rem", mb: 1 }}>
+        <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.75rem", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+          <PinDropIcon sx={{ fontSize: 16, color: "#2196F3" }} />
           Sessions ({allSessions.length})
         </Typography>
-        <Stack spacing={1}>
+        <Stack spacing={1.5}>
           {allSessions.map((session, index) => {
             const sessionId = String(session.sessionId || session._id);
             const isSelected = String(selectedSessionId) === sessionId;
-            const isLoading = isSelected && fetchingSession && !selectedSession;
-
-            // Get distance
-            let distMeters = sessionDistances[sessionId];
-            
-            if (!distMeters && session.locations?.length > 0) {
-              distMeters = calcTotalDistance(session.locations);
-            }
-            
-            if (!distMeters) {
-              distMeters = session.stats?.totalDistance || session.totalDistance || 0;
-            }
+            const isLoading = isSelected && sessionDetailsLoading && !selectedSession;
+            const photoCount = getPhotoCount(session);
+            const sessionDist = session.totalDistance || session.stats?.totalDistance || 0;
+            const sessionDur = session.stats?.duration || session.duration || 0;
+            const sessionStartTime = session.locations?.[0]?.timestamp || session.startTime;
+            const sessionEndTime = session.locations?.[session.locations.length - 1]?.timestamp || session.endTime;
 
             return (
-              <Card
-                key={sessionId || index}
-                onClick={() => handleSessionSelect(sessionId)}
-                sx={{
-                  cursor: "pointer",
-                  border: isSelected
-                    ? `1.5px solid #2196F3`
-                    : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                  bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
-                  transition: "all 0.2s ease",
-                  "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02) },
-                }}
-              >
-                <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                    <Box sx={{
-                      width: 24, height: 24, borderRadius: "50%",
-                      bgcolor: "#2196F3", display: "flex", alignItems: "center",
-                      justifyContent: "center", color: "white", fontSize: "0.7rem", fontWeight: "bold",
-                    }}>
-                      {isLoading
-                        ? <CircularProgress size={14} sx={{ color: "white" }} />
-                        : index + 1}
+              <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
+                <Card
+                  onClick={() => handleSessionSelect(sessionId)}
+                  sx={{
+                    cursor: "pointer",
+                    border: isSelected ? `2px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                    bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: "#2196F3",
+                      bgcolor: alpha("#2196F3", 0.02),
+                      transform: "translateY(-2px)",
+                      boxShadow: 2
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: 1.5 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                      <Box sx={{
+                        width: 32, height: 32, borderRadius: "50%",
+                        bgcolor: isSelected ? "#2196F3" : alpha("#2196F3", 0.1),
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: isSelected ? "white" : "#2196F3", fontSize: "0.75rem", fontWeight: "bold",
+                      }}>
+                        {isLoading ? <CircularProgress size={18} /> : index + 1}
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.75rem" }}>
+                          Session #{index + 1}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <ScheduleIcon sx={{ fontSize: 10 }} />
+                          {fmtDateTime(session.startTime)}
+                        </Typography>
+                      </Box>
+                      {photoCount > 0 && (
+                        <Chip icon={<PhotoIcon sx={{ fontSize: 12 }} />} label={photoCount} size="small"
+                          sx={{ height: 22, fontSize: "0.6rem", bgcolor: alpha("#FF9800", 0.1), color: "#FF9800" }} />
+                      )}
                     </Box>
-                    <Box>
-                      <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.7rem" }}>
-                        Session #{index + 1}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem" }}>
-                        {fmtTime(session.startTime)}
-                      </Typography>
-                    </Box>
-                  </Box>
 
-                  <Grid container spacing={0.5}>
-                    <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Duration</Typography>
-                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-                        {session.duration ? `${Math.round(session.duration / 60)} min` : "N/A"}
-                      </Typography>
+                    <Grid container spacing={1} sx={{ mb: 1 }}>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, p: 0.5, bgcolor: alpha("#FF9800", 0.03), borderRadius: 1 }}>
+                          <TimerIcon sx={{ fontSize: 14, color: "#FF9800" }} />
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Duration</Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDuration(sessionDur)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, p: 0.5, bgcolor: alpha("#2196F3", 0.03), borderRadius: 1 }}>
+                          <StraightenIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Distance</Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDist(sessionDist)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
                     </Grid>
-                    {/* <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Locations</Typography>
-                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-                        {session.locationCount || session.locations?.length || 0}
-                      </Typography>
-                    </Grid> */}
-                    <Grid item xs={4}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem" }}>Distance</Typography>
-                      <Typography variant="body2" sx={{ fontSize: "0.65rem" }}>
-                        {fmtDist(distMeters)}
-                      </Typography>
+
+                    <Divider sx={{ my: 1 }} />
+                    <Grid container spacing={1}>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <StartIcon sx={{ fontSize: 12, color: "#22c55e" }} />
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Start </Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem" }}>{fmtTime(sessionStartTime)} </Typography>
+                            <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionStartTime)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <FlagIcon sx={{ fontSize: 12, color: "#ef4444" }} />
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>End </Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem" }}>{fmtTime(sessionEndTime)} </Typography>
+                            <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionEndTime)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Zoom>
             );
           })}
         </Stack>
@@ -1547,41 +829,28 @@ const Locations = () => {
   // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper" }}>
-      {/* AppBar */}
       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
-        <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: 1 }}>
-          <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3", width: 28, height: 28 }}>
-            <ArrowBackIcon sx={{ fontSize: 16 }} />
+        <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
+          <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+            <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
           </IconButton>
-          <Typography sx={{ ml: 1, fontSize: "0.8rem", color: "#2196F3", fontWeight: 600, flex: 1 }}>
+          <Typography sx={{ ml: 1, fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600, flex: 1 }}>
             {summary.formattedDate || "Route Tracking"}
           </Typography>
-          
-          {/* Refresh Button */}
-          <IconButton 
-            onClick={handleRefresh} 
-            disabled={isRefreshing}
-            sx={{ color: "#2196F3", mr: 1 }}
-            size="small"
-          >
-            <RefreshIcon sx={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none', fontSize: 18 }} />
-          </IconButton>
-          
+
+          {/* <IconButton onClick={() => window.location.reload()} sx={{ color: "#2196F3", mr: 0.5 }} size="small">
+            <RefreshIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
+          </IconButton> */}
+
           {!isMobile && selectedSession && (
-            <Chip
-              label={`Session ${allSessions.findIndex(s => String(s.sessionId || s._id) === String(selectedSessionId)) + 1}`}
-              size="small"
-              sx={{ height: 20, bgcolor: alpha("#2196F3", 0.1), color: "#2196F3", fontSize: "0.6rem" }}
-            />
+            <Chip label={`${getPhotoCount(selectedSession)} Photos`} size="small"
+              icon={<PhotoIcon sx={{ fontSize: 14 }} />}
+              sx={{ height: 24, bgcolor: alpha("#FF9800", 0.1), color: "#FF9800", fontSize: "0.65rem" }} />
           )}
           {isMobile && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<MenuIcon />}
+            <Button variant="outlined" size="small" startIcon={<MenuIcon />}
               onClick={() => setDrawerOpen(true)}
-              sx={{ fontSize: "0.65rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3" }}
-            >
+              sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5, minWidth: 'auto' }}>
               {allSessions.length}
             </Button>
           )}
@@ -1590,57 +859,55 @@ const Locations = () => {
 
       <Container maxWidth="xl" sx={{ py: 0, px: 0 }}>
         <Grid container sx={{ height: "calc(100vh - 48px)" }}>
-          {/* Map */}
           <Grid item xs={12} md={8} sx={{ height: "100%", position: "relative" }}>
-            <div ref={mapRef} style={{ width: "100%", height: "100%", minHeight: 500, backgroundColor: "#e0e0e0" }} />
+            <div ref={mapRef} style={{ width: "100%", height: "100%", minHeight: 500, backgroundColor: "#f0f0f0" }} />
 
-            {selectedSession && !hasLocations && !fetchingSession && (
-              <Paper sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", p: 2, textAlign: "center", zIndex: 1000 }}>
-                <InfoIcon sx={{ fontSize: 40, color: "#2196F3", mb: 1 }} />
-                <Typography variant="body2">No location data for this session</Typography>
-              </Paper>
-            )}
-
-            {fetchingSession && selectedSessionId && !selectedSession && (
+            {sessionDetailsLoading && selectedSessionId && !selectedSession && (
               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
               </Box>
             )}
 
-            {/* Overlay info */}
             {selectedSession && hasLocations && (
-              <Paper sx={{ position: "absolute", top: 12, left: 50, p: 1, borderRadius: 1.5, maxWidth: 240, zIndex: 500 }}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: "0.7rem" }}>
+              <Paper sx={{
+                position: "absolute", top: 12, left: 52, p: { xs: 1, sm: 1.5 }, borderRadius: 2,
+                maxWidth: { xs: 240, sm: 280 }, zIndex: 500,  boxShadow: 2,
+                backdropFilter: "blur(8px)", bgcolor: "rgba(255,255,255,0.95)"
+              }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.7rem", sm: "0.75rem" }, mb: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <PinDropIcon sx={{ fontSize: 14 }} />
                   Session #{allSessions.findIndex(s => String(s.sessionId || s._id) === String(selectedSessionId)) + 1}
                 </Typography>
-                {[
-                  { color: "#22c55e", label: "START", ts: selectedSession.locations?.[0]?.timestamp },
-                  { color: "#ef4444", label: "END", ts: selectedSession.locations?.[selectedSession.locations.length - 1]?.timestamp },
-                ].map(({ color, label, ts }) => (
-                  <Box key={label} sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
-                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
-                    <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{label}: {fmtTime(ts)}</Typography>
+
+                <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
+                  <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#FF9800", 0.05), p: 0.5, borderRadius: 1 }}>
+                    <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+                    <Typography variant="caption">{fmtDuration(totalDuration)}</Typography>
                   </Box>
-                ))}
-                <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
-                  <Chip size="small" label={`${stops.length} stops`} sx={{ height: 16, fontSize: "0.55rem" }} />
-                  <Chip size="small" label={`${imageLocations.length} photos`} sx={{ height: 16, fontSize: "0.55rem" }} />
+                  <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#2196F3", 0.05), p: 0.5, borderRadius: 1 }}>
+                    <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+                    <Typography variant="caption">{fmtDist(totalDistance)}</Typography>
+                  </Box>
                 </Box>
-                <Box sx={{ mt: 0.5, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-                  <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
-                    Distance: {fmtDist(totalDistance)}
-                  </Typography>
-                  {selectedSession.stats?.duration && (
-                    <Typography variant="caption" sx={{ fontSize: "0.55rem", display: "block" }}>
-                      Duration: {Math.round(selectedSession.stats.duration / 60)} min
-                    </Typography>
-                  )}
+
+                <Divider sx={{ my: 0.5 }} />
+                <Box sx={{ mt: 0.5 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                    <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
+                    <Typography variant="caption" sx={{ color: "#22c55e" }}>Start: {fmtTime(startTime)}</Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
+                    <Typography variant="caption" sx={{ color: "#ef4444" }}>End: {fmtTime(endTime)}</Typography>
+                  </Box>
+                  {/* 
+                  <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem" }}>{fmtTime(sessionEndTime)} </Typography>
+                            <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionEndTime)}</Typography> */}
                 </Box>
               </Paper>
             )}
           </Grid>
 
-          {/* Desktop sidebar */}
           {!isMobile && (
             <Grid item md={4} sx={{ height: "100%", borderLeft: `1px solid ${alpha(theme.palette.divider, 0.5)}`, overflow: "auto" }}>
               {renderSessionList()}
@@ -1649,29 +916,17 @@ const Locations = () => {
         </Grid>
       </Container>
 
-      {/* Mobile FAB + Drawer */}
       {isMobile && (
         <>
-          <Fab
-            color="primary"
-            sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }}
-            onClick={() => setDrawerOpen(true)}
-          >
-            <MenuIcon />
-          </Fab>
-          <Drawer
-            anchor="right"
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            PaperProps={{ sx: { width: "80%", maxWidth: 320, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 } }}
-          >
+          <Fab color="primary" sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }}
+            onClick={() => setDrawerOpen(true)}><MenuIcon /></Fab>
+          <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}
+            PaperProps={{ sx: { width: "85%", maxWidth: 320, borderTopLeftRadius: 16, borderBottomLeftRadius: 16 } }}>
             <Box sx={{ p: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: "0.9rem" }}>Sessions</Typography>
-              <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
+              <Typography variant="subtitle1" fontWeight={600}>Sessions</Typography>
+              <IconButton onClick={() => setDrawerOpen(false)} size="small"><CloseIcon /></IconButton>
             </Box>
-            <Box sx={{ height: "calc(100% - 60px)", overflow: "auto" }}>
-              {renderSessionList()}
-            </Box>
+            <Box sx={{ height: "calc(100% - 60px)", overflow: "auto" }}>{renderSessionList()}</Box>
           </Drawer>
         </>
       )}

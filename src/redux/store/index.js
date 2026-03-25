@@ -6,6 +6,7 @@ import paymentReducer from '../slices/paymentSlice';
 import reportReducer from '../slices/reportSlice';
 import contactReducer from '../slices/contactSlice';
 import couponSliceReducer from '../slices/couponSlice';
+import selectedPlanSliceReducer from '../slices/selectedPlanSlice';
 
 
 export const store = configureStore({
@@ -17,6 +18,7 @@ export const store = configureStore({
     report: reportReducer,
     contact: contactReducer,
     coupon: couponSliceReducer,
+    selectedPlanSlice: selectedPlanSliceReducer,
   },
 });
 

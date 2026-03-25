@@ -2861,7 +2861,7 @@ const CurrentPlan = ({ planData, loading }) => {
               Current Plan
             </Typography>
           </Box>
-          <Chip
+          {/* <Chip
             label={daysLeft <= 0 ? "Expired" : daysLeft <= 7 ? "Expiring Soon" : "Active"}
             size="small"
             sx={{
@@ -2873,7 +2873,7 @@ const CurrentPlan = ({ planData, loading }) => {
               px: 1,
               boxShadow: `0 4px 8px -2px ${alpha(statusColor, 0.5)}`,
             }}
-          />
+          /> */}
         </Box>
 
         {/* Plan Description */}
@@ -2889,7 +2889,7 @@ const CurrentPlan = ({ planData, loading }) => {
         </Box>
 
         {/* Stats Grid - Smaller */}
-        <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
+        {/* <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
           <Grid item xs={6} md={3}>
             <Box sx={{
               bgcolor: alpha(statusColor, 0.03),
@@ -2963,8 +2963,99 @@ const CurrentPlan = ({ planData, loading }) => {
               />
             </Box>
           </Grid>
+        </Grid> */}
+        <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
+          <Grid item xs={6} md={3}>
+            <Box sx={{
+              bgcolor: alpha(statusColor, 0.03),
+              p: { xs: 0.8, sm: 1, md: 1.2 },
+              borderRadius: 1.5,
+              border: "1px solid",
+              borderColor: alpha(statusColor, 0.1),
+              height: '100%', // ADD THIS
+              display: 'flex', // ADD THIS
+              flexDirection: 'column', // ADD THIS
+              justifyContent: 'center', // ADD THIS
+            }}>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>
+                Duration
+              </Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.7rem', color: 'text.primary' }}>
+                {planData.duration || "N/A"}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Box sx={{
+              bgcolor: alpha(statusColor, 0.03),
+              p: { xs: 0.8, sm: 1, md: 1.2 },
+              borderRadius: 1.5,
+              border: "1px solid",
+              borderColor: alpha(statusColor, 0.1),
+              height: '100%', // ADD THIS
+              display: 'flex', // ADD THIS
+              flexDirection: 'column', // ADD THIS
+              justifyContent: 'center', // ADD THIS
+            }}>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>
+                Amount
+              </Typography>
+              <Typography variant="body2" fontWeight="700" sx={{ fontSize: '0.7rem', color: statusColor }}>
+                ₹{planData.amount || "0"}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Box sx={{
+              bgcolor: alpha(statusColor, 0.03),
+              p: { xs: 0.8, sm: 1, md: 1.2 },
+              borderRadius: 1.5,
+              border: "1px solid",
+              borderColor: alpha(statusColor, 0.1),
+              height: '100%', // ADD THIS
+              display: 'flex', // ADD THIS
+              flexDirection: 'column', // ADD THIS
+              justifyContent: 'center', // ADD THIS
+            }}>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>
+                Currency
+              </Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.7rem', color: 'text.primary' }}>
+                {planData.currency || "INR"}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Box sx={{
+              bgcolor: alpha(statusColor, 0.03),
+              p: { xs: 0.8, sm: 1, md: 1.2 },
+              borderRadius: 1.5,
+              border: "1px solid",
+              borderColor: alpha(statusColor, 0.1),
+              height: '100%', // ADD THIS
+              display: 'flex', // ADD THIS
+              flexDirection: 'column', // ADD THIS
+              justifyContent: 'center', // ADD THIS
+            }}>
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>
+                Status
+              </Typography>
+              <Chip
+                label={planData.isActive ? "Active" : "Inactive"}
+                size="small"
+                sx={{
+                  bgcolor: alpha(planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary, 0.1),
+                  color: planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary,
+                  fontWeight: 600,
+                  fontSize: '0.6rem',
+                  height: 18,
+                  mt: 0.3,
+                  alignSelf: 'flex-start', // ADD THIS
+                }}
+              />
+            </Box>
+          </Grid>
         </Grid>
-
         <Divider sx={{ my: { xs: 1.2, sm: 1.5 }, borderStyle: 'dashed', borderColor: alpha(statusColor, 0.2) }} />
 
         {/* Dates */}

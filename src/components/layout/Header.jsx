@@ -433,7 +433,7 @@ const Header = ({ onMenuClick }) => {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        backgroundColor: scrolled 
+        backgroundColor: scrolled
           ? alpha(theme.palette.background.paper, 0.95)
           : alpha(theme.palette.background.paper, 0.8),
         backdropFilter: 'blur(8px)',
@@ -446,7 +446,7 @@ const Header = ({ onMenuClick }) => {
       <nav className="container-custom mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 md:h-16 lg:h-18">
           {/* Logo – slightly larger, better spacing */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
@@ -455,12 +455,38 @@ const Header = ({ onMenuClick }) => {
               <img
                 src={logoImage}
                 alt="Team Trackify Logo"
-            className="h-10 md:h-12 lg:h-14 w-auto max-w-[120px] md:max-w-[140px] object-contain"
-    style={{ borderRadius: '4px' }}
+                className="h-10 md:h-12 lg:h-14 w-auto max-w-[120px] md:max-w-[140px] object-contain"
+                style={{ borderRadius: '4px' }}
               />
             </Link>
-          </motion.div>
 
+          </motion.div> */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Link to="/" className="flex items-center gap-2 md:gap-2.5">
+              <motion.img
+                src={logoImage}
+                alt="Team Trackify Logo"
+                className="h-8 md:h-10 lg:h-12 w-auto max-w-[100px] md:max-w-[120px] object-contain"
+                style={{ borderRadius: '4px' }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              />
+              <motion.span
+                className="text-base md:text-lg lg:text-xl font-bold"
+                style={{ color: theme.palette.primary.main }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                Team Trackify
+              </motion.span>
+            </Link>
+          </motion.div>
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => (
@@ -469,8 +495,8 @@ const Header = ({ onMenuClick }) => {
                 to={item.path}
                 className="relative px-3 py-2 text-xs lg:text-sm font-medium transition-all duration-200"
                 style={{
-                  color: isActive(item.path) 
-                    ? theme.palette.primary.dark 
+                  color: isActive(item.path)
+                    ? theme.palette.primary.dark
                     : theme.palette.text.secondary,
                   fontWeight: isActive(item.path) ? 600 : 500,
                 }}
@@ -564,10 +590,10 @@ const Header = ({ onMenuClick }) => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all"
                   style={{
-                    backgroundColor: isActive(item.path) 
+                    backgroundColor: isActive(item.path)
                       ? alpha(theme.palette.primary.main, 0.1)
                       : 'transparent',
-                    color: isActive(item.path) 
+                    color: isActive(item.path)
                       ? theme.palette.primary.dark
                       : theme.palette.text.primary,
                   }}

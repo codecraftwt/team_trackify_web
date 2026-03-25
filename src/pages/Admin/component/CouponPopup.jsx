@@ -1231,7 +1231,8 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
       </Box>
 
       <DialogContent sx={{ p: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ px: 2, pt: 1.8, pb: 1.5, overflowY: 'auto', flex: 1,
+        <Box sx={{
+          px: 2, pt: 1.8, pb: 1.5, overflowY: 'auto', flex: 1,
           '&::-webkit-scrollbar': { width: 3 },
           '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
         }}>
@@ -1415,7 +1416,8 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                 )}
               </Box>
 
-              <Box sx={{ maxHeight: 220, overflowY: 'auto', pr: 0.3,
+              <Box sx={{
+                maxHeight: 220, overflowY: 'auto', pr: 0.3,
                 '&::-webkit-scrollbar': { width: 2 },
                 '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
               }}>

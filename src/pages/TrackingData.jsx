@@ -1434,7 +1434,7 @@ const handleViewSingleSession = (session) => {
                                     Check Out
                                   </small>
                                   <span style={{ fontSize: '0.65rem', color: theme.palette.text.primary }}>
-                                    {item.endTime ? formatTime(item.endTime) : "—"}
+                                    {item.endTime ? formatTime(item.endTime) : "Active"}
                                   </span>
                                 </div>
                               </div>
@@ -1459,7 +1459,8 @@ const handleViewSingleSession = (session) => {
                             <small style={{ fontSize: '0.6rem', color: theme.palette.text.secondary }}>
                               Distance:{" "}
                               <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
-                                {item.totalDistance?.toFixed(2) || 0} km
+                                {/* {item.totalDistance?.toFixed(2) || 0} km */}
+                                {item.totalDistance ? (item.totalDistance / 1000).toFixed(2) : "0.00"} km
                               </span>
                             </small>
                           </div>
