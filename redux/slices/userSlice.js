@@ -963,20 +963,7 @@ export const getUserSessionsByDate = createAsyncThunk(
   }
 );
 
-// Get Session Details
-// export const getSessionDetails = createAsyncThunk(
-//   "user/getSessionDetails",
-//   async ({ userId, sessionId }, { rejectWithValue }) => {
-//     try {
-//       // Add /Tracking here
-//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
-//       return response.data.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch session details");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
+
 // Get Session Details with full location data
 export const getSessionDetails = createAsyncThunk(
   "user/getSessionDetails",

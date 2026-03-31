@@ -909,6 +909,7 @@ import {
   useMediaQuery,
   Drawer,
   Fab,
+  Button,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -938,9 +939,9 @@ const isValidCoordinates = (lat, lng) => {
   if (!lat || !lng) return false;
   const numLat = parseFloat(lat);
   const numLng = parseFloat(lng);
-  return !isNaN(numLat) && !isNaN(numLng) && 
-         !(numLat === 0 && numLng === 0) &&
-         Math.abs(numLat) <= 90 && Math.abs(numLng) <= 180;
+  return !isNaN(numLat) && !isNaN(numLng) &&
+    !(numLat === 0 && numLng === 0) &&
+    Math.abs(numLat) <= 90 && Math.abs(numLng) <= 180;
 };
 
 const ActiveUserLocations = () => {
@@ -1053,7 +1054,7 @@ const ActiveUserLocations = () => {
       setSelectedMarkerId(marker.id);
       setSelectedUser(marker);
     }
-    
+
     if (isMobile) {
       setDrawerOpen(false);
     }
@@ -1069,7 +1070,7 @@ const ActiveUserLocations = () => {
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setSelectedMarkerId(user.id);
-    
+
     if (user.lat && user.lng && isValidCoordinates(user.lat, user.lng)) {
       mapRef.current?.panTo({ lat: user.lat, lng: user.lng });
       mapRef.current?.setZoom(16);
@@ -1124,8 +1125,8 @@ const ActiveUserLocations = () => {
     });
   };
 
-  const validActiveUsers = activeUserLocations?.filter(user => 
-    user.latestLocation && 
+  const validActiveUsers = activeUserLocations?.filter(user =>
+    user.latestLocation &&
     isValidCoordinates(
       parseFloat(user.latestLocation.latitude),
       parseFloat(user.latestLocation.longitude)
@@ -1678,80 +1679,224 @@ const ActiveUserLocations = () => {
                 >
                   {/* ✅ ONLY show InfoWindow for the marker whose ID matches selectedMarkerId */}
                   {selectedMarkerId === coord.id && (
-                    <InfoWindow 
-                      onCloseClick={handleInfoWindowClose}
-                      options={{ 
-                        maxWidth: 250,
-                        pixelOffset: new window.google.maps.Size(0, -30)
-                      }}
-                    >
-                      <Box sx={{ maxWidth: { xs: 180, sm: 220 }, p: 0.3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 0.8 }}>
+                    // <InfoWindow 
+                    //   onCloseClick={handleInfoWindowClose}
+                    //   options={{ 
+                    //     maxWidth: 250,
+                    //     pixelOffset: new window.google.maps.Size(0, -30)
+                    //   }}
+                    // >
+                    //   <Box sx={{ maxWidth: { xs: 180, sm: 220 }, p: 0.3 }}>
+                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 0.8 }}>
+                    //       <Avatar
+                    //         sx={{
+                    //           width: { xs: 24, sm: 28 },
+                    //           height: { xs: 24, sm: 28 },
+                    //           bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    //           color: theme.palette.primary.main,
+                    //           fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                    //         }}
+                    //       >
+                    //         {coord.name?.charAt(0)}
+                    //       </Avatar>
+                    //       <Box>
+                    //         <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                    //           {coord.name}
+                    //         </Typography>
+                    //         <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }} color="text.secondary">
+                    //           {coord.email}
+                    //         </Typography>
+                    //       </Box>
+                    //     </Box>
+
+                    //     <Divider sx={{ my: 0.5 }} />
+
+                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mb: 0.3, flexWrap: 'wrap' }}>
+                    //       <TimeIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 10, sm: 12 } }} />
+                    //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+                    //         {formatDate(coord.timestamp)} at {formatTime(coord.timestamp)}
+                    //       </Typography>
+                    //     </Box>
+
+                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                    //       <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 12 } }} />
+                    //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+                    //         {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
+                    //       </Typography>
+                    //     </Box>
+
+                    //     {coord.image && (
+                    //       <Box sx={{ mt: 0.8 }}>
+                    //         <img
+                    //           src={coord.image}
+                    //           alt="Location"
+                    //           style={{
+                    //             width: '100%',
+                    //             maxHeight: { xs: 80, sm: 100 },
+                    //             objectFit: 'cover',
+                    //             borderRadius: 4,
+                    //           }}
+                    //         />
+                    //       </Box>
+                    //     )}
+
+                    //     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                    //       <IconButton
+                    //         size="small"
+                    //         onClick={handleInfoWindowClose}
+                    //         sx={{
+                    //           color: theme.palette.text.secondary,
+                    //           '&:hover': { color: theme.palette.primary.main },
+                    //           p: 0.5,
+                    //         }}
+                    //       >
+                    //         <CloseIcon sx={{ fontSize: 12 }} />
+                    //       </IconButton>
+                    //     </Box>
+                    //   </Box>
+                    // </InfoWindow>
+                    <InfoWindow>
+                      <Box
+                        sx={{
+                          maxWidth: 220,
+                          width: '100%',
+                          p: 0.8,
+                          borderRadius: 2,
+                          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                          boxShadow: '0 8px 20px -4px rgba(0, 0, 0, 0.1)',
+                          backdropFilter: 'blur(8px)',
+                          position: 'relative',
+                        }}
+                      >
+                       
+
+                        {/* Header Section */}
+                        <Box sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.6,
+                          mb: 0.6,
+                          pr: 2.5, // Add space for close button
+                        }}>
                           <Avatar
                             sx={{
-                              width: { xs: 24, sm: 28 },
-                              height: { xs: 24, sm: 28 },
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                              color: theme.palette.primary.main,
-                              fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                              width: 28,
+                              height: 28,
+                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              color: 'white',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                             }}
                           >
-                            {coord.name?.charAt(0)}
+                            {coord.name?.charAt(0).toUpperCase()}
                           </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="caption"
+                              fontWeight={700}
+                              sx={{
+                                fontSize: '0.7rem',
+                                lineHeight: 1.2,
+                                color: '#667eea',
+                                display: 'block',
+                              }}
+                            >
                               {coord.name}
                             </Typography>
-                            <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }} color="text.secondary">
-                              {coord.email}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontSize: '0.55rem',
+                                color: 'text.secondary',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.3,
+                              }}
+                            >
+                              <Box component="span" sx={{
+                                width: 4,
+                                height: 4,
+                                borderRadius: '50%',
+                                bgcolor: '#4ade80',
+                                display: 'inline-block',
+                              }} />
+                              {coord.email || 'User'}
                             </Typography>
                           </Box>
                         </Box>
 
-                        <Divider sx={{ my: 0.5 }} />
+                        <Divider sx={{
+                          my: 0.5,
+                          borderColor: alpha(theme.palette.primary.main, 0.1),
+                        }} />
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mb: 0.3, flexWrap: 'wrap' }}>
-                          <TimeIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 10, sm: 12 } }} />
-                          <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                            {formatDate(coord.timestamp)} at {formatTime(coord.timestamp)}
+                        {/* Time Section */}
+                        <Box sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          mb: 0.5,
+                        }}>
+                          <TimeIcon sx={{
+                            color: theme.palette.primary.main,
+                            fontSize: 10
+                          }} />
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: '0.55rem',
+                              color: 'text.primary',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {formatDate(coord.timestamp)} • {formatTime(coord.timestamp)}
                           </Typography>
                         </Box>
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                          <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 12 } }} />
-                          <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+                        {/* Location Section */}
+                        <Box sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          mb: coord.image ? 0.5 : 0,
+                        }}>
+                          <LocationIcon sx={{
+                            color: theme.palette.primary.main,
+                            fontSize: 10
+                          }} />
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: '0.55rem',
+                              color: 'text.primary',
+                              fontFamily: 'monospace',
+                            }}
+                          >
                             {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
                           </Typography>
                         </Box>
 
+                        {/* Image Section */}
                         {coord.image && (
-                          <Box sx={{ mt: 0.8 }}>
+                          <Box sx={{
+                            mt: 0.5,
+                            borderRadius: 1,
+                            overflow: 'hidden',
+                            cursor: 'pointer',
+                          }}>
                             <img
                               src={coord.image}
                               alt="Location"
                               style={{
                                 width: '100%',
-                                maxHeight: { xs: 80, sm: 100 },
+                                maxHeight: 70,
                                 objectFit: 'cover',
                                 borderRadius: 4,
                               }}
                             />
                           </Box>
                         )}
-                        
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                          <IconButton
-                            size="small"
-                            onClick={handleInfoWindowClose}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              '&:hover': { color: theme.palette.primary.main },
-                              p: 0.5,
-                            }}
-                          >
-                            <CloseIcon sx={{ fontSize: 12 }} />
-                          </IconButton>
-                        </Box>
                       </Box>
                     </InfoWindow>
                   )}
