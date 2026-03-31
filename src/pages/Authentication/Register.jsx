@@ -1473,8 +1473,50 @@ const Register = () => {
                       <Grid item xs={12} sm={6}>
                         <TextField fullWidth label="Full Name" {...register('fullName', { required: 'Full name is required' })} error={!!errors.fullName} helperText={errors.fullName?.message} variant="outlined" size="small" disabled={loading || success} InputProps={{ startAdornment: <InputAdornment position="start"><PersonIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      {/* <Grid item xs={12} sm={6}>
                         <TextField fullWidth label="Email Address" type="email" {...register('email', { required: 'Email is required', pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' } })} error={!!errors.email} helperText={errors.email?.message} variant="outlined" size="small" disabled={loading || success} InputProps={{ startAdornment: <InputAdornment position="start"><EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />
+                      </Grid> */}<Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Email Address"
+                          type="email"
+                          {...register('email', {
+                            required: 'Email is required',
+                            pattern: {
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                              message: 'Invalid email address'
+                            },
+                            validate: {
+                              noDisposableEmail: (value) => {
+                                const disposableDomains = [
+                                  // Temporary/Disposable email domains
+                                  'yopmail.com', 'yopmail.fr', 'yopmail.net', 'yopmail.org', 'yopmail.co', 'yopmail.co.uk', 'yopmail.de', 'yopmail.io', 'yopmail.me', 'yopmail.us', 'yopmail.biz', 'yopmail.info', 'yopmail.name', 'yopmail.pro', 'yopmail.xyz', 'nodemailer.com', 'nodemailer.org', 'nodemailer.net', 'mailinator.com', 'mailinator.net', 'mailinator.org', 'guerrillamail.com', 'guerrillamail.net', 'guerrillamail.org', 'guerrillamail.biz', 'guerrillamail.de', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'tempmail.com', 'tempmail.net', 'tempmail.org', 'temp-mail.org', 'temp-mail.com', '10minutemail.com', '10minutemail.net', '10minutemail.org', 'throwawaymail.com', 'throwawaymail.net', 'throwawaymail.org', 'dispostable.com', 'dispostable.net', 'dispostable.org', 'fakeinbox.com', 'fakeinbox.net', 'fakeinbox.org', 'getnada.com', 'getnada.net', 'getnada.org', 'mailnator.com', 'mailnator.net', 'mailnator.org', 'spambox.us', 'spambox.com', 'spambox.net', 'trashmail.com', 'trashmail.net', 'trashmail.org', 'trashmail.ws', 'maildrop.cc', 'maildrop.com', 'maildrop.net', 'maildrop.org', 'emailondeck.com', 'emailondeck.net', 'emailondeck.org', 'mailcatch.com', 'mailcatch.net', 'mailcatch.org', 'tempinbox.com', 'tempinbox.net', 'tempinbox.org', 'tempemail.net', 'tempemail.com', 'tempemail.org', 'mytrashmail.com', 'mytrashmail.net', 'mytrashmail.org', 'trash2009.com', 'trash2009.net', 'trash2009.org', 'spambog.com', 'spambog.net', 'spambog.org', 'spamhere.com', 'spamhere.net', 'spamhere.org', 'spamthis.com', 'spamthis.net', 'spamthis.org', 'deadaddress.com', 'deadaddress.net', 'deadaddress.org', 'mailmetrash.com', 'mailmetrash.net', 'mailmetrash.org', 'mailzilla.com', 'mailzilla.net', 'mailzilla.org', 'mintemail.com', 'mintemail.net', 'mintemail.org', 'mt2009.com', 'mt2009.net', 'mt2009.org', 'nada.ltd', 'pookmail.com', 'pookmail.net', 'pookmail.org', 'rcpt.at', 'rcpt.net', 'rcpt.org', 'sogetthis.com', 'sogetthis.net', 'sogetthis.org', 'spamfree24.com', 'spamfree24.net', 'spamfree24.org', 'spamfree24.de', 'spamfree24.eu', 'spamfree24.info', 'spamfree24.pro', 'spamfree24.xyz', 'tempinbox.co.uk', 'tempinbox.co', 'tempinbox.io', 'tempinbox.me', 'tempinbox.us', 'tempinbox.biz', 'tempinbox.info', 'tempinbox.pro', 'tempinbox.xyz', 'xagloo.com', 'xagloo.net', 'xagloo.org', 'xagloo.co', 'xagloo.io', 'xagloo.me', 'xagloo.us', 'xagloo.biz', 'xagloo.info', 'xagloo.pro', 'xagloo.xyz', 'guerrillamail.co', 'guerrillamail.io', 'guerrillamail.me', 'guerrillamail.us', 'guerrillamail.biz', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'mailinator.co', 'mailinator.io', 'mailinator.me', 'mailinator.us', 'mailinator.biz', 'mailinator.info', 'mailinator.pro', 'mailinator.xyz'
+                                ];
+
+                                const emailDomain = value?.split('@')[1]?.toLowerCase();
+
+                                if (disposableDomains.includes(emailDomain)) {
+                                  return 'Please use a valid email address. Temporary/disposable email addresses are not allowed';
+                                }
+
+                                // Also reject if domain contains yopmail or nodemailer (catch variations)
+                                if (emailDomain?.includes('yopmail') || emailDomain?.includes('nodemailer')) {
+                                  return 'Please use a valid email address. Email addresses from this domain are not allowed';
+                                }
+
+                                return true;
+                              }
+                            }
+                          })}
+                          error={!!errors.email}
+                          helperText={errors.email?.message}
+                          variant="outlined"
+                          size="small"
+                          disabled={loading || success}
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start"><EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment>
+                          }}
+                        />
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <TextField fullWidth label="Phone Number" type="tel" {...register('phone', { required: 'Phone number is required', pattern: { value: /^[0-9]{10}$/, message: 'Enter exactly 10 digits only' } })} error={!!errors.phone} helperText={errors.phone?.message} variant="outlined" size="small" disabled={loading || success} inputProps={{ maxLength: 10, inputMode: 'numeric' }} onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, ''); }} InputProps={{ startAdornment: <InputAdornment position="start"><PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />

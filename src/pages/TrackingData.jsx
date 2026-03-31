@@ -1460,7 +1460,7 @@ const handleViewSingleSession = (session) => {
                               Distance:{" "}
                               <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
                                 {/* {item.totalDistance?.toFixed(2) || 0} km */}
-                                {item.totalDistance ? (item.totalDistance / 1000).toFixed(2) : "0.00"} km
+                                {item.totalDistance ? (item.totalDistance / 10000).toFixed(2) : "0.00"} km
                               </span>
                             </small>
                           </div>

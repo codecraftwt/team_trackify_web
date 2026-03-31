@@ -1,3 +1,4 @@
+
 // import React, { useEffect, useState, useCallback, useMemo } from "react";
 // import {
 //   Box,
@@ -192,6 +193,10 @@
 //   const [appliedStart, setAppliedStart] = useState(null);
 //   const [appliedEnd, setAppliedEnd] = useState(null);
   
+//   // Sort states (frontend sorting)
+//   const [sortBy, setSortBy] = useState("date");
+//   const [sortOrder, setSortOrder] = useState("desc");
+  
 //   const [page, setPage] = useState(1);
 //   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -220,29 +225,18 @@
 //     debouncedSetSearch(value);
 //   };
 
+//   // Handle sort change (frontend only)
+//   const handleSortChange = (field, order) => {
+//     setSortBy(field);
+//     setSortOrder(order);
+//   };
+
 //   // Reset page when filters change
 //   useEffect(() => {
 //     setPage(1);
 //   }, [debouncedSearchQuery, appliedStart, appliedEnd]);
 
-//   // Calculate total amount for current page
-//   const pageTotalAmount = useMemo(() => {
-//     return allPaymentHistory?.reduce((sum, payment) => sum + (payment.amount || 0), 0) || 0;
-//   }, [allPaymentHistory]);
-
-//   // Calculate total with add-ons for current page
-//   const pageTotalWithAddOns = useMemo(() => {
-//     return allPaymentHistory?.reduce((sum, payment) => {
-//       const addOnsTotal = Array.isArray(payment.addOns) 
-//         ? payment.addOns
-//             .filter(addOn => addOn.status === "completed")
-//             .reduce((s, addOn) => s + (addOn.addOnAmount || 0), 0)
-//         : 0;
-//       return sum + (payment.amount || 0) + addOnsTotal;
-//     }, 0) || 0;
-//   }, [allPaymentHistory]);
-
-//   // Fetch data with filters
+//   // Fetch data without sort params (sort applied on frontend)
 //   useEffect(() => {
 //     const params = {
 //       page,
@@ -323,9 +317,9 @@
 
 //   const isFilterActive = appliedStart || appliedEnd;
 
-//   // Transform payment data
+//   // Transform payment data and apply frontend sorting
 //   const paymentData = useMemo(() => {
-//     return allPaymentHistory?.map((payment) => ({
+//     let data = allPaymentHistory?.map((payment) => ({
 //       id: payment._id,
 //       name: payment.adminId?.name || "Unknown",
 //       email: payment.adminId?.email || "",
@@ -342,7 +336,61 @@
 //       savingsAmount: payment.savingsAmount,
 //       totalWithAddOns: payment.totalWithAddOns,
 //     })) || [];
-//   }, [allPaymentHistory]);
+    
+//     // Apply frontend sorting
+//     if (data.length > 0) {
+//       data.sort((a, b) => {
+//         let aVal, bVal;
+        
+//         switch (sortBy) {
+//           case "date":
+//             aVal = new Date(a.date);
+//             bVal = new Date(b.date);
+//             break;
+//           case "amount":
+//             aVal = a.amount;
+//             bVal = b.amount;
+//             break;
+//           case "name":
+//             aVal = a.name.toLowerCase();
+//             bVal = b.name.toLowerCase();
+//             break;
+//           case "status":
+//             aVal = a.status.toLowerCase();
+//             bVal = b.status.toLowerCase();
+//             break;
+//           default:
+//             aVal = new Date(a.date);
+//             bVal = new Date(b.date);
+//         }
+        
+//         if (sortOrder === "asc") {
+//           return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+//         } else {
+//           return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+//         }
+//       });
+//     }
+    
+//     return data;
+//   }, [allPaymentHistory, sortBy, sortOrder]);
+
+//   // Calculate total amount for current page
+//   const pageTotalAmount = useMemo(() => {
+//     return paymentData?.reduce((sum, payment) => sum + (payment.amount || 0), 0) || 0;
+//   }, [paymentData]);
+
+//   // Calculate total with add-ons for current page
+//   const pageTotalWithAddOns = useMemo(() => {
+//     return paymentData?.reduce((sum, payment) => {
+//       const addOnsTotal = Array.isArray(payment.addOns) 
+//         ? payment.addOns
+//             .filter(addOn => addOn.status === "completed")
+//             .reduce((s, addOn) => s + (addOn.addOnAmount || 0), 0)
+//         : 0;
+//       return sum + (payment.amount || 0) + addOnsTotal;
+//     }, 0) || 0;
+//   }, [paymentData]);
 
 //   // Handle page change
 //   const handlePageChange = (newPage) => {
@@ -616,6 +664,10 @@
 //               onClearDateFilter={clearDateFilter}
 //               isFilterActive={isFilterActive}
 //               totalAmount={pageTotalAmount}
+//               // Sort props
+//               sortBy={sortBy}
+//               sortOrder={sortOrder}
+//               onSortChange={handleSortChange}
 //             />
 //           </motion.div>
 
@@ -662,14 +714,7 @@
 
 
 
-
-
-
-
-
-
-
-
+/////////Use Debouncing
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -699,7 +744,7 @@ import { toast } from "react-toastify";
 import StatsCard from "../../components/StatsCards";
 import SearchFilter from "../../components/SearchFilter";
 import RevenueTable from "../../components/RevenueTable";
-import { debounce } from "lodash";
+import { useDebounce } from "../../Hooks/useDebounce"; 
 
 // Stats Card Skeleton
 const StatsCardSkeleton = ({ isMobile }) => {
@@ -856,7 +901,9 @@ const RevenueManagement = () => {
   // States
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Use debounce hook for search (500ms delay)
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   
   // Date filter states
   const [startDate, setStartDate] = useState(null);
@@ -881,19 +928,15 @@ const RevenueManagement = () => {
     totalPages = 1,
   } = useSelector((state) => state.payment || {});
 
-  // Debounced search (400ms delay for performance)
-  const debouncedSetSearch = useCallback(
-    debounce((value) => {
-      setDebouncedSearchQuery(value);
-    }, 400),
-    []
-  );
-
   // Handle search change
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    debouncedSetSearch(value);
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchQuery("");
   };
 
   // Handle sort change (frontend only)

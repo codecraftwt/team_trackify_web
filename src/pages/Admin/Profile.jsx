@@ -4380,7 +4380,7 @@ const Profile = () => {
                         "&:hover": { bgcolor: alpha("#ef4444", 0.05) }
                       }}
                     >
-                      Sign Out
+                      Log Out
                     </Button>
                   </Box>
                 </Box>

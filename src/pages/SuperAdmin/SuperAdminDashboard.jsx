@@ -3492,7 +3492,7 @@ const SuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
+ 
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -4230,7 +4230,7 @@ const SuperAdminDashboard = () => {
           >
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.8rem' }}>
-                Recent Expiring Plans (Last 7 Days)
+                Recent Expiring Plans
               </Typography>
               <Button
                 variant="outlined"

@@ -799,6 +799,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { verifyOTP, clearError, clearMessage, forgotPassword } from '../../redux/slices/authSlice';
+import Logo from '../../assets/logo31.png';
 
 const VerifyOTP = () => {
   const theme = useTheme();
@@ -1009,30 +1010,20 @@ const VerifyOTP = () => {
         >
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Link to="/" style={{ textDecoration: 'none' }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.8, mb: 1.5 }}>
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Box
+                  component="img"
+                  src={Logo}
+                  alt="Company Logo"
                   sx={{
-                    width: { xs: 40, sm: 44 },
-                    height: { xs: 40, sm: 44 },
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    borderRadius: 1.5,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    height: { xs: '28px', sm: '32px', md: '36px' },
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                    borderRadius: 0.8
                   }}
-                >
-                  <Typography variant="h6" fontWeight="bold" color="white" sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}>
-                    T
-                  </Typography>
-                </Box>
-                <Typography 
-                  variant="h6" 
-                  fontWeight="bold" 
-                  sx={{ 
-                    color: theme.palette.primary.main,
-                    fontSize: { xs: '1.1rem', sm: '1.2rem' }
-                  }}
-                >
+                />
+                <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main, fontSize: { xs: '1.1rem', sm: '1.2rem' } }}>
                   Team Trackify
                 </Typography>
               </Box>

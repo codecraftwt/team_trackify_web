@@ -1,610 +1,3 @@
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import axios from "axios";
-// import { toast } from "react-toastify";
-
-// const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
-
-// // Create axios instance with base URL
-// const api = axios.create({
-//   baseURL: BASE_URL,
-// });
-
-// // Add token to requests if it exists
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
-
-// // Handle User Registration
-// export const registerUser = createAsyncThunk(
-//   "user/registerUser",
-//   async (payload, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/register", payload, {
-//         headers: { "Content-Type": "multipart/form-data" },
-//       });
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Handle User Update
-// export const updateUser = createAsyncThunk(
-//   "user/updateUser",
-//   async ({ userId, formData }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.patch(
-//         `/users/updateuser/${userId}`,
-//         formData,
-//         { headers: { "Content-Type": "multipart/form-data" } }
-//       );
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-// // Handle User Update
-// // export const updateUser = createAsyncThunk(
-// //   "user/updateUser",
-// //   async ({ userId, formData }, { rejectWithValue, getState }) => {
-// //     try {
-// //       // Get the current auth state to access token and user info
-// //       const state = getState();
-// //       const token = state.auth?.token || localStorage.getItem("token");
-// //       const userRole = state.auth?.user?.role_id || state.auth?.role_id;
-
-// //       console.log("Updating user with role:", userRole);
-// //       console.log("Token available:", !!token);
-
-// //       // Ensure token is in the headers
-// //       const config = {
-// //         headers: { 
-// //           "Content-Type": "multipart/form-data",
-// //           "Authorization": token ? `Bearer ${token}` : undefined
-// //         }
-// //       };
-
-// //       const response = await api.patch(
-// //         `/users/updateuser/${userId}`,
-// //         formData,
-// //         config
-// //       );
-
-// //       toast.success(response.data.message);
-// //       return response.data;
-// //     } catch (error) {
-// //       console.error("Update user error:", error.response?.data || error);
-
-// //       // Handle specific error messages
-// //       const errorMessage = error.response?.data?.message || "Failed to update user";
-
-// //       // Check if it's a permission error
-// //       if (error.response?.status === 403 || errorMessage.includes("Access denied")) {
-// //         toast.error("Permission denied. You need Super Admin rights to update configuration.");
-// //       } else {
-// //         toast.error(errorMessage);
-// //       }
-
-// //       return rejectWithValue(error.response?.data || { message: errorMessage });
-// //     }
-// //   }
-// // );
-// // Fetch All Users
-
-// export const getAllUsers = createAsyncThunk(
-//   "user/getAllUsers",
-//   async (adminId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/users/alluser/${adminId}`);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Fetch Single User by ID
-// export const getUserById = createAsyncThunk(
-//   "user/getUserById",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/users/user/${userId}`);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// // Delete User
-// export const deleteUser = createAsyncThunk(
-//   "user/deleteUser",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.delete(`/users/deleteuser/${userId}`);
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// export const getUserCounts = createAsyncThunk(
-//   "user/getUserCounts",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/users/user-counts");
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getAllAdmins = createAsyncThunk(
-//   "user/getAllAdmins",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/users/alladmins");
-//       return response.data?.admins;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
-
-// export const getUserTrack = createAsyncThunk(
-//   "user/trackRecord",
-//   async ({ id, date = "" }, { rejectWithValue }) => {
-//     try {
-//       const url = date
-//         ? `/tracks/usertrack/${id}?date=${date}`
-//         : `/tracks/usertrack/${id}`;
-
-//       const response = await api.get(url);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Fetch all tracked dates for a user
-// export const getUserTrackedDates = createAsyncThunk(
-//   "user/getUserTrackedDates",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/tracks/user/${userId}/tracked-dates`);
-//       return response.data.trackedDates;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getActiveUserLocations = createAsyncThunk(
-//   "user/getActiveUserLocations",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/tracks/admin/active-user-locations");
-//       return response.data.users;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch locations");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// export const getLastFiveTrackedUsers = createAsyncThunk(
-//   "user/getLastFiveTrackedUsers",
-//   async (adminId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`/tracks/last-five-tracked-users/${adminId}`);
-//       return response.data.users;
-//     } catch (error) {
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // ✅ KEEP THIS ONE - for logged-in users changing password
-// export const resetPassword = createAsyncThunk(
-//   "user/resetPassword",
-//   async ({ oldPassword, newPassword }, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/reset-password", {
-//         oldPassword,
-//         newPassword,
-//       });
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to reset password");
-//       return rejectWithValue(error?.response?.data || error.message);
-//     }
-//   }
-// );
-
-
-// // ============ CONFIGURATION APIS ============
-
-// // Get Configuration
-// export const getConfig = createAsyncThunk(
-//   "user/getConfig",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/users/getconfig");
-//       return response.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch configuration");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-
-// // Create or Update Configuration
-// export const createOrUpdateConfig = createAsyncThunk(
-//   "user/createOrUpdateConfig",
-//   async (configData, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post("/users/createorupdate", configData);
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       // Handle specific error messages
-//       const errorMessage = error?.response?.data?.message || "Failed to save configuration";
-
-//       // Check if it's a permission error
-//       if (error.response?.status === 403 || errorMessage.includes("Access denied")) {
-//         toast.error("Permission denied. Only Super Admin can manage configuration.");
-//       } else {
-//         toast.error(errorMessage);
-//       }
-
-//       return rejectWithValue(error.response?.data || { message: errorMessage });
-//     }
-//   }
-// );
-
-// // Delete Configuration
-// export const deleteConfig = createAsyncThunk(
-//   "user/delete",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await api.delete("/users/delete");
-//       toast.success(response.data.message);
-//       return response.data;
-//     } catch (error) {
-//       const errorMessage = error?.response?.data?.message || "Failed to delete configuration";
-
-//       // Check if it's a permission error
-//       if (error.response?.status === 403 || errorMessage.includes("Access denied")) {
-//         toast.error("Permission denied. Only Super Admin can delete configuration.");
-//       } else {
-//         toast.error(errorMessage);
-//       }
-
-//       return rejectWithValue(error.response?.data || { message: errorMessage });
-//     }
-//   }
-// );
-
-
-// // User Slice
-// const userSlice = createSlice({
-//   name: "user",
-//   initialState: {
-//     loading: false,
-//     userInfo: JSON.parse(localStorage.getItem("user")) || {},
-//     usersList: [],
-//     totalUsers: null,
-//     adminList: [],
-//     userCounts: {},
-//     userTrackInfo: [],
-//     error: null,
-//     trackedDates: [],
-//     trackedDatesLoading: false,
-//     trackedDatesError: null,
-//     activeUserLocations: [],
-//     activeUserLocationsLoading: false,
-//     activeUserLocationsError: null,
-//     lastTrackedUsers: [],
-//     lastTrackedUsersLoading: false,
-//     lastTrackedUsersError: null,
-//   },
-//   reducers: {
-//     logoutUser: (state) => {
-//       state.userInfo = {};
-//       state.usersList = [];
-//       state.adminList = [];
-//       state.userTrackInfo = [];
-//       state.userCounts = {};
-//       state.error = null;
-//       state.loading = false;
-//       // Don't remove localStorage here - authSlice handles that
-//     },
-//     setUserInfo: (state, action) => {
-//       state.userInfo = action.payload;
-//       localStorage.setItem("user", JSON.stringify(action.payload));
-//     },
-//     // Add these new config-related states
-//     config: null,
-//     configLoading: false,
-//     configError: null,
-//     configUpdateLoading: false,
-//     configUpdateError: null,
-//     configDeleteLoading: false,
-//     configDeleteError: null,
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       // ❌ REMOVED loginUser - use authSlice instead
-
-//       // Handle Registration
-//       .addCase(registerUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(registerUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList.push(action.payload.user);
-//       })
-//       .addCase(registerUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle User Update
-//       .addCase(updateUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(updateUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         const updatedUser = action.payload.user;
-//         const userIndex = state.usersList.findIndex(
-//           (user) => user._id === updatedUser._id
-//         );
-//         if (userIndex !== -1) {
-//           state.usersList[userIndex] = updatedUser;
-//         }
-//         if (state.userInfo?._id === updatedUser._id) {
-//           state.userInfo = updatedUser;
-//           localStorage.setItem("user", JSON.stringify(updatedUser));
-//         }
-//       })
-//       .addCase(updateUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserById.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserById.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userInfo = action.payload.user;
-//       })
-//       .addCase(getUserById.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       // Handle Get All Users
-//       .addCase(getAllUsers.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getAllUsers.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList = action.payload.users;
-//         state.totalUsers = action.payload.userCount;
-//       })
-//       .addCase(getAllUsers.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getAllAdmins.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getAllAdmins.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.adminList = action.payload;
-//       })
-//       .addCase(getAllAdmins.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserCounts.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserCounts.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userCounts = action.payload.count;
-//       })
-//       .addCase(getUserCounts.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(deleteUser.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(deleteUser.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.usersList = state.usersList.filter(
-//           (item) => item._id !== action.payload.user._id
-//         );
-//       })
-//       .addCase(deleteUser.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserTrack.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getUserTrack.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.userTrackInfo = action.payload?.user;
-//       })
-//       .addCase(getUserTrack.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-
-//       .addCase(getUserTrackedDates.pending, (state) => {
-//         state.trackedDatesLoading = true;
-//         state.trackedDatesError = null;
-//       })
-//       .addCase(getUserTrackedDates.fulfilled, (state, action) => {
-//         state.trackedDatesLoading = false;
-//         state.trackedDates = action.payload;
-//       })
-//       .addCase(getUserTrackedDates.rejected, (state, action) => {
-//         state.trackedDatesLoading = false;
-//         state.trackedDatesError = action.payload;
-//       })
-
-//       .addCase(getActiveUserLocations.pending, (state) => {
-//         state.activeUserLocationsLoading = true;
-//         state.activeUserLocationsError = null;
-//       })
-//       .addCase(getActiveUserLocations.fulfilled, (state, action) => {
-//         state.activeUserLocationsLoading = false;
-//         state.activeUserLocations = action.payload;
-//       })
-//       .addCase(getActiveUserLocations.rejected, (state, action) => {
-//         state.activeUserLocationsLoading = false;
-//         state.activeUserLocationsError = action.payload;
-//       })
-
-//       .addCase(getLastFiveTrackedUsers.pending, (state) => {
-//         state.lastTrackedUsersLoading = true;
-//         state.lastTrackedUsersError = null;
-//       })
-//       .addCase(getLastFiveTrackedUsers.fulfilled, (state, action) => {
-//         state.lastTrackedUsersLoading = false;
-//         state.lastTrackedUsers = action.payload;
-//       })
-//       .addCase(getLastFiveTrackedUsers.rejected, (state, action) => {
-//         state.lastTrackedUsersLoading = false;
-//         state.lastTrackedUsersError = action.payload;
-//       })
-
-//       // ✅ KEEP THIS ONE - for logged-in users changing password
-//       .addCase(resetPassword.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(resetPassword.fulfilled, (state) => {
-//         state.loading = false;
-//       })
-//       .addCase(resetPassword.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//       })
-//       // ============ CONFIGURATION CASES ============
-
-//       // Get Config
-//       .addCase(getConfig.pending, (state) => {
-//         state.configLoading = true;
-//         state.configError = null;
-//       })
-//       .addCase(getConfig.fulfilled, (state, action) => {
-//         state.configLoading = false;
-//         state.config = action.payload.data;
-//       })
-//       .addCase(getConfig.rejected, (state, action) => {
-//         state.configLoading = false;
-//         state.configError = action.payload?.message || "Failed to fetch configuration";
-//       })
-
-//       // Create or Update Config
-//       .addCase(createOrUpdateConfig.pending, (state) => {
-//         state.configUpdateLoading = true;
-//         state.configUpdateError = null;
-//       })
-//       .addCase(createOrUpdateConfig.fulfilled, (state, action) => {
-//         state.configUpdateLoading = false;
-//         state.config = action.payload.data; // Update the config in state with the response
-//       })
-//       .addCase(createOrUpdateConfig.rejected, (state, action) => {
-//         state.configUpdateLoading = false;
-//         state.configUpdateError = action.payload?.message || "Failed to save configuration";
-//       })
-
-//       // Delete Config
-//       .addCase(deleteConfig.pending, (state) => {
-//         state.configDeleteLoading = true;
-//         state.configDeleteError = null;
-//       })
-//       .addCase(deleteConfig.fulfilled, (state) => {
-//         state.configDeleteLoading = false;
-//         state.config = null; // Clear config from state after deletion
-//       })
-//       .addCase(deleteConfig.rejected, (state, action) => {
-//         state.configDeleteLoading = false;
-//         state.configDeleteError = action.payload?.message || "Failed to delete configuration";
-//       });
-//   },
-// });
-
-// export const { logoutUser, setUserInfo } = userSlice.actions;
-// export default userSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//With New Api Key Bind
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -760,14 +153,55 @@ export const getUserTrackedDates = createAsyncThunk(
   }
 );
 
+// export const getActiveUserLocations = createAsyncThunk(
+//   "user/getActiveUserLocations",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get("/tracks/admin/active-user-locations");
+//       return response.data.users;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch locations");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
 export const getActiveUserLocations = createAsyncThunk(
   "user/getActiveUserLocations",
-  async (_, { rejectWithValue }) => {
+  async (adminId, { rejectWithValue }) => {
     try {
-      const response = await api.get("/tracks/admin/active-user-locations");
-      return response.data.users;
+      const response = await api.get(
+        `/Tracking/admin/${adminId}/users/current-locations`
+      );
+
+      const users = response.data.data.activeUsers.map((item) => ({
+        userId: item.user.userId,
+        name: item.user.name,
+        email: item.user.email,
+
+        latestLocation: {
+          latitude: item.currentLocation.latitude,
+          longitude: item.currentLocation.longitude,
+          timestamp: item.currentLocation.timestamp,
+          isOnline: item.currentLocation.isOnline,
+          accuracy: null,
+          address: "Unknown Address",
+          road: "Unknown Road",
+          area: "Unknown Area",
+          batteryPercentage: null,
+          photo: null,
+        },
+
+        trackerId: item.session.sessionId,
+        isActive: item.session.isActive,
+        startTime: item.session.startTime,
+      }));
+
+      return users;
+
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch locations");
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch locations"
+      );
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -873,22 +307,6 @@ export const deleteConfig = createAsyncThunk(
 ////////////////////////////////////////////New APIS Tracking///////////////////////////////////
 // ============ ADMIN USER MANAGEMENT APIS ============
 
-// Get Users Under Admin (with pagination and search)
-// export const getUsersUnderAdmin = createAsyncThunk(
-//   "user/getUsersUnderAdmin",
-//   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
-//     try {
-//       // Change this line to match backend
-//       const response = await api.get(`/admin/users/${adminId}`, {
-//         params: { page, limit, search }
-//       });
-//       return response.data.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch users");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
 export const getUsersUnderAdmin = createAsyncThunk(
   "user/getUsersUnderAdmin",
   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
@@ -914,20 +332,7 @@ export const getUsersUnderAdmin = createAsyncThunk(
     }
   }
 );
-// Get User Available Dates (for calendar view)
-// export const getUserAvailableDates = createAsyncThunk(
-//   "user/getUserAvailableDates",
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       // Add /Tracking here
-//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/dates`);
-//       return response.data.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
+
 export const getUserAvailableDates = createAsyncThunk(
   "user/getUserAvailableDates",
   async ({ id, date }, { rejectWithValue }) => {  // Accept object with id and date
@@ -963,21 +368,6 @@ export const getUserSessionsByDate = createAsyncThunk(
   }
 );
 
-// Get Session Details
-// export const getSessionDetails = createAsyncThunk(
-//   "user/getSessionDetails",
-//   async ({ userId, sessionId }, { rejectWithValue }) => {
-//     try {
-//       // Add /Tracking here
-//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
-//       return response.data.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch session details");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
-// Get Session Details with full location data
 export const getSessionDetails = createAsyncThunk(
   "user/getSessionDetails",
   async ({ userId, sessionId }, { rejectWithValue }) => {
@@ -1000,6 +390,47 @@ export const getUserSummary = createAsyncThunk(
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch user summary");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+// ============ SUBSCRIPTION CHECK API ============
+export const checkUserSubscription = createAsyncThunk(
+  "user/checkSubscription",
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const response = await api.get("users/user/check-subscription");
+      console.log("Subscription check response:", response.data);
+
+      // Get current user role
+      const state = getState();
+      const userRole = state.auth?.user?.role_id ||
+        state.user?.userInfo?.role_id ||
+        JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
+
+      console.log("User Role:", userRole);
+
+      // If role_id is 2 (Super Admin), return modified response
+      if (userRole === 2) {
+        return {
+          hasSubscription: true,
+          expired: false,
+          message: "Super Admin account - no subscription restrictions",
+          planName: "Super Admin",
+          amount: 0,
+          remainingDays: 999,
+          expiresAt: null,
+          username: response.data?.data?.username || "Super Admin"
+        };
+      }
+
+      // For role_id 1 (Admin), return actual subscription data
+      return response.data.data;
+    } catch (error) {
+      console.error("Subscription check error:", error.response?.data);
+      toast.error(error?.response?.data?.message || "Failed to check subscription");
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -1079,6 +510,20 @@ const userSlice = createSlice({
     userSummaryLoading: false,
     userSummaryError: null,
     isUserActiveToday: false,
+
+
+    // Add to initialState object
+    subscription: {
+      data: null,
+      loading: false,
+      error: null,
+      hasSubscription: false,
+      expired: true,
+      remainingDays: 0,
+      planName: null,
+      amount: 0,
+      expiresAt: null,
+    },
   },
   reducers: {
     logoutUser: (state) => {
@@ -1342,21 +787,6 @@ const userSlice = createSlice({
       })
 
       // Get User Available Dates
-      // .addCase(getUserAvailableDates.pending, (state) => {
-      //   state.userAvailableDatesLoading = true;
-      //   state.userAvailableDatesError = null;
-      // })
-      // .addCase(getUserAvailableDates.fulfilled, (state, action) => {
-      //   state.userAvailableDatesLoading = false;
-      //   state.userAvailableDates = action.payload.dates;
-      //   state.currentMonthSummary = action.payload.currentMonth;
-      //   state.totalAvailableDays = action.payload.totalAvailableDays;
-      // })
-      // .addCase(getUserAvailableDates.rejected, (state, action) => {
-      //   state.userAvailableDatesLoading = false;
-      //   state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
-      // })
-      // Get User Available Dates
       .addCase(getUserAvailableDates.pending, (state) => {
         state.userAvailableDatesLoading = true;
         state.userAvailableDatesError = null;
@@ -1375,31 +805,12 @@ const userSlice = createSlice({
         state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
       })
       // Get User Sessions By Date
-      // .addCase(getUserSessionsByDate.pending, (state) => {
-      //   state.userSessionsLoading = true;
-      //   state.userSessionsError = null;
-      // })
-      // .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
-      //   state.userSessionsLoading = false;
-      //   state.userSessionsList = action.payload.sessions;
-      //   state.userSessionsSummary = action.payload.summary;
-      //   state.userSessionsPagination = action.payload.pagination;
-      //   state.selectedDate = action.payload.date;
-      // })
-      // .addCase(getUserSessionsByDate.rejected, (state, action) => {
-      //   state.userSessionsLoading = false;
-      //   state.userSessionsError = action.payload?.message || "Failed to fetch sessions";
-      // })
-      // Get User Sessions By Date
       .addCase(getUserSessionsByDate.pending, (state) => {
         state.userSessionsLoading = true;
         state.userSessionsError = null;
       })
       .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
         state.userSessionsLoading = false;
-        // The API returns data in action.payload
-        // Based on your controller, it should have: sessions, summary, pagination
-
         console.log("Data get from the get user sessions by date ----->", action.payload)
         state.userSessionsList = action.payload?.sessions || [];
         state.userSessionsSummary = action.payload?.summary || null;
@@ -1452,7 +863,31 @@ const userSlice = createSlice({
       .addCase(getUserSummary.rejected, (state, action) => {
         state.userSummaryLoading = false;
         state.userSummaryError = action.payload?.message || "Failed to fetch user summary";
+      })
+
+      // Add after your other cases
+      // In extraReducers, ensure this is present and correct
+      .addCase(checkUserSubscription.pending, (state) => {
+        state.subscription.loading = true;
+        state.subscription.error = null;
+      })
+      .addCase(checkUserSubscription.fulfilled, (state, action) => {
+        state.subscription.loading = false;
+        state.subscription.data = action.payload;
+        state.subscription.hasSubscription = action.payload.hasSubscription;
+        state.subscription.expired = action.payload.expired;
+        state.subscription.remainingDays = action.payload.remainingDays;
+        state.subscription.planName = action.payload.planName;
+        state.subscription.amount = action.payload.amount;
+        state.subscription.expiresAt = action.payload.expiresAt;
+
+        console.log("Subscription updated in state:", state.subscription);
+      })
+      .addCase(checkUserSubscription.rejected, (state, action) => {
+        state.subscription.loading = false;
+        state.subscription.error = action.payload?.message || "Failed to check subscription";
       });
+
   },
 });
 

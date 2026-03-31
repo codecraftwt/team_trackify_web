@@ -729,7 +729,8 @@ const Locations = () => {
             const sessionDur = session.stats?.duration || session.duration || 0;
             const sessionStartTime = session.locations?.[0]?.timestamp || session.startTime;
             const sessionEndTime = session.locations?.[session.locations.length - 1]?.timestamp || session.endTime;
-
+ console.log("sessionDur",totalDuration);
+ 
             return (
               <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
                 <Card
@@ -778,7 +779,7 @@ const Locations = () => {
                           <TimerIcon sx={{ fontSize: 14, color: "#FF9800" }} />
                           <Box>
                             <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Duration</Typography>
-                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDuration(sessionDur)}</Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDuration(totalDuration)}</Typography>
                           </Box>
                         </Box>
                       </Grid>
@@ -787,7 +788,7 @@ const Locations = () => {
                           <StraightenIcon sx={{ fontSize: 14, color: "#2196F3" }} />
                           <Box>
                             <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Distance</Typography>
-                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDist(sessionDist)}</Typography>
+                            <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.65rem" }}>{fmtDist(totalDistance)}</Typography>
                           </Box>
                         </Box>
                       </Grid>
@@ -801,7 +802,7 @@ const Locations = () => {
                           <Box>
                             <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>Start </Typography>
                             <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem" }}>{fmtTime(sessionStartTime)} </Typography>
-                            <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionStartTime)}</Typography>
+                            {/* <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionStartTime)}</Typography> */}
                           </Box>
                         </Box>
                       </Grid>
@@ -811,7 +812,7 @@ const Locations = () => {
                           <Box>
                             <Typography variant="caption" sx={{ fontSize: "0.55rem", color: "text.secondary" }}>End </Typography>
                             <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem" }}>{fmtTime(sessionEndTime)} </Typography>
-                            <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionEndTime)}</Typography>
+                            {/* <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>{fmtDate(sessionEndTime)}</Typography> */}
                           </Box>
                         </Box>
                       </Grid>

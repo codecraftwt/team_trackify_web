@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
@@ -72,6 +71,7 @@ import {
   deleteUser,
   getUserById,
   getUsersUnderAdmin,
+  checkUserSubscription,
 
 } from "../../redux/slices/userSlice";
 import {
@@ -311,6 +311,239 @@ const TabsSkeleton = ({ isMobile }) => {
 };
 
 // User Card Component
+// const UserCard = ({
+//   user,
+//   onView,
+//   onEdit,
+//   onDelete,
+//   onImpersonate,
+//   isSelected,
+//   onSelect,
+//   isBulkMode,
+//   role_id,
+//   isDeleting,
+//   isMobile,
+//   isSubscriptionExpired,
+// }) => {
+//   const theme = useTheme();
+//   const isSuperAdmin = role_id === 2;
+
+//   const userId = user._id || user.id;
+//   const userName = user.name || user.name;
+//   const userEmail = user.email;
+//   const userMobile = user.mobile_no;
+//   const userIsActive = user.isActive;
+//   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
+//   const userAvatar = user.avtar || user.profileImage;
+
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, y: 20 }}
+//       animate={{ opacity: 1, y: 0 }}
+//       exit={{ opacity: 0, scale: 0.9 }}
+//       transition={{ duration: 0.3 }}
+//     >
+//       <Card
+//         sx={{
+//           position: 'relative',
+//           borderRadius: 2.5,
+//           border: '1px solid',
+//           borderColor: isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
+//           boxShadow: isSelected ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.5)}` : '0 2px 10px rgba(0,0,0,0.03)',
+//           transition: 'all 0.3s ease',
+//           height: '100%',
+//           '&:hover': {
+//             transform: !isMobile ? 'translateY(-4px)' : 'none',
+//             boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+//             borderColor: theme.palette.primary.main,
+//           },
+//         }}
+//       >
+//         {isBulkMode && (
+//           <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1 }}>
+//             <Checkbox
+//               checked={isSelected}
+//               onChange={() => onSelect(userId)}
+//               size="small"
+//               sx={{
+//                 color: theme.palette.primary.main,
+//                 '&.Mui-checked': {
+//                   color: theme.palette.primary.main,
+//                 },
+//               }}
+//             />
+//           </Box>
+//         )}
+
+//         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+//           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
+//             <Avatar
+//               src={userAvatar}
+//               sx={{
+//                 width: { xs: 44, sm: 48 },
+//                 height: { xs: 44, sm: 48 },
+//                 bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                 color: theme.palette.primary.main,
+//                 border: '2px solid',
+//                 borderColor: alpha(theme.palette.primary.main, 0.2),
+//               }}
+//             >
+//               {userName?.charAt(0) || 'U'}
+//             </Avatar>
+//             <Box sx={{ flex: 1, minWidth: 0 }}>
+//               <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+//                 {userName}
+//               </Typography>
+//               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+//                 {userEmail}
+//               </Typography>
+//               {isSuperAdmin && userMobile && (
+//                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+//                   {userMobile}
+//                 </Typography>
+//               )}
+//             </Box>
+//           </Box>
+
+//           <Stack spacing={1} sx={{ mb: 1.5 }}>
+//             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+//               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                 Status
+//               </Typography>
+//               <Chip
+//                 label={userIsActive ? "Active" : "Inactive"}
+//                 size="small"
+//                 sx={{
+//                   bgcolor: userIsActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
+//                   color: userIsActive ? '#22c55e' : theme.palette.text.secondary,
+//                   fontWeight: 600,
+//                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                   height: 18,
+//                 }}
+//               />
+//             </Box>
+//             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+//               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                 Joined
+//               </Typography>
+//               <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                 {moment(userCreatedAt).format("MMM D, YYYY")}
+//               </Typography>
+//             </Box>
+//           </Stack>
+
+//           <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+
+//           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+//             {/* <Tooltip title="View Details">
+//               <IconButton
+//                 size="small"
+//                 onClick={() => onView(user)}
+//                 sx={{
+//                   color: theme.palette.primary.main,
+//                   '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                   width: 28,
+//                   height: 28,
+//                 }}
+//               >
+//                 <VisibilityIcon sx={{ fontSize: 16 }} />
+//               </IconButton>
+//             </Tooltip> */}
+
+//             <Tooltip title="View Details">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onView(user)}
+//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   sx={{
+//                     color: theme.palette.primary.main,
+//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                   }}
+//                 >
+//                   <VisibilityIcon sx={{ fontSize: 16 }} />
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+
+//             {/* Impersonate button - only for super admin */}
+//             {isSuperAdmin && (
+//               <Tooltip title="Login as User">
+//                 <span>
+//                   <IconButton
+//                     size="small"
+//                     onClick={() => onImpersonate(user)}
+//                     sx={{
+//                       color: theme.palette.secondary.main,
+//                       '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.1) },
+//                       width: 28,
+//                       height: 28,
+//                     }}
+//                   >
+//                     <LoginIcon sx={{ fontSize: 16 }} />
+//                   </IconButton>
+//                 </span>
+//               </Tooltip>
+//             )}
+
+//             {/* <Tooltip title="Edit">
+//               <IconButton
+//                 size="small"
+//                 onClick={() => onEdit(user)}
+//                 sx={{
+//                   color: theme.palette.primary.main,
+//                   '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                   width: 28,
+//                   height: 28,
+//                 }}
+//               >
+//                 <EditIcon sx={{ fontSize: 16 }} />
+//               </IconButton>
+//             </Tooltip> */}
+//             <Tooltip title="Edit">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onEdit(user)}
+//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   sx={{
+//                     color: theme.palette.primary.main,
+//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                   }}
+//                 >
+//                   <EditIcon sx={{ fontSize: 16 }} />
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+//             <Tooltip title="Delete">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onDelete(user)}
+//                   disabled={isDeleting}
+//                   sx={{
+//                     color: '#ef4444',
+//                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                   }}
+//                 >
+//                   {isDeleting ? <CircularProgress size={14} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+//           </Box>
+//         </CardContent>
+//       </Card>
+//     </motion.div>
+//   );
+// };
 const UserCard = ({
   user,
   onView,
@@ -322,7 +555,8 @@ const UserCard = ({
   isBulkMode,
   role_id,
   isDeleting,
-  isMobile
+  isMobile,
+  isSubscriptionExpired,
 }) => {
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
@@ -345,21 +579,21 @@ const UserCard = ({
       <Card
         sx={{
           position: 'relative',
-          borderRadius: 2.5,
+          borderRadius: 2,
           border: '1px solid',
           borderColor: isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
-          boxShadow: isSelected ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.5)}` : '0 2px 10px rgba(0,0,0,0.03)',
-          transition: 'all 0.3s ease',
+          boxShadow: isSelected ? `0 4px 12px -4px ${alpha(theme.palette.primary.main, 0.5)}` : '0 1px 4px rgba(0,0,0,0.03)',
+          transition: 'all 0.2s ease',
           height: '100%',
           '&:hover': {
-            transform: !isMobile ? 'translateY(-4px)' : 'none',
-            boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+            transform: !isMobile ? 'translateY(-2px)' : 'none',
+            boxShadow: !isMobile ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
             borderColor: theme.palette.primary.main,
           },
         }}
       >
         {isBulkMode && (
-          <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1 }}>
+          <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1 }}>
             <Checkbox
               checked={isSelected}
               onChange={() => onSelect(userId)}
@@ -369,44 +603,78 @@ const UserCard = ({
                 '&.Mui-checked': {
                   color: theme.palette.primary.main,
                 },
+                padding: '4px',
               }}
             />
           </Box>
         )}
 
-        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
+        <CardContent sx={{ p: { xs: 1, sm: 1.25 } }}>
+          {/* User Info Row */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.25 }, mb: 1 }}>
             <Avatar
               src={userAvatar}
               sx={{
-                width: { xs: 44, sm: 48 },
-                height: { xs: 44, sm: 48 },
+                width: { xs: 36, sm: 40 },
+                height: { xs: 36, sm: 40 },
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
-                border: '2px solid',
+                border: '1.5px solid',
                 borderColor: alpha(theme.palette.primary.main, 0.2),
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
               }}
             >
               {userName?.charAt(0) || 'U'}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Typography 
+                variant="body2" 
+                fontWeight={600} 
+                color="text.primary" 
+                sx={{ 
+                  fontSize: { xs: '0.8rem', sm: '0.85rem' }, 
+                  whiteSpace: 'nowrap', 
+                  overflow: 'hidden', 
+                  textOverflow: 'ellipsis' 
+                }}
+              >
                 {userName}
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Typography 
+                variant="caption" 
+                color="text.secondary" 
+                sx={{ 
+                  fontSize: { xs: '0.55rem', sm: '0.6rem' }, 
+                  display: 'block', 
+                  whiteSpace: 'nowrap', 
+                  overflow: 'hidden', 
+                  textOverflow: 'ellipsis' 
+                }}
+              >
                 {userEmail}
               </Typography>
               {isSuperAdmin && userMobile && (
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary" 
+                  sx={{ 
+                    fontSize: { xs: '0.5rem', sm: '0.55rem' }, 
+                    display: 'block', 
+                    whiteSpace: 'nowrap', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis' 
+                  }}
+                >
                   {userMobile}
                 </Typography>
               )}
             </Box>
           </Box>
 
-          <Stack spacing={1} sx={{ mb: 1.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+          {/* Status and Joined Info */}
+          <Stack spacing={0.75} sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' } }}>
                 Status
               </Typography>
               <Chip
@@ -416,37 +684,42 @@ const UserCard = ({
                   bgcolor: userIsActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
                   color: userIsActive ? '#22c55e' : theme.palette.text.secondary,
                   fontWeight: 600,
-                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                  height: 18,
+                  fontSize: { xs: '0.5rem', sm: '0.55rem' },
+                  height: 16,
                 }}
               />
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' } }}>
                 Joined
               </Typography>
-              <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+              <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' } }}>
                 {moment(userCreatedAt).format("MMM D, YYYY")}
               </Typography>
             </Box>
           </Stack>
 
-          <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+          <Divider sx={{ my: 0.75, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+          {/* Action Buttons */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.25 }}>
             <Tooltip title="View Details">
-              <IconButton
-                size="small"
-                onClick={() => onView(user)}
-                sx={{
-                  color: theme.palette.primary.main,
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-                  width: 28,
-                  height: 28,
-                }}
-              >
-                <VisibilityIcon sx={{ fontSize: 16 }} />
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => onView(user)}
+                  disabled={role_id === 1 && isSubscriptionExpired === true}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                    width: 26,
+                    height: 26,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                  }}
+                >
+                  <VisibilityIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              </span>
             </Tooltip>
 
             {/* Impersonate button - only for super admin */}
@@ -459,31 +732,35 @@ const UserCard = ({
                     sx={{
                       color: theme.palette.secondary.main,
                       '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.1) },
-                      width: 28,
-                      height: 28,
+                      width: 26,
+                      height: 26,
                     }}
                   >
-                    <LoginIcon sx={{ fontSize: 16 }} />
+                    <LoginIcon sx={{ fontSize: 14 }} />
                   </IconButton>
                 </span>
               </Tooltip>
             )}
 
             <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={() => onEdit(user)}
-                sx={{
-                  color: theme.palette.primary.main,
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-                  width: 28,
-                  height: 28,
-                }}
-              >
-                <EditIcon sx={{ fontSize: 16 }} />
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => onEdit(user)}
+                  disabled={role_id === 1 && isSubscriptionExpired === true}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                    width: 26,
+                    height: 26,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                  }}
+                >
+                  <EditIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              </span>
             </Tooltip>
-
+            
             <Tooltip title="Delete">
               <span>
                 <IconButton
@@ -493,11 +770,11 @@ const UserCard = ({
                   sx={{
                     color: '#ef4444',
                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
-                    width: 28,
-                    height: 28,
+                    width: 26,
+                    height: 26,
                   }}
                 >
-                  {isDeleting ? <CircularProgress size={14} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
+                  {isDeleting ? <CircularProgress size={12} /> : <DeleteIcon sx={{ fontSize: 14 }} />}
                 </IconButton>
               </span>
             </Tooltip>
@@ -507,7 +784,6 @@ const UserCard = ({
     </motion.div>
   );
 };
-
 // Responsive Table Component
 const ResponsiveTable = ({
   users,
@@ -529,7 +805,8 @@ const ResponsiveTable = ({
   isMobile,
   isTablet,
   loading,
-  role_id
+  role_id,
+  isSubscriptionExpired,
 }) => {
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
@@ -687,7 +964,7 @@ const ResponsiveTable = ({
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                    <Tooltip title="View">
+                    {/* <Tooltip title="View">
                       <IconButton
                         size="small"
                         onClick={() => handleView(user)}
@@ -695,8 +972,24 @@ const ResponsiveTable = ({
                       >
                         <VisibilityIcon sx={{ fontSize: 14 }} />
                       </IconButton>
+                    </Tooltip> */}
+                    <Tooltip title="View">
+                      <span>  {/* Add span wrapper for disabled button tooltip */}
+                        <IconButton
+                          size="small"
+                          onClick={() => handleView(user)}
+                          disabled={role_id === 1 && isSubscriptionExpired === true}
+                          sx={{
+                            color: theme.palette.primary.main,
+                            width: 26,
+                            height: 26,
+                            opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                          }}
+                        >
+                          <VisibilityIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </span>
                     </Tooltip>
-
                     {/* Impersonate button - only for super admin */}
                     {isSuperAdmin && (
                       <Tooltip title="Login as User">
@@ -717,7 +1010,7 @@ const ResponsiveTable = ({
                       </Tooltip>
                     )}
 
-                    <Tooltip title="Edit">
+                    {/* <Tooltip title="Edit">
                       <IconButton
                         size="small"
                         onClick={() => handleEdit(user)}
@@ -725,6 +1018,24 @@ const ResponsiveTable = ({
                       >
                         <EditIcon sx={{ fontSize: 14 }} />
                       </IconButton>
+                    </Tooltip> */}
+
+                    <Tooltip title="Edit">
+                      <span>  {/* Add span wrapper for disabled button tooltip */}
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEdit(user)}
+                          disabled={role_id === 1 && isSubscriptionExpired === true}
+                          sx={{
+                            color: theme.palette.primary.main,
+                            width: 26,
+                            height: 26,
+                            opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </span>
                     </Tooltip>
 
                     <Tooltip title="Delete">
@@ -873,7 +1184,7 @@ const UserManagement = () => {
       const user = getUserData();
       const paymentId = user?.currentPaymentId;
 
-      // console.log("Payment ID to fetch:", paymentId);
+      console.log("Payment ID to fetch:", user);
 
       if (paymentId && typeof paymentId === 'string') {
         setIsLoadingPayment(true);
@@ -910,8 +1221,7 @@ const UserManagement = () => {
 
   // Now you can use maxUser directly
   console.log("Max User from state:", maxUser);
-  // console.log("-----------------------", getUserData());
-  // console.log("current>-----------------------", currentUser.currentPaymentId);
+
 
   // Read filter from URL
   useEffect(() => {
@@ -1013,6 +1323,40 @@ const UserManagement = () => {
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [fetchAllData, getUserData, isRefreshing, dataFetched]);
+
+
+  // Get subscription data from Redux state
+  const subscriptionData = useSelector((state) => state.user?.subscription?.data);
+  const isSubscriptionExpired = useSelector((state) => state.user?.subscription?.expired);
+  const hasSubscription = useSelector((state) => state.user?.subscription?.hasSubscription);
+  const remainingDays = useSelector((state) => state.user?.subscription?.remainingDays);
+  const planName = useSelector((state) => state.user?.subscription?.planName);
+  const subscriptionLoading = useSelector((state) => state.user?.subscription?.loading);
+
+  // Log to debug
+  console.log("Subscription Data from Redux:", subscriptionData);
+  console.log("Is Expired:", isSubscriptionExpired);
+  console.log("Has Subscription:", hasSubscription);
+
+// In your UserManagement component
+useEffect(() => {
+  const checkSubscription = async () => {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    console.log("Token exists:", !!token);
+    console.log("User role:", user?.role_id);
+    
+    if (token) {
+      console.log("Dispatching checkUserSubscription...");
+      const result = await dispatch(checkUserSubscription());
+      console.log("Subscription check result:", result);
+    }
+  };
+  
+  checkSubscription();
+}, [dispatch]);
+
 
   const refreshData = async () => {
     await fetchAllData();
@@ -1621,7 +1965,7 @@ const UserManagement = () => {
             </Button>
           )}
 
-          <Button
+          {/* <Button
             variant="contained"
             startIcon={<AddIcon sx={{ fontSize: 16 }} />}
             onClick={handleAddUserClick}
@@ -1630,6 +1974,25 @@ const UserManagement = () => {
               background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
               fontSize: { xs: '0.65rem', sm: '0.7rem' },
               height: 34,
+              '&:hover': {
+                background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+              },
+            }}
+          >
+            {role_id === 1 ? 'Add User' : 'Add Organization'}
+          </Button> */}
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon sx={{ fontSize: 16 }} />}
+            onClick={handleAddUserClick}
+            disabled={role_id === 1 && isSubscriptionExpired === true}
+            size={isMobile ? "small" : "small"}
+            sx={{
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              fontSize: { xs: '0.65rem', sm: '0.7rem' },
+              height: 34,
+              opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
               '&:hover': {
                 background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
               },
@@ -2034,6 +2397,7 @@ const UserManagement = () => {
               isTablet={isTablet}
               loading={isLoading}
               role_id={role_id}
+              isSubscriptionExpired={isSubscriptionExpired}
             />
 
             {!isLoading && (
@@ -2105,6 +2469,7 @@ const UserManagement = () => {
                           role_id={role_id}
                           isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
                           isMobile={isMobile}
+                          isSubscriptionExpired={isSubscriptionExpired}
                         />
                       </Grid>
                     ))}

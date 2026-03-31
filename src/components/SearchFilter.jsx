@@ -522,7 +522,8 @@ const SearchFilter = ({
     }
     handleClose();
   };
-
+const today = new Date();
+today.setHours(23, 59, 59, 999);
   const handleClear = () => {
     setLocalStartDate(null);
     setLocalEndDate(null);
@@ -957,6 +958,7 @@ const SearchFilter = ({
                   Start Date
                 </Typography>
                 <DatePicker
+                maxDate={today}
                   value={localStartDate}
                   onChange={handleLocalStartChange}
                   slotProps={{
@@ -1010,6 +1012,7 @@ const SearchFilter = ({
                   End Date
                 </Typography>
                 <DatePicker
+                maxDate={today}
                   value={localEndDate}
                   onChange={handleLocalEndChange}
                   minDate={localStartDate || undefined}
