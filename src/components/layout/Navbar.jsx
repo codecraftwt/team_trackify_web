@@ -862,7 +862,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
   // Get user info from user slice (more detailed profile info)
   const { userInfo } = useSelector((state) => state.user);
 
-  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+  const roleName = Number(role_id) === 2 ? 'Super Admin' : (Number(role_id) === 3 ? 'Sub-admin' : 'Admin');
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -925,9 +925,9 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
     navigate(dashboardPath);
   };
 
-  // Get the display name - prioritize userInfo from user slice, fallback to auth user
-  const displayName = userInfo?.name || user?.name || 'Admin User';
-  const displayEmail = userInfo?.email || user?.email || 'admin@trackify.in';
+  // Get the display name - prioritize auth user (logged in person) over userInfo (organization data)
+  const displayName = user?.name || userInfo?.name || '';
+  const displayEmail = user?.email || userInfo?.email || '';
 
   return (
     <>
@@ -1029,7 +1029,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                 }}
               >
                 <Avatar
-                  src={userInfo?.avtar || user?.avtar}
+                  src={user?.avtar || userInfo?.avtar}
                   sx={{
                     width: { xs: 30, sm: 35, md: 40 },
                     height: { xs: 30, sm: 35, md: 40 },
@@ -1042,7 +1042,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                     borderColor: 'background.paper',
                   }}
                 >
-                  {(userInfo?.name?.charAt(0) || user?.name?.charAt(0) || 'A')}
+                  {(user?.name?.charAt(0) || userInfo?.name?.charAt(0) || 'A')}
                 </Avatar>
               </IconButton>
             </Tooltip>

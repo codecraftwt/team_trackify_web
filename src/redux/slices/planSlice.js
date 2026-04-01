@@ -205,6 +205,22 @@ export const getAvailablePlans = createAsyncThunk(
   }
 );
 
+// NEW: Get Popular Plans for Dashboard
+export const getPopularPlans = createAsyncThunk(
+  "plan/getPopularPlans",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/plans/popular-plan");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching popular plans:", error);
+      const errorMessage = error.response?.data?.message || "Failed to fetch popular plans";
+      // Optional: Don't show toast for dashboard charts, handle quietly
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
 // Slice
 const planSlice = createSlice({
   name: "plan",
@@ -216,6 +232,7 @@ const planSlice = createSlice({
     error: null,
     userCustomPlan: null,
     availablePlans: [],
+    popularPlans: [],
   },
   reducers: {
     clearPlanStore: (state) => {
@@ -398,6 +415,19 @@ const planSlice = createSlice({
         state.availablePlans = action.payload?.data || action.payload || [];
       })
       .addCase(getAvailablePlans.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // NEW: Get popular plans
+      .addCase(getPopularPlans.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPopularPlans.fulfilled, (state, action) => {
+        state.loading = false;
+        state.popularPlans = action.payload?.data || [];
+      })
+      .addCase(getPopularPlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

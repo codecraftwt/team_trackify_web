@@ -208,7 +208,7 @@ const UserCardSkeleton = ({ isBulkMode, isMobile }) => {
           <Stack spacing={1} sx={{ mb: 1.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Skeleton variant="text" width={35} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
-              <Skeleton variant="rounded" width={55} height={18} sx={{ borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
+              <Skeleton variant="text" width={70} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Skeleton variant="text" width={35} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
@@ -423,6 +423,14 @@ const UserCard = ({
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+                Role
+              </Typography>
+              <Typography variant="caption" fontWeight={600} color="primary.main" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+                {user.role_id === 3 ? "Sub-admin" : user.role_id === 1 ? "Admin" : "Staff"}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
                 Joined
               </Typography>
               <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
@@ -553,6 +561,7 @@ const ResponsiveTable = ({
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               {isSuperAdmin && <TableCell>Mobile No</TableCell>}
+              <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Joined Date</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -598,6 +607,9 @@ const ResponsiveTable = ({
                 Mobile No
               </TableCell>
             )}
+            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+              Role
+            </TableCell>
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Status
             </TableCell>
@@ -669,6 +681,11 @@ const ResponsiveTable = ({
                     {user.mobile_no}
                   </TableCell>
                 )}
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }, fontWeight: 600, color: user.role_id === 3 ? 'primary.main' : 'text.secondary' }}>
+                    {user.role_id === 3 ? "Sub-admin" : user.role_id === 1 ? "Admin" : "Staff"}
+                  </Typography>
+                </TableCell>
                 <TableCell>
                   <Chip
                     label={user.isActive ? 'Active' : 'Inactive'}
@@ -871,9 +888,11 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchPaymentData = async () => {
       const user = getUserData();
-      const paymentId = user?.currentPaymentId;
-
-      // console.log("Payment ID to fetch:", paymentId);
+      // Hierarchy Fix: If sub-admin (3) or staff (0), use parent's payment context from userData
+      // userData is fetched using parent ID (targetId) in fetchAllData
+      const paymentId = (Number(role_id) === 3 || Number(role_id) === 0)
+        ? (userData?.currentPaymentId || user?.currentPaymentId)
+        : user?.currentPaymentId;
 
       if (paymentId && typeof paymentId === 'string') {
         setIsLoadingPayment(true);
@@ -890,7 +909,7 @@ const UserManagement = () => {
           console.log("Max User set to:", maxUserValue);
 
         } catch (error) {
-          console.error("Error fetching payment data:", error);
+          console.error("Error fetching payment data:", error)
           setMaxUser(null);
         } finally {
           setIsLoadingPayment(false);
@@ -906,7 +925,7 @@ const UserManagement = () => {
     };
 
     fetchPaymentData();
-  }, [dispatch, getUserData, currentUser?._id]);
+  }, [dispatch, getUserData, currentUser?._id, userData?.currentPaymentId]);
 
   // Now you can use maxUser directly
   console.log("Max User from state:", maxUser);
@@ -954,16 +973,45 @@ const UserManagement = () => {
       setFetchError("User data not available");
       return;
     }
-
     setIsRefreshing(true);
     setFetchError(null);
 
     try {
-      if (role_id === 1) {
+      // Helper: decode JWT to get adminId for sub-admins
+      // adminId is stored in the JWT payload but NOT in the user object in localStorage
+      const getAdminIdFromToken = () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return null;
+          const base64Payload = token.split('.')[1];
+          const decoded = JSON.parse(atob(base64Payload));
+          return decoded.adminId || null;
+        } catch (e) {
+          console.error('Failed to decode token:', e);
+          return null;
+        }
+      };
+
+      // For sub-admin (role_id=3): fetch using the root admin's ID
+      // For admin (role_id=1): fetch using their own ID
+      let targetId;
+      if (role_id === 3) {
+        targetId =
+          getAdminIdFromToken() ||                         // JWT adminId (most reliable)
+          (userState.userInfo?.adminId?._id || userState.userInfo?.adminId) || // if adminId is in userInfo
+          userId;                                          // last resort: own ID
+      } else {
+        targetId = userId;
+      }
+
+      console.log("User Management fetch role_id:", role_id);
+      console.log("User Management fetch targetId:", targetId);
+
+      if (role_id === 1 || role_id === 3) {
         await Promise.all([
-          dispatch(getUserById(userId)),
+          dispatch(getUserById(targetId)),
           dispatch(getUsersUnderAdmin({
-            adminId: userId, // Use the userId from localStorage
+            adminId: targetId,
             page: 1,
             limit: 20,
             search: ''
@@ -1005,7 +1053,8 @@ const UserManagement = () => {
   useEffect(() => {
     const handleFocus = () => {
       const user = getUserData();
-      if (user?._id && !isRefreshing && dataFetched) {
+      // Only refresh if NO modal is open to avoid resetting local state/props
+      if (user?._id && !isRefreshing && dataFetched && !addUserModalOpen && !showDeleteModal) {
         fetchAllData();
       }
     };
@@ -1146,12 +1195,12 @@ const UserManagement = () => {
     // For roleId = 2, filter users where isActive and deleted === "false"
     activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
-  } else if (role_id === 1) {
-    // For roleId = 1, filter users based on isActive only
+  } else if (role_id === 1 || role_id === 3) {
+    // For roleId = 1 or 3, filter users based on isActive only
     activeUsers = (filteredUsers || []).filter((user) => user.isActive);
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
   } else {
-    // Default case (if roleId is neither 1 nor 2)
+    // Default case (if roleId is neither 1, 2, nor 3)
     // You can either use the roleId=1 logic or roleId=2 logic, or handle as needed
     activeUsers = (filteredUsers || []).filter((user) => user.isActive);
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
@@ -1169,7 +1218,7 @@ const UserManagement = () => {
   };
 
   const handleView = (user) => {
-    if (role_id === 1) {
+    if (role_id === 1 || role_id === 3) {
       navigate("/trackingdata", { state: { item: user } });
     } else if (role_id === 2) {
       navigate(`/list-users/${user._id || user.id}`);
@@ -1382,7 +1431,7 @@ const UserManagement = () => {
                 },
               }}
             >
-              {role_id === 1 ? 'User Management' : 'Organization Management'}
+              {(role_id === 1 || role_id === 3) ? 'User Management' : 'Organization Management'}
             </Typography>
           </Box>
           <Box sx={{
@@ -1475,10 +1524,10 @@ const UserManagement = () => {
               },
             }}
           >
-            {role_id === 1 ? 'User Management' : 'Organization Management'}
+            {(role_id === 1 || role_id === 3) ? 'User Management' : 'Organization Management'}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
-            {role_id === 1
+            {(role_id === 1 || role_id === 3)
               ? 'Manage your team members and their access'
               : 'Manage organizations and their users'
             }
@@ -1635,7 +1684,7 @@ const UserManagement = () => {
               },
             }}
           >
-            {role_id === 1 ? 'Add User' : 'Add Organization'}
+            {(role_id === 1 || role_id === 3) ? 'Add User' : 'Add Organization'}
           </Button>
         </Box>
       </Box>
@@ -2212,8 +2261,8 @@ const UserManagement = () => {
         <DialogContent sx={{ py: 1 }}>
           <DialogContentText textAlign="center" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
             {isExpired
-              ? 'Your subscription has expired. Renew now to continue adding users.'
-              : `You've reached the maximum limit of ${maxUser} users. Upgrade your plan to add more.`}
+              ? (role_id === 3 ? 'The organization subscription has expired. Please contact your administrator.' : 'Your subscription has expired. Renew now to continue adding users.')
+              : (role_id === 3 ? `The organization has reached the maximum limit of ${maxUser || 'allowed'} users. Please contact your administrator.` : `You've reached the maximum limit of ${maxUser} users. Upgrade your plan to add more.`)}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{
@@ -2241,23 +2290,25 @@ const UserManagement = () => {
           >
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => navigate('/admin/payments-plans')}
-            fullWidth={isSmallMobile}
-            size="small"
-            sx={{
-              bgcolor: isExpired ? '#ef4444' : theme.palette.secondary.main,
-              '&:hover': {
-                bgcolor: isExpired ? '#dc2626' : theme.palette.secondary.dark,
-              },
-              px: { xs: 2, sm: 3 },
-              fontSize: { xs: '0.7rem', sm: '0.75rem' },
-              height: 32,
-            }}
-          >
-            {isExpired ? 'Renew Now' : 'Upgrade Plan'}
-          </Button>
+          {role_id !== 3 && (
+            <Button
+              variant="contained"
+              onClick={() => navigate('/admin/payments-plans')}
+              fullWidth={isSmallMobile}
+              size="small"
+              sx={{
+                bgcolor: isExpired ? '#ef4444' : theme.palette.secondary.main,
+                '&:hover': {
+                  bgcolor: isExpired ? '#dc2626' : theme.palette.secondary.dark,
+                },
+                px: { xs: 2, sm: 3 },
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                height: 32,
+              }}
+            >
+              {isExpired ? 'Renew Now' : 'Upgrade Plan'}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

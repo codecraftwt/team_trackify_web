@@ -2111,6 +2111,7 @@ import {
   Chip,
   useMediaQuery,
   useTheme,
+  Checkbox,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -2126,7 +2127,7 @@ import {
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser, updateUser } from "../../../redux/slices/userSlice";
+import { registerUser, updateUser, updateUserPermissions } from "../../../redux/slices/userSlice";
 import { toast } from "react-toastify";
 
 const AddUser = ({ open, onClose, editingUser = null }) => {
@@ -2161,6 +2162,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     address: "",
     status: "active",
     avtar: null,
+    role_id: 0, // Default to Staff Member
+    adminPanelAccess: true, // Default to true for new sub-admins/users
   });
 
   const [errors, setErrors] = useState({
@@ -2223,6 +2226,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         address: editingUser.address || "",
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
+        role_id: Number(editingUser.role_id) || 0,
+        adminPanelAccess: editingUser.permissions 
+          ? editingUser.permissions.includes("admin_panel") 
+          : (Number(editingUser.role_id) === 3),
       });
       setImageRemoved(false);
       console.log("editingUser:", editingUser);
@@ -2241,6 +2248,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         address: "",
         status: "active",
         avtar: null,
+        role_id: 0,
+        adminPanelAccess: false,
       });
       setPreviewImage(null);
       setErrors({});
@@ -2428,28 +2437,64 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     payload.append("name", formData.fullName);
     payload.append("email", formData.email);
     
-    // Only send createdby for NEW users
+    // Only send createdby and adminId for NEW users
     if (!editingUser) {
-      payload.append("createdby", userData._id || userDataa?._id);
+      const creatorId = userDataa?._id || userData?._id;
+      payload.append("createdby", creatorId);
+      
+      // If creator is Sub-admin (Role 3), link new user to root admin (not subadmin)
+      // NOTE: adminId is inside the JWT token payload, not in the localStorage user object
+      if (Number(userDataa?.role_id) === 3) {
+        // Helper to decode JWT and extract adminId
+        const getAdminIdFromToken = () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+            const base64Payload = token.split('.')[1];
+            const decoded = JSON.parse(atob(base64Payload));
+            return decoded.adminId || null;
+          } catch (e) {
+            console.error('Failed to decode token:', e);
+            return null;
+          }
+        };
+
+        // Try JWT first, then fall back to localStorage user object
+        const rootAdminId =
+          getAdminIdFromToken() ||
+          userDataa?.adminId?._id ||
+          (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null);
+        
+        if (rootAdminId) {
+          payload.append("adminId", rootAdminId);
+          console.log("Sub-admin creating user: setting adminId to root admin ->", rootAdminId);
+        } else {
+          console.warn("Sub-admin has no adminId - new user may not appear in admin's list");
+        }
+      }
     }
     
     payload.append("mobile_no", formData.mobile);
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active");
 
-    // CRITICAL FIX: For editing users, DO NOT send role_id
-    // This allows both Admin and Super Admin to update users
-    if (editingUser) {
-      // For Super Admin, if you want to allow role change, you can add a role selector
-      // For now, we skip sending role_id to preserve existing role
-      console.log("Editing user - skipping role_id to preserve existing role");
-    } else {
-      // For new users, set role based on creator
-      if (isSuperAdmin) {
+    // Set role_id based on creator and adminPanelAccess checkbox
+    if (!editingUser) {
+      if (isAdmin) {
+        // Admin (Role 1) creates based on checkbox
+        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+        console.log("Admin creator: setting role_id based on panel access ->", formData.adminPanelAccess ? 3 : 0);
+      } else if (isSuperAdmin) {
         payload.append("role_id", 1); // Super Admin creates Admin
       } else {
-        payload.append("role_id", 0); // Admin creates User
+        // Sub-admin (Role 3) or Staff (Role 0) can only create Staff members
+        payload.append("role_id", 0);
+        console.log("Sub-admin/Staff creator: defaulting role_id to 0 (Staff)");
       }
+    } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
+      // During edit, Admin can also toggle between Staff and Sub-admin
+      payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+      console.log("Admin editor: updating role_id based on panel access ->", formData.adminPanelAccess ? 3 : 0);
     }
 
     // Handle avatar
@@ -2460,6 +2505,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     if (editingUser && imageRemoved) {
       payload.append("removeAvtar", "true");
     }
+
+    // Set permissions based on checkbox (admin_panel = access, [] = blocked)
+    const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
+    payload.append("permissions", JSON.stringify(permissions));
 
     // Log payload for debugging
     console.log("Payload entries:");
@@ -2476,10 +2525,23 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         if (!userId) {
           throw new Error("User ID is missing");
         }
+
+        let result;
+        // If we are editing a sub-admin and NO new avatar is being uploaded,
+        // use the specialized JSON-based permission update as per specification.
+        if (Number(formData.role_id) === 3 && !formData.avtar && !imageRemoved) {
+          console.log("Using JSON-based permission update as per spec");
+          const role_id = Number(formData.role_id);
+          result = await dispatch(
+            updateUserPermissions({ userId, permissions, role_id })
+          ).unwrap();
+        } else {
+          // Otherwise use the standard multi-part form data for full profile updates
+          result = await dispatch(
+            updateUser({ userId: userId, formData: payload })
+          ).unwrap();
+        }
         
-        const result = await dispatch(
-          updateUser({ userId: userId, formData: payload })
-        ).unwrap();
         console.log("Update result:", result);
         toast.success("User updated successfully!");
       } else {
@@ -2490,9 +2552,33 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       }
       onClose(true); // Pass true to indicate success and refresh data
     } catch (error) {
-      console.log("getting error -------->", error);
-      console.error("Submission error:", error);
-      toast.error(error?.message || error?.response?.data?.message || "Operation failed");
+      console.log("Submission error details:", error);
+      
+      // Extract message from various possible structures
+      let errorMessage = "Operation failed";
+
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      console.error("Final toast error message:", errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -2898,6 +2984,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     />
                   </Grid>
 
+
+
                   {/* Address */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -2940,63 +3028,124 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     />
                   </Grid>
 
-                  {/* Status - Only if not editing own profile */}
-                  {editingUser?._id !== userDataa?._id && (
+                  {/* Account Status & Admin Access Row */}
+                  {(editingUser?._id !== userDataa?._id || (isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3))) && (
                     <Grid item xs={12}>
-                      <FormControl component="fieldset">
-                        <FormLabel
-                          component="legend"
-                          sx={{
-                            color: "text.primary",
-                            fontWeight: 500,
-                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
-                          }}
-                        >
-                          Account Status
-                        </FormLabel>
-                        <RadioGroup
-                          row
-                          name="status"
-                          value={formData.status}
-                          onChange={handleChange}
-                          sx={{ flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 } }}
-                        >
-                          <FormControlLabel
-                            value="active"
-                            control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                            label={
-                              <Chip
-                                label="Active"
-                                size="small"
-                                sx={{
-                                  bgcolor: alpha("#22c55e", 0.1),
-                                  color: "#22c55e",
-                                  fontWeight: 600,
-                                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                                  height: 20,
-                                }}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: { xs: 'column', md: 'row' }, 
+                        alignItems: { xs: 'flex-start', md: 'flex-end' },
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        width: '100%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.02),
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: alpha(theme.palette.primary.main, 0.05),
+                      }}>
+                        {/* Status Selection */}
+                        {editingUser?._id !== userDataa?._id && (
+                          <FormControl component="fieldset">
+                            <FormLabel
+                              component="legend"
+                              sx={{
+                                color: "text.primary",
+                                fontWeight: 500,
+                                mb: 0.5,
+                                fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                              }}
+                            >
+                              Account Status
+                            </FormLabel>
+                            <RadioGroup
+                              row
+                              name="status"
+                              value={formData.status}
+                              onChange={handleChange}
+                              sx={{ flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 } }}
+                            >
+                              <FormControlLabel
+                                value="active"
+                                control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                                label={
+                                  <Chip
+                                    label="Active"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: alpha("#22c55e", 0.1),
+                                      color: "#22c55e",
+                                      fontWeight: 600,
+                                      fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                                      height: 20,
+                                    }}
+                                  />
+                                }
                               />
-                            }
-                          />
-                          <FormControlLabel
-                            value="inactive"
-                            control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                            label={
-                              <Chip
-                                label="Inactive"
-                                size="small"
-                                sx={{
-                                  bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                                  color: theme.palette.text.secondary,
-                                  fontWeight: 600,
-                                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                                  height: 20,
-                                }}
+                              <FormControlLabel
+                                value="inactive"
+                                control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                                label={
+                                  <Chip
+                                    label="Inactive"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                                      color: theme.palette.text.secondary,
+                                      fontWeight: 600,
+                                      fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                                      height: 20,
+                                    }}
+                                  />
+                                }
                               />
-                            }
-                          />
-                        </RadioGroup>
-                      </FormControl>
+                            </RadioGroup>
+                          </FormControl>
+                        )}
+
+                        {/* Admin Panel Access Checkbox */}
+                        {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
+                          <Box sx={{ 
+                            height: '100%', 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1.5,
+                            transition: 'all 0.3s ease',
+                            border: '1px dashed',
+                            borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
+                          }}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={formData.adminPanelAccess}
+                                  onChange={(e) => setFormData({ ...formData, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 })}
+                                  disabled={isLoading}
+                                  size="small"
+                                  sx={{
+                                    color: theme.palette.primary.main,
+                                    '&.Mui-checked': {
+                                      color: theme.palette.primary.main,
+                                    },
+                                  }}
+                                />
+                              }
+                              label={
+                                <Typography sx={{ 
+                                  fontSize: '0.75rem', 
+                                  fontWeight: 600,
+                                  color: formData.adminPanelAccess ? theme.palette.primary.main : 'text.secondary'
+                                }}>
+                                  Allow Admin Panel Access 
+                                </Typography>
+                              }
+                              sx={{ m: 0 }}
+                            />
+                          </Box>
+                        )}
+                      </Box>
                     </Grid>
                   )}
 

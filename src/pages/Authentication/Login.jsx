@@ -567,7 +567,7 @@ const Login = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // ✅ role_id from your API is a STRING "1" or "2" — confirmed from authSlice
-  const { isLoading, error, isAuthenticated, message, user, role_id } = useSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated, message, user, role_id, success } = useSelector((state) => state.auth);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
@@ -594,20 +594,25 @@ const Login = () => {
   }, [dispatch, reset]);
 
 useEffect(() => {
-  console.log("🔄 EFFECT FIRED:", { isAuthenticated, role_id, user: !!user });
+  // Use a locally computed roleId consistently
+  const effectiveRole = role_id ?? user?.role_id;
+  const roleIdNum = (effectiveRole !== null && effectiveRole !== undefined) ? Number(effectiveRole) : null;
 
-  if (!isAuthenticated || !user || role_id === null || role_id === undefined) {
-    console.log("⛔ Skipping redirect - missing auth data");
+  // ⛔ Check for auth status
+  if (!isAuthenticated && !localStorage.getItem('token')) {
     return;
   }
+
+  // Double check if we have a valid role
+  if (roleIdNum === null || !user) {
+    return;
+  }
+
   if (hasRedirected.current) {
-    console.log("⛔ Already redirected");
     return;
   }
 
-  hasRedirected.current = true;
-  const roleIdNum = Number(role_id);
-
+  // Determine redirect path
   let currentPlan = pendingPlan;
   if (!currentPlan) {
     const stored = sessionStorage.getItem('selectedPlan');
@@ -616,34 +621,48 @@ useEffect(() => {
     }
   }
 
-  console.log("✅ REDIRECTING - roleIdNum:", roleIdNum, "currentPlan:", currentPlan);
-
   let redirectPath = null;
-
   if (returnUrl) {
     redirectPath = returnUrl;
-  } else if (currentPlan && roleIdNum === 1) {
-    redirectPath = '/admin/payments-plans';
   } else if (roleIdNum === 2) {
     redirectPath = '/super-admin/dashboard';
-  } else if (roleIdNum === 1) {
-    redirectPath = '/admin/dashboard';
+  } else if (roleIdNum === 1 || roleIdNum === 3 || roleIdNum === 0) {
+    if (roleIdNum === 1 && currentPlan) {
+      redirectPath = '/admin/payments-plans';
+    } else {
+      redirectPath = '/admin/dashboard';
+    }
   }
 
-  console.log("🚀 redirectPath:", redirectPath);
-  setOpenSuccessAlert(true);
+  if (!redirectPath) {
+    console.warn("⚠️ No redirect path for role:", roleIdNum);
+    return;
+  }
 
-  if (redirectPath) {
+  hasRedirected.current = true;
+
+  // 🔔 ONLY SHOW TOAST IF WE JUST LOGGED IN (not on auto-redirect)
+  // Check if there was a success message or the success state was just set
+  const wasJustLoggedIn = success === true;
+  
+  if (wasJustLoggedIn) {
+    console.log("🔔 Success login - showing toast");
+    setOpenSuccessAlert(true);
     setTimeout(() => {
       setOpenSuccessAlert(false);
-      dispatch(clearMessage());
+      dispatch(clearMessage()); // Assuming clearMessage resets success state if needed
       sessionStorage.removeItem('selectedPlan');
       sessionStorage.removeItem('fromPricing');
+      console.log("➡️ Navigating now:", redirectPath);
       navigate(redirectPath, { replace: true });
     }, 1500);
+  } else {
+    // 💨 SILENT REDIRECT for already-authenticated users
+    console.log("💨 Silent redirect - already authenticated");
+    navigate(redirectPath, { replace: true });
   }
-// ✅ ADD isLoading to deps - fires when loading finishes
-}, [isAuthenticated, user, role_id, isLoading]);
+
+}, [isAuthenticated, user, role_id, success, navigate, dispatch]);
 
   // Error alert handler
   useEffect(() => {

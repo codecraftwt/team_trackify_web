@@ -638,10 +638,8 @@ export const registerUser = createAsyncThunk(
       const response = await api.post("/users/register", payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message);
       return rejectWithValue(error.response?.data);
     }
   }
@@ -652,15 +650,30 @@ export const updateUser = createAsyncThunk(
   "user/updateUser",
   async ({ userId, formData }, { rejectWithValue }) => {
     try {
-      const response = await api.patch(
+      const response = await api.put(
         `/users/updateuser/${userId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+// Handle Specialized Permission Update (JSON)
+export const updateUserPermissions = createAsyncThunk(
+  "user/updateUserPermissions",
+  async ({ userId, permissions, role_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(
+        `/users/updateuser/${userId}`,
+        { permissions, role_id },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      return response.data;
+    } catch (error) {
       return rejectWithValue(error.response?.data);
     }
   }
@@ -709,9 +722,10 @@ export const deleteUser = createAsyncThunk(
 
 export const getUserCounts = createAsyncThunk(
   "user/getUserCounts",
-  async (_, { rejectWithValue }) => {
+  async (adminId, { rejectWithValue }) => {
     try {
-      const response = await api.get("/users/user-counts");
+      const url = "/users/user-counts";
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -762,9 +776,10 @@ export const getUserTrackedDates = createAsyncThunk(
 
 export const getActiveUserLocations = createAsyncThunk(
   "user/getActiveUserLocations",
-  async (_, { rejectWithValue }) => {
+  async (adminId, { rejectWithValue }) => {
     try {
-      const response = await api.get("/tracks/admin/active-user-locations");
+      const url = "/tracks/admin/active-user-locations";
+      const response = await api.get(url);
       return response.data.users;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch locations");
