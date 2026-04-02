@@ -2123,6 +2123,7 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Close as CloseIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
   Business as BusinessIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
@@ -2149,7 +2150,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   // Local loading state to prevent double submission
   const [submitting, setSubmitting] = useState(false);
 
-  // Determine if current user is Super Admin (role_id = 2)
+
   const isSuperAdmin = role_id === 2;
   const isAdmin = role_id === 1;
 
@@ -2162,8 +2163,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     address: "",
     status: "active",
     avtar: null,
-    role_id: 0, // Default to Staff Member
-    adminPanelAccess: true, // Default to true for new sub-admins/users
+    role_id: 0,
+    adminPanelAccess: true,
   });
 
   const [errors, setErrors] = useState({
@@ -2182,7 +2183,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Reset submitting when modal closes
+
   useEffect(() => {
     if (!open) {
       setSubmitting(false);
@@ -2218,7 +2219,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   useEffect(() => {
     if (editingUser) {
-      // console.log("Setting form data from editingUser:", editingUser);
       setFormData({
         fullName: editingUser.name || "",
         email: editingUser.email || "",
@@ -2232,13 +2232,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
           : (Number(editingUser.role_id) === 3),
       });
       setImageRemoved(false);
-      // console.log("editingUser:", editingUser);
-
       if (editingUser.avtar) {
         setPreviewImage(editingUser.avtar);
       }
     } else {
-      // Reset form when opening for new user
       setFormData({
         fullName: "",
         email: "",
@@ -2322,7 +2319,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restrict mobile to only numbers
     if (name === "mobile") {
       const numericValue = value.replace(/[^0-9]/g, "");
       if (numericValue.length <= 10) {
@@ -2336,8 +2332,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       const error = validateField(name, name === "mobile" ? value.replace(/[^0-9]/g, "") : value);
       setErrors({ ...errors, [name]: error });
     }
-
-    // Clear confirm password error when password changes
     if (name === "password" && touched.confirmPassword) {
       const confirmError = validateField("confirmPassword", formData.confirmPassword);
       setErrors({ ...errors, confirmPassword: confirmError });
@@ -2412,7 +2406,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
     setErrors(newErrors);
 
-    // Mark all fields as touched
+
     const allTouched = {};
     Object.keys(newErrors).forEach(key => {
       allTouched[key] = true;
@@ -2424,11 +2418,11 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("handle submit called ..........................");
+
 
     if (!validateForm()) return;
 
-    // Prevent double submission
+
     if (submitting) return;
 
     setSubmitting(true);
@@ -2442,8 +2436,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       const creatorId = userDataa?._id || userData?._id;
       payload.append("createdby", creatorId);
 
-      // If creator is Sub-admin (Role 3), link new user to root admin (not subadmin)
-      // NOTE: adminId is inside the JWT token payload, not in the localStorage user object
       if (Number(userDataa?.role_id) === 3) {
         // Helper to decode JWT and extract adminId
         const getAdminIdFromToken = () => {
@@ -2458,8 +2450,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
             return null;
           }
         };
-
-        // Try JWT first, then fall back to localStorage user object
         const rootAdminId =
           getAdminIdFromToken() ||
           userDataa?.adminId?._id ||
@@ -2467,7 +2457,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
         if (rootAdminId) {
           payload.append("adminId", rootAdminId);
-          // console.log("Sub-admin creating user: setting adminId to root admin ->", rootAdminId);
+
         } else {
           console.warn("Sub-admin has no adminId - new user may not appear in admin's list");
         }
@@ -2478,23 +2468,22 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active");
 
-    // Set role_id based on creator and adminPanelAccess checkbox
     if (!editingUser) {
       if (isAdmin) {
-        // Admin (Role 1) creates based on checkbox
+  
         payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-        // console.log("Admin creator: setting role_id based on panel access ->", formData.adminPanelAccess ? 3 : 0);
+
       } else if (isSuperAdmin) {
-        payload.append("role_id", 1); // Super Admin creates Admin
+        payload.append("role_id", 1);
       } else {
-        // Sub-admin (Role 3) or Staff (Role 0) can only create Staff members
+       
         payload.append("role_id", 0);
-        // console.log("Sub-admin/Staff creator: defaulting role_id to 0 (Staff)");
+
       }
     } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
       // During edit, Admin can also toggle between Staff and Sub-admin
       payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-      // console.log("Admin editor: updating role_id based on panel access ->", formData.adminPanelAccess ? 3 : 0);
+
     }
 
     // Handle avatar
@@ -2509,40 +2498,30 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     // Set permissions based on checkbox (admin_panel = access, [] = blocked)
     const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
     payload.append("permissions", JSON.stringify(permissions));
-
     // Log payload for debugging
-    // console.log("Payload entries:");
     for (let pair of payload.entries()) {
-      // console.log(pair[0], pair[1]);
     }
 
     try {
-      // console.log("inside the try... ");
+
       if (editingUser) {
         const userId = editingUser._id || editingUser.id;
-        // console.log("calling the update user API for userId:", userId);
-
         if (!userId) {
           throw new Error("User ID is missing");
         }
 
         let result;
-        // If we are editing a sub-admin and NO new avatar is being uploaded,
-        // use the specialized JSON-based permission update as per specification.
         if (Number(formData.role_id) === 3 && !formData.avtar && !imageRemoved) {
-          // console.log("Using JSON-based permission update as per spec");
           const role_id = Number(formData.role_id);
           result = await dispatch(
             updateUserPermissions({ userId, permissions, role_id })
           ).unwrap();
         } else {
-          // Otherwise use the standard multi-part form data for full profile updates
+        
           result = await dispatch(
             updateUser({ userId: userId, formData: payload })
           ).unwrap();
         }
-
-        // console.log("Update result:", result);
         toast.success("User updated successfully!");
       } else {
         payload.append("password", formData.password);
@@ -2550,13 +2529,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         await dispatch(registerUser(payload)).unwrap();
         toast.success("User created successfully!");
       }
-      onClose(true); // Pass true to indicate success and refresh data
+      onClose(true); 
     } catch (error) {
-      // console.log("Submission error details:", error);
-
       // Extract message from various possible structures
       let errorMessage = "Operation failed";
-
       if (typeof error === 'string') {
         errorMessage = error;
       } else if (error?.message) {
@@ -2568,7 +2544,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       } else if (error?.message) {
         errorMessage = error.message;
       }
-
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
@@ -3098,58 +3073,68 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     </Grid>
                   )}
 
-                  {/* Admin Panel Access Checkbox */}
+                  {/* Admin Panel Access Card */}
                   {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
                     <Grid item xs={12} md={6}>
-                      <Box 
-                        onClick={() => !isLoading && setFormData({ 
-                          ...formData, 
-                          adminPanelAccess: !formData.adminPanelAccess, 
-                          role_id: !formData.adminPanelAccess ? 3 : 0 
+                      <Box
+                        onClick={() => !isLoading && setFormData({
+                          ...formData,
+                          adminPanelAccess: !formData.adminPanelAccess,
+                          role_id: !formData.adminPanelAccess ? 3 : 0
                         })}
                         sx={{
-                          height: '100%',
+                          height: '95%',
                           display: 'flex',
                           alignItems: 'center',
                           cursor: 'pointer',
-                          bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.1) : alpha(theme.palette.primary.main, 0.02),
+                          bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.08) : alpha(theme.palette.primary.main, 0.02),
                           px: 2,
-                          py: { xs: 1.5, md: 1 },
-                          borderRadius: 2,
-                          transition: 'all 0.3s ease',
-                          border: '1px solid',
-                          borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.05),
-                          '&:hover': {
-                            bgcolor: alpha(theme.palette.primary.main, 0.15),
-                            borderColor: theme.palette.primary.main,
-                          }
+                          py: { xs: 1.2, md: 1 },
+                          borderRadius: 2.5,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          border: '2px solid',
+                          borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.08),
+                          boxShadow: formData.adminPanelAccess ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}` : 'none',
+                          position: 'relative',
+
                         }}>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={formData.adminPanelAccess}
-                              onChange={(e) => setFormData({ ...formData, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 })}
-                              disabled={isLoading}
-                              size="small"
-                              sx={{
-                                color: theme.palette.primary.main,
-                                '&.Mui-checked': {
-                                  color: theme.palette.primary.main,
-                                },
-                              }}
-                            />
-                          }
-                          label={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                          <Avatar
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              bgcolor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.1),
+                              color: formData.adminPanelAccess ? 'white' : theme.palette.primary.main,
+                              transition: 'all 0.3s ease',
+                            }}
+                          >
+                            <AdminPanelSettingsIcon sx={{ fontSize: 18 }} />
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
                             <Typography sx={{
                               fontSize: '0.75rem',
-                              fontWeight: 600,
-                              color: formData.adminPanelAccess ? theme.palette.primary.main : 'text.secondary'
+                              fontWeight: 700,
+                              color: formData.adminPanelAccess ? theme.palette.primary.main : 'text.primary',
+                              lineHeight: 1.1,
                             }}>
-                              Allow Admin Panel Access
+                              Admin Panel Access
                             </Typography>
-                          }
-                          sx={{ m: 0 }}
-                        />
+
+                          </Box>
+                          <Checkbox
+                            checked={formData.adminPanelAccess}
+                            onChange={(e) => setFormData({ ...formData, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 })}
+                            disabled={isLoading}
+                            size="small"
+                            sx={{
+                              p: 0.5,
+                              color: alpha(theme.palette.primary.main, 0.3),
+                              '&.Mui-checked': {
+                                color: theme.palette.primary.main,
+                              },
+                            }}
+                          />
+                        </Box>
                       </Box>
                     </Grid>
                   )}

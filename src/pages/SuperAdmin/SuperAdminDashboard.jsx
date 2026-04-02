@@ -3222,6 +3222,7 @@ import {
   FaUserShield,
   FaChartLine,
   FaRupeeSign,
+  FaArrowDown,
   FaCalendarAlt,
   FaArrowUp,
 } from "react-icons/fa";
@@ -3229,6 +3230,8 @@ import { getUserCounts } from "../../redux/slices/userSlice";
 import { getUsersWithExpiringPlans, getPopularPlans } from "../../redux/slices/planSlice";
 import { getRevenueSummary } from "../../redux/slices/paymentSlice";
 import ExpiringPlansTable from "../../components/ExpiringPlansTable";
+import SearchFilter from "../../components/SearchFilter";
+import moment from "moment";
 
 // Stats Card Skeleton Component - Smaller height
 const StatsCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
@@ -3617,8 +3620,23 @@ const SuperAdminDashboard = () => {
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Sorting states
+  const [sortBy, setBy] = useState("date");
+  const [sortOrder, setOrder] = useState("desc");
+
+  // Debouncing effect for search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Safe Redux state access
   const userCounts = useSelector((state) => state.user?.userCounts || {});
@@ -3630,40 +3648,79 @@ const SuperAdminDashboard = () => {
 
   // Initial Load (One-time)
   useEffect(() => {
-    dispatch(getUserCounts());
-    dispatch(getUsersWithExpiringPlans());
-    dispatch(getPopularPlans());
-
     // Set first render loader to false after 1 second
     const timer = setTimeout(() => {
       setShowFirstRenderLoader(false);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [dispatch]);
+  }, []);
 
-  // Date Filter Update (Revenue Only)
+  // Sync data fetching when filters change
   useEffect(() => {
-    const params = { startDate, endDate };
-    dispatch(getRevenueSummary(params));
-  }, [dispatch, startDate, endDate]);
+    const commonParams = { 
+      startDate: startDate ? moment(startDate).format("YYYY-MM-DD") : "", 
+      endDate: endDate ? moment(endDate).format("YYYY-MM-DD") : "",
+      sortBy,
+      sortOrder
+    };
+
+    // Global Stats (No Search Filter)
+    dispatch(getUserCounts(commonParams));
+    dispatch(getRevenueSummary(commonParams));
+    dispatch(getPopularPlans(commonParams));
+
+    // Expiring Plans List (Include Search Filter)
+    const expiringParams = { ...commonParams, search: debouncedSearchQuery };
+    dispatch(getUsersWithExpiringPlans(expiringParams));
+  }, [dispatch, startDate, endDate, debouncedSearchQuery, sortBy, sortOrder]);
 
   const refreshData = () => {
     setLastUpdated(new Date());
-    const params = { startDate, endDate };
-    dispatch(getUserCounts());
-    dispatch(getUsersWithExpiringPlans());
-    dispatch(getRevenueSummary(params));
-    dispatch(getPopularPlans());
+    const commonParams = { 
+      startDate: startDate ? moment(startDate).format("YYYY-MM-DD") : "", 
+      endDate: endDate ? moment(endDate).format("YYYY-MM-DD") : "",
+      sortBy,
+      sortOrder
+    };
+    
+    dispatch(getUserCounts(commonParams));
+    dispatch(getRevenueSummary(commonParams));
+    dispatch(getPopularPlans(commonParams));
+    
+    const expiringParams = { ...commonParams, search: debouncedSearchQuery };
+    dispatch(getUsersWithExpiringPlans(expiringParams));
   };
 
   const clearFilters = () => {
-    setStartDate("");
-    setEndDate("");
+    setStartDate(null);
+    setEndDate(null);
+    setSearchQuery("");
   };
 
+  const handleSortChange = (field, order) => {
+    setBy(field);
+    setOrder(order);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Filter expiring users by search query (Frontend Fallback)
+  const filteredExpiringUsers = useMemo(() => {
+    if (!debouncedSearchQuery) return expiringUsers;
+    const lowerQuery = debouncedSearchQuery.toLowerCase();
+    return expiringUsers.filter(user => 
+      user.userName?.toLowerCase().includes(lowerQuery) || 
+      user.userEmail?.toLowerCase().includes(lowerQuery) ||
+      user.planName?.toLowerCase().includes(lowerQuery) ||
+      user.userMobileNo?.toString().includes(lowerQuery)
+    );
+  }, [expiringUsers, debouncedSearchQuery]);
+
   // Get only the first 10 users for the dashboard preview
-  const recentExpiringUsers = expiringUsers.slice(0, 10);
+  const recentExpiringUsers = filteredExpiringUsers.slice(0, 10);
 
   // User Stats with memoization to maintain stable references
   const userStats = useMemo(() => [
@@ -3945,83 +4002,46 @@ const SuperAdminDashboard = () => {
         </Box>
 
         {/* Monthly Summary Section */}
+        <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1} sx={{ mb: 1 }}>
+          <Grid item xs={6}>
+         
+          </Grid>
+          <Grid item xs={6}>
+       
+          </Grid>
+        </Grid>
+
         <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
           <Grid item xs={6}>
             <Box
               sx={{
-                p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-                borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-                background: alpha("#ffffff", 0.08),
-                backdropFilter: "blur(4px)",
-                height: '100%',
-                minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
+                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+                borderRadius: isSmallMobile ? 0.8 : 1,
+                background: alpha("#ffffff", 0.05),
+                border: `1px solid ${alpha("#22c55e", 0.2)}`,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-                <Box>
-                  <Typography
-                    variant={isSmallMobile ? "caption" : isMobile ? "body2" : isTablet ? "body1" : "body1"}
-                    fontWeight="600"
-                    sx={{
-                      mb: 0.1,
-                      fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.9rem',
-                    }}
-                  >
-                    {revenueSummary?.currentMonthRevenue > 0
-                      ? `₹${revenueSummary?.currentMonthRevenue.toLocaleString()}`
-                      : "₹0"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: alpha("#ffffff", 0.7),
-                      fontSize: isSmallMobile ? '0.45rem' : isMobile ? '0.5rem' : isTablet ? '0.55rem' : '0.55rem',
-                    }}
-                  >
-                    This Month
-                  </Typography>
-                </Box>
-                <FaCalendarAlt size={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15} style={{ opacity: 0.5 }} />
-              </Box>
+              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Revenue</Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+                ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
+              </Typography>
+           
             </Box>
           </Grid>
           <Grid item xs={6}>
             <Box
               sx={{
-                p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-                borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-                background: alpha("#ffffff", 0.08),
-                backdropFilter: "blur(4px)",
-                height: '100%',
-                minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
+                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+                borderRadius: isSmallMobile ? 0.8 : 1,
+                background: alpha("#ffffff", 0.05),
+                border: `1px solid ${alpha("#F59E0B", 0.2)}`,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-                <Box>
-                  <Typography
-                    variant={isSmallMobile ? "caption" : isMobile ? "body2" : isTablet ? "body1" : "body1"}
-                    fontWeight="600"
-                    sx={{
-                      mb: 0.1,
-                      fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.9rem',
-                    }}
-                  >
-                    {revenueSummary?.lastMonthRevenue > 0
-                      ? `₹${revenueSummary?.lastMonthRevenue.toLocaleString()}`
-                      : "₹0"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: alpha("#ffffff", 0.7),
-                      fontSize: isSmallMobile ? '0.45rem' : isMobile ? '0.5rem' : isTablet ? '0.55rem' : '0.55rem',
-                    }}
-                  >
-                    Last Month
-                  </Typography>
-                </Box>
-                <FaCalendarAlt size={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15} style={{ opacity: 0.5 }} />
-              </Box>
+              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Discount</Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+                ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
+              </Typography>
+            
             </Box>
           </Grid>
         </Grid>
@@ -4251,9 +4271,35 @@ const SuperAdminDashboard = () => {
               >
                 Super Admin Dashboard
               </Typography>
-              <IconButton size="small" onClick={refreshData} sx={{ width: 28, height: 28 }}>
-                <RefreshIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-              </IconButton>
+ 
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton size="small" onClick={refreshData} sx={{ width: 34, height: 34, bgcolor: alpha(theme.palette.primary.main, 0.1) }}>
+                  <RefreshIcon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* Global Search and Filter Bar */}
+            <Box sx={{ mb: 2.5 }}>
+              <SearchFilter
+                searchQuery={searchQuery}
+                setSearchQuery={handleSearchChange}
+                resultsCount={filteredExpiringUsers.length}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isSmallMobile={isSmallMobile}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                onApplyDateFilter={() => {}} // Controlled via useEffect
+                onClearDateFilter={clearFilters}
+                isFilterActive={Boolean(startDate || endDate)}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+                hideResults={true}
+              />
             </Box>
           </motion.div>
 
@@ -4348,45 +4394,6 @@ const SuperAdminDashboard = () => {
                   Revenue Overview
                 </Typography>
               </Box>
-
-              {/* Date Filters specifically in this section title bar now as well for clarity */}
-              <Stack direction="row" spacing={1} alignItems="center">
-                <TextField
-                  label="From"
-                  type="date"
-                  size="small"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{
-                    width: isSmallMobile ? "150px" : "140px",
-                    '& .MuiInputBase-root': { fontSize: '0.7rem', height: '30px' },
-                    '& .MuiInputLabel-root': { fontSize: '0.7rem' }
-                  }}
-                />
-                <TextField
-                  label="To"
-                  type="date"
-                  size="small"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{
-                    width: isSmallMobile ? "150px" : "140px",
-                    '& .MuiInputBase-root': { fontSize: '0.7rem', height: '30px' },
-                    '& .MuiInputLabel-root': { fontSize: '0.7rem' }
-                  }}
-                />
-                {(startDate || endDate) && (
-                  <IconButton
-                    size="small"
-                    onClick={clearFilters}
-                    sx={{ color: theme.palette.error.main, width: 25, height: 25 }}
-                  >
-                    <ClearIcon sx={{ fontSize: 16 }} />
-                  </IconButton>
-                )}
-              </Stack>
             </Box>
 
             <motion.div variants={cardVariants}>

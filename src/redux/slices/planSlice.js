@@ -109,11 +109,23 @@ export const deletePlan = createAsyncThunk(
 
 export const getUsersWithExpiringPlans = createAsyncThunk(
   "plan/getUsersWithExpiringPlans",
-  async (daysBeforeExpiry = 7, { rejectWithValue }) => {
+  async (params = { daysBeforeExpiry: 7 }, { rejectWithValue }) => {
     try {
-      const response = await api.get(
-        `/plans/expiring-users?daysBeforeExpiry=${daysBeforeExpiry}`
-      );
+      // Clean params - remove empty values
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+
+      // Default days if not provided
+      if (!cleanParams.daysBeforeExpiry) cleanParams.daysBeforeExpiry = 7;
+
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/plans/expiring-users${queryString ? `?${queryString}` : ""}`;
+
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error("Error fetching users with expiring plans:", error);
@@ -208,9 +220,20 @@ export const getAvailablePlans = createAsyncThunk(
 // NEW: Get Popular Plans for Dashboard
 export const getPopularPlans = createAsyncThunk(
   "plan/getPopularPlans",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get("/plans/popular-plan");
+      // Clean params - remove empty values
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/plans/popular-plan${queryString ? `?${queryString}` : ""}`;
+
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error("Error fetching popular plans:", error);

@@ -497,6 +497,7 @@ const SearchFilter = ({
   sortBy = "date", // default sort by date
   sortOrder = "desc", // default descending (newest first)
   onSortChange,
+  hideResults = false,
 }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -1101,46 +1102,48 @@ const SearchFilter = ({
       </Box>
 
       {/* Results Count and Total Amount */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {totalAmount > 0 && (
-          <Tooltip title="Total amount for current page" arrow>
+      {!hideResults && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {totalAmount > 0 && (
+            <Tooltip title="Total amount for current page" arrow>
+              <Chip
+                label={`₹${totalAmount.toLocaleString("en-IN")}`}
+                size="small"
+                sx={{
+                  bgcolor: alpha(theme.palette.success.main, 0.1),
+                  color: theme.palette.success.main,
+                  fontWeight: 600,
+                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                  height: 28,
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.success.main, 0.2),
+                  '& .MuiChip-label': {
+                    px: 1.2,
+                  },
+                }}
+              />
+            </Tooltip>
+          )}
+          <Tooltip title="Number of records on current page" arrow>
             <Chip
-              label={`₹${totalAmount.toLocaleString("en-IN")}`}
+              label={`${resultsCount} ${resultsCount === 1 ? 'result' : 'results'}`}
               size="small"
               sx={{
-                bgcolor: alpha(theme.palette.success.main, 0.1),
-                color: theme.palette.success.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
                 fontWeight: 600,
                 fontSize: { xs: '0.65rem', sm: '0.7rem' },
                 height: 28,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.success.main, 0.2),
+                borderColor: alpha(theme.palette.primary.main, 0.2),
                 '& .MuiChip-label': {
                   px: 1.2,
                 },
               }}
             />
           </Tooltip>
-        )}
-        <Tooltip title="Number of records on current page" arrow>
-          <Chip
-            label={`${resultsCount} ${resultsCount === 1 ? 'result' : 'results'}`}
-            size="small"
-            sx={{
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main,
-              fontWeight: 600,
-              fontSize: { xs: '0.65rem', sm: '0.7rem' },
-              height: 28,
-              border: "1px solid",
-              borderColor: alpha(theme.palette.primary.main, 0.2),
-              '& .MuiChip-label': {
-                px: 1.2,
-              },
-            }}
-          />
-        </Tooltip>
-      </Box>
+        </Box>
+      )}
     </Paper>
   );
 };
