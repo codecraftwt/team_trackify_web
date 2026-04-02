@@ -538,14 +538,14 @@ const Login = () => {
   // This avoids the stale-closure bug where useEffect sets state AFTER redirect fires
   const [pendingPlan] = useState(() => {
     if (location.state?.selectedPlan) {
-      console.log("📦 Plan from location.state:", location.state.selectedPlan);
+      // console.log("📦 Plan from location.state:", location.state.selectedPlan);
       return location.state.selectedPlan;
     }
     const stored = sessionStorage.getItem('selectedPlan');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        console.log("📦 Plan from sessionStorage:", parsed);
+        // console.log("📦 Plan from sessionStorage:", parsed);
         return parsed;
       } catch (e) {
         return null;
@@ -556,11 +556,11 @@ const Login = () => {
 
   const [fromPricing] = useState(() => {
     if (location.state?.fromPricing !== undefined) {
-      console.log("🏷️ fromPricing from location.state:", location.state.fromPricing);
+      // console.log("🏷️ fromPricing from location.state:", location.state.fromPricing);
       return location.state.fromPricing;
     }
     const stored = sessionStorage.getItem('fromPricing');
-    console.log("🏷️ fromPricing from sessionStorage:", stored);
+    // console.log("🏷️ fromPricing from sessionStorage:", stored);
     return stored === 'true';
   });
 
@@ -573,12 +573,12 @@ const Login = () => {
 
   // Persist plan to sessionStorage on mount
   useEffect(() => {
-    console.log("=========================================");
-    console.log("📍 LOGIN PAGE LOADED");
-    console.log("pendingPlan:", pendingPlan);
-    console.log("fromPricing:", fromPricing);
-    console.log("role_id (raw from redux):", role_id, "| typeof:", typeof role_id);
-    console.log("=========================================");
+    // console.log("=========================================");
+    // console.log("📍 LOGIN PAGE LOADED");
+    // console.log("pendingPlan:", pendingPlan);
+    // console.log("fromPricing:", fromPricing);
+    // console.log("role_id (raw from redux):", role_id, "| typeof:", typeof role_id);
+    // console.log("=========================================");
 
     if (pendingPlan) {
       sessionStorage.setItem('selectedPlan', JSON.stringify(pendingPlan));
@@ -646,19 +646,19 @@ useEffect(() => {
   const wasJustLoggedIn = success === true;
   
   if (wasJustLoggedIn) {
-    console.log("🔔 Success login - showing toast");
+    // console.log("🔔 Success login - showing toast");
     setOpenSuccessAlert(true);
     setTimeout(() => {
       setOpenSuccessAlert(false);
       dispatch(clearMessage()); // Assuming clearMessage resets success state if needed
       sessionStorage.removeItem('selectedPlan');
       sessionStorage.removeItem('fromPricing');
-      console.log("➡️ Navigating now:", redirectPath);
+      // console.log("➡️ Navigating now:", redirectPath);
       navigate(redirectPath, { replace: true });
     }, 1500);
   } else {
     // 💨 SILENT REDIRECT for already-authenticated users
-    console.log("💨 Silent redirect - already authenticated");
+    // console.log("💨 Silent redirect - already authenticated");
     navigate(redirectPath, { replace: true });
   }
 

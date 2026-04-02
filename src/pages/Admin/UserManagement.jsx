@@ -542,7 +542,7 @@ const ResponsiveTable = ({
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
 
-  console.log(users, "Users in the tabnle <-------------- ")
+  // console.log(users, "Users in the tabnle <-------------- ")
 
   if (loading) {
     return (
@@ -821,7 +821,7 @@ const UserManagement = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        console.log('User from localStorage:', parsedUser); // Debug log
+        // console.log('User from localStorage:', parsedUser); 
         return parsedUser;
       } catch (e) {
         console.error('Error parsing stored user:', e);
@@ -900,13 +900,13 @@ const UserManagement = () => {
           // Dispatch getPaymentById and unwrap the result
           const result = await dispatch(getPaymentById(paymentId)).unwrap();
 
-          console.log("Payment data received:", result);
+          // console.log("Payment data received:", result);
 
           // Extract and set maxUser from the response
           const maxUserValue = result?.data?.maxUser || result?.maxUser;
           setMaxUser(maxUserValue);
 
-          console.log("Max User set to:", maxUserValue);
+          // console.log("Max User set to:", maxUserValue);
 
         } catch (error) {
           console.error("Error fetching payment data:", error)
@@ -928,7 +928,7 @@ const UserManagement = () => {
   }, [dispatch, getUserData, currentUser?._id, userData?.currentPaymentId]);
 
   // Now you can use maxUser directly
-  console.log("Max User from state:", maxUser);
+  // console.log("Max User from state:", maxUser);
   // console.log("-----------------------", getUserData());
   // console.log("current>-----------------------", currentUser.currentPaymentId);
 
@@ -964,11 +964,11 @@ const UserManagement = () => {
     const user = getUserData();
     const userId = user?._id || user?.id; // Ensure we get the ID
 
-    console.log("Fetching data for user:", user);
-    console.log("User ID:", userId);
+    // console.log("Fetching data for user:", user);
+    // console.log("User ID:", userId);
 
     if (!userId) {
-      console.log("No user ID available");
+      // console.log("No user ID available");
       setIsLoading(false);
       setFetchError("User data not available");
       return;
@@ -1004,8 +1004,8 @@ const UserManagement = () => {
         targetId = userId;
       }
 
-      console.log("User Management fetch role_id:", role_id);
-      console.log("User Management fetch targetId:", targetId);
+      // console.log("User Management fetch role_id:", role_id);
+      // console.log("User Management fetch targetId:", targetId);
 
       if (role_id === 1 || role_id === 3) {
         await Promise.all([
@@ -1035,12 +1035,12 @@ const UserManagement = () => {
   useEffect(() => {
     const initializeData = async () => {
       const user = getUserData();
-      console.log("Initializing with user:", user);
+      // console.log("Initializing with user:", user);
 
       if (user?._id || user?.id) {
         await fetchAllData();
       } else {
-        console.log("No user found, setting loading to false");
+        // console.log("No user found, setting loading to false");
         setIsLoading(false);
         setFetchError("Please login to continue");
       }
@@ -1237,7 +1237,7 @@ const UserManagement = () => {
 
   const handleDeleteConfirm = () => {
     setIsDeleting(true);
-    console.log(selectedUser, "<---------------- seleed user ")
+    // console.log(selectedUser, "<---------------- seleed user ")
     dispatch(deleteUser(selectedUser?._id || selectedUser?.id))
       .unwrap()
       .then(() => {

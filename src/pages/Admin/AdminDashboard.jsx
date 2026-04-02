@@ -3320,7 +3320,7 @@ const AdminDashboard = () => {
     const userId = activeUser?._id || activeUser?.id;
 
     if (!userId) {
-      console.log("No user ID available");
+      // console.log("No user ID available");
       setIsLoading(false);
       return;
     }
@@ -3361,8 +3361,8 @@ const AdminDashboard = () => {
         finalTargetId = activeUser._id || activeUser.id || userId;
       }
       
-      console.log("Dashboard fetch roleId:", roleId);
-      console.log("Dashboard fetch finalTargetId:", finalTargetId);
+      // console.log("Dashboard fetch roleId:", roleId);
+      // console.log("Dashboard fetch finalTargetId:", finalTargetId);
 
       const [userResult, allUsersResult, countsResult, locationsResult] = await Promise.all([
         dispatch(getUserById(finalTargetId)).unwrap(),
@@ -3372,7 +3372,7 @@ const AdminDashboard = () => {
         dispatch(getLastFiveTrackedUsers(finalTargetId)),
       ]);
 
-      console.log("user data ->", userResult);
+      // console.log("user data ->", userResult);
 
       if (userResult?.user?.currentPaymentId) {
         const plan = userResult.user.currentPaymentId;

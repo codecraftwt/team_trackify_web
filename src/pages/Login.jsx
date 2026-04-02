@@ -41,7 +41,7 @@ const Login = () => {
 
       // For demo purposes, accept any credentials
       // In production, validate against your API
-      console.log('Login attempt:', data);
+      // console.log('Login attempt:', data);
       
       // Store token (mock)
       localStorage.setItem('token', 'mock-jwt-token');

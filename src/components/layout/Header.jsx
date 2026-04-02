@@ -442,15 +442,15 @@ const Header = ({ onMenuClick }) => {
     const localUser = JSON.parse(localStorage.getItem('user') || 'null');
     const localToken = localStorage.getItem('token');
     
-    console.log("🚀 Header.jsx - DASHBOARD CLICKED", { 
-      reduxAuth: { isAuthenticated, role_id, user: !!user },
-      localStorage: { hasToken: !!localToken, roleFromLocal: localUser?.role_id },
-      computed: { isAuth, effectiveRole, roleIdNum }
-    });
+    // console.log("🚀 Header.jsx - DASHBOARD CLICKED", { 
+    //   reduxAuth: { isAuthenticated, role_id, user: !!user },
+    //   localStorage: { hasToken: !!localToken, roleFromLocal: localUser?.role_id },
+    //   computed: { isAuth, effectiveRole, roleIdNum }
+    // });
 
     if (isAuth) {
       if (roleIdNum === 2) {
-        console.log("➡️ Navidating to Super Admin Dashboard");
+        // console.log("➡️ Navidating to Super Admin Dashboard");
         navigate('/super-admin/dashboard');
       } else if (roleIdNum === 1 || roleIdNum === 3 || roleIdNum === 0) {
         console.log("➡️ Navidating to Admin Dashboard (Role 0, 1, or 3)");

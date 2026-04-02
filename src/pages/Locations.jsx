@@ -265,7 +265,7 @@ const Locations = () => {
         if (session.locations && session.locations.length > 0) {
           const sessionId = String(session.sessionId || session._id);
           sessionDataCache.current.set(sessionId, session);
-          console.log("Cached session:", sessionId, "with locations:", session.locations.length);
+          // console.log("Cached session:", sessionId, "with locations:", session.locations.length);
         }
       });
     }
@@ -275,7 +275,7 @@ const Locations = () => {
   const processSessionData = useCallback((sessionData) => {
     if (!sessionData) return;
 
-    console.log("Processing session data:", sessionData.sessionId, "Locations:", sessionData.locations?.length);
+    // console.log("Processing session data:", sessionData.sessionId, "Locations:", sessionData.locations?.length);
 
     setSelectedSession(sessionData);
 
@@ -305,7 +305,7 @@ const Locations = () => {
         }, 100);
       }
     } else {
-      console.log("No valid locations found");
+      // console.log("No valid locations found");
       setHasLocations(false);
     }
   }, [showPhotoMarkers]);
@@ -315,9 +315,9 @@ const Locations = () => {
     (sessionId) => {
       const id = String(sessionId);
 
-      console.log("=== Session Click ===");
-      console.log("Selected ID:", id);
-      console.log("Current selected ID:", selectedSessionId);
+      // console.log("=== Session Click ===");
+      // console.log("Selected ID:", id);
+      // console.log("Current selected ID:", selectedSessionId);
 
       // Always update the selected session ID
       setSelectedSessionId(id);
@@ -325,7 +325,7 @@ const Locations = () => {
       // Check cache first
       if (sessionDataCache.current.has(id)) {
         const cachedSession = sessionDataCache.current.get(id);
-        console.log("Using cached session data:", id, "Locations:", cachedSession.locations?.length);
+        // console.log("Using cached session data:", id, "Locations:", cachedSession.locations?.length);
         processSessionData(cachedSession);
         return;
       }
@@ -337,7 +337,7 @@ const Locations = () => {
 
       if (foundSession?.locations && foundSession.locations.length > 0) {
         // Session already has location data
-        console.log("Session has location data, using directly");
+        // console.log("Session has location data, using directly");
         sessionDataCache.current.set(id, foundSession);
         processSessionData(foundSession);
       } else if (foundSession && !fetchedSessions.current.has(id)) {
@@ -345,21 +345,21 @@ const Locations = () => {
         const userId = metadata?.userId || foundSession?.userId;
 
         if (userId) {
-          console.log("Fetching session details for:", id);
+          // console.log("Fetching session details for:", id);
           fetchedSessions.current.add(id);
           dispatch(getSessionDetails({ userId, sessionId: id }));
         } else {
-          console.log("No userId found for session:", id);
+          // console.log("No userId found for session:", id);
           setSelectedSession(null);
           setHasLocations(false);
         }
       } else if (foundSession && fetchedSessions.current.has(id)) {
         // Already fetched, wait for Redux
-        console.log("Session already fetching, waiting for Redux data...");
+        // console.log("Session already fetching, waiting for Redux data...");
         setSelectedSession(null);
         setHasLocations(false);
       } else {
-        console.log("Session not found in allSessions");
+        // console.log("Session not found in allSessions");
         setSelectedSession(null);
         setHasLocations(false);
       }
@@ -372,7 +372,7 @@ const Locations = () => {
   // ── Watch for sessionDetails from Redux ───────────────────────────────────
   useEffect(() => {
     if (sessionDetails && String(sessionDetails.sessionId) === String(selectedSessionId)) {
-      console.log("Received session details from Redux");
+      // console.log("Received session details from Redux");
       // Cache the fetched data
       const sessionId = String(sessionDetails.sessionId);
       sessionDataCache.current.set(sessionId, sessionDetails);
@@ -386,10 +386,10 @@ const Locations = () => {
       let firstSessionId;
       if (initialSelectedSessionId) {
         firstSessionId = String(initialSelectedSessionId);
-        console.log("Using initial selected session ID:", firstSessionId);
+        // console.log("Using initial selected session ID:", firstSessionId);
       } else {
         firstSessionId = String(allSessions[0].sessionId || allSessions[0]._id);
-        console.log("Auto-selecting first session:", firstSessionId);
+        // console.log("Auto-selecting first session:", firstSessionId);
       }
       handleSessionSelect(firstSessionId);
     }
@@ -413,27 +413,27 @@ const Locations = () => {
   // ── Map: draw session ──────────────────────────────────────────────────────
   const drawMapWithSession = useCallback((session, showPhotos) => {
     if (!mapInstance.current) {
-      console.log("Map not initialized");
+      // console.log("Map not initialized");
       return;
     }
 
     if (!session?.locations || session.locations.length === 0) {
-      console.log("No locations to draw");
+      // console.log("No locations to draw");
       return;
     }
 
-    console.log("Drawing session on map:", session.sessionId, "Locations:", session.locations.length);
+    // console.log("Drawing session on map:", session.sessionId, "Locations:", session.locations.length);
     clearMap();
 
     const allLocations = session.locations || [];
     const validLocations = getValidLocations(allLocations);
 
     if (validLocations.length === 0) {
-      console.log("No valid locations to draw");
+      // console.log("No valid locations to draw");
       return;
     }
 
-    console.log("Valid locations:", validLocations.length);
+    // console.log("Valid locations:", validLocations.length);
 
     // Draw polyline segments
     for (let i = 0; i < validLocations.length - 1; i++) {
@@ -465,8 +465,8 @@ const Locations = () => {
     const allStartPoints = allLocations.filter(loc => loc.markerType === "start" || loc.id === 1);
     const allEndPoints = allLocations.filter(loc => loc.markerType === "end");
 
-    console.log("Start points found:", allStartPoints.length);
-    console.log("End points found:", allEndPoints.length);
+    // console.log("Start points found:", allStartPoints.length);
+    // console.log("End points found:", allEndPoints.length);
 
     // START marker
     let startPointToUse = startLocation;
@@ -477,7 +477,7 @@ const Locations = () => {
       startPointToUse = allStartPoints[0];
       startHasPhoto = true;
       startPhoto = allStartPoints[0].photo;
-      console.log("Using start point with photo");
+      // console.log("Using start point with photo");
     } else if (startLocation && hasValidPhoto(startLocation)) {
       startHasPhoto = true;
       startPhoto = startLocation.photo;
@@ -491,7 +491,7 @@ const Locations = () => {
       if ((markerLat === 0 && markerLng === 0) && validLocations.length > 0) {
         markerLat = getLat(validLocations[0]);
         markerLng = getLng(validLocations[0]);
-        console.log("Start point had 0,0, using first valid location");
+        // console.log("Start point had 0,0, using first valid location");
       }
 
       if (hasValidCoordinates({ latitude: markerLat, longitude: markerLng })) {
@@ -526,7 +526,7 @@ const Locations = () => {
           { icon: makeStartIcon("#22c55e", fmtTime(startPointToUse.timestamp), startHasPhoto, 32), zIndexOffset: 1000 }
         ).bindPopup(popupContent).addTo(mapInstance.current);
         markers.current.push(startM);
-        console.log("Start marker added at:", markerLat, markerLng);
+        // console.log("Start marker added at:", markerLat, markerLng);
       }
     }
 
@@ -539,7 +539,7 @@ const Locations = () => {
       endPointToUse = allEndPoints[0];
       endHasPhoto = true;
       endPhoto = allEndPoints[0].photo;
-      console.log("Using end point with photo");
+      // console.log("Using end point with photo");
     } else if (endLocation && hasValidPhoto(endLocation)) {
       endHasPhoto = true;
       endPhoto = endLocation.photo;
@@ -553,7 +553,7 @@ const Locations = () => {
       if ((markerLat === 0 && markerLng === 0) && validLocations.length > 0) {
         markerLat = getLat(validLocations[validLocations.length - 1]);
         markerLng = getLng(validLocations[validLocations.length - 1]);
-        console.log("End point had 0,0, using last valid location");
+        // console.log("End point had 0,0, using last valid location");
       }
 
       if (hasValidCoordinates({ latitude: markerLat, longitude: markerLng })) {
@@ -588,7 +588,7 @@ const Locations = () => {
           { icon: makeEndIcon("#ef4444", fmtTime(endPointToUse.timestamp), endHasPhoto, 32), zIndexOffset: 1000 }
         ).bindPopup(popupContent).addTo(mapInstance.current);
         markers.current.push(endM);
-        console.log("End marker added at:", markerLat, markerLng);
+        // console.log("End marker added at:", markerLat, markerLng);
       }
     }
 
@@ -601,7 +601,7 @@ const Locations = () => {
         return hasPhoto && !isStart && !isEnd;
       });
 
-      console.log("Additional photo locations:", photoLocations.length);
+      // console.log("Additional photo locations:", photoLocations.length);
 
       const firstValidLocation = validLocations.find(l => hasValidCoordinates(l));
       const defaultPosition = firstValidLocation
@@ -643,7 +643,7 @@ const Locations = () => {
     if (validLocations.length > 0) {
       const bounds = L.latLngBounds(validLocations.map(l => [getLat(l), getLng(l)]));
       mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
-      console.log("Map bounds set");
+      // console.log("Map bounds set");
     }
   }, []);
 
@@ -664,7 +664,7 @@ const Locations = () => {
 
     mapInstance.current = map;
     setIsMapInitialized(true);
-    console.log("Map initialized");
+    // console.log("Map initialized");
 
     // Draw if we already have a selected session
     if (selectedSession && selectedSession.locations) {
@@ -677,7 +677,7 @@ const Locations = () => {
   // ── Draw session when selectedSession changes ────────────────────────────
   useEffect(() => {
     if (mapInstance.current && selectedSession?.locations && selectedSession.locations.length > 0) {
-      console.log("Redrawing session on map due to selectedSession change");
+      // console.log("Redrawing session on map due to selectedSession change");
       setTimeout(() => {
         drawMapWithSession(selectedSession, showPhotoMarkers);
       }, 100);

@@ -887,9 +887,9 @@ const Pricing = () => {
 
   const { availablePlans = [] } = useSelector((state) => state.plan || {});
 
-  console.log("=========================================");
-  console.log("📍 PRICING PAGE LOADED");
-  console.log("=========================================");
+  // console.log("=========================================");
+  // console.log("📍 PRICING PAGE LOADED");
+  // console.log("=========================================");
 
   const getPlanIcon = (planName) => {
     const name = planName?.toLowerCase() || '';
@@ -981,14 +981,14 @@ const Pricing = () => {
   };
 
   const handleSelectPlan = (plan) => {
-    console.log("=========================================");
-    console.log("🎯 PLAN SELECTED IN PRICING PAGE");
-    console.log("Plan Details:", {
-      id: plan.id,
-      name: plan.name,
-      price: getPrice(plan),
-      billingCycle: billingCycle
-    });
+    // console.log("=========================================");
+    // console.log("🎯 PLAN SELECTED IN PRICING PAGE");
+    // console.log("Plan Details:", {
+    //   id: plan.id,
+    //   name: plan.name,
+    //   price: getPrice(plan),
+    //   billingCycle: billingCycle
+    // });
     
     const selectedPlanData = {
       id: plan.id,
@@ -1004,14 +1004,14 @@ const Pricing = () => {
       color: plan.color,
     };
     
-    console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
+    // console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
     
     // Store in sessionStorage
     sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
-    console.log("💾 Saved to sessionStorage");
+    // console.log("💾 Saved to sessionStorage");
     
     // Navigate with state
-    console.log("🚀 Navigating to /register with state");
+    // console.log("🚀 Navigating to /register with state");
     navigate('/register', { 
       state: { 
         selectedPlan: selectedPlanData, 

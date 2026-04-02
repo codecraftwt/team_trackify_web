@@ -618,7 +618,7 @@ const ForgotPassword = () => {
       const timer = setTimeout(() => {
         setOpenSuccessAlert(false);
         dispatch(clearMessage());
-        console.log('Redirecting to OTP page with email:', submittedEmail);
+        // console.log('Redirecting to OTP page with email:', submittedEmail);
         
         // Navigate to OTP page with email in state
         navigate('/verify-otp', { 
@@ -648,7 +648,7 @@ const ForgotPassword = () => {
     if (forgotPassword.fulfilled.match(result)) {
       // Store email in local state for navigation
       setSubmittedEmail(data.email);
-      console.log('OTP sent successfully to:', data.email);
+      // console.log('OTP sent successfully to:', data.email);
     }
   };
 

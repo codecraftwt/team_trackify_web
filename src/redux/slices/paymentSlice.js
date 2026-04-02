@@ -140,7 +140,7 @@ export const getAllPaymentHistory = createAsyncThunk(
       const queryString = new URLSearchParams(cleanParams).toString();
       const url = `/payments/history${queryString ? `?${queryString}` : ''}`;
 
-      console.log("API Request:", url);
+      // console.log("API Request:", url);
 
       const response = await api.get(url);
       return response.data;
@@ -152,9 +152,19 @@ export const getAllPaymentHistory = createAsyncThunk(
 
 export const getRevenueSummary = createAsyncThunk(
   "payment/getRevenueSummary",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get("/payments/revenue-summary");
+      // Clean params - remove empty values
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/payments/revenue-summary${queryString ? `?${queryString}` : ""}`;
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

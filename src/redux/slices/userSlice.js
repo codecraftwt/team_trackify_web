@@ -722,9 +722,18 @@ export const deleteUser = createAsyncThunk(
 
 export const getUserCounts = createAsyncThunk(
   "user/getUserCounts",
-  async (adminId, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const url = "/users/user-counts";
+      // Clean params - remove empty values
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/users/user-counts${queryString ? `?${queryString}` : ""}`;
       const response = await api.get(url);
       return response.data;
     } catch (error) {
@@ -912,14 +921,14 @@ export const getUsersUnderAdmin = createAsyncThunk(
         throw new Error('Admin ID is required');
       }
 
-      console.log('Fetching users for admin:', adminId);
+      // console.log('Fetching users for admin:', adminId);
 
       // Using /Tracking prefix as per your router
       const response = await api.get(`/Tracking/admin/${adminId}/users`, {
         params: { page, limit, search }
       });
 
-      console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
+      // console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
 
       return response.data.data;
     } catch (error) {
@@ -951,7 +960,7 @@ export const getUserAvailableDates = createAsyncThunk(
       const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
         params: { date }  // Pass date as query param
       });
-      console.log(response.data, "Availables dates from api <==============================")
+      // console.log(response.data, "Availables dates from api <==============================")
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
@@ -1379,7 +1388,7 @@ const userSlice = createSlice({
       .addCase(getUserAvailableDates.fulfilled, (state, action) => {
         state.userAvailableDatesLoading = false;
         // Assuming the API returns sessions data
-        console.log("User availble dates ----->", action.payload)
+        // console.log("User availble dates ----->", action.payload)
         state.userTrackInfo = action.payload.sessions || [];  // Store sessions data
         state.userAvailableDates = action.payload.dates || [];
         state.currentMonthSummary = action.payload.currentMonth;
@@ -1415,7 +1424,7 @@ const userSlice = createSlice({
         // The API returns data in action.payload
         // Based on your controller, it should have: sessions, summary, pagination
 
-        console.log("Data get from the get user sessions by date ----->", action.payload)
+        // console.log("Data get from the get user sessions by date ----->", action.payload)
         state.userSessionsList = action.payload?.sessions || [];
         state.userSessionsSummary = action.payload?.summary || null;
         state.userSessionsPagination = action.payload?.pagination || {
@@ -1438,7 +1447,7 @@ const userSlice = createSlice({
         state.sessionDetailsLoading = false;
         state.sessionDetails = action.payload;
 
-        console.log("Data get from the API =---->", action.payload)
+        // console.log("Data get from the API =---->", action.payload)
 
         state.sessionLocations = action.payload.locations || [];
         state.sessionPhotos = action.payload.photos || [];
@@ -1467,6 +1476,16 @@ const userSlice = createSlice({
       .addCase(getUserSummary.rejected, (state, action) => {
         state.userSummaryLoading = false;
         state.userSummaryError = action.payload?.message || "Failed to fetch user summary";
+      })
+      // Clear user state on logout (listening to auth/logout)
+      .addCase("auth/logout", (state) => {
+        state.userInfo = {};
+        state.usersList = [];
+        state.adminUsersList = [];
+        state.userSummary = null;
+        state.activeUserLocations = [];
+        // localStorage is already handled in authSlice, but safe to keep here too
+        localStorage.removeItem("user");
       });
   },
 });

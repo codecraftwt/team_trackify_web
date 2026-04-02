@@ -2729,7 +2729,7 @@ const PaymentPlans = () => {
         try {
           await dispatch(getUserCustomPlan()).unwrap();
         } catch (error) {
-          console.log('No custom plan found for user');
+          // console.log('No custom plan found for user');
         } finally {
           setFetchingCustomPlan(false);
         }

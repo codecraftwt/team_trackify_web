@@ -224,13 +224,13 @@ const DashboardLayout = () => {
     const isRoleIdMissing = currentRoleId === null || currentRoleId === undefined;
 
     if (!isAuthenticated || !user || isRoleIdMissing) {
-      console.log("🔒 Access denied - redirecting to login", { 
-        isAuthenticated, 
-        hasUser: !!user, 
-        role_id,
-        userRole: user?.role_id,
-        currentRoleId 
-      });
+      // console.log("🔒 Access denied - redirecting to login", { 
+      //   isAuthenticated, 
+      //   hasUser: !!user, 
+      //   role_id,
+      //   userRole: user?.role_id,
+      //   currentRoleId 
+      // });
       navigate('/login', { replace: true });
     }
   }, [isAuthenticated, user, role_id, navigate]);

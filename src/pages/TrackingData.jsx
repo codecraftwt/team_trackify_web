@@ -919,13 +919,13 @@ const TrackingData = () => {
 const handleViewSingleSession = (session) => {
   if (!session) return;
 
-  console.log("Navigating to locations with session:", session);
+  // console.log("Navigating to locations with session:", session);
 
   // Get the session ID (use sessionId if available, fallback to _id)
   const sessionId = session.sessionId || session._id;
   
-  console.log("Selected Session ID:", sessionId);
-  console.log("All sessions:", sessionsData);
+  // console.log("Selected Session ID:", sessionId);
+  // console.log("All sessions:", sessionsData);
 
   // Pass all sessions + selected session ID
   sessionStorage.setItem("returningFromLocations", "true");

@@ -1219,19 +1219,19 @@ const Register = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  console.log("=========================================");
-  console.log("📍 REGISTER PAGE LOADED");
-  console.log("=========================================");
-  console.log("📦 location.state:", location.state);
-  console.log("📦 location.state?.selectedPlan:", location.state?.selectedPlan);
+  // console.log("=========================================");
+  // console.log("📍 REGISTER PAGE LOADED");
+  // console.log("=========================================");
+  // console.log("📦 location.state:", location.state);
+  // console.log("📦 location.state?.selectedPlan:", location.state?.selectedPlan);
 
   const selectedPlan = location.state?.selectedPlan || (() => {
     const stored = sessionStorage.getItem('selectedPlan');
-    console.log("💾 Reading from sessionStorage:", stored);
+    // console.log("💾 Reading from sessionStorage:", stored);
     return stored ? JSON.parse(stored) : null;
   })();
 
-  console.log("✅ Final selectedPlan in Register:", selectedPlan);
+  // console.log("✅ Final selectedPlan in Register:", selectedPlan);
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -1277,10 +1277,10 @@ const Register = () => {
   }, [timer, canResend, activeStep]);
 
   const onSubmit = async (data) => {
-    console.log("=========================================");
-    console.log("📝 REGISTRATION FORM SUBMITTED");
-    console.log("Form Data:", data);
-    console.log("Selected Plan during registration:", selectedPlan);
+    // console.log("=========================================");
+    // console.log("📝 REGISTRATION FORM SUBMITTED");
+    // console.log("Form Data:", data);
+    // console.log("Selected Plan during registration:", selectedPlan);
 
     setError('');
     setLoading(true);
@@ -1291,16 +1291,16 @@ const Register = () => {
     }
     try {
       const registrationData = { name: data.fullName, email: data.email, password: data.password, mobile_no: data.phone, address: data.address, role_id: "1", createdby: "null" };
-      console.log("🚀 Sending registration API request:", registrationData);
+      // console.log("🚀 Sending registration API request:", registrationData);
       const response = await axios.post(`${BASE_URL}/users/register`, registrationData);
-      console.log("✅ Registration API response:", response.data);
+      // console.log("✅ Registration API response:", response.data);
       if (response.data) {
         setSuccess(true);
         setRegisteredEmail(data.email);
 
         // IMPORTANT: Save selected plan to sessionStorage before moving to OTP step
         if (selectedPlan) {
-          console.log("💾 Saving selected plan to sessionStorage during registration:", selectedPlan);
+          // console.log("💾 Saving selected plan to sessionStorage during registration:", selectedPlan);
           sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
           sessionStorage.setItem('fromPricing', 'true');
         }
@@ -1310,11 +1310,11 @@ const Register = () => {
           setSuccess(false);
           setTimer(60);
           setCanResend(false);
-          console.log("➡️ Moving to OTP verification step");
+          // console.log("➡️ Moving to OTP verification step");
         }, 1500);
       }
     } catch (err) {
-      console.error("❌ Registration error:", err);
+      // console.error("❌ Registration error:", err);
       setError(err.response?.data?.message || 'Registration failed. Email may already be in use.');
     } finally { setLoading(false); }
   };
@@ -1343,11 +1343,11 @@ const Register = () => {
 
   const handleVerifyOtp = async () => {
     const otpString = otp.join('');
-    console.log("=========================================");
-    console.log("🔐 OTP VERIFICATION");
-    console.log("OTP Entered:", otpString);
-    console.log("Email:", registeredEmail);
-    console.log("Selected Plan during OTP:", selectedPlan);
+    // console.log("=========================================");
+    // console.log("🔐 OTP VERIFICATION");
+    // console.log("OTP Entered:", otpString);
+    // console.log("Email:", registeredEmail);
+    // console.log("Selected Plan during OTP:", selectedPlan);
 
     if (otpString.length !== 6) {
       setOtpError('Please enter complete 6-digit OTP');
@@ -1357,10 +1357,10 @@ const Register = () => {
     setOtpError('');
     try {
       const resultAction = await dispatch(verifyEmailOTP({ email: registeredEmail, otp: otpString }));
-      console.log("OTP verification result:", resultAction);
+      // console.log("OTP verification result:", resultAction);
 
       if (verifyEmailOTP.fulfilled.match(resultAction)) {
-        console.log("✅ OTP VERIFIED SUCCESSFULLY!");
+        // console.log("✅ OTP VERIFIED SUCCESSFULLY!");
         setOtpSuccess(true);
 
         // IMPORTANT: Ensure selectedPlan is saved before redirect
@@ -1370,11 +1370,11 @@ const Register = () => {
         })();
 
         if (planToPass) {
-          console.log("💾 Saving selected plan to sessionStorage before redirect:", planToPass);
+          // console.log("💾 Saving selected plan to sessionStorage before redirect:", planToPass);
           sessionStorage.setItem('selectedPlan', JSON.stringify(planToPass));
         }
 
-        console.log("🚀 Redirecting to login page with state:", { selectedPlan: planToPass });
+        // console.log("🚀 Redirecting to login page with state:", { selectedPlan: planToPass });
         setTimeout(() => {
           navigate('/login', {
             state: {
@@ -1386,7 +1386,7 @@ const Register = () => {
           });
         }, 2000);
       } else {
-        console.log("❌ OTP verification failed:", resultAction.payload);
+        // console.log("❌ OTP verification failed:", resultAction.payload);
         setOtpError(resultAction.payload?.message || 'Failed to verify OTP');
         setOtpSuccess(false);
       }
@@ -1398,19 +1398,19 @@ const Register = () => {
   };
 
   const handleResendOtp = async () => {
-    console.log("=========================================");
-    console.log("🔄 Resending OTP for email:", registeredEmail);
+    // console.log("=========================================");
+    // console.log("🔄 Resending OTP for email:", registeredEmail);
     setCanResend(false);
     setTimer(60);
     setOtpError('');
     try {
       const resultAction = await dispatch(resendEmailOTP({ email: registeredEmail }));
-      console.log("Resend OTP result:", resultAction);
+      // console.log("Resend OTP result:", resultAction);
       if (resendEmailOTP.fulfilled.match(resultAction)) {
-        console.log("✅ OTP resent successfully");
+        // console.log("✅ OTP resent successfully");
         setOtp(['', '', '', '', '', '']);
       } else {
-        console.log("❌ Failed to resend OTP:", resultAction.payload);
+        // console.log("❌ Failed to resend OTP:", resultAction.payload);
         setOtpError(resultAction.payload?.message || 'Failed to resend OTP');
         setCanResend(true);
         setTimer(0);
@@ -1424,7 +1424,7 @@ const Register = () => {
   };
 
   const handleBackToRegistration = () => {
-    console.log("⬅️ Going back to registration step");
+    // console.log("⬅️ Going back to registration step");
     setActiveStep(0);
     setOtp(['', '', '', '', '', '']);
     setOtpError('');

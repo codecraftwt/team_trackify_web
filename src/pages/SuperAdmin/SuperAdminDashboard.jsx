@@ -3177,7 +3177,7 @@
 // export default SuperAdminDashboard;
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -3205,10 +3205,14 @@ import {
   useMediaQuery,
   Skeleton,
   Button,
+  TextField,
+  Stack,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
   Visibility as VisibilityIcon,
+  FilterAlt as FilterAltIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -3613,6 +3617,8 @@ const SuperAdminDashboard = () => {
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Safe Redux state access
   const userCounts = useSelector((state) => state.user?.userCounts || {});
@@ -3622,10 +3628,10 @@ const SuperAdminDashboard = () => {
     (state) => state.payment || {}
   );
 
+  // Initial Load (One-time)
   useEffect(() => {
     dispatch(getUserCounts());
     dispatch(getUsersWithExpiringPlans());
-    dispatch(getRevenueSummary());
     dispatch(getPopularPlans());
 
     // Set first render loader to false after 1 second
@@ -3636,19 +3642,31 @@ const SuperAdminDashboard = () => {
     return () => clearTimeout(timer);
   }, [dispatch]);
 
+  // Date Filter Update (Revenue Only)
+  useEffect(() => {
+    const params = { startDate, endDate };
+    dispatch(getRevenueSummary(params));
+  }, [dispatch, startDate, endDate]);
+
   const refreshData = () => {
     setLastUpdated(new Date());
+    const params = { startDate, endDate };
     dispatch(getUserCounts());
     dispatch(getUsersWithExpiringPlans());
-    dispatch(getRevenueSummary());
+    dispatch(getRevenueSummary(params));
     dispatch(getPopularPlans());
+  };
+
+  const clearFilters = () => {
+    setStartDate("");
+    setEndDate("");
   };
 
   // Get only the first 10 users for the dashboard preview
   const recentExpiringUsers = expiringUsers.slice(0, 10);
 
-  // User Stats with responsive icons
-  const userStats = [
+  // User Stats with memoization to maintain stable references
+  const userStats = useMemo(() => [
     {
       key: "activeAdmins",
       label: "Active Admins",
@@ -3681,18 +3699,40 @@ const SuperAdminDashboard = () => {
       bgColor: alpha(theme.palette.secondary.main, 0.1),
       iconColor: theme.palette.secondary.main,
     },
-  ];
+  ], [userCounts, theme]);
 
-  // Stats Cards Component - Smaller height
-  const StatsCards = () => {
-    const itemVariants = {
-      hidden: { opacity: 0, y: 20 },
-      visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5 },
+  // Animation variants moved outside to maintain stable references
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
       },
-    };
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  // Stats Cards Component - Memoized to prevent redundant renders
+  const StatsCards = memo(({ userStats, isSmallMobile, isMobile, isTablet }) => {
+    const theme = useTheme();
 
     // Get grid columns based on screen size
     const getGridColumns = () => {
@@ -3710,116 +3750,110 @@ const SuperAdminDashboard = () => {
       >
         {userStats.map((stat, index) => (
           <Grid item xs={getGridColumns()} key={stat.key || index}>
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: index * 0.1 }}
+            <Paper
+              elevation={0}
+              sx={{
+                p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+                borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
+                background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+                border: "1px solid",
+                borderColor: alpha(stat.iconColor, 0.2),
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative",
+                overflow: "hidden",
+                height: '100%',
+                minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "100%",
+                  background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
+                  zIndex: 0,
+                },
+                "&:hover": {
+                  transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
+                  boxShadow: !isMobile ? `0 12px 20px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
+                  borderColor: stat.iconColor,
+                },
+              }}
             >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-                  borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-                  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
-                  border: "1px solid",
-                  borderColor: alpha(stat.iconColor, 0.2),
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  position: "relative",
-                  overflow: "hidden",
-                  height: '100%',
-                  minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "100%",
-                    background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
-                    zIndex: 0,
-                  },
-                  "&:hover": {
-                    transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
-                    boxShadow: !isMobile ? `0 12px 20px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
-                    borderColor: stat.iconColor,
-                  },
-                }}
-              >
-                <Box sx={{ position: "relative", zIndex: 1 }}>
-                  <Box sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexDirection: isSmallMobile ? "column" : "row",
-                    textAlign: isSmallMobile ? "center" : "left",
-                    gap: isSmallMobile ? 0.5 : 0,
-                  }}>
-                    <Box>
-                      <Typography
-                        variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
-                        fontWeight="700"
-                        sx={{
-                          mb: 0.15,
-                          color: 'text.primary',
-                          fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {stat.count}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
-                        }}
-                      >
-                        {stat.label}
-                      </Typography>
-                    </Box>
-                    <Avatar
+              <Box sx={{ position: "relative", zIndex: 1 }}>
+                <Box sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexDirection: isSmallMobile ? "column" : "row",
+                  textAlign: isSmallMobile ? "center" : "left",
+                  gap: isSmallMobile ? 0.5 : 0,
+                }}>
+                  <Box>
+                    <Typography
+                      variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
+                      fontWeight="700"
                       sx={{
-                        bgcolor: alpha(stat.iconColor, 0.1),
-                        color: stat.iconColor,
-                        width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                        height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        boxShadow: `0 4px 8px -3px ${alpha(stat.iconColor, 0.2)}`,
-                        '& svg': {
-                          fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
-                        },
+                        mb: 0.15,
+                        color: 'text.primary',
+                        fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
+                        lineHeight: 1.2,
                       }}
                     >
-                      {stat.icon}
-                    </Avatar>
+                      {stat.count}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
                   </Box>
+                  <Avatar
+                    sx={{
+                      bgcolor: alpha(stat.iconColor, 0.1),
+                      color: stat.iconColor,
+                      width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                      height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: `0 4px 8px -3px ${alpha(stat.iconColor, 0.2)}`,
+                      '& svg': {
+                        fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
+                      },
+                    }}
+                  >
+                    {stat.icon}
+                  </Avatar>
                 </Box>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    width: "100%",
-                    height: 2.5,
-                    background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
-                    opacity: 0.8,
-                  }}
-                />
-              </Paper>
-            </motion.div>
+              </Box>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  height: 2.5,
+                  background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
+                  opacity: 0.8,
+                }}
+              />
+            </Paper>
           </Grid>
         ))}
       </Grid>
     );
-  };
+  });
 
-  // Revenue Card Component - Smaller height
-  const RevenueCard = () => {
+  // Revenue Card Component - Memoized to prevent redundant renders
+  const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet }) => {
+    const theme = useTheme();
     return (
       <Paper
         elevation={0}
@@ -3993,35 +4027,8 @@ const SuperAdminDashboard = () => {
         </Grid>
       </Paper>
     );
-  };
+  });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.5 },
-    },
-  };
 
   // If first render loader is active, show skeletons for everything except title and refresh button
   if (showFirstRenderLoader) {
@@ -4250,10 +4257,10 @@ const SuperAdminDashboard = () => {
             </Box>
           </motion.div>
 
-          {/* Tracking Overview Section */}
-          <motion.section
-            variants={itemVariants}
-            style={{
+          {/* Tracking Overview Section - Animation Removed */}
+          <Box
+            component="section"
+            sx={{
               marginBottom: isSmallMobile ? "15px" : isMobile ? "20px" : isTablet ? "25px" : "30px"
             }}
           >
@@ -4297,8 +4304,13 @@ const SuperAdminDashboard = () => {
               />
             </Box>
 
-            <StatsCards />
-          </motion.section>
+            <StatsCards
+              userStats={userStats}
+              isSmallMobile={isSmallMobile}
+              isMobile={isMobile}
+              isTablet={isTablet}
+            />
+          </Box>
 
           {/* Revenue Overview Section - Moved up */}
           <motion.section
@@ -4309,29 +4321,81 @@ const SuperAdminDashboard = () => {
           >
             <Box sx={{
               display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
-              gap: 0.5,
               mb: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
               px: isSmallMobile ? 0.5 : 0,
+              flexWrap: "wrap",
+              gap: 1
             }}>
-              <FaRupeeSign style={{
-                color: theme.palette.primary.main,
-                fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
-              }} />
-              <Typography
-                variant={isSmallMobile ? "caption" : "body2"}
-                fontWeight="600"
-                color="text.primary"
-                sx={{
-                  fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.8rem' : isTablet ? '0.9rem' : '1rem'
-                }}
-              >
-                Revenue Overview
-              </Typography>
+              <Box sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+              }}>
+                <FaRupeeSign style={{
+                  color: theme.palette.primary.main,
+                  fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+                }} />
+                <Typography
+                  variant={isSmallMobile ? "caption" : "body2"}
+                  fontWeight="600"
+                  color="text.primary"
+                  sx={{
+                    fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.8rem' : isTablet ? '0.9rem' : '1rem'
+                  }}
+                >
+                  Revenue Overview
+                </Typography>
+              </Box>
+
+              {/* Date Filters specifically in this section title bar now as well for clarity */}
+              <Stack direction="row" spacing={1} alignItems="center">
+                <TextField
+                  label="From"
+                  type="date"
+                  size="small"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
+                    width: isSmallMobile ? "150px" : "140px",
+                    '& .MuiInputBase-root': { fontSize: '0.7rem', height: '30px' },
+                    '& .MuiInputLabel-root': { fontSize: '0.7rem' }
+                  }}
+                />
+                <TextField
+                  label="To"
+                  type="date"
+                  size="small"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
+                    width: isSmallMobile ? "150px" : "140px",
+                    '& .MuiInputBase-root': { fontSize: '0.7rem', height: '30px' },
+                    '& .MuiInputLabel-root': { fontSize: '0.7rem' }
+                  }}
+                />
+                {(startDate || endDate) && (
+                  <IconButton
+                    size="small"
+                    onClick={clearFilters}
+                    sx={{ color: theme.palette.error.main, width: 25, height: 25 }}
+                  >
+                    <ClearIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                )}
+              </Stack>
             </Box>
 
             <motion.div variants={cardVariants}>
-              <RevenueCard />
+              <RevenueCard
+                revenueSummary={revenueSummary}
+                isSmallMobile={isSmallMobile}
+                isMobile={isMobile}
+                isTablet={isTablet}
+              />
             </motion.div>
           </motion.section>
 

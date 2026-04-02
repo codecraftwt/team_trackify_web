@@ -59,7 +59,7 @@ const Register = () => {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1800));
 
-      console.log('Registration data:', data);
+      // console.log('Registration data:', data);
 
       // In real app → send to backend (POST /register or /signup)
       // For demo: mock successful registration + auto-login

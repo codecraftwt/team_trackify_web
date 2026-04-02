@@ -3959,7 +3959,7 @@ const Profile = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const userData = useSelector((state) => state.user?.userInfo || {});
-  const { role_id } = useSelector((state) => state.auth || {});
+  const { user, role_id } = useSelector((state) => state.auth || {});
   const { loading, config, configLoading, configUpdateLoading, configDeleteLoading } =
     useSelector((state) => state.user || {});
 
@@ -3993,6 +3993,12 @@ const Profile = () => {
   const toggleSecretKey = (f) => setShowSecretKeys((p) => ({ ...p, [f]: !p[f] }));
 
   useEffect(() => { if (isSuperAdmin) dispatch(getConfig()); }, [dispatch, isSuperAdmin]);
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(getUserById(user._id));
+    }
+  }, [dispatch, user?._id]);
 
   useEffect(() => {
     if (config) {
@@ -4122,9 +4128,10 @@ const Profile = () => {
   };
 
   const getRoleInfo = () => {
-    const id = userData?.role_id || role_id;
+    const id = role_id || userData?.role_id;
     if (id === 2) return { icon: <SuperAdminIcon />, label: "Super Admin", color: theme.palette.secondary.main };
     if (id === 1) return { icon: <AdminIcon />, label: "Admin", color: theme.palette.primary.main };
+    if (id === 3) return { icon: <AdminIcon />, label: "Sub-admin", color: theme.palette.info.main };
     return { icon: <PersonIcon />, label: "User", color: theme.palette.text.secondary };
   };
   const roleInfo = getRoleInfo();
@@ -4164,6 +4171,16 @@ const Profile = () => {
       ],
     },
   ];
+
+  const isStale = userData?._id && user?._id && userData._id !== user._id;
+
+  if (loading || isStale) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{
