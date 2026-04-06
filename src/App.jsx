@@ -129,7 +129,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-         
+
 
             {/* Protected Routes with Dashboard Layout */}
             <Route element={<ProtectedRoute requireAuth={true} />}>
@@ -143,11 +143,11 @@ function App() {
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
                 <Route path="/reset-password-profile" element={<ResetPasswordProfile />} />
-                
+
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
                 <Route path="/admin/live-locations" element={<ActiveUserLocations />} />
-                
+
 
 
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}
