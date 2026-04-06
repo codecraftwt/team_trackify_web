@@ -17,6 +17,7 @@ A modern, production-ready React application for GPS tracking and team managemen
 - Node.js (v16 or higher)
 - npm or yarn
 
+
 ## 🛠️ Installation
 
 1. **Clone the repository**

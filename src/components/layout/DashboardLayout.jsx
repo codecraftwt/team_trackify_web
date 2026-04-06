@@ -1,191 +1,308 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {
-  Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  IconButton,
-  useTheme,
-  useMediaQuery,
-  Avatar,
-  Tooltip,
-  Badge,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Sidebar from './Sidebar';           // ← your updated Sidebar (with collapsed prop)
-import { motion, AnimatePresence } from 'framer-motion';
+// import { useEffect, useState } from 'react';
+// import { Outlet, useNavigate } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import { Box, useMediaQuery, useTheme } from '@mui/material';
+// import Sidebar from './Sidebar';
+// import Navbar from './Navbar';
 
-const DRAWER_WIDTH = 280;
-const COLLAPSED_WIDTH = 72;
+// const DashboardLayout = () => {
+//   const navigate = useNavigate();
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
+  
+//   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+//   const [mobileOpen, setMobileOpen] = useState(false);
+  
+//   const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
 
-const DashboardLayout = ({ children }) => {
+//   // Check if user is authenticated
+//   useEffect(() => {
+//     if (!isAuthenticated || !user || !role_id) {
+//       navigate('/login', { replace: true });
+//     }
+//   }, [isAuthenticated, user, role_id, navigate]);
+
+//   // Close mobile sidebar when switching to desktop
+//   useEffect(() => {
+//     if (!isMobile) {
+//       setMobileOpen(false);
+//     }
+//   }, [isMobile]);
+
+//   const handleToggleSidebar = () => {
+//     if (isMobile) {
+//       // On mobile, toggle the mobile drawer
+//       setMobileOpen(!mobileOpen);
+//     } else {
+//       // On desktop, toggle collapse
+//       setSidebarCollapsed(!sidebarCollapsed);
+//     }
+//   };
+
+//   const handleSidebarClose = () => {
+//     setMobileOpen(false);
+//   };
+
+//   // Don't render if not authenticated
+//   if (!isAuthenticated || !user || !role_id) {
+//     return null;
+//   }
+
+//   return (
+//     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+//       {/* Sidebar - with mobile drawer support */}
+//       <Sidebar 
+//         collapsed={sidebarCollapsed}
+//         mobileOpen={mobileOpen}
+//         onClose={handleSidebarClose}
+//         isMobile={isMobile}
+//       />
+      
+//       {/* Right Side Container */}
+//       <Box 
+//         sx={{ 
+//           flexGrow: 1,
+//           ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '280px'),
+//           width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 280}px)`,
+//           minHeight: '100vh',
+//           display: 'flex',
+//           flexDirection: 'column',
+//           transition: 'margin 0.3s ease, width 0.3s ease',
+//           bgcolor: '#f5f5f5',
+//         }}
+//       >
+//         {/* Navbar */}
+//         <Navbar 
+//           sidebarCollapsed={sidebarCollapsed}
+//           onToggleSidebar={handleToggleSidebar}
+//           isMobile={isMobile}
+//           mobileOpen={mobileOpen}
+//         />
+        
+//         {/* Main Content Area */}
+//         <Box 
+//           component="main" 
+//           sx={{ 
+//             flexGrow: 1,
+//             // p: { xs: 2, sm: 3 },
+//             overflow: 'auto',
+//           }}
+//         >
+//           <Outlet />
+//         </Box>
+//       </Box>
+//     </Box>
+//   );
+// };
+
+// export default DashboardLayout;
+
+
+
+
+
+// import { useEffect, useState } from 'react';
+// import { Outlet, useNavigate } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import { Box, useMediaQuery, useTheme } from '@mui/material';
+// import Sidebar from './Sidebar';
+// import Navbar from './Navbar';
+
+// const DashboardLayout = () => {
+//   const navigate = useNavigate();
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
+
+//   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+//   const [mobileOpen, setMobileOpen] = useState(false);
+
+//   const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
+
+//   // Check if user is authenticated
+//   useEffect(() => {
+//     if (!isAuthenticated || !user || !role_id) {
+//       navigate('/login', { replace: true });
+//     }
+//   }, [isAuthenticated, user, role_id, navigate]);
+
+//   // Close mobile sidebar when switching to desktop
+//   useEffect(() => {
+//     if (!isMobile) {
+//       setMobileOpen(false);
+//     }
+//   }, [isMobile]);
+
+//   const handleToggleSidebar = () => {
+//     if (isMobile) {
+//       setMobileOpen(!mobileOpen);
+//     } else {
+//       setSidebarCollapsed(!sidebarCollapsed);
+//     }
+//   };
+
+//   const handleSidebarClose = () => {
+//     setMobileOpen(false);
+//   };
+
+//   // Don't render if not authenticated
+//   if (!isAuthenticated || !user || !role_id) {
+//     return null;
+//   }
+
+//   return (
+//     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+//       {/* Sidebar */}
+//       <Sidebar
+//         collapsed={sidebarCollapsed}
+//         mobileOpen={mobileOpen}
+//         onClose={handleSidebarClose}
+//         isMobile={isMobile}
+//       />
+
+//       {/* Right Side Container */}
+//       <Box
+//         sx={{
+//           flexGrow: 1,
+//           ml: isMobile ? 0 : (sidebarCollapsed ? '64px' : '220px'), // ← reduced from 72px/280px
+//           width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 64 : 220}px)`, // ← reduced from 72/280
+//           minHeight: '100vh',
+//           display: 'flex',
+//           flexDirection: 'column',
+//           transition: 'margin 0.3s ease, width 0.3s ease',
+//           bgcolor: '#f5f5f5',
+//         }}
+//       >
+//         {/* Navbar */}
+//         <Navbar
+//           sidebarCollapsed={sidebarCollapsed}
+//           onToggleSidebar={handleToggleSidebar}
+//           isMobile={isMobile}
+//           mobileOpen={mobileOpen}
+//         />
+
+//         {/* Main Content Area */}
+//         <Box
+//           component="main"
+//           sx={{
+//             flexGrow: 1,
+//             overflow: 'auto',
+//           }}
+//         >
+//           <Outlet />
+//         </Box>
+//       </Box>
+//     </Box>
+//   );
+// };
+
+// export default DashboardLayout;
+
+
+
+
+import { useEffect, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
+
+const DashboardLayout = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
-  const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false); // new: desktop collapse
 
-  const effectiveDrawerWidth = desktopCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH;
+  const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
 
-  const handleDrawerToggle = () => {
+  // Check if user is authenticated
+  useEffect(() => {
+    // Robustly determine the roleId (fallback to user object if main state is null)
+    const currentRoleId = role_id ?? user?.role_id;
+    const isRoleIdMissing = currentRoleId === null || currentRoleId === undefined;
+
+    if (!isAuthenticated || !user || isRoleIdMissing) {
+      // console.log("🔒 Access denied - redirecting to login", { 
+      //   isAuthenticated, 
+      //   hasUser: !!user, 
+      //   role_id,
+      //   userRole: user?.role_id,
+      //   currentRoleId 
+      // });
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, user, role_id, navigate]);
+
+  // Close mobile sidebar when switching to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileOpen(false);
+    }
+  }, [isMobile]);
+
+  const handleToggleSidebar = () => {
     if (isMobile) {
       setMobileOpen(!mobileOpen);
     } else {
-      setDesktopCollapsed(!desktopCollapsed);
+      setSidebarCollapsed(!sidebarCollapsed);
     }
   };
 
-  const drawerContent = (
-    <Sidebar collapsed={desktopCollapsed && !isMobile} onClose={() => setMobileOpen(false)} />
-  );
+  const handleSidebarClose = () => {
+    setMobileOpen(false);
+  };
+
+  // Don't render if not authenticated or role is truly missing
+  const currentRoleId = role_id ?? user?.role_id;
+  const isRoleIdMissing = currentRoleId === null || currentRoleId === undefined;
+
+  if (!isAuthenticated || !user || isRoleIdMissing) {
+    return null;
+  }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* AppBar – cleaner, modern look */}
-      <AppBar
-        position="fixed"
-        elevation={1}
-        sx={{
-          width: { md: `calc(100% - ${effectiveDrawerWidth}px)` },
-          ml: { md: `${effectiveDrawerWidth}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(8px)',
-          transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-        }}
-      >
-        <Toolbar sx={{ minHeight: { xs: 64, md: 72 } }}>
-          <IconButton
-            color="inherit"
-            aria-label={desktopCollapsed ? 'expand sidebar' : 'collapse sidebar'}
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, color: 'text.secondary' }}
-          >
-            {isMobile ? (
-              <MenuIcon />
-            ) : desktopCollapsed ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        mobileOpen={mobileOpen}
+        onClose={handleSidebarClose}
+        isMobile={isMobile}
+      />
 
-          <Box sx={{ flexGrow: 1 }} />
-
-          {/* Right side actions – modern pattern */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Tooltip title="Notifications">
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="error" variant="dot">
-                  <NotificationsNoneIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Account">
-              <IconButton sx={{ p: 0 }}>
-                <Avatar alt="User" src="/static/images/avatar/1.jpg" sx={{ width: 38, height: 38 }} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar – permanent on desktop, temporary on mobile */}
+      {/* Right Side Container */}
       <Box
-        component="nav"
-        sx={{
-          width: { md: effectiveDrawerWidth },
-          flexShrink: { md: 0 },
-          transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-        }}
-      >
-        {/* Mobile temporary drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              boxSizing: 'border-box',
-              bgcolor: 'background.paper',
-              borderRight: 'none',
-              boxShadow: theme.shadows[16],
-              borderRadius: 0, // No rounded corners
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-
-        {/* Desktop permanent + collapsible */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              width: effectiveDrawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 'none',
-              bgcolor: 'background.paper',
-              boxShadow: '1px 0 8px rgba(0,0,0,0.06)',
-              borderRadius: 0, // No rounded corners
-              transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-              overflowX: 'hidden',
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      </Box>
-
-      {/* Main Content – animated page transitions */}
-      <Box
-        component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, sm: 3, md: 4 },
-          width: { md: `calc(100% - ${effectiveDrawerWidth}px)` },
-          mt: { xs: '64px', md: '72px' },
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          bgcolor: 'background.default',
+          ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '240px'), // ← updated from 64px/220px to match new sidebar widths
+          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 240}px)`, // ← updated from 64/220 to match new sidebar widths
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'margin 0.3s ease, width 0.3s ease',
+          bgcolor: '#f5f5f5',
         }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname} // better exit animation per route
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        {/* Navbar */}
+        <Navbar
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleSidebar={handleToggleSidebar}
+          isMobile={isMobile}
+          mobileOpen={mobileOpen}
+        />
+
+        {/* Main Content Area */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            overflow: 'auto',
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

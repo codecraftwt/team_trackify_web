@@ -1,13 +1,12 @@
 import { createTheme } from '@mui/material/styles';
-
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#14b8a6',
-      light: '#2dd4bf',
-      dark: '#0d9488',
+      main: '#2f6eaa',
+      light: '#3088c7',
+      dark: '#1e4f7a',
       contrastText: '#ffffff',
-    },
+    }, 
     secondary: {
       main: '#f59e0b',
       light: '#fbbf24',
@@ -71,12 +70,12 @@ export const theme = createTheme({
           padding: '10px 24px',
           boxShadow: 'none',
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(20, 184, 166, 0.15)',
+            boxShadow: '0 4px 12px rgba(47, 110, 170, 0.15)',
           },
         },
         contained: {
           '&:hover': {
-            boxShadow: '0 6px 20px rgba(20, 184, 166, 0.23)',
+            boxShadow: '0 6px 20px rgba(47, 110, 170, 0.23)',
           },
         },
       },
@@ -108,4 +107,3 @@ export const theme = createTheme({
     },
   },
 });
-
