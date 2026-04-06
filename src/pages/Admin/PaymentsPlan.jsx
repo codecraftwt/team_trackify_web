@@ -2806,11 +2806,9 @@ const PaymentPlans = () => {
         dispatch(getPaymentHistory({ adminId: authUser._id }));
       }
 
-      // Clear verification data after 5 seconds
-      setTimeout(() => {
-        dispatch(clearVerificationData());
-        dispatch(setPaymentStatus('idle'));
-      }, 5000);
+      // Clear verification data IMMEDIATELY to prevent repeat toast on navigation
+      dispatch(clearVerificationData());
+      dispatch(setPaymentStatus('idle'));
     }
   }, [verificationData, dispatch, authUser?._id]);
 
@@ -2830,11 +2828,9 @@ const PaymentPlans = () => {
         dispatch(getPaymentHistory({ adminId: authUser._id }));
       }
 
-      // Clear verification data after 5 seconds
-      setTimeout(() => {
-        dispatch(clearVerificationData());
-        dispatch(setPaymentStatus('idle'));
-      }, 5000);
+      // Clear verification data IMMEDIATELY to prevent repeat toast on navigation
+      dispatch(clearVerificationData());
+      dispatch(setPaymentStatus('idle'));
     }
   }, [addOnVerificationData, dispatch, authUser?._id]);
 

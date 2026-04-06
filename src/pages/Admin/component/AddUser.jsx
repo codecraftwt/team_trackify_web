@@ -2495,10 +2495,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       payload.append("removeAvtar", "true");
     }
 
-    // Set permissions based on checkbox (admin_panel = access, [] = blocked)
+   
     const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
     payload.append("permissions", JSON.stringify(permissions));
-    // Log payload for debugging
+    
     for (let pair of payload.entries()) {
     }
 

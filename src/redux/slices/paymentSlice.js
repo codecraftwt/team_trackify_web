@@ -100,7 +100,7 @@ export const verifyPayment = createAsyncThunk(
         paymentId,
       });
 
-      toast.success(response.data.message || "Payment verified successfully");
+      // toast.success(response.data.message || "Payment verified successfully");
 
       return response.data;
     } catch (error) {
@@ -336,6 +336,8 @@ const paymentSlice = createSlice({
     clearVerificationData: (state) => {
       state.verificationData = null;
       state.verificationError = null;
+      state.addOnVerificationData = null;
+      state.addOnVerificationError = null;
     },
   },
   extraReducers: (builder) => {

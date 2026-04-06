@@ -358,21 +358,36 @@ const UserCard = ({
           },
         }}
       >
-        {isBulkMode && (
-          <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1 }}>
+          <Box 
+            sx={{ 
+              position: 'absolute', 
+              top: 10, 
+              left: 10, 
+              zIndex: 1,
+              cursor: 'pointer',
+              p: 0.5,
+              borderRadius: 1,
+              '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) }
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(userId);
+            }}
+          >
             <Checkbox
               checked={isSelected}
               onChange={() => onSelect(userId)}
+              onClick={(e) => e.stopPropagation()}
               size="small"
               sx={{
                 color: theme.palette.primary.main,
                 '&.Mui-checked': {
                   color: theme.palette.primary.main,
                 },
+                p: 0
               }}
             />
           </Box>
-        )}
 
         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
@@ -646,10 +661,22 @@ const ResponsiveTable = ({
                 }}
               >
                 {isBulkMode && (
-                  <TableCell padding="checkbox" sx={{ pl: 2 }}>
+                  <TableCell 
+                    padding="checkbox" 
+                    sx={{ 
+                      pl: 2, 
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) } 
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectUser(user._id || user.id);
+                    }}
+                  >
                     <Checkbox
                       checked={selectedUsers.includes(user._id || user.id)}
                       onChange={() => handleSelectUser(user._id || user.id)}
+                      onClick={(e) => e.stopPropagation()}
                       size="small"
                       sx={{ color: theme.palette.primary.main }}
                     />
@@ -2047,8 +2074,8 @@ const UserManagement = () => {
             {!isLoading && isBulkMode && (
               <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Checkbox
-                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
-                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
+                  checked={paginatedUsers.length > 0 && paginatedUsers.every(user => selectedUsers.includes(user._id || user.id))}
+                  indeterminate={selectedUsers.length > 0 && !paginatedUsers.every(user => selectedUsers.includes(user._id || user.id)) && paginatedUsers.some(user => selectedUsers.includes(user._id || user.id))}
                   onChange={handleSelectAll}
                   size="small"
                   sx={{ color: theme.palette.primary.main }}
@@ -2118,8 +2145,8 @@ const UserManagement = () => {
             {!isLoading && isBulkMode && (
               <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Checkbox
-                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
-                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
+                  checked={paginatedUsers.length > 0 && paginatedUsers.every(user => selectedUsers.includes(user._id || user.id))}
+                  indeterminate={selectedUsers.length > 0 && !paginatedUsers.every(user => selectedUsers.includes(user._id || user.id)) && paginatedUsers.some(user => selectedUsers.includes(user._id || user.id))}
                   onChange={handleSelectAll}
                   size="small"
                   sx={{ color: theme.palette.primary.main }}
