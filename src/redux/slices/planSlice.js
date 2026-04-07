@@ -171,11 +171,11 @@ export const getUserCustomPlan = createAsyncThunk(
       // console.log(response.data);
 
     } catch (error) {
-      console.error("Error fetching user custom plan:", error);
       const errorMessage = error.response?.data?.message || "Failed to fetch custom plan";
 
-      // Don't show error toast for 404 (no custom plan found)
+      // Don't log or show error toast for 404 (no custom plan found)
       if (error.response?.status !== 404) {
+        console.error("Error fetching user custom plan:", error);
         toast.error(errorMessage);
       }
 

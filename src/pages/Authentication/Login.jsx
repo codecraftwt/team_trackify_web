@@ -651,8 +651,8 @@ useEffect(() => {
     setTimeout(() => {
       setOpenSuccessAlert(false);
       dispatch(clearMessage()); // Assuming clearMessage resets success state if needed
-      sessionStorage.removeItem('selectedPlan');
-      sessionStorage.removeItem('fromPricing');
+      // sessionStorage.removeItem('selectedPlan');
+      // sessionStorage.removeItem('fromPricing');
       // console.log("➡️ Navigating now:", redirectPath);
       navigate(redirectPath, { replace: true });
     }, 1500);
