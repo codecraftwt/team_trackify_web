@@ -156,7 +156,7 @@ export const getUserCustomPlan = createAsyncThunk(
     try {
       const response = await api.get("/plans/custom/my-plan");
       return response.data;
-      console.log(response.data);
+      // console.log(response.data);
 
     } catch (error) {
       console.error("Error fetching user custom plan:", error);

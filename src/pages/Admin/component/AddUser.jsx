@@ -2130,7 +2130,7 @@ import { registerUser, updateUser } from "../../../redux/slices/userSlice";
 import { toast } from "react-toastify";
 
 const AddUser = ({ open, onClose, editingUser = null }) => {
-  console.log("Editing user data ------------------------>", editingUser);
+  // console.log("Editing user data ------------------------>", editingUser);
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -2215,7 +2215,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   useEffect(() => {
     if (editingUser) {
-      console.log("Setting form data from editingUser:", editingUser);
+      // console.log("Setting form data from editingUser:", editingUser);
       setFormData({ 
         fullName: editingUser.name || "",
         email: editingUser.email || "",
@@ -2225,7 +2225,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         avtar: null,
       });
       setImageRemoved(false);
-      console.log("editingUser:", editingUser);
+      // console.log("editingUser:", editingUser);
 
       if (editingUser.avtar) {
         setPreviewImage(editingUser.avtar);
@@ -2415,7 +2415,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("handle submit called ..........................");
+    // console.log("handle submit called ..........................");
 
     if (!validateForm()) return;
     
@@ -2442,7 +2442,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     if (editingUser) {
       // For Super Admin, if you want to allow role change, you can add a role selector
       // For now, we skip sending role_id to preserve existing role
-      console.log("Editing user - skipping role_id to preserve existing role");
+      // console.log("Editing user - skipping role_id to preserve existing role");
     } else {
       // For new users, set role based on creator
       if (isSuperAdmin) {
@@ -2462,16 +2462,16 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     }
 
     // Log payload for debugging
-    console.log("Payload entries:");
+    // console.log("Payload entries:");
     for (let pair of payload.entries()) {
-      console.log(pair[0], pair[1]);
+      // console.log(pair[0], pair[1]);
     }
 
     try {
-      console.log("inside the try... ");
+      // console.log("inside the try... ");
       if (editingUser) {
         const userId = editingUser._id || editingUser.id;
-        console.log("calling the update user API for userId:", userId);
+        // console.log("calling the update user API for userId:", userId);
         
         if (!userId) {
           throw new Error("User ID is missing");
@@ -2480,19 +2480,17 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         const result = await dispatch(
           updateUser({ userId: userId, formData: payload })
         ).unwrap();
-        console.log("Update result:", result);
-        toast.success("User updated successfully!");
+        // console.log("Update result:", result);
+        // toast.success("User updated successfully!");
       } else {
         payload.append("password", formData.password);
         payload.append("confirmPassword", formData.confirmPassword);
         await dispatch(registerUser(payload)).unwrap();
-        toast.success("User created successfully!");
+        // toast.success("User created successfully!");
       }
       onClose(true); // Pass true to indicate success and refresh data
     } catch (error) {
-      console.log("getting error -------->", error);
-      console.error("Submission error:", error);
-      toast.error(error?.message || error?.response?.data?.message || "Operation failed");
+            // toast.error(error?.message || error?.response?.data?.message || "Operation failed");
     } finally {
       setSubmitting(false);
     }

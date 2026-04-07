@@ -834,7 +834,7 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
       <Table sx={{ minWidth: isTablet ? 1200 : 1300 }}>
         <TableHead>
           <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-            {["#", "Profile", "Name", "Email", "Mobile", "Status", "Address", "Created", "Updated", "Actions"].map(
+            {["#", "Profile", "Name", "Email", "Mobile",  "Address", "Actions"].map(
               (col) => (
                 <TableCell
                   key={col}
@@ -900,7 +900,7 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
                   </Typography>
                 </Box>
               </TableCell>
-              <TableCell align="center" sx={{ py: 1 }}>
+              {/* <TableCell align="center" sx={{ py: 1 }}>
                 <Chip
                   icon={user.isActive ? <ActiveIcon sx={{ fontSize: 13 }} /> : <InactiveIcon sx={{ fontSize: 13 }} />}
                   label={user.isActive ? "Active" : "Inactive"}
@@ -913,13 +913,13 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
                     height: { xs: 22, sm: 23, md: 24 },
                   }}
                 />
-              </TableCell>
+              </TableCell> */}
               <TableCell sx={{ py: 1 }}>
                 <Typography variant="body2" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, maxWidth: 180, color: "text.secondary" }}>
                   {user.address || "—"}
                 </Typography>
               </TableCell>
-              <TableCell sx={{ py: 1 }}>
+              {/* <TableCell sx={{ py: 1 }}>
                 <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
                   {formatDateDDMMYYYY(user.createdAt)}
                 </Typography>
@@ -928,7 +928,7 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
                 <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
                   {formatDateDDMMYYYY(user.updatedAt)}
                 </Typography>
-              </TableCell>
+              </TableCell> */}
               <TableCell align="center" sx={{ py: 1 }}>
                 <Tooltip title="View Tracking">
                   <IconButton
@@ -1247,7 +1247,7 @@ const PlanHistoryCard = ({ payment, onViewPayment, theme }) => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>Payment Status:</Typography>
               <Chip
                 label={
@@ -1276,9 +1276,9 @@ const PlanHistoryCard = ({ payment, onViewPayment, theme }) => {
                   height: 18,
                 }}
               />
-            </Box>
+            </Box> */}
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>Plan Status:</Typography>
               <Chip
                 label={isExpired ? "Expired" : "Active"}
@@ -1291,7 +1291,7 @@ const PlanHistoryCard = ({ payment, onViewPayment, theme }) => {
                   height: 18,
                 }}
               />
-            </Box>
+            </Box> */}
 
             <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
 

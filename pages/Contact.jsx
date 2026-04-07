@@ -1113,7 +1113,7 @@ const Contact = () => {
         message: data.message,
       };
       const result = await dispatch(createContact(contactData)).unwrap();
-      console.log('Contact form submitted:', result);
+      // console.log('Contact form submitted:', result);
       setIsSending(false);
       setSubmitted(true);
       reset();

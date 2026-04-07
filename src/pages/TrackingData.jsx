@@ -160,14 +160,14 @@
 //   // };
 // // Handle navigation to locations page for a SINGLE SESSION
 // const handleViewSingleSession = (session) => {
- 
+
 //   if (!session) return;
 
 //   console.log("Navigating to locations with session:", session);
 
 //   // Get the session ID (use sessionId if available, fallback to _id)
 //   const sessionId = session.sessionId || session._id;
-  
+
 //   console.log("Selected Session ID:", sessionId);
 //   console.log("All sessions:", sessionsData);
 
@@ -706,7 +706,7 @@
 //                                 {/* {item.totalDistance?.toFixed(2) || 0} km */}
 //                                 {/* {item.totalDistance ? (item.totalDistance / 1000).toFixed(2) : "0.00"} km */}
 //                               {item.totalDistance ? Math.floor((item.totalDistance / 1000) * 10) / 10 : 0} km
-                              
+
 //                               </span>
 //                             </small>
 //                           </div>
@@ -2092,8 +2092,8 @@ const TrackingData = () => {
       isActive: session.isActive,
       totalUploadedPhotos: session.totalUploadedPhotos,
       // Calculate duration from start and end time
-      duration: session.startTime && session.endTime 
-        ? (new Date(session.endTime) - new Date(session.startTime)) / 1000 
+      duration: session.startTime && session.endTime
+        ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
         : 0,
       // Basic info without full locations (will be fetched when clicked)
       hasFullData: false
@@ -2140,8 +2140,8 @@ const TrackingData = () => {
       totalDistance: session.totalDistance,
       isActive: session.isActive,
       totalUploadedPhotos: session.totalUploadedPhotos,
-      duration: session.startTime && session.endTime 
-        ? (new Date(session.endTime) - new Date(session.startTime)) / 1000 
+      duration: session.startTime && session.endTime
+        ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
         : 0,
       hasFullData: false
     }));
@@ -2497,7 +2497,7 @@ const TrackingData = () => {
                     div::-webkit-scrollbar-thumb:hover { background: ${alpha(theme.palette.primary.main, 0.5)}; }
                   `}</style>
 
-                  {sessions.map((item, index) => {
+                  {/* {sessions.slice().reverse().map((item, index) => {
                     // Calculate duration from start and end time
                     const duration = item.startTime && item.endTime 
                       ? (new Date(item.endTime) - new Date(item.startTime)) / 1000 
@@ -2614,10 +2614,135 @@ const TrackingData = () => {
                         </Card.Body>
                       </Card>
                     );
-                  })}
+                  })} */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(280px, 300px))",
+                    gap: "1rem",
+                    justifyContent: "flex-start"
+                  }}>
+                    {sessions.slice().reverse().map((item, index) => {
+                      // Calculate duration from start and end time
+                      const duration = item.startTime && item.endTime
+                        ? (new Date(item.endTime) - new Date(item.startTime)) / 1000
+                        : 0;
+
+                      return (
+                        <Card
+                          key={item.sessionId || index}
+                          className="border-0 shadow-sm"
+                          style={{ borderRadius: "8px" }}
+                        >
+                          <Card.Body className="p-2">
+                            <div className="d-flex flex-column">
+                              <div className="d-flex align-items-center mb-2">
+                                <div className="me-2">
+                                  <FaRoute size={14} style={{ color: theme.palette.primary.main }} />
+                                </div>
+                                <div>
+                                  <h6
+                                    className="fw-semibold mb-0"
+                                    style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
+                                  >
+                                    Session #{index + 1}
+                                  </h6>
+                                  <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                                    {formatTime(item?.startTime)}
+                                  </small>
+                                </div>
+                              </div>
+
+                              <div className="row g-1 mb-1">
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center">
+                                    <FaClock className="me-1" style={{ color: "#22C55E", fontSize: "0.7rem" }} />
+                                    <div>
+                                      <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
+                                        Check In
+                                      </small>
+                                      <span style={{ fontSize: "0.65rem", color: theme.palette.text.primary }}>
+                                        {formatTime(item?.startTime)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="col-6">
+                                  <div className="d-flex align-items-center">
+                                    <FaClock className="me-1" style={{ color: "#F59E0B", fontSize: "0.7rem" }} />
+                                    <div>
+                                      <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
+                                        Check Out
+                                      </small>
+                                      <span style={{ fontSize: "0.65rem", color: theme.palette.text.primary }}>
+                                        {item.endTime ? formatTime(item.endTime) : "Active"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="d-flex align-items-center mb-1">
+                                <FaMapMarkerAlt
+                                  className="me-1"
+                                  style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
+                                />
+                                <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                                  {item?.totalUploadedPhotos || 0} photos
+                                </small>
+                              </div>
+
+                              <div className="d-flex align-items-center mb-1">
+                                <FaRoute
+                                  className="me-1"
+                                  style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
+                                />
+                                <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                                  Distance:{" "}
+                                  <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
+                                    {item.totalDistance
+                                      ? Math.floor((item.totalDistance / 1000) * 10) / 10
+                                      : 0}{" "}
+                                    km
+                                  </span>
+                                </small>
+                              </div>
+
+                              <div className="d-flex align-items-center mb-2">
+                                <TimerIcon sx={{ fontSize: 12, color: "#FF9800", marginRight: "4px" }} />
+                                <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                                  Duration:{" "}
+                                  <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
+                                    {formatDuration(duration)}
+                                  </span>
+                                </small>
+                              </div>
+
+                              <Button
+                                variant="success"
+                                className="d-flex align-items-center justify-content-center w-100"
+                                onClick={() => handleViewSingleSession(item)}
+                                style={{
+                                  borderRadius: "4px",
+                                  whiteSpace: "nowrap",
+                                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                                  borderColor: theme.palette.primary.main,
+                                  fontSize: "0.65rem",
+                                  padding: "0.25rem 0.5rem",
+                                  border: "none",
+                                }}
+                              >
+                                <FaEye className="me-1" style={{ fontSize: "0.6rem" }} />
+                                View Session
+                              </Button>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                
+
               </>
             )}
           </div>

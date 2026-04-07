@@ -897,14 +897,14 @@ export const getUsersUnderAdmin = createAsyncThunk(
         throw new Error('Admin ID is required');
       }
 
-      console.log('Fetching users for admin:', adminId);
+      // console.log('Fetching users for admin:', adminId);
 
       // Using /Tracking prefix as per your router
       const response = await api.get(`/Tracking/admin/${adminId}/users`, {
         params: { page, limit, search }
       });
 
-      console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
+      // console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
 
       return response.data.data;
     } catch (error) {
@@ -936,7 +936,7 @@ export const getUserAvailableDates = createAsyncThunk(
       const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
         params: { date }  // Pass date as query param
       });
-      console.log(response.data, "Availables dates from api <==============================")
+      // console.log(response.data, "Availables dates from api <==============================")
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
@@ -1018,7 +1018,7 @@ export const checkUserSubscription = createAsyncThunk(
   async (_, { rejectWithValue, getState }) => {
     try {
       const response = await api.get("users/user/check-subscription");
-      console.log("Subscription check response:", response.data);
+      // console.log("Subscription check response:", response.data);
       
       // Get current user role
       const state = getState();
@@ -1026,7 +1026,7 @@ export const checkUserSubscription = createAsyncThunk(
                        state.user?.userInfo?.role_id || 
                        JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
       
-      console.log("User Role:", userRole);
+      // console.log("User Role:", userRole);
       
       // If role_id is 2 (Super Admin), return modified response
       if (userRole === 2) {
@@ -1425,7 +1425,7 @@ const userSlice = createSlice({
       .addCase(getUserAvailableDates.fulfilled, (state, action) => {
         state.userAvailableDatesLoading = false;
         // Assuming the API returns sessions data
-        console.log("User availble dates ----->", action.payload)
+        // console.log("User availble dates ----->", action.payload)
         state.userTrackInfo = action.payload.sessions || [];  // Store sessions data
         state.userAvailableDates = action.payload.dates || [];
         state.currentMonthSummary = action.payload.currentMonth;
@@ -1461,7 +1461,7 @@ const userSlice = createSlice({
         // The API returns data in action.payload
         // Based on your controller, it should have: sessions, summary, pagination
 
-        console.log("Data get from the get user sessions by date ----->", action.payload)
+        // console.log("Data get from the get user sessions by date ----->", action.payload)
         state.userSessionsList = action.payload?.sessions || [];
         state.userSessionsSummary = action.payload?.summary || null;
         state.userSessionsPagination = action.payload?.pagination || {
@@ -1484,7 +1484,7 @@ const userSlice = createSlice({
         state.sessionDetailsLoading = false;
         state.sessionDetails = action.payload;
 
-        console.log("Data get from the API =---->", action.payload)
+        // console.log("Data get from the API =---->", action.payload)
 
         state.sessionLocations = action.payload.locations || [];
         state.sessionPhotos = action.payload.photos || [];
@@ -1531,7 +1531,7 @@ const userSlice = createSlice({
         state.subscription.amount = action.payload.amount;
         state.subscription.expiresAt = action.payload.expiresAt;
 
-        console.log("Subscription updated in state:", state.subscription);
+        // console.log("Subscription updated in state:", state.subscription);
       })
       .addCase(checkUserSubscription.rejected, (state, action) => {
         state.subscription.loading = false;

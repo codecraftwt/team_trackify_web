@@ -769,7 +769,7 @@ const RecentActivities = ({ users, loading }) => {
             <Chip
               label={`View All (${users.length})`}
               size="small"
-              onClick={() => console.log("View all clicked")}
+              // onClick={() => console.log("View all clicked")}
               sx={{
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
@@ -868,14 +868,14 @@ const AdminDashboard = () => {
 
   const userState = useSelector((state) => state.user || {});
   const userData = userState.userInfo || {};
-  console.log("UserData=====>", userData);
+  // console.log("UserData=====>", userData);
   const lastTrackedUsers = userState.lastTrackedUsers || [];
   const loading = userState.loading || false;
 
   // Consolidated data fetching function
   const fetchAllData = useCallback(async (isInitialLoad = false) => {
     if (!userData?._id) {
-      console.log("No user ID available");
+      // console.log("No user ID available");
       setIsLoading(false);
       return;
     }
@@ -889,7 +889,7 @@ const AdminDashboard = () => {
 
       const userResult = await dispatch(getUserById(userData._id)).unwrap();
 
-      console.log("yser data ->", userResult)
+      // console.log("yser data ->", userResult)
 
       if (userResult?.user?.currentPaymentId) {
         const plan = userResult.user.currentPaymentId;
@@ -915,7 +915,7 @@ const AdminDashboard = () => {
       //   dispatch(getAllUsers(userData._id))
       // ]);
       const adminId = userData._id; // use _id as adminId
-      console.log("adminId from current loc", adminId)
+      // console.log("adminId from current loc", adminId)
       if (!adminId) {
         console.error("Admin ID is missing, cannot fetch locations");
         return;
@@ -938,6 +938,7 @@ const AdminDashboard = () => {
         setTotalActiveUsers(users.filter(u => u.isActive).length);
         setTotalInActiveUsers(users.filter(u => !u.isActive).length);
         setTotalUsers(users.length);
+        
       } else {
         // Set all counts to 0 if no users
         setCheckedOutCount(0);
@@ -946,6 +947,7 @@ const AdminDashboard = () => {
         setTotalInActiveUsers(0);
         setTotalUsers(0);
       }
+        // console.log(users);
 
       setLastUpdated(new Date());
 

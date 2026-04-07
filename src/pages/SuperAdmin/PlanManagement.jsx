@@ -3208,7 +3208,7 @@ import {
   getAllPlans,
   updatePlan,
 } from "../../redux/slices/planSlice";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import PlanModal from "../../components/PlanModal";
 
@@ -3479,7 +3479,7 @@ const PlanManagement = () => {
     if (deletePlanId) {
       try {
         await dispatch(deletePlan(deletePlanId)).unwrap();
-        toast.success("Plan deleted successfully!");
+        // toast.success("Plan deleted successfully!");
         setShowDeleteModal(false);
         fetchPlans(); // Refresh after delete
       } catch (error) {
@@ -4059,6 +4059,20 @@ const PlanManagement = () => {
         px: { xs: 1, sm: 2, md: 3 },
       }}
     >
+      <ToastContainer 
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            style={{ zIndex: 9999 }}
+        />
+  
       <Container
         maxWidth="xl"
         disableGutters={isMobile}

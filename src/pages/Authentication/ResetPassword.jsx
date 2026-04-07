@@ -1063,7 +1063,7 @@ import {
   TextField,
   Button,
   Typography,
-  InputAdornment, 
+  InputAdornment,
   IconButton,
   Alert,
   Card,
@@ -1082,6 +1082,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { resetPassword, clearError, clearMessage } from '../../redux/slices/authSlice';
 import Logo from '../../assets/logo31.png';
+import { ToastContainer,toast  } from 'react-toastify';
 
 const ResetPassword = () => {
   const theme = useTheme();
@@ -1124,18 +1125,30 @@ const ResetPassword = () => {
   }, [location, navigate]);
 
   // Handle success alert
-  useEffect(() => {
-    if (success && message) {
-      setOpenSuccessAlert(true);
-      const timer = setTimeout(() => {
-        setOpenSuccessAlert(false);
-        dispatch(clearMessage());
-        navigate('/login', { replace: true });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success, message, dispatch, navigate]);
-
+  // useEffect(() => {
+  //   if (success && message) {
+  //     setOpenSuccessAlert(true);
+  //     const timer = setTimeout(() => {
+  //       setOpenSuccessAlert(false);
+  //       dispatch(clearMessage());
+  //       navigate('/login', { replace: true });
+  //     }, 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [success, message, dispatch, navigate]);
+// Handle success alert
+useEffect(() => {
+  if (success && message) {
+    toast.success(message || 'Password reset successful! Redirecting to login...');
+    setOpenSuccessAlert(true);
+    const timer = setTimeout(() => {
+      setOpenSuccessAlert(false);
+      dispatch(clearMessage());
+      navigate('/login', { replace: true });
+    }, 3000);
+    return () => clearTimeout(timer);
+  }
+}, [success, message, dispatch, navigate]);
   // Clear messages on unmount
   useEffect(() => {
     return () => {
@@ -1144,16 +1157,51 @@ const ResetPassword = () => {
     };
   }, [dispatch]);
 
-  const onSubmit = async (data) => {
-    dispatch(clearError());
-    dispatch(clearMessage());
+  // const onSubmit = async (data) => {
+  //   dispatch(clearError());
+  //   dispatch(clearMessage());
 
-    await dispatch(resetPassword({
-      email: email,
-      otp: otp,
-      newPassword: data.password
-    }));
-  };
+  //   await dispatch(resetPassword({
+  //     email: email,
+  //     otp: otp,
+  //     newPassword: data.password
+  //   }));
+  // };
+  // Show error toast when error occurs
+
+const onSubmit = async (data) => {
+  // Show validation toasts if needed
+  if (data.password !== data.confirmPassword) {
+    toast.error('Passwords do not match');
+    return;
+  }
+  
+  if (data.password.length < 6) {
+    toast.error('Password must be at least 6 characters');
+    return;
+  }
+  
+  dispatch(clearError());
+  dispatch(clearMessage());
+  toast.info('Resetting password...');
+
+  const result = await dispatch(resetPassword({
+    email: email,
+    otp: otp,
+    newPassword: data.password
+  }));
+
+  if (resetPassword.fulfilled.match(result)) {
+    toast.success('Password reset successful! Redirecting to login...');
+  } else {
+    toast.error(result.payload?.message || 'Password reset failed. Please try again.');
+  }
+};
+  useEffect(() => {
+    if (error) {
+      toast.error(typeof error === 'string' ? error : error?.message || 'Password reset failed');
+    }
+  }, [error]);
 
   return (
     <Box
@@ -1167,6 +1215,18 @@ const ResetPassword = () => {
         px: { xs: 1, sm: 2 },
       }}
     >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       {/* Success Snackbar */}
       <Snackbar
         open={openSuccessAlert}
@@ -1182,8 +1242,8 @@ const ResetPassword = () => {
             setOpenSuccessAlert(false);
             dispatch(clearMessage());
           }}
-          sx={{ 
-            width: '100%', 
+          sx={{
+            width: '100%',
             boxShadow: 3,
             fontSize: { xs: '0.75rem', sm: '0.8rem' },
             py: 0.5,
@@ -1198,10 +1258,10 @@ const ResetPassword = () => {
         <Alert
           severity="error"
           onClose={() => dispatch(clearError())}
-          sx={{ 
-            position: 'fixed', 
-            top: { xs: '70px', sm: '80px', md: '100px' }, 
-            right: { xs: '10px', sm: '20px' }, 
+          sx={{
+            position: 'fixed',
+            top: { xs: '70px', sm: '80px', md: '100px' },
+            right: { xs: '10px', sm: '20px' },
             zIndex: 9999,
             border: '1px solid',
             borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -1220,9 +1280,9 @@ const ResetPassword = () => {
         transition={{ duration: 0.5 }}
         style={{ width: '100%', maxWidth: '400px' }}
       >
-        <Card sx={{ 
-          p: { xs: 2, sm: 2.5, md: 3 }, 
-          borderRadius: { xs: 2, sm: 2.5, md: 3 }, 
+        <Card sx={{
+          p: { xs: 2, sm: 2.5, md: 3 },
+          borderRadius: { xs: 2, sm: 2.5, md: 3 },
           boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
           border: '1px solid',
           borderColor: alpha(theme.palette.primary.main, 0.1),
@@ -1230,7 +1290,7 @@ const ResetPassword = () => {
           {/* Logo and Title */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Link to="/" style={{ textDecoration: 'none' }}>
-             <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Box
                   component="img"
                   src={Logo}
@@ -1248,27 +1308,27 @@ const ResetPassword = () => {
                 </Typography>
               </Box>
             </Link>
-            <Typography 
-              variant="h5" 
-              fontWeight="700" 
-              color="text.primary" 
+            <Typography
+              variant="h5"
+              fontWeight="700"
+              color="text.primary"
               gutterBottom
               sx={{ fontSize: { xs: '1.3rem', sm: '1.5rem' } }}
             >
               Reset Password
             </Typography>
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color="text.secondary"
               sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}
             >
               Enter your new password below
             </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: theme.palette.primary.main, 
-                fontWeight: 500, 
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.primary.main,
+                fontWeight: 500,
                 mt: 0.5,
                 fontSize: { xs: '0.7rem', sm: '0.75rem' },
                 wordBreak: 'break-all',
@@ -1403,7 +1463,7 @@ const ResetPassword = () => {
                     borderRadius: { xs: 1.5, sm: 2 },
                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                     fontSize: { xs: '0.8rem', sm: '0.85rem' },
-                    '&:hover': { 
+                    '&:hover': {
                       background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
                     },
                     '&.Mui-disabled': {
@@ -1417,13 +1477,13 @@ const ResetPassword = () => {
             </Box>
           </form>
 
-          <Divider sx={{ 
-            my: { xs: 2, sm: 2.5 }, 
-            borderColor: alpha(theme.palette.primary.main, 0.1) 
+          <Divider sx={{
+            my: { xs: 2, sm: 2.5 },
+            borderColor: alpha(theme.palette.primary.main, 0.1)
           }}>
-            <Typography 
-              variant="caption" 
-              sx={{ 
+            <Typography
+              variant="caption"
+              sx={{
                 color: 'text.secondary',
                 px: 1,
                 fontSize: { xs: '0.65rem', sm: '0.7rem' }
@@ -1435,9 +1495,9 @@ const ResetPassword = () => {
 
           {/* Links */}
           <Box sx={{ textAlign: 'center' }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
+            <Typography
+              variant="body2"
+              sx={{
                 color: 'text.secondary',
                 fontSize: { xs: '0.7rem', sm: '0.75rem' }
               }}

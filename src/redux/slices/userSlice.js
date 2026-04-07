@@ -41,6 +41,23 @@ export const registerUser = createAsyncThunk(
 );
 
 // Handle User Update
+// export const updateUser = createAsyncThunk(
+//   "user/updateUser",
+//   async ({ userId, formData }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.patch(
+//         `/users/updateuser/${userId}`,
+//         formData,
+//         { headers: { "Content-Type": "multipart/form-data" } }
+//       );
+//       // toast.success(response.data.message);
+//       return response.data;
+//     } catch (error) {
+//       toast.error(error.response?.data?.message);
+//       return rejectWithValue(error.response?.data);
+//     }
+//   }
+// );
 export const updateUser = createAsyncThunk(
   "user/updateUser",
   async ({ userId, formData }, { rejectWithValue }) => {
@@ -50,15 +67,26 @@ export const updateUser = createAsyncThunk(
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      toast.success(response.data.message);
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message);
-      return rejectWithValue(error.response?.data);
+      // Extract detailed validation errors
+      const errorData = error.response?.data;
+      
+      // If there are validation errors array, format them
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        const formattedError = {
+          message: errorData.message,
+          errors: errorData.errors,
+          status: errorData.status
+        };
+        return rejectWithValue(formattedError);
+      }
+      
+      // For other errors
+      return rejectWithValue(errorData || { message: "Update failed" });
     }
   }
 );
-
 // Fetch All Users
 export const getAllUsers = createAsyncThunk(
   "user/getAllUsers",
@@ -283,7 +311,7 @@ export const deleteConfig = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.delete("/users/delete");
-      toast.success(response.data.message);
+      // toast.success(response.data.message);
       return response.data;
     } catch (error) {
       const errorMessage = error?.response?.data?.message || "Failed to delete configuration";
@@ -315,14 +343,14 @@ export const getUsersUnderAdmin = createAsyncThunk(
         throw new Error('Admin ID is required');
       }
 
-      console.log('Fetching users for admin:', adminId);
+      // console.log('Fetching users for admin:', adminId);
 
       // Using /Tracking prefix as per your router
       const response = await api.get(`/Tracking/admin/${adminId}/users`, {
         params: { page, limit, search }
       });
 
-      console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
+      // console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
 
       return response.data.data;
     } catch (error) {
@@ -341,7 +369,7 @@ export const getUserAvailableDates = createAsyncThunk(
       const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
         params: { date }  // Pass date as query param
       });
-      console.log(response.data, "Availables dates from api <==============================")
+      // console.log(response.data, "Availables dates from api <==============================")
       return response.data.data;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
@@ -373,7 +401,9 @@ export const getSessionDetails = createAsyncThunk(
   async ({ userId, sessionId }, { rejectWithValue }) => {
     try {
       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
+      // console.log(response.data.data);
       return response.data.data;
+      
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch session details");
       return rejectWithValue(error.response?.data || error.message);
@@ -402,7 +432,7 @@ export const checkUserSubscription = createAsyncThunk(
   async (_, { rejectWithValue, getState }) => {
     try {
       const response = await api.get("users/user/check-subscription");
-      console.log("Subscription check response:", response.data);
+      // console.log("Subscription check response:", response.data);
 
       // Get current user role
       const state = getState();
@@ -410,7 +440,7 @@ export const checkUserSubscription = createAsyncThunk(
         state.user?.userInfo?.role_id ||
         JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
 
-      console.log("User Role:", userRole);
+      // console.log("User Role:", userRole);
 
       // If role_id is 2 (Super Admin), return modified response
       if (userRole === 2) {
@@ -794,7 +824,7 @@ const userSlice = createSlice({
       .addCase(getUserAvailableDates.fulfilled, (state, action) => {
         state.userAvailableDatesLoading = false;
         // Assuming the API returns sessions data
-        console.log("User availble dates ----->", action.payload)
+        // console.log("User availble dates ----->", action.payload)
         state.userTrackInfo = action.payload.sessions || [];  // Store sessions data
         state.userAvailableDates = action.payload.dates || [];
         state.currentMonthSummary = action.payload.currentMonth;
@@ -811,7 +841,7 @@ const userSlice = createSlice({
       })
       .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
         state.userSessionsLoading = false;
-        console.log("Data get from the get user sessions by date ----->", action.payload)
+        // console.log("Data get from the get user sessions by date ----->", action.payload)
         state.userSessionsList = action.payload?.sessions || [];
         state.userSessionsSummary = action.payload?.summary || null;
         state.userSessionsPagination = action.payload?.pagination || {
@@ -834,7 +864,7 @@ const userSlice = createSlice({
         state.sessionDetailsLoading = false;
         state.sessionDetails = action.payload;
 
-        console.log("Data get from the API =---->", action.payload)
+        // console.log("Data get from the API =---->", action.payload)
 
         state.sessionLocations = action.payload.locations || [];
         state.sessionPhotos = action.payload.photos || [];
@@ -881,7 +911,7 @@ const userSlice = createSlice({
         state.subscription.amount = action.payload.amount;
         state.subscription.expiresAt = action.payload.expiresAt;
 
-        console.log("Subscription updated in state:", state.subscription);
+        // console.log("Subscription updated in state:", state.subscription);
       })
       .addCase(checkUserSubscription.rejected, (state, action) => {
         state.subscription.loading = false;

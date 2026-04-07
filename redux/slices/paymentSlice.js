@@ -140,7 +140,7 @@ export const getAllPaymentHistory = createAsyncThunk(
       const queryString = new URLSearchParams(cleanParams).toString();
       const url = `/payments/history${queryString ? `?${queryString}` : ''}`;
 
-      console.log("API Request:", url);
+      // console.log("API Request:", url);
 
       const response = await api.get(url);
       return response.data;
