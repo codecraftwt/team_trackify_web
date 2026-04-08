@@ -2762,6 +2762,7 @@ const PaymentPlans = () => {
     (plan) => plan.name?.includes("Add on Plan") && plan.status === "active"
   ) || [];
 
+<<<<<<< HEAD
 
   useEffect(() => {
   
@@ -2804,6 +2805,44 @@ const PaymentPlans = () => {
       }
     }
   }, [loading, subscriptionPlans.length, location.state]);
+=======
+  // Handle pending plan from registration/pricing flow
+  useEffect(() => {
+    if (!plansLoading && plansList?.length > 0) {
+      const storedPlan = sessionStorage.getItem('selectedPlan');
+      if (storedPlan) {
+        try {
+          const parsedPlan = JSON.parse(storedPlan);
+          
+          if (parsedPlan?.name === "Customize Plan") {
+             if (userCustomPlan) {
+               setSelectedPlanForCoupon(userCustomPlan);
+               setCouponPopupOpen(true);
+               sessionStorage.removeItem('selectedPlan');
+               sessionStorage.removeItem('fromPricing');
+             }
+          } else {
+             // Handle both '_id' (from API) and 'id' (from Pricing page static data)
+             const matchedPlan = plansList.find(p => 
+               p._id === parsedPlan._id || p._id === parsedPlan.id
+             );
+             
+             if (matchedPlan) {
+               setSelectedPlanForCoupon(matchedPlan);
+               setCouponPopupOpen(true);
+               sessionStorage.removeItem('selectedPlan');
+               sessionStorage.removeItem('fromPricing');
+             } else {
+               console.warn("Could not find matching plan for:", parsedPlan);
+             }
+          }
+        } catch (e) {
+          console.error("Error parsing stored plan", e);
+        }
+      }
+    }
+  }, [plansLoading, plansList, userCustomPlan]);
+>>>>>>> 90883b0ec2149cd7be6d84ba474187344b7c0760
 
   // Custom Plan handlers
   const handleCreateCustomPlan = async (e) => {

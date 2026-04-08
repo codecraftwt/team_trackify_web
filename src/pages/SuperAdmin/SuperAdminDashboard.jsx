@@ -3488,6 +3488,109 @@ const ExpiringPlansTableSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
   );
 };
 
+<<<<<<< HEAD
+=======
+// Popular Plans Chart Component
+const PopularPlansChart = ({ data, isMobile }) => {
+  const theme = useTheme();
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          height: 300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: alpha(theme.palette.background.paper, 0.5),
+          border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+        }}
+      >
+        <Typography color="text.secondary">No purchase data available</Typography>
+      </Paper>
+    );
+  }
+
+  // Predefined colors for the bars
+  const COLORS = [
+    theme.palette.primary.main,
+    "#22C55E", // Success Green
+    "#F59E0B", // Amber/Orange
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#3B82F6", // Blue
+  ];
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: { xs: 1.5, sm: 2, md: 3 },
+        borderRadius: 3,
+        bgcolor: theme.palette.background.paper,
+        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+        height: isMobile ? 300 : 350,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography
+        variant="subtitle2"
+        fontWeight="700"
+        sx={{ mb: 2, px: 1, color: "text.primary", fontSize: "0.85rem" }}
+      >
+        Plan Popularity (by Purchase Count)
+      </Typography>
+      <Box sx={{ flexGrow: 1, width: "100%", height: "100%", minHeight: 200 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+            barSize={isMobile ? 20 : 25}
+          >
+            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={alpha(theme.palette.divider, 0.5)} />
+            <XAxis type="number" hide />
+            <YAxis
+              dataKey="planName"
+              type="category"
+              axisLine={false}
+              tickLine={false}
+              width={isMobile ? 70 : 100}
+              tick={{ fontSize: isMobile ? 9 : 11, fontWeight: 600, fill: theme.palette.text.secondary }}
+            />
+            <Tooltip
+              cursor={{ fill: alpha(theme.palette.primary.main, 0.05) }}
+              contentStyle={{
+                borderRadius: "12px",
+                border: "none",
+                boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                backgroundColor: theme.palette.background.paper,
+                fontSize: "12px",
+              }}
+              formatter={(value) => [`${value} Purchases`, "Count"]}
+            />
+            <Bar
+              dataKey="purchaseCount"
+              radius={[0, 10, 10, 0]}
+              animationDuration={1500}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+    </Paper>
+  );
+};
+
+>>>>>>> 90883b0ec2149cd7be6d84ba474187344b7c0760
 const SuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

@@ -535,7 +535,54 @@ const Login = () => {
     }
   }, [message, isLoading, dispatch]);
 
+<<<<<<< HEAD
   // Handle error message
+=======
+  let redirectPath = null;
+  if (returnUrl) {
+    redirectPath = returnUrl;
+  } else if (roleIdNum === 2) {
+    redirectPath = '/super-admin/dashboard';
+  } else if (roleIdNum === 1 || roleIdNum === 3 || roleIdNum === 0) {
+    if (roleIdNum === 1 && currentPlan) {
+      redirectPath = '/admin/payments-plans';
+    } else {
+      redirectPath = '/admin/dashboard';
+    }
+  }
+
+  if (!redirectPath) {
+    console.warn("⚠️ No redirect path for role:", roleIdNum);
+    return;
+  }
+
+  hasRedirected.current = true;
+
+  // 🔔 ONLY SHOW TOAST IF WE JUST LOGGED IN (not on auto-redirect)
+  // Check if there was a success message or the success state was just set
+  const wasJustLoggedIn = success === true;
+  
+  if (wasJustLoggedIn) {
+    // console.log("🔔 Success login - showing toast");
+    setOpenSuccessAlert(true);
+    setTimeout(() => {
+      setOpenSuccessAlert(false);
+      dispatch(clearMessage()); // Assuming clearMessage resets success state if needed
+      // sessionStorage.removeItem('selectedPlan');
+      // sessionStorage.removeItem('fromPricing');
+      // console.log("➡️ Navigating now:", redirectPath);
+      navigate(redirectPath, { replace: true });
+    }, 1500);
+  } else {
+    // 💨 SILENT REDIRECT for already-authenticated users
+    // console.log("💨 Silent redirect - already authenticated");
+    navigate(redirectPath, { replace: true });
+  }
+
+}, [isAuthenticated, user, role_id, success, navigate, dispatch]);
+
+  // Error alert handler
+>>>>>>> 90883b0ec2149cd7be6d84ba474187344b7c0760
   useEffect(() => {
     if (error) {
       const errorMessage = typeof error === 'string' ? error : error?.message || 'Login failed';
