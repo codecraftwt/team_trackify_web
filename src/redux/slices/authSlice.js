@@ -488,13 +488,18 @@ const authSlice = createSlice({
         state.message = action.payload?.message || 'OTP verified successfully';
         state.error = null;
       })
+      // .addCase(verifyOTP.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.payload?.message || 'Failed to verify OTP';
+      //   state.success = false;
+      //   state.otpVerified = false;
+      // })
       .addCase(verifyOTP.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload?.message || 'Failed to verify OTP';
         state.success = false;
         state.otpVerified = false;
       })
-
       // Reset Password cases
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;

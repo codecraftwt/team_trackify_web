@@ -2133,6 +2133,7 @@ import { toast } from "react-toastify";
 
 const AddUser = ({ open, onClose, editingUser = null }) => {
   // console.log("Editing user data ------------------------>", editingUser);
+  // console.log("Editing user data ------------------------>", editingUser);
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -2527,7 +2528,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         payload.append("password", formData.password);
         payload.append("confirmPassword", formData.confirmPassword);
         await dispatch(registerUser(payload)).unwrap();
-        toast.success("User created successfully!");
+        // toast.success("User created successfully!");
       }
       onClose(true); 
     } catch (error) {

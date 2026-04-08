@@ -1176,7 +1176,7 @@ const Pricing = () => {
               Real-time GPS tracking + simple reports for field teams.<br />
               No complex setup. <strong>No developer API required</strong> on affordable plans.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+            {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs sm:text-sm font-medium" style={{ color: billingCycle === 'monthly' ? theme.palette.text.primary : theme.palette.text.secondary }}>Monthly</span>
                 <button onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')} className="relative w-12 h-6 rounded-full p-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" style={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` }}>
@@ -1187,7 +1187,7 @@ const Pricing = () => {
                   <Chip label="Save up to 25%" size="small" sx={{ background: 'linear-gradient(135deg, #059669, #10b981)', color: 'white', fontWeight: 'bold', fontSize: '0.55rem', height: 18, '& .MuiChip-label': { px: 0.8 } }} />
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="flex flex-wrap justify-center gap-2 text-xs" style={{ color: theme.palette.text.secondary }}>
               <div className="flex items-center gap-1"><FaCheck size={8} style={{ color: theme.palette.primary.main }} /> 14-day free trial</div>
               <div className="flex items-center gap-1"><FaCheck size={8} style={{ color: theme.palette.primary.main }} /> No credit card required</div>

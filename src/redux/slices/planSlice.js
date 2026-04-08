@@ -136,6 +136,39 @@ export const getUsersWithExpiringPlans = createAsyncThunk(
   }
 );
 
+// Async thunk for canceling subscription
+// Async thunk for canceling subscription - FIXED VERSION
+export const cancelSubscription = createAsyncThunk(
+  'plan/cancelSubscription',
+  async ({ cancellationReason }, { rejectWithValue }) => {
+    try {
+      // Use your configured api instance instead of axios directly
+      const response = await api.post('/plans/subscription/cancel', { cancellationReason });
+      toast.success(response.data?.message || "Subscription cancelled successfully!");
+      return response.data;
+    } catch (error) {
+      console.error("Error cancelling subscription:", error);
+      const errorMessage = error.response?.data?.message || 'Failed to cancel subscription';
+      toast.error(errorMessage);
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
+// Async thunk for getting cancellation status
+export const getCancellationStatus = createAsyncThunk(
+  'plan/getCancellationStatus',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/plans/subscription/cancellation-status');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching cancellation status:", error);
+      const errorMessage = error.response?.data?.message || 'Failed to fetch cancellation status';
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
 
 // NEW: Create Custom Plan (for authenticated users)
 export const createCustomPlan = createAsyncThunk(
@@ -255,7 +288,21 @@ const planSlice = createSlice({
     error: null,
     userCustomPlan: null,
     availablePlans: [],
-    popularPlans: [],
+
+    // Cancellation state
+    isCancelling: false,
+    cancelError: null,
+    cancelSuccess: false,
+    cancelData: null,
+
+    // Cancellation status
+    cancellationStatus: null,
+    cancellationStatusLoading: false,
+    isSubscriptionCancelled: false,
+    hasActiveSubscription: false,
+    currentPlan: null,
+    previousPlan: null,
+    subscriptionCancelledAt: null,
   },
   reducers: {
     clearPlanStore: (state) => {
@@ -441,19 +488,45 @@ const planSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // NEW: Get popular plans
-      .addCase(getPopularPlans.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      // Cancel Subscription
+      .addCase(cancelSubscription.pending, (state) => {
+        state.isCancelling = true;
+        state.cancelError = null;
+        state.cancelSuccess = false;
       })
-      .addCase(getPopularPlans.fulfilled, (state, action) => {
-        state.loading = false;
-        state.popularPlans = action.payload?.data || [];
+      .addCase(cancelSubscription.fulfilled, (state, action) => {
+        state.isCancelling = false;
+        state.cancelSuccess = true;
+        state.cancelData = action.payload.data;
+        state.isSubscriptionCancelled = true;
+        state.hasActiveSubscription = false;
+        state.previousPlan = state.currentPlan;
+        state.currentPlan = null;
+        state.subscriptionCancelledAt = action.payload.data.subscriptionCancelledAt;
       })
-      .addCase(getPopularPlans.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+      .addCase(cancelSubscription.rejected, (state, action) => {
+        state.isCancelling = false;
+        state.cancelError = action.payload;
+        state.cancelSuccess = false;
+      })
+      // Get Cancellation Status
+      .addCase(getCancellationStatus.pending, (state) => {
+        state.cancellationStatusLoading = true;
+        state.cancellationStatusError = null;
+      })
+      .addCase(getCancellationStatus.fulfilled, (state, action) => {
+        state.cancellationStatusLoading = false;
+        state.cancellationStatus = action.payload.data;
+        state.isSubscriptionCancelled = action.payload.data.isSubscriptionCancelled;
+        state.hasActiveSubscription = !action.payload.data.isSubscriptionCancelled && action.payload.data.currentPlan !== null;
+        state.currentPlan = action.payload.data.currentPlan;
+        state.previousPlan = action.payload.data.previousPlan;
+        state.subscriptionCancelledAt = action.payload.data.subscriptionCancelledAt;
+      })
+      .addCase(getCancellationStatus.rejected, (state, action) => {
+        state.cancellationStatusLoading = false;
+        state.cancellationStatusError = action.payload;
+      });;
   },
 });
 

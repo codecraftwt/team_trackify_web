@@ -3827,7 +3827,7 @@ import {
   deleteConfig,
 } from "../../redux/slices/userSlice";
 import LogoutModal from "../../components/models/LogoutModal";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 // ── animations ────────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -4064,26 +4064,57 @@ const Profile = () => {
     return !Object.values(newErrors).some(Boolean);
   };
 
-  const handleSave = async () => {
-    if (!validateForm()) return;
-    const payload = new FormData();
-    payload.append("name", formData.fullName);
-    payload.append("email", formData.email);
-    payload.append("mobile_no", formData.mobile);
-    payload.append("address", formData.address);
-    payload.append("role_id", userData.role_id);
-    payload.append("createdby", userData.createdby);
-    payload.append("isActive", userData.isActive);
-    if (formData.avtar) payload.append("avtar", formData.avtar);
-    if (imageRemoved) payload.append("removeAvtar", "true");
-    try {
-      await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
-      await dispatch(getUserById(userData._id));
-      toast.success("Profile updated!");
-      setIsEditing(false);
-    } catch (error) { toast.error(error?.message || "Update failed"); }
-  };
-
+  // const handleSave = async () => {
+  //   if (!validateForm()) return;
+  //   const payload = new FormData();
+  //   payload.append("name", formData.fullName);
+  //   payload.append("email", formData.email);
+  //   payload.append("mobile_no", formData.mobile);
+  //   payload.append("address", formData.address);
+  //   payload.append("role_id", userData.role_id);
+  //   payload.append("createdby", userData.createdby);
+  //   payload.append("isActive", userData.isActive);
+  //   if (formData.avtar) payload.append("avtar", formData.avtar);
+  //   if (imageRemoved) payload.append("removeAvtar", "true");
+  //   try {
+  //     await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
+  //     await dispatch(getUserById(userData._id));
+  //     toast.success("Profile updated!");
+  //     setIsEditing(false);
+  //   } catch (error) { toast.error(error?.message || "Update failed"); }
+  // };
+const handleSave = async () => {
+  if (!validateForm()) return;
+  
+  const payload = new FormData();
+  payload.append("name", formData.fullName);
+  payload.append("email", formData.email);
+  payload.append("mobile_no", formData.mobile);
+  payload.append("address", formData.address);
+  payload.append("role_id", userData.role_id);
+  payload.append("createdby", userData.createdby);
+  payload.append("isActive", userData.isActive);
+  if (formData.avtar) payload.append("avtar", formData.avtar);
+  if (imageRemoved) payload.append("removeAvtar", "true");
+  
+  try {
+    await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
+    await dispatch(getUserById(userData._id));
+    toast.success("Profile updated!");
+    setIsEditing(false);
+  } catch (error) {
+    if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+      // Show all errors in one toast
+      const allErrors = error.errors.join("\n• ");
+      toast.error(`Validation failed:\n• ${allErrors}`, {
+        autoClose: 5000,
+        style: { whiteSpace: 'pre-line' }
+      });
+    } else {
+      toast.error(error?.message || "Update failed");
+    }
+  }
+};
   const handleCancel = () => {
     setFormData({ fullName: userData.name || "", email: userData.email || "", mobile: userData.mobile_no || "", address: userData.address || "", avtar: null });
     setPreviewImage(userData.avtar || null);
@@ -4186,6 +4217,18 @@ const Profile = () => {
     <Container maxWidth="lg" sx={{
       py: { xs: 1.5, sm: 2, md: 2.5 },
     }}>
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <motion.div variants={stagger} initial="initial" animate="animate">
 
         {/* ── Header ── */}
@@ -4397,7 +4440,7 @@ const Profile = () => {
                         "&:hover": { bgcolor: alpha("#ef4444", 0.05) }
                       }}
                     >
-                      Sign Out
+                      Log Out
                     </Button>
                   </Box>
                 </Box>

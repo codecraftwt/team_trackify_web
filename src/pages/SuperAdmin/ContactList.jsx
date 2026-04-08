@@ -1181,6 +1181,7 @@ import moment from "moment";
 // Mobile Card View Skeleton
 const MobileCardSkeleton = () => {
   const theme = useTheme();
+  
   return (
     <Box sx={{ p: { xs: 0.75, sm: 1 } }}>
       {[1, 2, 3].map((item) => (
@@ -1519,7 +1520,8 @@ const DateFilter = ({ dateRange, onDateChange, isMobile }) => {
   };
 
   const isActive = dateRange.fromDate || dateRange.toDate;
-
+const today = new Date();
+today.setHours(23, 59, 59, 999);
   return (
     <>
       <Button
@@ -1575,6 +1577,7 @@ const DateFilter = ({ dateRange, onDateChange, isMobile }) => {
             </Typography>
             
             <DatePicker
+            maxDate={today}
               label="Start Date"
               value={localFromDate}
               onChange={setLocalFromDate}
@@ -1597,6 +1600,7 @@ const DateFilter = ({ dateRange, onDateChange, isMobile }) => {
             />
             
             <DatePicker
+            maxDate={today}
               label="End Date"
               value={localToDate}
               onChange={setLocalToDate}
