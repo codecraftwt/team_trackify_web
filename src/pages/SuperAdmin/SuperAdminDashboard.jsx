@@ -3510,7 +3510,7 @@ const ExpiringPlansTableSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
 const PopularPlansChart = ({ data, isMobile }) => {
   const theme = useTheme();
 
-  if (!data || data.length === 0) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
     return (
       <Paper
         elevation={0}
