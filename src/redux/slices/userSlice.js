@@ -41,6 +41,23 @@
 // );
 
 // // Handle User Update
+// // export const updateUser = createAsyncThunk(
+// //   "user/updateUser",
+// //   async ({ userId, formData }, { rejectWithValue }) => {
+// //     try {
+// //       const response = await api.patch(
+// //         `/users/updateuser/${userId}`,
+// //         formData,
+// //         { headers: { "Content-Type": "multipart/form-data" } }
+// //       );
+// //       // toast.success(response.data.message);
+// //       return response.data;
+// //     } catch (error) {
+// //       toast.error(error.response?.data?.message);
+// //       return rejectWithValue(error.response?.data);
+// //     }
+// //   }
+// // );
 // export const updateUser = createAsyncThunk(
 //   "user/updateUser",
 //   async ({ userId, formData }, { rejectWithValue }) => {
@@ -50,62 +67,27 @@
 //         formData,
 //         { headers: { "Content-Type": "multipart/form-data" } }
 //       );
-//       toast.success(response.data.message);
 //       return response.data;
 //     } catch (error) {
-//       toast.error(error.response?.data?.message);
-//       return rejectWithValue(error.response?.data);
+//       // Extract detailed validation errors
+//       const errorData = error.response?.data;
+      
+//       // If there are validation errors array, format them
+//       if (errorData?.errors && Array.isArray(errorData.errors)) {
+//         const formattedError = {
+//           message: errorData.message,
+//           errors: errorData.errors,
+//           status: errorData.status
+//         };
+//         return rejectWithValue(formattedError);
+//       }
+      
+//       // For other errors
+//       return rejectWithValue(errorData || { message: "Update failed" });
 //     }
 //   }
 // );
-// // Handle User Update
-// // export const updateUser = createAsyncThunk(
-// //   "user/updateUser",
-// //   async ({ userId, formData }, { rejectWithValue, getState }) => {
-// //     try {
-// //       // Get the current auth state to access token and user info
-// //       const state = getState();
-// //       const token = state.auth?.token || localStorage.getItem("token");
-// //       const userRole = state.auth?.user?.role_id || state.auth?.role_id;
-
-// //       console.log("Updating user with role:", userRole);
-// //       console.log("Token available:", !!token);
-
-// //       // Ensure token is in the headers
-// //       const config = {
-// //         headers: { 
-// //           "Content-Type": "multipart/form-data",
-// //           "Authorization": token ? `Bearer ${token}` : undefined
-// //         }
-// //       };
-
-// //       const response = await api.patch(
-// //         `/users/updateuser/${userId}`,
-// //         formData,
-// //         config
-// //       );
-
-// //       toast.success(response.data.message);
-// //       return response.data;
-// //     } catch (error) {
-// //       console.error("Update user error:", error.response?.data || error);
-
-// //       // Handle specific error messages
-// //       const errorMessage = error.response?.data?.message || "Failed to update user";
-
-// //       // Check if it's a permission error
-// //       if (error.response?.status === 403 || errorMessage.includes("Access denied")) {
-// //         toast.error("Permission denied. You need Super Admin rights to update configuration.");
-// //       } else {
-// //         toast.error(errorMessage);
-// //       }
-
-// //       return rejectWithValue(error.response?.data || { message: errorMessage });
-// //     }
-// //   }
-// // );
 // // Fetch All Users
-
 // export const getAllUsers = createAsyncThunk(
 //   "user/getAllUsers",
 //   async (adminId, { rejectWithValue }) => {
@@ -199,14 +181,55 @@
 //   }
 // );
 
+// // export const getActiveUserLocations = createAsyncThunk(
+// //   "user/getActiveUserLocations",
+// //   async (_, { rejectWithValue }) => {
+// //     try {
+// //       const response = await api.get("/tracks/admin/active-user-locations");
+// //       return response.data.users;
+// //     } catch (error) {
+// //       toast.error(error?.response?.data?.message || "Failed to fetch locations");
+// //       return rejectWithValue(error.response?.data || error.message);
+// //     }
+// //   }
+// // );
 // export const getActiveUserLocations = createAsyncThunk(
 //   "user/getActiveUserLocations",
-//   async (_, { rejectWithValue }) => {
+//   async (adminId, { rejectWithValue }) => {
 //     try {
-//       const response = await api.get("/tracks/admin/active-user-locations");
-//       return response.data.users;
+//       const response = await api.get(
+//         `/Tracking/admin/${adminId}/users/current-locations`
+//       );
+
+//       const users = response.data.data.activeUsers.map((item) => ({
+//         userId: item.user.userId,
+//         name: item.user.name,
+//         email: item.user.email,
+
+//         latestLocation: {
+//           latitude: item.currentLocation.latitude,
+//           longitude: item.currentLocation.longitude,
+//           timestamp: item.currentLocation.timestamp,
+//           isOnline: item.currentLocation.isOnline,
+//           accuracy: null,
+//           address: "Unknown Address",
+//           road: "Unknown Road",
+//           area: "Unknown Area",
+//           batteryPercentage: null,
+//           photo: null,
+//         },
+
+//         trackerId: item.session.sessionId,
+//         isActive: item.session.isActive,
+//         startTime: item.session.startTime,
+//       }));
+
+//       return users;
+
 //     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch locations");
+//       toast.error(
+//         error?.response?.data?.message || "Failed to fetch locations"
+//       );
 //       return rejectWithValue(error.response?.data || error.message);
 //     }
 //   }
@@ -241,7 +264,6 @@
 //     }
 //   }
 // );
-
 
 // // ============ CONFIGURATION APIS ============
 
@@ -285,11 +307,11 @@
 
 // // Delete Configuration
 // export const deleteConfig = createAsyncThunk(
-//   "user/delete",
+//   "user/deleteConfig", // Fixed: Changed from "user/delete" to "user/deleteConfig"
 //   async (_, { rejectWithValue }) => {
 //     try {
 //       const response = await api.delete("/users/delete");
-//       toast.success(response.data.message);
+//       // toast.success(response.data.message);
 //       return response.data;
 //     } catch (error) {
 //       const errorMessage = error?.response?.data?.message || "Failed to delete configuration";
@@ -306,6 +328,143 @@
 //   }
 // );
 
+
+
+
+
+// ////////////////////////////////////////////New APIS Tracking///////////////////////////////////
+// // ============ ADMIN USER MANAGEMENT APIS ============
+
+// export const getUsersUnderAdmin = createAsyncThunk(
+//   "user/getUsersUnderAdmin",
+//   async ({ adminId, page = 1, limit = 20, search = '' }, { rejectWithValue }) => {
+//     try {
+//       if (!adminId) {
+//         throw new Error('Admin ID is required');
+//       }
+
+//       // console.log('Fetching users for admin:', adminId);
+
+//       // Using /Tracking prefix as per your router
+//       const response = await api.get(`/Tracking/admin/${adminId}/users`, {
+//         params: { page, limit, search }
+//       });
+
+//       // console.log(response.data.data, "<---------------- Data get from the API get users under admin <----------------")
+
+//       return response.data.data;
+//     } catch (error) {
+//       console.error('Error in getUsersUnderAdmin:', error);
+//       toast.error(error?.response?.data?.message || error.message || "Failed to fetch users");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+
+// export const getUserAvailableDates = createAsyncThunk(
+//   "user/getUserAvailableDates",
+//   async ({ id, date }, { rejectWithValue }) => {  // Accept object with id and date
+//     try {
+//       // Add date as query parameter
+//       const response = await api.get(`/Tracking/admin/users/${id}/sessions/dates`, {
+//         params: { date }  // Pass date as query param
+//       });
+//       // console.log(response.data, "Availables dates from api <==============================")
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch available dates");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+// // Get User Sessions By Date (with cursor pagination)
+// export const getUserSessionsByDate = createAsyncThunk(
+//   "user/getUserSessionsByDate",
+//   async ({ userId, date, cursor = null, limit = 10 }, { rejectWithValue }) => {
+//     try {
+//       const params = { date, limit };
+//       if (cursor) params.cursor = cursor;
+
+//       // Add /Tracking here
+//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions`, { params });
+
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch sessions");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+
+// export const getSessionDetails = createAsyncThunk(
+//   "user/getSessionDetails",
+//   async ({ userId, sessionId }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
+//       // console.log(response.data.data);
+//       return response.data.data;
+      
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch session details");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+
+// // Get User Summary (for dashboard/overview)
+// export const getUserSummary = createAsyncThunk(
+//   "user/getUserSummary",
+//   async ({ adminId, userId }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(`/Tracking/admin/${adminId}/users/${userId}/summary`);
+//       return response.data.data;
+//     } catch (error) {
+//       toast.error(error?.response?.data?.message || "Failed to fetch user summary");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+
+
+// // ============ SUBSCRIPTION CHECK API ============
+// export const checkUserSubscription = createAsyncThunk(
+//   "user/checkSubscription",
+//   async (_, { rejectWithValue, getState }) => {
+//     try {
+//       const response = await api.get("users/user/check-subscription");
+//       // console.log("Subscription check response:", response.data);
+
+//       // Get current user role
+//       const state = getState();
+//       const userRole = state.auth?.user?.role_id ||
+//         state.user?.userInfo?.role_id ||
+//         JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
+
+//       // console.log("User Role:", userRole);
+
+//       // If role_id is 2 (Super Admin), return modified response
+//       if (userRole === 2) {
+//         return {
+//           hasSubscription: true,
+//           expired: false,
+//           message: "Super Admin account - no subscription restrictions",
+//           planName: "Super Admin",
+//           amount: 0,
+//           remainingDays: 999,
+//           expiresAt: null,
+//           username: response.data?.data?.username || "Super Admin"
+//         };
+//       }
+
+//       // For role_id 1 (Admin), return actual subscription data
+//       return response.data.data;
+//     } catch (error) {
+//       console.error("Subscription check error:", error.response?.data);
+//       toast.error(error?.response?.data?.message || "Failed to check subscription");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
 
 // // User Slice
 // const userSlice = createSlice({
@@ -328,6 +487,73 @@
 //     lastTrackedUsers: [],
 //     lastTrackedUsersLoading: false,
 //     lastTrackedUsersError: null,
+//     // ✅ FIXED: Config states properly placed in initialState
+//     config: null,
+//     configLoading: false,
+//     configError: null,
+//     configUpdateLoading: false,
+//     configUpdateError: null,
+//     configDeleteLoading: false,
+//     configDeleteError: null,
+//     // Admin User Management States
+//     adminUsersList: [],           // For users under admin
+//     adminUsersPagination: {
+//       currentPage: 1,
+//       totalPages: 1,
+//       totalUsers: 0,
+//       hasMore: false
+//     },
+//     adminUsersLoading: false,
+//     adminUsersError: null,
+
+//     userAvailableDates: [],       // For calendar dates
+//     userAvailableDatesLoading: false,
+//     userAvailableDatesError: null,
+//     currentMonthSummary: null,
+//     totalAvailableDays: 0,
+
+//     userSessionsList: [],         // For sessions by date
+//     userSessionsSummary: null,
+//     userSessionsPagination: {
+//       nextCursor: null,
+//       hasMore: false,
+//       totalForDay: 0
+//     },
+//     userSessionsLoading: false,
+//     userSessionsError: null,
+//     selectedDate: null,
+
+//     sessionDetails: null,         // For single session details
+//     sessionDetailsLoading: false,
+//     sessionDetailsError: null,
+//     sessionLocations: [],
+//     sessionPhotos: [],
+//     sessionBounds: null,
+//     sessionStats: null,
+//     sessionTimeline: [],
+
+//     // User Summary States
+//     userSummary: null,              // User details and stats
+//     userSummaryStats: null,         // Aggregated statistics
+//     userRecentSessions: [],         // Last 5 sessions
+//     userAvailableDates: [],         // Recent available dates
+//     userSummaryLoading: false,
+//     userSummaryError: null,
+//     isUserActiveToday: false,
+
+
+//     // Add to initialState object
+//     subscription: {
+//       data: null,
+//       loading: false,
+//       error: null,
+//       hasSubscription: false,
+//       expired: true,
+//       remainingDays: 0,
+//       planName: null,
+//       amount: 0,
+//       expiresAt: null,
+//     },
 //   },
 //   reducers: {
 //     logoutUser: (state) => {
@@ -338,20 +564,20 @@
 //       state.userCounts = {};
 //       state.error = null;
 //       state.loading = false;
+//       // Reset config states on logout
+//       state.config = null;
+//       state.configLoading = false;
+//       state.configError = null;
+//       state.configUpdateLoading = false;
+//       state.configUpdateError = null;
+//       state.configDeleteLoading = false;
+//       state.configDeleteError = null;
 //       // Don't remove localStorage here - authSlice handles that
 //     },
 //     setUserInfo: (state, action) => {
 //       state.userInfo = action.payload;
 //       localStorage.setItem("user", JSON.stringify(action.payload));
 //     },
-//     // Add these new config-related states
-//     config: null,
-//     configLoading: false,
-//     configError: null,
-//     configUpdateLoading: false,
-//     configUpdateError: null,
-//     configDeleteLoading: false,
-//     configDeleteError: null,
 //   },
 //   extraReducers: (builder) => {
 //     builder
@@ -528,6 +754,7 @@
 //         state.loading = false;
 //         state.error = action.payload;
 //       })
+
 //       // ============ CONFIGURATION CASES ============
 
 //       // Get Config
@@ -570,40 +797,138 @@
 //       .addCase(deleteConfig.rejected, (state, action) => {
 //         state.configDeleteLoading = false;
 //         state.configDeleteError = action.payload?.message || "Failed to delete configuration";
+//       })
+
+//       // ============ ADMIN USER MANAGEMENT CASES ============
+
+//       // Get Users Under Admin
+//       .addCase(getUsersUnderAdmin.pending, (state) => {
+//         state.adminUsersLoading = true;
+//         state.adminUsersError = null;
+//       })
+//       .addCase(getUsersUnderAdmin.fulfilled, (state, action) => {
+//         state.adminUsersLoading = false;
+//         state.adminUsersList = action.payload.users;
+//         state.adminUsersPagination = action.payload.pagination;
+//       })
+//       .addCase(getUsersUnderAdmin.rejected, (state, action) => {
+//         state.adminUsersLoading = false;
+//         state.adminUsersError = action.payload?.message || "Failed to fetch users";
+//       })
+
+//       // Get User Available Dates
+//       .addCase(getUserAvailableDates.pending, (state) => {
+//         state.userAvailableDatesLoading = true;
+//         state.userAvailableDatesError = null;
+//       })
+//       .addCase(getUserAvailableDates.fulfilled, (state, action) => {
+//         state.userAvailableDatesLoading = false;
+//         // Assuming the API returns sessions data
+//         // console.log("User availble dates ----->", action.payload)
+//         state.userTrackInfo = action.payload.sessions || [];  // Store sessions data
+//         state.userAvailableDates = action.payload.dates || [];
+//         state.currentMonthSummary = action.payload.currentMonth;
+//         state.totalAvailableDays = action.payload.totalAvailableDays;
+//       })
+//       .addCase(getUserAvailableDates.rejected, (state, action) => {
+//         state.userAvailableDatesLoading = false;
+//         state.userAvailableDatesError = action.payload?.message || "Failed to fetch dates";
+//       })
+//       // Get User Sessions By Date
+//       .addCase(getUserSessionsByDate.pending, (state) => {
+//         state.userSessionsLoading = true;
+//         state.userSessionsError = null;
+//       })
+//       .addCase(getUserSessionsByDate.fulfilled, (state, action) => {
+//         state.userSessionsLoading = false;
+//         // console.log("Data get from the get user sessions by date ----->", action.payload)
+//         state.userSessionsList = action.payload?.sessions || [];
+//         state.userSessionsSummary = action.payload?.summary || null;
+//         state.userSessionsPagination = action.payload?.pagination || {
+//           nextCursor: null,
+//           hasMore: false,
+//           totalForDay: 0
+//         };
+//         state.selectedDate = action.payload?.date || null;
+//       })
+//       .addCase(getUserSessionsByDate.rejected, (state, action) => {
+//         state.userSessionsLoading = false;
+//         state.userSessionsError = action.payload?.message || "Failed to fetch sessions";
+//       })
+//       // Get Session Details
+//       .addCase(getSessionDetails.pending, (state) => {
+//         state.sessionDetailsLoading = true;
+//         state.sessionDetailsError = null;
+//       })
+//       .addCase(getSessionDetails.fulfilled, (state, action) => {
+//         state.sessionDetailsLoading = false;
+//         state.sessionDetails = action.payload;
+
+//         // console.log("Data get from the API =---->", action.payload)
+
+//         state.sessionLocations = action.payload.locations || [];
+//         state.sessionPhotos = action.payload.photos || [];
+//         state.sessionBounds = action.payload.bounds || null;
+//         state.sessionStats = action.payload.stats || null;
+//         state.sessionTimeline = action.payload.timeline || [];
+//       })
+//       .addCase(getSessionDetails.rejected, (state, action) => {
+//         state.sessionDetailsLoading = false;
+//         state.sessionDetailsError = action.payload?.message || "Failed to fetch session details";
+//       })
+
+//       // Get User Summary
+//       .addCase(getUserSummary.pending, (state) => {
+//         state.userSummaryLoading = true;
+//         state.userSummaryError = null;
+//       })
+//       .addCase(getUserSummary.fulfilled, (state, action) => {
+//         state.userSummaryLoading = false;
+//         state.userSummary = action.payload.user;
+//         state.userSummaryStats = action.payload.stats;
+//         state.userRecentSessions = action.payload.recentSessions;
+//         state.userAvailableDates = action.payload.availableDates;
+//         state.isUserActiveToday = action.payload.stats?.isActiveToday || false;
+//       })
+//       .addCase(getUserSummary.rejected, (state, action) => {
+//         state.userSummaryLoading = false;
+//         state.userSummaryError = action.payload?.message || "Failed to fetch user summary";
+//       })
+
+//       // Add after your other cases
+//       // In extraReducers, ensure this is present and correct
+//       .addCase(checkUserSubscription.pending, (state) => {
+//         state.subscription.loading = true;
+//         state.subscription.error = null;
+//       })
+//       .addCase(checkUserSubscription.fulfilled, (state, action) => {
+//         state.subscription.loading = false;
+//         state.subscription.data = action.payload;
+//         state.subscription.hasSubscription = action.payload.hasSubscription;
+//         state.subscription.expired = action.payload.expired;
+//         state.subscription.remainingDays = action.payload.remainingDays;
+//         state.subscription.planName = action.payload.planName;
+//         state.subscription.amount = action.payload.amount;
+//         state.subscription.expiresAt = action.payload.expiresAt;
+
+//         // console.log("Subscription updated in state:", state.subscription);
+//       })
+//       .addCase(checkUserSubscription.rejected, (state, action) => {
+//         state.subscription.loading = false;
+//         state.subscription.error = action.payload?.message || "Failed to check subscription";
 //       });
+
 //   },
 // });
+
+
+
 
 // export const { logoutUser, setUserInfo } = userSlice.actions;
 // export default userSlice.reducer;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//With New Api Key Bind
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -638,8 +963,10 @@ export const registerUser = createAsyncThunk(
       const response = await api.post("/users/register", payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      toast.success(response.data.message);
       return response.data;
     } catch (error) {
+      toast.error(error.response?.data?.message);
       return rejectWithValue(error.response?.data);
     }
   }
@@ -650,30 +977,15 @@ export const updateUser = createAsyncThunk(
   "user/updateUser",
   async ({ userId, formData }, { rejectWithValue }) => {
     try {
-      const response = await api.put(
+      const response = await api.patch(
         `/users/updateuser/${userId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
+      toast.success(response.data.message);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data);
-    }
-  }
-);
-
-// Handle Specialized Permission Update (JSON)
-export const updateUserPermissions = createAsyncThunk(
-  "user/updateUserPermissions",
-  async ({ userId, permissions, role_id }, { rejectWithValue }) => {
-    try {
-      const response = await api.put(
-        `/users/updateuser/${userId}`,
-        { permissions, role_id },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return response.data;
-    } catch (error) {
+      toast.error(error.response?.data?.message);
       return rejectWithValue(error.response?.data);
     }
   }
@@ -722,19 +1034,9 @@ export const deleteUser = createAsyncThunk(
 
 export const getUserCounts = createAsyncThunk(
   "user/getUserCounts",
-  async (params = {}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // Clean params - remove empty values
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
-
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/users/user-counts${queryString ? `?${queryString}` : ""}`;
-      const response = await api.get(url);
+      const response = await api.get("/users/user-counts");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -785,10 +1087,9 @@ export const getUserTrackedDates = createAsyncThunk(
 
 export const getActiveUserLocations = createAsyncThunk(
   "user/getActiveUserLocations",
-  async (adminId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const url = "/tracks/admin/active-user-locations";
-      const response = await api.get(url);
+      const response = await api.get("/tracks/admin/active-user-locations");
       return response.data.users;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch locations");
@@ -952,6 +1253,7 @@ export const getUsersUnderAdmin = createAsyncThunk(
 //     }
 //   }
 // );
+
 export const getUserAvailableDates = createAsyncThunk(
   "user/getUserAvailableDates",
   async ({ id, date }, { rejectWithValue }) => {  // Accept object with id and date
@@ -987,20 +1289,7 @@ export const getUserSessionsByDate = createAsyncThunk(
   }
 );
 
-// Get Session Details
-// export const getSessionDetails = createAsyncThunk(
-//   "user/getSessionDetails",
-//   async ({ userId, sessionId }, { rejectWithValue }) => {
-//     try {
-//       // Add /Tracking here
-//       const response = await api.get(`/Tracking/admin/users/${userId}/sessions/${sessionId}`);
-//       return response.data.data;
-//     } catch (error) {
-//       toast.error(error?.response?.data?.message || "Failed to fetch session details");
-//       return rejectWithValue(error.response?.data || error.message);
-//     }
-//   }
-// );
+
 // Get Session Details with full location data
 export const getSessionDetails = createAsyncThunk(
   "user/getSessionDetails",
@@ -1025,6 +1314,85 @@ export const getUserSummary = createAsyncThunk(
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch user summary");
       return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+// ============ SUBSCRIPTION CHECK API ============
+
+// Check user subscription status
+// export const checkUserSubscription = createAsyncThunk(
+//   "user/checkSubscription",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get("users/user/check-subscription");
+//       console.log("Subscription check response:", response.data);
+//       return response.data.data; // Returns subscription data
+//     } catch (error) {
+//       console.error("Subscription check error:", error.response?.data);
+//       toast.error(error?.response?.data?.message || "Failed to check subscription");
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
+
+// Check user subscription status
+// Check user subscription status
+export const checkUserSubscription = createAsyncThunk(
+  "user/checkSubscription",
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const response = await api.get("users/user/check-subscription");
+      // console.log("Subscription check response:", response.data);
+
+      // Get current user role
+      const state = getState();
+      const userRole = state.auth?.user?.role_id ||
+        state.user?.userInfo?.role_id ||
+        JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
+
+      // console.log("User Role:", userRole);
+
+      // If role_id is 2 (Super Admin), return modified response
+      if (userRole === 2) {
+        return {
+          hasSubscription: true,
+          expired: false,
+          message: "Super Admin account - no subscription restrictions",
+          planName: "Super Admin",
+          amount: 0,
+          remainingDays: 999,
+          expiresAt: null,
+          username: response.data?.data?.username || "Super Admin"
+        };
+      }
+
+      // For role_id 1 (Admin), return actual subscription data
+      return response.data.data;
+    } catch (error) {
+      console.error("Subscription check error:", error.response?.data);
+      toast.error(error?.response?.data?.message || "Failed to check subscription");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+export const getAdminStats = createAsyncThunk(
+  'user/getAdminStats',
+  async ({ adminId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/Tracking/admin/${adminId}/users/stats`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Failed to fetch admin stats'
+      );
     }
   }
 );
@@ -1103,6 +1471,20 @@ const userSlice = createSlice({
     userSummaryLoading: false,
     userSummaryError: null,
     isUserActiveToday: false,
+
+
+    // Add to initialState object
+    subscription: {
+      data: null,
+      loading: false,
+      error: null,
+      hasSubscription: false,
+      expired: true,
+      remainingDays: 0,
+      planName: null,
+      amount: 0,
+      expiresAt: null,
+    },
   },
   reducers: {
     logoutUser: (state) => {
@@ -1477,16 +1859,43 @@ const userSlice = createSlice({
         state.userSummaryLoading = false;
         state.userSummaryError = action.payload?.message || "Failed to fetch user summary";
       })
-      // Clear user state on logout (listening to auth/logout)
-      .addCase("auth/logout", (state) => {
-        state.userInfo = {};
-        state.usersList = [];
-        state.adminUsersList = [];
-        state.userSummary = null;
-        state.activeUserLocations = [];
-        // localStorage is already handled in authSlice, but safe to keep here too
-        localStorage.removeItem("user");
+
+      // Add after your other cases
+      // In extraReducers, ensure this is present and correct
+      .addCase(checkUserSubscription.pending, (state) => {
+        state.subscription.loading = true;
+        state.subscription.error = null;
+      })
+      .addCase(checkUserSubscription.fulfilled, (state, action) => {
+        state.subscription.loading = false;
+        state.subscription.data = action.payload;
+        state.subscription.hasSubscription = action.payload.hasSubscription;
+        state.subscription.expired = action.payload.expired;
+        state.subscription.remainingDays = action.payload.remainingDays;
+        state.subscription.planName = action.payload.planName;
+        state.subscription.amount = action.payload.amount;
+        state.subscription.expiresAt = action.payload.expiresAt;
+
+        // console.log("Subscription updated in state:", state.subscription);
+      })
+      .addCase(checkUserSubscription.rejected, (state, action) => {
+        state.subscription.loading = false;
+        state.subscription.error = action.payload?.message || "Failed to check subscription";
+      })
+      .addCase(getAdminStats.pending, (state) => {
+        state.adminStatsLoading = true;
+        state.adminStatsError = null;
+      })
+      .addCase(getAdminStats.fulfilled, (state, action) => {
+        state.adminStatsLoading = false;
+        state.adminStats = action.payload;
+        state.adminStatsError = null;
+      })
+      .addCase(getAdminStats.rejected, (state, action) => {
+        state.adminStatsLoading = false;
+        state.adminStatsError = action.payload;
       });
+
   },
 });
 

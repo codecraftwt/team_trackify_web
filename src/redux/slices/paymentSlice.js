@@ -100,7 +100,7 @@ export const verifyPayment = createAsyncThunk(
         paymentId,
       });
 
-      // toast.success(response.data.message || "Payment verified successfully");
+      toast.success(response.data.message || "Payment verified successfully");
 
       return response.data;
     } catch (error) {
@@ -152,19 +152,9 @@ export const getAllPaymentHistory = createAsyncThunk(
 
 export const getRevenueSummary = createAsyncThunk(
   "payment/getRevenueSummary",
-  async (params = {}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // Clean params - remove empty values
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
-
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/payments/revenue-summary${queryString ? `?${queryString}` : ""}`;
-      const response = await api.get(url);
+      const response = await api.get("/payments/revenue-summary");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -336,8 +326,6 @@ const paymentSlice = createSlice({
     clearVerificationData: (state) => {
       state.verificationData = null;
       state.verificationError = null;
-      state.addOnVerificationData = null;
-      state.addOnVerificationError = null;
     },
   },
   extraReducers: (builder) => {

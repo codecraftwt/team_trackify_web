@@ -3827,7 +3827,7 @@ import {
   deleteConfig,
 } from "../../redux/slices/userSlice";
 import LogoutModal from "../../components/models/LogoutModal";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 // ── animations ────────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -3959,7 +3959,7 @@ const Profile = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const userData = useSelector((state) => state.user?.userInfo || {});
-  const { user, role_id } = useSelector((state) => state.auth || {});
+  const { role_id } = useSelector((state) => state.auth || {});
   const { loading, config, configLoading, configUpdateLoading, configDeleteLoading } =
     useSelector((state) => state.user || {});
 
@@ -3993,12 +3993,6 @@ const Profile = () => {
   const toggleSecretKey = (f) => setShowSecretKeys((p) => ({ ...p, [f]: !p[f] }));
 
   useEffect(() => { if (isSuperAdmin) dispatch(getConfig()); }, [dispatch, isSuperAdmin]);
-
-  useEffect(() => {
-    if (user?._id) {
-      dispatch(getUserById(user._id));
-    }
-  }, [dispatch, user?._id]);
 
   useEffect(() => {
     if (config) {
@@ -4064,26 +4058,57 @@ const Profile = () => {
     return !Object.values(newErrors).some(Boolean);
   };
 
-  const handleSave = async () => {
-    if (!validateForm()) return;
-    const payload = new FormData();
-    payload.append("name", formData.fullName);
-    payload.append("email", formData.email);
-    payload.append("mobile_no", formData.mobile);
-    payload.append("address", formData.address);
-    payload.append("role_id", userData.role_id);
-    payload.append("createdby", userData.createdby);
-    payload.append("isActive", userData.isActive);
-    if (formData.avtar) payload.append("avtar", formData.avtar);
-    if (imageRemoved) payload.append("removeAvtar", "true");
-    try {
-      await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
-      await dispatch(getUserById(userData._id));
-      toast.success("Profile updated!");
-      setIsEditing(false);
-    } catch (error) { toast.error(error?.message || "Update failed"); }
-  };
-
+  // const handleSave = async () => {
+  //   if (!validateForm()) return;
+  //   const payload = new FormData();
+  //   payload.append("name", formData.fullName);
+  //   payload.append("email", formData.email);
+  //   payload.append("mobile_no", formData.mobile);
+  //   payload.append("address", formData.address);
+  //   payload.append("role_id", userData.role_id);
+  //   payload.append("createdby", userData.createdby);
+  //   payload.append("isActive", userData.isActive);
+  //   if (formData.avtar) payload.append("avtar", formData.avtar);
+  //   if (imageRemoved) payload.append("removeAvtar", "true");
+  //   try {
+  //     await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
+  //     await dispatch(getUserById(userData._id));
+  //     toast.success("Profile updated!");
+  //     setIsEditing(false);
+  //   } catch (error) { toast.error(error?.message || "Update failed"); }
+  // };
+const handleSave = async () => {
+  if (!validateForm()) return;
+  
+  const payload = new FormData();
+  payload.append("name", formData.fullName);
+  payload.append("email", formData.email);
+  payload.append("mobile_no", formData.mobile);
+  payload.append("address", formData.address);
+  payload.append("role_id", userData.role_id);
+  payload.append("createdby", userData.createdby);
+  payload.append("isActive", userData.isActive);
+  if (formData.avtar) payload.append("avtar", formData.avtar);
+  if (imageRemoved) payload.append("removeAvtar", "true");
+  
+  try {
+    await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
+    await dispatch(getUserById(userData._id));
+    toast.success("Profile updated!");
+    setIsEditing(false);
+  } catch (error) {
+    if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+      // Show all errors in one toast
+      const allErrors = error.errors.join("\n• ");
+      toast.error(`Validation failed:\n• ${allErrors}`, {
+        autoClose: 5000,
+        style: { whiteSpace: 'pre-line' }
+      });
+    } else {
+      toast.error(error?.message || "Update failed");
+    }
+  }
+};
   const handleCancel = () => {
     setFormData({ fullName: userData.name || "", email: userData.email || "", mobile: userData.mobile_no || "", address: userData.address || "", avtar: null });
     setPreviewImage(userData.avtar || null);
@@ -4128,10 +4153,9 @@ const Profile = () => {
   };
 
   const getRoleInfo = () => {
-    const id = role_id || userData?.role_id;
+    const id = userData?.role_id || role_id;
     if (id === 2) return { icon: <SuperAdminIcon />, label: "Super Admin", color: theme.palette.secondary.main };
     if (id === 1) return { icon: <AdminIcon />, label: "Admin", color: theme.palette.primary.main };
-    if (id === 3) return { icon: <AdminIcon />, label: "Sub-admin", color: theme.palette.info.main };
     return { icon: <PersonIcon />, label: "User", color: theme.palette.text.secondary };
   };
   const roleInfo = getRoleInfo();
@@ -4172,20 +4196,22 @@ const Profile = () => {
     },
   ];
 
-  const isStale = userData?._id && user?._id && userData._id !== user._id;
-
-  if (loading || isStale) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <Container maxWidth="lg" sx={{
       py: { xs: 1.5, sm: 2, md: 2.5 },
     }}>
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <motion.div variants={stagger} initial="initial" animate="animate">
 
         {/* ── Header ── */}
@@ -4397,7 +4423,7 @@ const Profile = () => {
                         "&:hover": { bgcolor: alpha("#ef4444", 0.05) }
                       }}
                     >
-                      Sign Out
+                      Log Out
                     </Button>
                   </Box>
                 </Box>

@@ -367,12 +367,7 @@ const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
   isAuthenticated: !!localStorage.getItem('token'),
-  role_id: (() => {
-    try {
-      const u = JSON.parse(localStorage.getItem('user') || 'null');
-      return (u?.role_id !== undefined && u?.role_id !== null) ? u.role_id : null;
-    } catch (e) { return null; }
-  })(),
+  role_id: JSON.parse(localStorage.getItem('user'))?.role_id || null,
   resetEmail: null,
   otpVerified: false,
   isLoading: false,
@@ -488,13 +483,18 @@ const authSlice = createSlice({
         state.message = action.payload?.message || 'OTP verified successfully';
         state.error = null;
       })
+      // .addCase(verifyOTP.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.payload?.message || 'Failed to verify OTP';
+      //   state.success = false;
+      //   state.otpVerified = false;
+      // })
       .addCase(verifyOTP.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload?.message || 'Failed to verify OTP';
         state.success = false;
         state.otpVerified = false;
       })
-
       // Reset Password cases
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
