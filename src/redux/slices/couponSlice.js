@@ -611,11 +611,11 @@ const couponSlice = createSlice({
       })
       .addCase(validateCoupon.fulfilled, (state, action) => {
         state.validationLoading = false;
-        state.validationResult = action.payload?.data || action.payload || null;
+        state.validationResult = action.payload.data;
       })
       .addCase(validateCoupon.rejected, (state, action) => {
         state.validationLoading = false;
-        state.validationError = action.payload || { message: "An unexpected error occurred" };
+        state.validationError = action.payload;
       });
   }
 });

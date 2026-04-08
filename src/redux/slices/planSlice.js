@@ -109,23 +109,11 @@ export const deletePlan = createAsyncThunk(
 
 export const getUsersWithExpiringPlans = createAsyncThunk(
   "plan/getUsersWithExpiringPlans",
-  async (params = { daysBeforeExpiry: 7 }, { rejectWithValue }) => {
+  async (daysBeforeExpiry = 7, { rejectWithValue }) => {
     try {
-      // Clean params - remove empty values
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
-
-      // Default days if not provided
-      if (!cleanParams.daysBeforeExpiry) cleanParams.daysBeforeExpiry = 7;
-
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/plans/expiring-users${queryString ? `?${queryString}` : ""}`;
-
-      const response = await api.get(url);
+      const response = await api.get(
+        `/plans/expiring-users?daysBeforeExpiry=${daysBeforeExpiry}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching users with expiring plans:", error);
@@ -201,7 +189,7 @@ export const getUserCustomPlan = createAsyncThunk(
     try {
       const response = await api.get("/plans/custom/my-plan");
       return response.data;
-      // console.log(response.data);
+      console.log(response.data);
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Failed to fetch custom plan";
@@ -245,33 +233,6 @@ export const getAvailablePlans = createAsyncThunk(
       console.error("Error fetching available plans:", error);
       const errorMessage = error.response?.data?.message || "Failed to fetch available plans";
       toast.error(errorMessage);
-      return rejectWithValue(error.response?.data || errorMessage);
-    }
-  }
-);
-
-// NEW: Get Popular Plans for Dashboard
-export const getPopularPlans = createAsyncThunk(
-  "plan/getPopularPlans",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      // Clean params - remove empty values
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
-
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/plans/popular-plan${queryString ? `?${queryString}` : ""}`;
-
-      const response = await api.get(url);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching popular plans:", error);
-      const errorMessage = error.response?.data?.message || "Failed to fetch popular plans";
-      // Optional: Don't show toast for dashboard charts, handle quietly
       return rejectWithValue(error.response?.data || errorMessage);
     }
   }

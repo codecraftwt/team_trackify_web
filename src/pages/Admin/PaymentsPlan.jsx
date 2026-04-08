@@ -2762,12 +2762,12 @@ const PaymentPlans = () => {
     (plan) => plan.name?.includes("Add on Plan") && plan.status === "active"
   ) || [];
 
-
+  // Handle pending plan from registration/pricing flow
   useEffect(() => {
-  
+
     if (!loading && subscriptionPlans.length > 0) {
       let pendingPlanData = location.state?.selectedPlan || authUser?.selectedPlan;
-      
+
       if (!pendingPlanData) {
         const stored = sessionStorage.getItem('selectedPlan');
         if (stored) {
@@ -2777,7 +2777,7 @@ const PaymentPlans = () => {
 
       if (pendingPlanData) {
         console.log("🎯 Found pending plan to process:", pendingPlanData);
-        
+
         // Find the full plan object from the list to ensure we have all data
         const matchedPlan = subscriptionPlans.find(
           p => p._id === pendingPlanData._id || p.name === pendingPlanData.name
@@ -2785,16 +2785,16 @@ const PaymentPlans = () => {
 
         if (matchedPlan) {
           console.log("✅ Matched with active plan:", matchedPlan.name);
-          
-        
+
+
           setTimeout(() => {
             setSelectedPlanForCoupon(matchedPlan);
             setCouponPopupOpen(true);
-            
+
             // Clear session storage to avoid re-opening
             sessionStorage.removeItem('selectedPlan');
             sessionStorage.removeItem('fromPricing');
-            
+
             // Also notify user
             toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, {
               icon: "💳"
@@ -2803,7 +2803,7 @@ const PaymentPlans = () => {
         }
       }
     }
-  }, [loading, subscriptionPlans.length, location.state]);
+  }, [plansLoading, plansList, userCustomPlan]);
 
   // Custom Plan handlers
   const handleCreateCustomPlan = async (e) => {

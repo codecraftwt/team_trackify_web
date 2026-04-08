@@ -438,16 +438,20 @@ const Register = () => {
   // console.log("=========================================");
   // console.log("📍 REGISTER PAGE LOADED");
   // console.log("=========================================");
-  // console.log("📦 location.state:", location.state);
-  // console.log("📦 location.state?.selectedPlan:", location.state?.selectedPlan);
 
+  // Get selected plan from location state or session storage
   const selectedPlan = location.state?.selectedPlan || (() => {
     const stored = sessionStorage.getItem('selectedPlan');
-    // console.log("💾 Reading from sessionStorage:", stored);
     return stored ? JSON.parse(stored) : null;
   })();
 
   // console.log("✅ Final selectedPlan in Register:", selectedPlan);
+
+  // Clear session storage after reading to avoid persistence issues
+  if (selectedPlan && !location.state?.selectedPlan) {
+    // console.log("📦 Plan loaded from sessionStorage, clearing it...");
+    sessionStorage.removeItem('selectedPlan');
+  }
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -512,7 +516,15 @@ const Register = () => {
       return;
     }
     try {
-      const registrationData = { name: data.fullName, email: data.email, password: data.password, mobile_no: data.phone, address: data.address, role_id: "1", createdby: "null" };
+      const registrationData = {
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        mobile_no: data.phone,
+        address: data.address,
+        role_id: "1",
+        createdby: "null"
+      };
       // console.log("🚀 Sending registration API request:", registrationData);
       const response = await axios.post(`${BASE_URL}/users/register`, registrationData);
       // console.log("✅ Registration API response:", response.data);
@@ -524,7 +536,7 @@ const Register = () => {
 
         // Save selected plan to sessionStorage for OTP step
         if (selectedPlan) {
-          // console.log("💾 Saving selected plan to sessionStorage during registration:", selectedPlan);
+          // console.log("💾 Saving selected plan to sessionStorage:", selectedPlan);
           sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
           sessionStorage.setItem('fromPricing', 'true');
         }
@@ -534,7 +546,7 @@ const Register = () => {
           setSuccess(false);
           setTimer(60);
           setCanResend(false);
-          // console.log("➡️ Moving to OTP verification step");
+          console.log("➡️ Moving to OTP verification step");
         }, 1500);
       }
     } catch (err) {
@@ -593,6 +605,7 @@ const Register = () => {
 
       if (verifyEmailOTP.fulfilled.match(resultAction)) {
         // console.log("✅ OTP VERIFIED SUCCESSFULLY!");
+        toast.success('Email verified successfully!');
         setOtpSuccess(true);
 
         // Get the plan to pass to login
@@ -605,11 +618,11 @@ const Register = () => {
 
         // Clear session storage after reading
         if (planToPass) {
-          // console.log("💾 Saving selected plan to sessionStorage before redirect:", planToPass);
-          sessionStorage.setItem('selectedPlan', JSON.stringify(planToPass));
+          sessionStorage.removeItem('selectedPlan');
+          sessionStorage.removeItem('fromPricing');
         }
 
-        // console.log("🚀 Redirecting to login page with state:", { selectedPlan: planToPass });
+        // console.log("🚀 Redirecting to login page with plan data:", planToPass ? "YES" : "NO");
         setTimeout(() => {
           navigate('/login', {
             state: {
@@ -651,6 +664,7 @@ const Register = () => {
       // console.log("Resend OTP result:", resultAction);
       // console.log("Resend OTP result:", resultAction);
       if (resendEmailOTP.fulfilled.match(resultAction)) {
+        toast.success('New verification code sent to your email');
         // console.log("✅ OTP resent successfully");
         setOtp(['', '', '', '', '', '']);
       } else {

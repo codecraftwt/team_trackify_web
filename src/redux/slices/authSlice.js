@@ -367,12 +367,7 @@ const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
   isAuthenticated: !!localStorage.getItem('token'),
-  role_id: (() => {
-    try {
-      const u = JSON.parse(localStorage.getItem('user') || 'null');
-      return (u?.role_id !== undefined && u?.role_id !== null) ? u.role_id : null;
-    } catch (e) { return null; }
-  })(),
+  role_id: JSON.parse(localStorage.getItem('user'))?.role_id || null,
   resetEmail: null,
   otpVerified: false,
   isLoading: false,

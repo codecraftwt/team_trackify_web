@@ -1138,15 +1138,8 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
     if (!code?.trim()) { setValidationError('Please enter a coupon code'); return; }
     setValidationError('');
     const result = await dispatch(validateCoupon({ code, amount: planPrice }));
-    
     if (validateCoupon.fulfilled.match(result)) {
-      const couponData = result.payload?.data || result.payload;
-      
-      if (!couponData) {
-        setValidationError('Invalid response from server');
-        return;
-      }
-      
+      const couponData = result.payload.data;
       setAppliedCoupon(couponData);
       const savedAmount = couponData.discountAmount;
       toast.success(
@@ -1159,11 +1152,10 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
             </Typography>
           )}
         </Box>,
-        { icon: <CelebrationIcon style={{ color: T.emerald }} /> }
+        { icon: <CelebrationIcon sx={{ color: T.emerald }} /> }
       );
     } else {
-      const errorMsg = result.payload?.message || (typeof result.payload === 'string' ? result.payload : 'Invalid coupon code');
-      setValidationError(errorMsg);
+      setValidationError(result.payload?.message || 'Invalid coupon code');
       setAppliedCoupon(null);
     }
   };

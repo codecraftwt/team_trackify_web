@@ -837,10 +837,10 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     // Check if we're in impersonation mode
     const isImpersonatingFromStorage = localStorage.getItem('isImpersonating') === 'true';
     const storedUser = localStorage.getItem('user');
-
+    
     if (isImpersonating || isImpersonatingFromStorage) {
       setImpersonating(true);
-
+      
       if (storedUser) {
         try {
           setImpersonatedUser(JSON.parse(storedUser));
@@ -888,30 +888,30 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   const handleStopImpersonation = async () => {
     try {
       const result = await dispatch(stopImpersonation()).unwrap();
-
+      
       if (result.status === 1) {
         // Get the original token and user from sessionStorage
         const originalToken = sessionStorage.getItem('originalToken');
         const originalUserStr = sessionStorage.getItem('originalUser');
-
+        
         if (originalToken && originalUserStr) {
           const originalUser = JSON.parse(originalUserStr);
-
+          
           // Restore to localStorage
           localStorage.setItem('token', originalToken);
           localStorage.setItem('user', originalUserStr);
           localStorage.removeItem('isImpersonating');
-
+          
           // Clear sessionStorage
           sessionStorage.removeItem('originalToken');
           sessionStorage.removeItem('originalUser');
-
+          
           setImpersonating(false);
           setImpersonatedUser(null);
-
+          
           // Force a complete page reload to reset all state
-          window.location.href = originalUser?.role_id === 2
-            ? '/super-admin/dashboard'
+          window.location.href = originalUser?.role_id === 2 
+            ? '/super-admin/dashboard' 
             : '/admin/dashboard';
         } else {
           // If no original data, logout and redirect to login
@@ -953,16 +953,8 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
   ];
 
-  let menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
-  let roleName = role_id === 2 ? 'Super Admin' : 'Admin';
-
-  if (role_id === 3) {
-    roleName = 'Subadmin';
-    // Filter out restricted items for Subadmin
-    menuItems = adminMenuItems.filter(item =>
-      !['Payment Plans', 'Transaction History'].includes(item.text)
-    );
-  }
+  const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
+  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
 
   const isActive = (path) => location.pathname === path;
 

@@ -248,8 +248,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme, alpha } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { useSelector } from 'react-redux';
-
 // import logoImage from '../../assets/Team-Trackify-logo.png';
 import logoImage from '../../assets/logo31.png';
 
@@ -259,14 +257,22 @@ const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Check for token in localStorage
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    };
 
+    checkAuth();
 
-  const { isAuthenticated, user, role_id } = useSelector((state) => state.auth);
-  const isAuth = isAuthenticated || !!localStorage.getItem('token');
-  const effectiveRole = role_id ?? user?.role_id;
-  const roleIdNum = effectiveRole !== null && effectiveRole !== undefined ? Number(effectiveRole) : null;
-
+    // Optional: Listen for storage changes (if token changes in another tab)
+    window.addEventListener('storage', checkAuth);
+    
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
 
   // Add subtle shadow & bg opacity change on scroll
   useEffect(() => {
@@ -285,36 +291,6 @@ const Header = ({ onMenuClick }) => {
   ];
 
   const isActive = (path) => location.pathname === path;
-
-  const handleAuthAction = () => {
-    // 🔍 COMPREHENSIVE DEBUG LOGGING
-    const localUser = JSON.parse(localStorage.getItem('user') || 'null');
-    const localToken = localStorage.getItem('token');
-    
-    // console.log("🚀 Header.jsx - DASHBOARD CLICKED", { 
-    //   reduxAuth: { isAuthenticated, role_id, user: !!user },
-    //   localStorage: { hasToken: !!localToken, roleFromLocal: localUser?.role_id },
-    //   computed: { isAuth, effectiveRole, roleIdNum }
-    // });
-
-    if (isAuth) {
-      if (roleIdNum === 2) {
-        // console.log("➡️ Navidating to Super Admin Dashboard");
-        navigate('/super-admin/dashboard');
-      } else if (roleIdNum === 1 || roleIdNum === 3 || roleIdNum === 0) {
-        console.log("➡️ Navidating to Admin Dashboard (Role 0, 1, or 3)");
-        navigate('/admin/dashboard');
-      } else {
-        // Fallback: If role is null, undefined or NaN despite being isAuth
-        console.warn("⚠️ Redirecting to login to re-verify role session");
-        navigate('/login');
-      }
-    } else {
-      navigate('/login');
-    }
-    setMobileMenuOpen(false);
-  };
-
 
   return (
     <header
@@ -402,7 +378,7 @@ const Header = ({ onMenuClick }) => {
             <motion.button
               whileHover={{ scale: 1.03, y: -1 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleAuthAction}
+              onClick={() => navigate('/login')}
               className="ml-3 lg:ml-4 px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs lg:text-sm text-white shadow-md transition-all duration-200"
               style={{
                 backgroundColor: theme.palette.primary.main,
@@ -412,7 +388,6 @@ const Header = ({ onMenuClick }) => {
             >
               {isAuthenticated ? 'Dashboard' : 'Login'}
             </motion.button>
-
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -489,7 +464,10 @@ const Header = ({ onMenuClick }) => {
               {/* Mobile button - Only text changes */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={handleAuthAction}
+                onClick={() => {
+                  navigate('/login');
+                  setMobileMenuOpen(false);
+                }}
                 className="mt-3 px-5 py-3 rounded-lg font-semibold text-sm text-white shadow-md transition-all duration-200"
                 style={{
                   backgroundColor: theme.palette.primary.main,
@@ -499,7 +477,6 @@ const Header = ({ onMenuClick }) => {
               >
                 {isAuthenticated ? 'Go to Dashboard' : 'Login to Dashboard'}
               </motion.button>
-
             </div>
           </motion.div>
         )}

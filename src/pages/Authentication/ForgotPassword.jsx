@@ -96,7 +96,7 @@ const ForgotPassword = () => {
     if (forgotPassword.fulfilled.match(result)) {
       // Store email in local state for navigation
       setSubmittedEmail(data.email);
-      // console.log('OTP sent successfully to:', data.email);
+      console.log('OTP sent successfully to:', data.email);
     }
   };
 

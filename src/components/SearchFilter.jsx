@@ -50,7 +50,6 @@ const SearchFilter = ({
   sortBy = "date",
   sortOrder = "desc",
   onSortChange,
-  hideResults = false,
 }) => {
   const theme = useTheme();
   const isMobileScreen = useMediaQuery(theme.breakpoints.down('sm'));

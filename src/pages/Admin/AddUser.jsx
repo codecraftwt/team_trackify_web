@@ -49,7 +49,7 @@ const AddUser = () => {
 
   const editingUser = location.state?.user || null;
   const profileEditing = location.state?.profileEditing || false;
-
+  
   const { loading } = useSelector((state) => state.user || {});
 
   const [formData, setFormData] = useState({
@@ -61,8 +61,6 @@ const AddUser = () => {
     address: "",
     status: "active",
     avtar: null,
-    role_id: 0, // Default to Staff
-    adminPanelAccess: true, // Default to true
   });
 
   const [errors, setErrors] = useState({
@@ -90,7 +88,6 @@ const AddUser = () => {
         address: editingUser.address || "",
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
-        adminPanelAccess: (Number(editingUser.role_id) === 3) || (editingUser.permissions?.includes("admin_panel_access") ?? true),
       });
       setImageRemoved(false);
 
@@ -182,15 +179,15 @@ const AddUser = () => {
   };
 
   const getRoleBasedLabel = (label) => {
-    if (role_id === 1 || role_id === 3) {
+    if (role_id === 1) {
       return label.replace("Admin", "User");
     }
     return label;
   };
 
   const getRoleBasedName = (name) => {
-    if (role_id === 1 || role_id === 3) {
-      return name.replace("Organization", "User").replace("Admin", "User");
+    if (role_id === 1) {
+      return name.replace("Organization", "User");
     }
     return name;
   };
@@ -227,25 +224,12 @@ const AddUser = () => {
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active");
 
-    // Set role_id based on creator and adminPanelAccess checkbox
-    if (!editingUser) {
-      if (role_id === 2) {
-        payload.append("role_id", 1); // Super Admin creates Admin
-      } else if (role_id === 1) {
-        // Admin (Role 1) creates based on checkbox
-        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-      } else {
-        // Others only create Staff
-        payload.append("role_id", 0);
-      }
-      payload.append("createdby", userDataa?._id);
-    } else if (role_id === 1 && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
-      // During edit, Admin can also toggle between Staff and Sub-admin
-      payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-      payload.append("createdby", editingUser.createdby || userDataa?._id);
-    } else if (editingUser) {
+    if (editingUser) {
       payload.append("role_id", editingUser.role_id);
       payload.append("createdby", editingUser.createdby || userDataa?._id);
+    } else {
+      payload.append("role_id", role_id === 2 ? 1 : 0);
+      payload.append("createdby", userDataa?._id);
     }
 
     if (formData.avtar) {
@@ -255,10 +239,6 @@ const AddUser = () => {
     if (editingUser && imageRemoved) {
       payload.append("removeAvtar", "true");
     }
-
-    // Set permissions based on checkbox
-    const permissions = formData.adminPanelAccess ? ["admin_panel_access"] : [];
-    payload.append("permissions", JSON.stringify(permissions));
 
     try {
       if (editingUser) {
@@ -598,8 +578,6 @@ const AddUser = () => {
                     />
                   </Grid>
 
-
-
                   {/* Status - Only if not editing own profile */}
                   {editingUser?._id !== userDataa?._id && (
                     <Grid item xs={12}>
@@ -650,37 +628,12 @@ const AddUser = () => {
                     </Grid>
                   )}
 
-                  {/* Admin Panel Access Checkbox - For Admin (1) creating/editing Staff or Sub-admin */}
-                  {role_id === 1 && (Number(editingUser?.role_id) === 0 || Number(editingUser?.role_id) === 3 || !editingUser) && (
-                    <Grid item xs={12}>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            checked={formData.adminPanelAccess}
-                            onChange={(e) => setFormData({ ...formData, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 })}
-                            sx={{
-                              color: "#0f766e",
-                              '&.Mui-checked': {
-                                color: "#0f766e",
-                              },
-                            }}
-                          />
-                        }
-                        label={
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
-                            Allow Admin Panel Access (Set as Sub-admin)
-                          </Typography>
-                        }
-                      />
-                    </Grid>
-                  )}
-
                   {/* Profile Photo */}
                   <Grid item xs={12}>
                     <Typography variant="subtitle2" gutterBottom sx={{ color: "#1e293b", fontWeight: 600, fontSize: "0.9rem" }}>
                       Profile Photo
                     </Typography>
-
+                    
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
                       <Button
                         variant="outlined"
@@ -705,7 +658,7 @@ const AddUser = () => {
                           onChange={handleImageChange}
                         />
                       </Button>
-
+                      
                       <Typography variant="caption" color="text.secondary">
                         JPG, PNG, GIF up to 5MB
                       </Typography>

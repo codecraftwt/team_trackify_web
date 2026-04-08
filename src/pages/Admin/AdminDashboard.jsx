@@ -23,8 +23,7 @@ import {
   TrendingUp,
   TrendingDown,
   People as PeopleIcon,
-  LocationOn as LocationOnIcon,
-  Assignment as AssignmentIcon,
+  LocationOn as LocationIcon,
   Timeline as TimelineIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
@@ -869,26 +868,14 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const userState = useSelector((state) => state.user || {});
-  const { user: authUser, role_id: authRole } = useSelector((state) => state.auth || {});
-  const userData = userState.userInfo || authUser || {};
+  const userData = userState.userInfo || {};
+  // console.log("UserData=====>", userData);
   const lastTrackedUsers = userState.lastTrackedUsers || [];
   const loading = userState.loading || false;
-  
-  const effectiveRole = Number(authRole ?? userData?.role_id);
 
   // Consolidated data fetching function
   const fetchAllData = useCallback(async (isInitialLoad = false) => {
-    // Get user data reliably (including localStorage check)
-    const getStoredUser = () => {
-      const stored = localStorage.getItem('user');
-      return stored ? JSON.parse(stored) : userData;
-    };
-    
-    const activeUser = getStoredUser();
-    const userId = activeUser?._id || activeUser?.id;
-
-    if (!userId) {
-      // console.log("No user ID available");
+    if (!userData?._id) {
       setIsLoading(false);
       return;
     }
@@ -899,48 +886,10 @@ const AdminDashboard = () => {
       }
 
       const startTime = isInitialLoad ? Date.now() : null;
-      const roleId = Number(activeUser.role_id);
-      
-      // Helper: decode JWT to get adminId for sub-admins
-      // adminId is stored in the JWT payload but NOT in the localStorage user object
-      const getAdminIdFromToken = () => {
-        try {
-          const token = localStorage.getItem('token');
-          if (!token) return null;
-          const base64Payload = token.split('.')[1];
-          const decoded = JSON.parse(atob(base64Payload));
-          return decoded.adminId || null;
-        } catch (e) {
-          console.error('Failed to decode token:', e);
-          return null;
-        }
-      };
 
-      // For sub-admin (role_id=3): use the root admin's ID from JWT
-      // For admin (role_id=1): use their own _id
-      let finalTargetId;
-      if (roleId === 3) {
-        finalTargetId =
-          getAdminIdFromToken() ||                          // JWT adminId (most reliable)
-          activeUser.adminId?._id ||                        // if adminId is an object
-          (typeof activeUser.adminId === 'string' ? activeUser.adminId : null) ||
-          userId;                                           // last resort: own ID
-      } else {
-        finalTargetId = activeUser._id || activeUser.id || userId;
-      }
-      
-      // console.log("Dashboard fetch roleId:", roleId);
-      // console.log("Dashboard fetch finalTargetId:", finalTargetId);
+      const userResult = await dispatch(getUserById(userData._id)).unwrap();
 
-      const [userResult, allUsersResult, countsResult, locationsResult] = await Promise.all([
-        dispatch(getUserById(finalTargetId)).unwrap(),
-        dispatch(getAllUsers(finalTargetId)), 
-        dispatch(getUserCounts(finalTargetId)), 
-        dispatch(getActiveUserLocations(finalTargetId)),
-        dispatch(getLastFiveTrackedUsers(finalTargetId)),
-      ]);
-
-      // console.log("user data ->", userResult);
+      // console.log("yser data ->", userResult)
 
       if (userResult?.user?.currentPaymentId) {
         const plan = userResult.user.currentPaymentId;
@@ -958,6 +907,27 @@ const AdminDashboard = () => {
       } else {
         setPlanData(null);
       }
+
+      // const [lastTrackedResult, locationsResult, countsResult, allUsersResult] = await Promise.all([
+      //   dispatch(getLastFiveTrackedUsers(userData._id)),
+      //   // dispatch(getActiveUserLocations()),
+      //   dispatch(getUserCounts()),
+      //   dispatch(getAllUsers(userData._id))
+      // ]);
+      const adminId = userData._id; // use _id as adminId
+      // console.log("adminId from current loc", adminId)
+      if (!adminId) {
+        console.error("Admin ID is missing, cannot fetch locations");
+        return;
+      }
+
+      const [lastTrackedResult, locationsResult, countsResult, allUsersResult] =
+        await Promise.all([
+          dispatch(getLastFiveTrackedUsers(adminId)),
+          dispatch(getActiveUserLocations(adminId)),
+          dispatch(getUserCounts()),
+          dispatch(getAllUsers(adminId))
+        ]);
 
       if (allUsersResult.payload?.users) {
         const users = allUsersResult.payload.users;
@@ -1056,14 +1026,13 @@ const AdminDashboard = () => {
     setIsRefreshing(false);
   };
 
-  const roleId = Number(userData?.role_id);
-
   const userStats = [
     {
       key: "activeUsers",
-      label: "Total Users",
+      label: "Active Users",
       count: totalActiveUsers,
       icon: <FaUsers size={20} />,
+      bgColor: alpha(theme.palette.primary.main, 0.1),
       iconColor: theme.palette.primary.main,
       onClick: () => navigate("/user?filter=active"),
     },
@@ -1072,24 +1041,34 @@ const AdminDashboard = () => {
       label: "Inactive Users",
       count: totalInActiveUsers,
       icon: <FaUserTimes size={20} />,
-      iconColor: "#ef4444",
+      bgColor: alpha(theme.palette.text.secondary, 0.1),
+      iconColor: theme.palette.text.secondary,
       onClick: () => navigate("/user?filter=inactive"),
     },
     {
-      title: "Active Users",
+      key: "checkedInUsers",
+      label: "Checked In",
       count: checkedInCount,
-      icon: <LocationOnIcon sx={{ color: "#0f766e" }} />,
-      iconColor: "#0f766e",
-      label: "View Map",
-      onClick: () => (roleId === 1 || roleId === 3) && checkedInCount > 0 && navigate("/admin/live-locations"),
+      icon: <FaUserCheck size={20} />,
+      bgColor: alpha(theme.palette.primary.main, 0.1),
+      iconColor: theme.palette.primary.main,
+      // onClick: () => checkedInCount > 0 && navigate("/admin/live-locations"),
+      onClick: () => {
+        if (checkedInCount > 0) {
+          navigate("/admin/live-locations", {
+            state: { adminId: userData._id } // pass _id here
+          });
+        }
+      }
     },
     {
-      title: "Pending Reports",
-      count: 0,
-      icon: <AssignmentIcon sx={{ color: "#0f766e" }} />,
-      iconColor: "#0f766e",
-      label: "View Reports",
-      onClick: () => (roleId === 1 || roleId === 3) && navigate("/admin/reports"),
+      key: "checkedOutUsers",
+      label: "Checked Out",
+      count: checkedOutCount,
+      icon: <FaUserClock size={20} />,
+      bgColor: alpha(theme.palette.primary.main, 0.1),
+      iconColor: theme.palette.primary.main,
+      onClick: () => navigate("/admin/reports"),
     },
   ];
 
@@ -1178,7 +1157,7 @@ const AdminDashboard = () => {
                   fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' }
                 }}
               >
-                {effectiveRole === 3 ? `${userData?.name || 'Sub-admin'}` : "Admin Dashboard"}
+                Admin Dashboard
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{
                 display: "flex",
@@ -1215,7 +1194,7 @@ const AdminDashboard = () => {
               </Typography>
             </Box>
             <Chip
-              label={effectiveRole === 3 ? "Sub-admin" : "Admin"}
+              label="Admin"
               size="small"
               sx={{
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
@@ -1232,8 +1211,8 @@ const AdminDashboard = () => {
           {/* Stats Cards */}
           <StatsCards stats={userStats} loading={isLoading} />
 
-          {/* Current Plan Section - Hidden for Subadmin */}
-          {userData.role_id !== 3 && <CurrentPlan planData={planData} loading={isLoading} />}
+          {/* Current Plan Section */}
+          <CurrentPlan planData={planData} loading={isLoading} />
 
           {/* Recent Activities */}
           <RecentActivities users={lastTrackedUsers} loading={isLoading} />
