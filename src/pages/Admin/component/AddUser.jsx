@@ -2111,6 +2111,7 @@ import {
   Chip,
   useMediaQuery,
   useTheme,
+  Checkbox,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -2122,15 +2123,15 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Close as CloseIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
   Business as BusinessIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser, updateUser } from "../../../redux/slices/userSlice";
+import { registerUser, updateUser, updateUserPermissions } from "../../../redux/slices/userSlice";
 import { toast } from "react-toastify";
 
 const AddUser = ({ open, onClose, editingUser = null }) => {
-  // console.log("Editing user data ------------------------>", editingUser);
   // console.log("Editing user data ------------------------>", editingUser);
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -2145,11 +2146,11 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const role_id = userDataa?.role_id;
   const userData = useSelector((state) => state.user?.userInfo || {});
   const loading = useSelector((state) => state.user?.loading || false);
-  
+
   // Local loading state to prevent double submission
   const [submitting, setSubmitting] = useState(false);
 
-  // Determine if current user is Super Admin (role_id = 2)
+
   const isSuperAdmin = role_id === 2;
   const isAdmin = role_id === 1;
 
@@ -2162,6 +2163,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     address: "",
     status: "active",
     avtar: null,
+    role_id: 0,
+    adminPanelAccess: true,
   });
 
   const [errors, setErrors] = useState({
@@ -2180,7 +2183,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Reset submitting when modal closes
+
   useEffect(() => {
     if (!open) {
       setSubmitting(false);
@@ -2216,23 +2219,23 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   useEffect(() => {
     if (editingUser) {
-      // console.log("Setting form data from editingUser:", editingUser);
-      setFormData({ 
+      setFormData({
         fullName: editingUser.name || "",
         email: editingUser.email || "",
         mobile: editingUser.mobile_no || "",
         address: editingUser.address || "",
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
+        role_id: Number(editingUser.role_id) || 0,
+        adminPanelAccess: editingUser.permissions
+          ? editingUser.permissions.includes("admin_panel")
+          : (Number(editingUser.role_id) === 3),
       });
       setImageRemoved(false);
-      // console.log("editingUser:", editingUser);
-
       if (editingUser.avtar) {
         setPreviewImage(editingUser.avtar);
       }
     } else {
-      // Reset form when opening for new user
       setFormData({
         fullName: "",
         email: "",
@@ -2242,6 +2245,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         address: "",
         status: "active",
         avtar: null,
+        role_id: 0,
+        adminPanelAccess: false,
       });
       setPreviewImage(null);
       setErrors({});
@@ -2314,7 +2319,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restrict mobile to only numbers
     if (name === "mobile") {
       const numericValue = value.replace(/[^0-9]/g, "");
       if (numericValue.length <= 10) {
@@ -2328,8 +2332,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       const error = validateField(name, name === "mobile" ? value.replace(/[^0-9]/g, "") : value);
       setErrors({ ...errors, [name]: error });
     }
-
-    // Clear confirm password error when password changes
     if (name === "password" && touched.confirmPassword) {
       const confirmError = validateField("confirmPassword", formData.confirmPassword);
       setErrors({ ...errors, confirmPassword: confirmError });
@@ -2367,14 +2369,14 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
       setErrors({ ...errors, avtar: "" });
       setFormData({ ...formData, avtar: file });
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
-      
+
       setImageRemoved(false);
     }
   };
@@ -2404,7 +2406,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
     setErrors(newErrors);
 
-    // Mark all fields as touched
+
     const allTouched = {};
     Object.keys(newErrors).forEach(key => {
       allTouched[key] = true;
@@ -2416,41 +2418,72 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("handle submit called ..........................");
+
 
     if (!validateForm()) return;
-    
-    // Prevent double submission
+
+
     if (submitting) return;
-    
+
     setSubmitting(true);
 
     const payload = new FormData();
     payload.append("name", formData.fullName);
     payload.append("email", formData.email);
-    
-    // Only send createdby for NEW users
+
+    // Only send createdby and adminId for NEW users
     if (!editingUser) {
-      payload.append("createdby", userData._id || userDataa?._id);
+      const creatorId = userDataa?._id || userData?._id;
+      payload.append("createdby", creatorId);
+
+      if (Number(userDataa?.role_id) === 3) {
+        // Helper to decode JWT and extract adminId
+        const getAdminIdFromToken = () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+            const base64Payload = token.split('.')[1];
+            const decoded = JSON.parse(atob(base64Payload));
+            return decoded.adminId || null;
+          } catch (e) {
+            console.error('Failed to decode token:', e);
+            return null;
+          }
+        };
+        const rootAdminId =
+          getAdminIdFromToken() ||
+          userDataa?.adminId?._id ||
+          (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null);
+
+        if (rootAdminId) {
+          payload.append("adminId", rootAdminId);
+
+        } else {
+          console.warn("Sub-admin has no adminId - new user may not appear in admin's list");
+        }
+      }
     }
-    
+
     payload.append("mobile_no", formData.mobile);
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active");
 
-    // CRITICAL FIX: For editing users, DO NOT send role_id
-    // This allows both Admin and Super Admin to update users
-    if (editingUser) {
-      // For Super Admin, if you want to allow role change, you can add a role selector
-      // For now, we skip sending role_id to preserve existing role
-      // console.log("Editing user - skipping role_id to preserve existing role");
-    } else {
-      // For new users, set role based on creator
-      if (isSuperAdmin) {
-        payload.append("role_id", 1); // Super Admin creates Admin
+    if (!editingUser) {
+      if (isAdmin) {
+  
+        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+
+      } else if (isSuperAdmin) {
+        payload.append("role_id", 1);
       } else {
-        payload.append("role_id", 0); // Admin creates User
+       
+        payload.append("role_id", 0);
+
       }
+    } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
+      // During edit, Admin can also toggle between Staff and Sub-admin
+      payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+
     }
 
     // Handle avatar
@@ -2462,36 +2495,65 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       payload.append("removeAvtar", "true");
     }
 
-    // Log payload for debugging
-    // console.log("Payload entries:");
+   
+    const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
+    payload.append("permissions", JSON.stringify(permissions));
+    
     for (let pair of payload.entries()) {
-      // console.log(pair[0], pair[1]);
     }
 
     try {
-      // console.log("inside the try... ");
+
       if (editingUser) {
         const userId = editingUser._id || editingUser.id;
-        // console.log("calling the update user API for userId:", userId);
-        
         if (!userId) {
           throw new Error("User ID is missing");
         }
+
+        let result;
+        if (Number(formData.role_id) === 3 && !formData.avtar && !imageRemoved) {
+          const role_id = Number(formData.role_id);
+          result = await dispatch(
+            updateUserPermissions({ userId, permissions, role_id })
+          ).unwrap();
+        } else {
         
-        const result = await dispatch(
-          updateUser({ userId: userId, formData: payload })
-        ).unwrap();
-        // console.log("Update result:", result);
-        // toast.success("User updated successfully!");
+          result = await dispatch(
+            updateUser({ userId: userId, formData: payload })
+          ).unwrap();
+        }
+        toast.success("User updated successfully!");
       } else {
         payload.append("password", formData.password);
         payload.append("confirmPassword", formData.confirmPassword);
         await dispatch(registerUser(payload)).unwrap();
-        // toast.success("User created successfully!");
+        toast.success("User created successfully!");
       }
-      onClose(true); // Pass true to indicate success and refresh data
+      onClose(true); 
     } catch (error) {
-            // toast.error(error?.message || error?.response?.data?.message || "Operation failed");
+      // Extract message from various possible structures
+      let errorMessage = "Operation failed";
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      console.error("Final toast error message:", errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -2897,6 +2959,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     />
                   </Grid>
 
+
+
                   {/* Address */}
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -2939,63 +3003,139 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     />
                   </Grid>
 
-                  {/* Status - Only if not editing own profile */}
+                  {/* Account Status */}
                   {editingUser?._id !== userDataa?._id && (
-                    <Grid item xs={12}>
-                      <FormControl component="fieldset">
-                        <FormLabel
-                          component="legend"
-                          sx={{
-                            color: "text.primary",
-                            fontWeight: 500,
-                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
-                          }}
-                        >
-                          Account Status
-                        </FormLabel>
-                        <RadioGroup
-                          row
-                          name="status"
-                          value={formData.status}
-                          onChange={handleChange}
-                          sx={{ flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 } }}
-                        >
-                          <FormControlLabel
-                            value="active"
-                            control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                            label={
-                              <Chip
-                                label="Active"
-                                size="small"
-                                sx={{
-                                  bgcolor: alpha("#22c55e", 0.1),
-                                  color: "#22c55e",
-                                  fontWeight: 600,
-                                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                                  height: 20,
-                                }}
-                              />
-                            }
+                    <Grid item xs={12} md={6}>
+                      <Box sx={{
+                        height: '100%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.02),
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: alpha(theme.palette.primary.main, 0.05),
+                      }}>
+                        <FormControl component="fieldset" fullWidth>
+                          <FormLabel
+                            component="legend"
+                            sx={{
+                              color: "text.primary",
+                              fontWeight: 500,
+                              mb: 0.5,
+                              fontSize: { xs: '0.70rem', sm: '0.75rem' }
+                            }}
+                          >
+                            Account Status
+                          </FormLabel>
+                          <RadioGroup
+                            row
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            sx={{ flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 } }}
+                          >
+                            <FormControlLabel
+                              value="active"
+                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                              label={
+                                <Chip
+                                  label="Active"
+                                  size="small"
+                                  sx={{
+                                    bgcolor: alpha("#22c55e", 0.1),
+                                    color: "#22c55e",
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                                    height: 20,
+                                  }}
+                                />
+                              }
+                            />
+                            <FormControlLabel
+                              value="inactive"
+                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                              label={
+                                <Chip
+                                  label="Inactive"
+                                  size="small"
+                                  sx={{
+                                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                                    color: theme.palette.text.secondary,
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                                    height: 20,
+                                  }}
+                                />
+                              }
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </Box>
+                    </Grid>
+                  )}
+
+                  {/* Admin Panel Access Card */}
+                  {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
+                    <Grid item xs={12} md={6}>
+                      <Box
+                        onClick={() => !isLoading && setFormData({
+                          ...formData,
+                          adminPanelAccess: !formData.adminPanelAccess,
+                          role_id: !formData.adminPanelAccess ? 3 : 0
+                        })}
+                        sx={{
+                          height: '95%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.08) : alpha(theme.palette.primary.main, 0.02),
+                          px: 2,
+                          py: { xs: 1.2, md: 1 },
+                          borderRadius: 2.5,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          border: '2px solid',
+                          borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.08),
+                          boxShadow: formData.adminPanelAccess ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}` : 'none',
+                          position: 'relative',
+
+                        }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                          <Avatar
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              bgcolor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.1),
+                              color: formData.adminPanelAccess ? 'white' : theme.palette.primary.main,
+                              transition: 'all 0.3s ease',
+                            }}
+                          >
+                            <AdminPanelSettingsIcon sx={{ fontSize: 18 }} />
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography sx={{
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              color: formData.adminPanelAccess ? theme.palette.primary.main : 'text.primary',
+                              lineHeight: 1.1,
+                            }}>
+                              Admin Panel Access
+                            </Typography>
+
+                          </Box>
+                          <Checkbox
+                            checked={formData.adminPanelAccess}
+                            onChange={(e) => setFormData({ ...formData, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 })}
+                            disabled={isLoading}
+                            size="small"
+                            sx={{
+                              p: 0.5,
+                              color: alpha(theme.palette.primary.main, 0.3),
+                              '&.Mui-checked': {
+                                color: theme.palette.primary.main,
+                              },
+                            }}
                           />
-                          <FormControlLabel
-                            value="inactive"
-                            control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                            label={
-                              <Chip
-                                label="Inactive"
-                                size="small"
-                                sx={{
-                                  bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                                  color: theme.palette.text.secondary,
-                                  fontWeight: 600,
-                                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                                  height: 20,
-                                }}
-                              />
-                            }
-                          />
-                        </RadioGroup>
-                      </FormControl>
+                        </Box>
+                      </Box>
                     </Grid>
                   )}
 
@@ -3204,14 +3344,3 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 };
 
 export default AddUser;
-
-
-
-
-
-
-
-
-
-
-
