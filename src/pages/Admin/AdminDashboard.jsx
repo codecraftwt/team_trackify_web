@@ -39,6 +39,7 @@ import {
   getLastFiveTrackedUsers,
   getActiveUserLocations,
   getUserCounts,
+  getAdminStats
 } from "../../redux/slices/userSlice";
 import Loader from "../../components/common/Loader";
 import { formatDateDDMMYYYY, planExpiresIn } from "../../utils/dateFormat";
@@ -875,7 +876,6 @@ const AdminDashboard = () => {
   // Consolidated data fetching function
   const fetchAllData = useCallback(async (isInitialLoad = false) => {
     if (!userData?._id) {
-      // console.log("No user ID available");
       setIsLoading(false);
       return;
     }
@@ -973,6 +973,7 @@ const AdminDashboard = () => {
         setIsLoading(false);
       }
     }
+    
   }, [dispatch, userData?._id]);
 
   // Effects

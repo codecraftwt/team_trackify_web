@@ -1746,7 +1746,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
     { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
-    { text: 'Coopon Management', icon: <RedeemIcon  />, path: '/super-admin/couponmanagment' },
+    { text: 'Coupon Management', icon: <RedeemIcon  />, path: '/super-admin/couponmanagment' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },

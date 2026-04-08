@@ -4095,13 +4095,14 @@ const PlanManagement = () => {
               <Box>
                 <Typography
                   variant={isMobile ? "body1" : "h6"}
-                  fontWeight="600"
+                  fontWeight="800"
                   color={theme.palette.primary.main}
+                  gutterBottom
                   sx={{
                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    fontSize: { xs: '1rem', sm: '1.2rem', md: '1.4rem' }
+                    fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem', lg: '1.5rem', xl: '1.7rem' },
                   }}
                 >
                   Plan Management

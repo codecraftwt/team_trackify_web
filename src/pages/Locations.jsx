@@ -3114,7 +3114,6 @@ const Locations = () => {
         </div>
         <div><b>Time:</b> ${fmtTime(startPoint.timestamp)}</div>
         <div><b>Date:</b> ${fmtDate(startPoint.timestamp)}</div>
-        <div><b>Address:</b> ${getAddress(startPoint)}</div>
         <div style="margin-top:8px;border-top:1px solid #ddd;padding-top:8px;">
           <b>📸 Start Photo</b><br/>
           <img src="${startPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;border-radius:6px;cursor:pointer;margin-top:5px;" onclick="window.open('${startPoint.photo}','_blank')"/>
@@ -3133,7 +3132,6 @@ const Locations = () => {
         </div>
         <div><b>Time:</b> ${fmtTime(fb.timestamp)}</div>
         <div><b>Date:</b> ${fmtDate(fb.timestamp)}</div>
-        <div><b>Address:</b> ${getAddress(fb)}</div>
       </div>`;
       const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 32), zIndexOffset: 1000 })
         .bindPopup(popupContent).addTo(mapInstance.current);
@@ -3149,7 +3147,6 @@ const Locations = () => {
         </div>
         <div><b>Time:</b> ${fmtTime(endPoint.timestamp)}</div>
         <div><b>Date:</b> ${fmtDate(endPoint.timestamp)}</div>
-        <div><b>Address:</b> ${getAddress(endPoint)}</div>
         <div style="margin-top:8px;border-top:1px solid #ddd;padding-top:8px;">
           <b>📸 End Photo</b><br/>
           <img src="${endPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;border-radius:6px;cursor:pointer;margin-top:5px;" onclick="window.open('${endPoint.photo}','_blank')"/>
@@ -3408,232 +3405,125 @@ const Locations = () => {
       //     })}
       //   </Box>
       // </Paper>
-      // <Paper
-      //   elevation={3}
-      //   sx={{
-      //     position: "absolute",
-      //     bottom: 75,
-      //     left: 16,
-      //     right: 16,
-      //     zIndex: 600,
-      //     bgcolor: "rgba(0,0,0,0.4)",
-      //     backdropFilter: "blur(10px)",
-      //     borderRadius: 2,
-      //     p: 0.75, // Reduced padding
-      //     overflow: "hidden",
-      //   }}
-      // >
-      //   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5, px: 0.5 }}>
-      //     <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-      //     <Typography variant="caption" sx={{ color: "white", fontWeight: 500, fontSize: "10px" }}>
-      //       Session Photos ({sessionPhotos.length})
-      //     </Typography>
-      //   </Box>
 
-      //   <Box
-      //     sx={{
-      //       display: "flex",
-      //       gap: 0.75, // Reduced gap
-      //       overflowX: "auto",
-      //       overflowY: "hidden",
-      //       pb: 0.5,
-      //       "&::-webkit-scrollbar": {
-      //         height: 3, // Thinner scrollbar
-      //       },
-      //       "&::-webkit-scrollbar-track": {
-      //         bgcolor: "rgba(255,255,255,0.1)",
-      //         borderRadius: 2,
-      //       },
-      //       "&::-webkit-scrollbar-thumb": {
-      //         bgcolor: "rgba(255,255,255,0.3)",
-      //         borderRadius: 2,
-      //       },
-      //     }}
-      //   >
-      //     {sessionPhotos.map((photo, index) => {
-      //       const isStart = photo.type === "start";
-      //       const isEnd = photo.type === "end";
-      //       const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+      <Paper
+        elevation={3}
+        sx={{
+          position: "absolute",
+          bottom: 20,
+          left: 16,
+          right: 16,
+          zIndex: 600,
+          bgcolor: "rgba(0,0,0,0.4)",
+          backdropFilter: "blur(10px)",
+          borderRadius: 2,
+          p: 0.5,
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5, px: 0.5 }}>
+          <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+          <Typography variant="caption" sx={{ color: "white", fontWeight: 500, fontSize: "10px" }}>
+            Session Photos ({sessionPhotos.length})
+          </Typography>
+        </Box>
 
-      //       return (
-      //         <Box
-      //           key={photo.key || index}
-      //           onClick={() => handlePhotoClick(photo)}
-      //           sx={{
-      //             flexShrink: 0,
-      //             width: 60, // Reduced from 80
-      //             height: 60, // Reduced from 80
-      //             borderRadius: 1,
-      //             overflow: "hidden",
-      //             cursor: "pointer",
-      //             border: `1.5px solid ${borderColor}`, // Thinner border
-      //             position: "relative",
-      //             transition: "transform 0.2s",
-      //             "&:hover": {
-      //               transform: "scale(1.05)",
-      //             },
-      //           }}
-      //         >
-      //           <img
-      //             src={photo.url}
-      //             alt={`Photo ${index + 1}`}
-      //             style={{
-      //               width: "100%",
-      //               height: "100%",
-      //               objectFit: "cover",
-      //             }}
-      //             onError={(e) => {
-      //               e.target.style.display = "none";
-      //               e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#333;"><PhotoIcon sx={{color:"#666"}}/></div>';
-      //             }}
-      //           />
-      //           <Box
-      //             sx={{
-      //               position: "absolute",
-      //               top: 2,
-      //               right: 2,
-      //               bgcolor: borderColor,
-      //               borderRadius: "50%",
-      //               width: 14, // Reduced from 18
-      //               height: 14, // Reduced from 18
-      //               display: "flex",
-      //               alignItems: "center",
-      //               justifyContent: "center",
-      //               fontSize: 8, // Reduced from 10
-      //             }}
-      //           >
-      //             {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
-      //           </Box>
-      //           <Typography
-      //             variant="caption"
-      //             sx={{
-      //               position: "absolute",
-      //               bottom: 0,
-      //               left: 0,
-      //               right: 0,
-      //               bgcolor: "rgba(0,0,0,0.6)",
-      //               color: "white",
-      //               fontSize: "7px", // Smaller font
-      //               textAlign: "center",
-      //               py: 0.15, // Reduced padding
-      //             }}
-      //           >
-      //             {fmtTime(photo.timestamp)}
-      //           </Typography>
-      //         </Box>
-      //       );
-      //     })}
-      //   </Box>
-      // </Paper>
-    <Paper
-  elevation={3}
-  sx={{
-    position: "absolute",
-    bottom: 75,
-    left: 16,
-    right: 16,
-    zIndex: 600,
-    bgcolor: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(10px)",
-    borderRadius: 2,
-    p: 0.75,
-    overflow: "auto", // Changed to auto for vertical scrolling if needed
-    maxHeight: 200, // Optional: limit height and enable vertical scroll
-  }}
->
-  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5, px: 0.5 }}>
-    <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-    <Typography variant="caption" sx={{ color: "white", fontWeight: 500, fontSize: "10px" }}>
-      Session Photos ({sessionPhotos.length})
-    </Typography>
-  </Box>
-
-  <Box
-    sx={{
-      display: "grid",
-      gap: 0.75,
-      gridTemplateColumns: {
-        xs: "1fr",        // Mobile: 1 card per row
-        sm: "repeat(2, 1fr)",     // Tablet: 2 cards per row
-        md: "repeat(3, 1fr)",     // Laptop 1024: 3 cards per row
-        lg: "repeat(4, 1fr)",     // Laptop 1440+: 4 cards per row
-      },
-    }}
-  >
-    {sessionPhotos.map((photo, index) => {
-      const isStart = photo.type === "start";
-      const isEnd = photo.type === "end";
-      const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
-
-      return (
         <Box
-          key={photo.key || index}
-          onClick={() => handlePhotoClick(photo)}
           sx={{
-            width: "100%",
-            aspectRatio: "1 / 1", // Maintains square aspect ratio
-            borderRadius: 1,
-            overflow: "hidden",
-            cursor: "pointer",
-            border: `1.5px solid ${borderColor}`,
-            position: "relative",
-            transition: "transform 0.2s",
-            "&:hover": {
-              transform: "scale(1.02)",
+            display: "flex",
+            gap: 0.75,
+            overflowX: "auto",
+            overflowY: "hidden",
+            pb: 0.5,
+            "&::-webkit-scrollbar": {
+              height: 3,
+            },
+            "&::-webkit-scrollbar-track": {
+              bgcolor: "rgba(255,255,255,0.1)",
+              borderRadius: 2,
+            },
+            "&::-webkit-scrollbar-thumb": {
+              bgcolor: "rgba(255,255,255,0.3)",
+              borderRadius: 2,
             },
           }}
         >
-          <img
-            src={photo.url}
-            alt={`Photo ${index + 1}`}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-            onError={(e) => {
-              e.target.style.display = "none";
-              e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#333;"><PhotoIcon sx={{color:"#666"}}/></div>';
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 2,
-              right: 2,
-              bgcolor: borderColor,
-              borderRadius: "50%",
-              width: 14,
-              height: 14,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 8,
-            }}
-          >
-            {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
-          </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              bgcolor: "rgba(0,0,0,0.6)",
-              color: "white",
-              fontSize: "7px",
-              textAlign: "center",
-              py: 0.15,
-            }}
-          >
-            {fmtTime(photo.timestamp)}
-          </Typography>
+          {sessionPhotos.map((photo, index) => {
+            const isStart = photo.type === "start";
+            const isEnd = photo.type === "end";
+            const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+
+            return (
+              <Box
+                key={photo.key || index}
+                onClick={() => handlePhotoClick(photo)}
+                sx={{
+                  flexShrink: 0,
+                  width: 60,
+                  height: 60,
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  border: `1.5px solid ${borderColor}`,
+                  position: "relative",
+                  transition: "transform 0.2s",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                  },
+                }}
+              >
+                <img
+                  src={photo.url}
+                  alt={`Photo ${index + 1}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#333;"><PhotoIcon sx={{color:"#666"}}/></div>';
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 2,
+                    right: 2,
+                    bgcolor: borderColor,
+                    borderRadius: "50%",
+                    width: 14,
+                    height: 14,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 7,
+                  }}
+                >
+                  {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: "rgba(0,0,0,0.6)",
+                    color: "white",
+                    fontSize: "7px",
+                    textAlign: "center",
+                    py: 0.15,
+                  }}
+                >
+                  {fmtTime(photo.timestamp)}
+                </Typography>
+              </Box>
+            );
+          })}
         </Box>
-      );
-    })}
-  </Box>
-</Paper>
+      </Paper>
+
     );
   };
 
