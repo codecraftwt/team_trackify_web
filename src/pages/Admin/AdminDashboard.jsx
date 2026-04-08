@@ -869,13 +869,20 @@ const AdminDashboard = () => {
 
   const userState = useSelector((state) => state.user || {});
   const userData = userState.userInfo || {};
-  // console.log("UserData=====>", userData);
+  
+  // Robustly determine the effective admin ID (parent organization ID)
+  const isSubAdmin = Number(userData.role_id) === 3;
+  const rawAdminId = userData.adminId;
+  const effectiveAdminId = isSubAdmin
+    ? (typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId)
+    : (userData?._id || userData?.id);
+
   const lastTrackedUsers = userState.lastTrackedUsers || [];
   const loading = userState.loading || false;
 
   // Consolidated data fetching function
   const fetchAllData = useCallback(async (isInitialLoad = false) => {
-    if (!userData?._id) {
+    if (!effectiveAdminId) {
       setIsLoading(false);
       return;
     }
@@ -887,7 +894,7 @@ const AdminDashboard = () => {
 
       const startTime = isInitialLoad ? Date.now() : null;
 
-      const userResult = await dispatch(getUserById(userData._id)).unwrap();
+      const userResult = await dispatch(getUserById(effectiveAdminId)).unwrap();
 
       // console.log("yser data ->", userResult)
 
@@ -914,8 +921,7 @@ const AdminDashboard = () => {
       //   dispatch(getUserCounts()),
       //   dispatch(getAllUsers(userData._id))
       // ]);
-      const adminId = userData._id; // use _id as adminId
-      // console.log("adminId from current loc", adminId)
+      const adminId = effectiveAdminId;
       if (!adminId) {
         console.error("Admin ID is missing, cannot fetch locations");
         return;
@@ -974,7 +980,7 @@ const AdminDashboard = () => {
       }
     }
     
-  }, [dispatch, userData?._id]);
+  }, [dispatch, effectiveAdminId]);
 
   // Effects
   useEffect(() => {
@@ -1005,10 +1011,10 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (userData?._id && hasMounted.current) {
+    if (effectiveAdminId && hasMounted.current) {
       fetchAllData(true);
     }
-  }, [userData?._id]);
+  }, [effectiveAdminId]);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -1056,7 +1062,7 @@ const AdminDashboard = () => {
       onClick: () => {
         if (checkedInCount > 0) {
           navigate("/admin/live-locations", {
-            state: { adminId: userData._id } // pass _id here
+            state: { adminId: effectiveAdminId }
           });
         }
       }
@@ -1194,7 +1200,7 @@ const AdminDashboard = () => {
               </Typography>
             </Box>
             <Chip
-              label="Admin"
+              label={isSubAdmin ? "Sub-admin" : "Admin"}
               size="small"
               sx={{
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,

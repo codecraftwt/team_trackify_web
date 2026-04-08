@@ -1799,6 +1799,14 @@ const Reports = () => {
   const today = new Date();
   today.setHours(23, 59, 59, 999);
   
+  // Get user role and effective adminId
+  const storedUser = localStorage.getItem('user');
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  const role_id = parsedUser?.role_id;
+  const rawAdminId = parsedUser?.adminId;
+  const resolvedAdminId = typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId;
+  const effectiveAdminId = Number(role_id) === 3 ? resolvedAdminId : (parsedUser?._id || parsedUser?.id);
+
   useEffect(() => {
     dispatch(
       getReportsByAdmin({
@@ -1807,6 +1815,7 @@ const Reports = () => {
         search: debouncedSearchQuery || undefined,
         fromDate: dateRange.fromDate,
         toDate: dateRange.toDate,
+        adminId: effectiveAdminId,
       })
     );
 

@@ -39,8 +39,8 @@ import {
   useTheme,
   useMediaQuery,
   Alert,
-    Select,    
-  MenuItem,    
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -459,13 +459,13 @@ const TabsSkeleton = ({ isMobile }) => {
 //                 <IconButton
 //                   size="small"
 //                   onClick={() => onView(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   disabled={(role_id === 1 || role_id === 3) && isSubscriptionExpired === true}
 //                   sx={{
 //                     color: theme.palette.primary.main,
 //                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
 //                     width: 28,
 //                     height: 28,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                     opacity: (role_id === 1 || role_id === 3) && isSubscriptionExpired === true ? 0.5 : 1,
 //                   }}
 //                 >
 //                   <VisibilityIcon sx={{ fontSize: 16 }} />
@@ -512,13 +512,13 @@ const TabsSkeleton = ({ isMobile }) => {
 //                 <IconButton
 //                   size="small"
 //                   onClick={() => onEdit(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   disabled={(role_id === 1 || role_id === 3) && isSubscriptionExpired === true}
 //                   sx={{
 //                     color: theme.palette.primary.main,
 //                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
 //                     width: 28,
 //                     height: 28,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                     opacity: (role_id === 1 || role_id === 3) && isSubscriptionExpired === true ? 0.5 : 1,
 //                   }}
 //                 >
 //                   <EditIcon sx={{ fontSize: 16 }} />
@@ -712,13 +712,13 @@ const TabsSkeleton = ({ isMobile }) => {
 //                 <IconButton
 //                   size="small"
 //                   onClick={() => onView(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   disabled={(role_id === 1 || role_id === 3) && isSubscriptionExpired === true}
 //                   sx={{
 //                     color: theme.palette.primary.main,
 //                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
 //                     width: 26,
 //                     height: 26,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                     opacity: (role_id === 1 || role_id === 3) && isSubscriptionExpired === true ? 0.5 : 1,
 //                   }}
 //                 >
 //                   <VisibilityIcon sx={{ fontSize: 14 }} />
@@ -751,13 +751,13 @@ const TabsSkeleton = ({ isMobile }) => {
 //                 <IconButton
 //                   size="small"
 //                   onClick={() => onEdit(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   disabled={(role_id === 1 || role_id === 3) && isSubscriptionExpired === true}
 //                   sx={{
 //                     color: theme.palette.primary.main,
 //                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
 //                     width: 26,
 //                     height: 26,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                     opacity: (role_id === 1 || role_id === 3) && isSubscriptionExpired === true ? 0.5 : 1,
 //                   }}
 //                 >
 //                   <EditIcon sx={{ fontSize: 14 }} />
@@ -1046,12 +1046,13 @@ const UserCard = ({
                 <IconButton
                   size="small"
                   onClick={() => onDelete(user)}
-                  disabled={isDeleting}
+                  disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
                   sx={{
                     color: '#ef4444',
                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
                     width: 28,
                     height: 28,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
                   }}
                 >
                   {isDeleting ? <CircularProgress size={12} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
@@ -1084,10 +1085,12 @@ const ResponsiveTable = ({
   onRowsPerPageChange,
   totalCount,
   isMobile,
+
   isTablet,
   loading,
   role_id,
   isSubscriptionExpired,
+  isDeleting,
 }) => {
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
@@ -1324,7 +1327,13 @@ const ResponsiveTable = ({
                         <IconButton
                           size="small"
                           onClick={() => handleDeleteClick(user)}
-                          sx={{ color: '#ef4444', width: 26, height: 26 }}
+                          disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
+                          sx={{
+                            color: '#ef4444',
+                            width: 26,
+                            height: 26,
+                            opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                          }}
                         >
                           <DeleteIcon sx={{ fontSize: 14 }} />
                         </IconButton>
@@ -1452,8 +1461,11 @@ const UserManagement = () => {
 
   const loading = useSelector((state) => state.user?.loading || false);
   const currentUser = getUserData();
-  // const maxUser = currentUser?.currentPaymentId?.maxUser;
-  const subscriptionExpiry = currentUser?.currentPaymentId?.expiresAt;
+
+  // Use organization data from Redux if available (fetched via getUserById(adminId) for sub-admins)
+  const orgData = (Number(role_id) === 3 && userData?._id) ? userData : currentUser;
+
+  const subscriptionExpiry = orgData?.currentPaymentId?.expiresAt || orgData?.currentPaymentId?.expiryDate;
   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
 
@@ -1463,9 +1475,12 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchPaymentData = async () => {
       const user = getUserData();
-      const paymentId = user?.currentPaymentId;
+      const isSubAdmin = Number(user?.role_id) === 3;
 
-      // console.log("Payment ID to fetch:", user);
+      // For sub-admins, if userData (from Redux) is populated with the admin's info, use it.
+      // Otherwise, fallback to the current user's paymentId (for primary admins).
+      const targetUser = (isSubAdmin && userData?._id) ? userData : user;
+      const paymentId = targetUser?.currentPaymentId;
 
       if (paymentId && typeof paymentId === 'string') {
         setIsLoadingPayment(true);
@@ -1489,8 +1504,8 @@ const UserManagement = () => {
         }
       } else {
         // If paymentId is not a string (maybe it's already an object with maxUser)
-        if (paymentId && typeof paymentId === 'object' && paymentId.maxUser) {
-          setMaxUser(paymentId.maxUser);
+        if (paymentId && typeof paymentId === 'object' && (paymentId.maxUser || paymentId.userLimit)) {
+          setMaxUser(paymentId.maxUser || paymentId.userLimit);
         } else {
           setMaxUser(null);
         }
@@ -1498,7 +1513,7 @@ const UserManagement = () => {
     };
 
     fetchPaymentData();
-  }, [dispatch, getUserData, currentUser?._id]);
+  }, [dispatch, getUserData, currentUser?._id, userData?._id]);
 
   // Now you can use maxUser directly
   // console.log("Max User from state:", maxUser);
@@ -1550,11 +1565,18 @@ const UserManagement = () => {
     setFetchError(null);
 
     try {
-      if (role_id === 1) {
+      const isSubAdmin = Number(role_id) === 3;
+      const rawAdminId = user?.adminId;
+      const effectiveAdminId = isSubAdmin
+        ? (typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId)
+        : (user?._id || user?.id);
+
+      if (role_id === 1 || role_id === 3) {
         await Promise.all([
-          dispatch(getUserById(userId)),
+          // If sub-admin, fetch the parent admin's info to get plan details
+          dispatch(getUserById(effectiveAdminId)),
           dispatch(getUsersUnderAdmin({
-            adminId: userId, // Use the userId from localStorage
+            adminId: effectiveAdminId,
             page: 1,
             limit: 20,
             search: ''
@@ -1629,9 +1651,12 @@ const UserManagement = () => {
       // console.log("User role:", user?.role_id);
 
       if (token) {
-        // console.log("Dispatching checkUserSubscription...");
-        const result = await dispatch(checkUserSubscription());
-        // console.log("Subscription check result:", result);
+        const isSubAdmin = Number(user?.role_id) === 3;
+        const rawAdminId = user?.adminId;
+        const effectiveAdminId = isSubAdmin
+          ? (typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId)
+          : (user?._id || user?.id);
+        const result = await dispatch(checkUserSubscription(effectiveAdminId));
       }
     };
 
@@ -1794,7 +1819,7 @@ const UserManagement = () => {
   };
 
   const handleView = (user) => {
-    if (role_id === 1) {
+    if (role_id === 1 || role_id === 3) {
       navigate("/trackingdata", { state: { item: user } });
     } else if (role_id === 2) {
       navigate(`/list-users/${user._id || user.id}`);
@@ -1947,12 +1972,12 @@ const UserManagement = () => {
   };
 
   const canCreateUser = role_id === 2 ||
-    (maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
+    ((role_id === 1 || role_id === 3) && maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
   const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
   const paginatedUsers = (currentUsers || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
- if (fetchError) {
+  if (fetchError) {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -2060,9 +2085,9 @@ const UserManagement = () => {
   }
 
   return (
-    
+
     <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
-       <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -2280,7 +2305,7 @@ const UserManagement = () => {
               },
             }}
           >
-            {role_id === 1 ? 'Add User' : 'Add Organization'}
+            {role_id === 2 ? 'Add Organization' : 'Add User'}
           </Button>
         </Box>
       </Box>
@@ -2680,6 +2705,7 @@ const UserManagement = () => {
               loading={isLoading}
               role_id={role_id}
               isSubscriptionExpired={isSubscriptionExpired}
+              isDeleting={isDeleting}
             />
 
             {!isLoading && (
@@ -2792,180 +2818,180 @@ const UserManagement = () => {
             )}
           </Box>
         )} */}
-{viewMode === 'card' && (
-  <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
-    {!isLoading && isBulkMode && (
-      <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Checkbox
-          checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
-          indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
-          onChange={handleSelectAll}
-          size="small"
-          sx={{ color: theme.palette.primary.main }}
-        />
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
-          {selectedUsers.length} selected
-        </Typography>
-      </Box>
-    )}
-
-    {isLoading ? (
-      <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <UserCardSkeleton key={item} isBulkMode={isBulkMode} isMobile={isMobile} />
-        ))}
-      </Grid>
-    ) : (
-      <>
-        <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-          <AnimatePresence>
-            {(paginatedUsers || []).map((user) => (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                xl={3}
-                key={user._id || user.id}
-              >
-                <UserCard
-                  user={user}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteClick}
-                  onImpersonate={handleImpersonate}
-                  isSelected={selectedUsers.includes(user._id || user.id)}
-                  onSelect={handleSelectUser}
-                  isBulkMode={isBulkMode}
-                  role_id={role_id}
-                  isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
-                  isMobile={isMobile}
-                  isSubscriptionExpired={isSubscriptionExpired}
+        {viewMode === 'card' && (
+          <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
+            {!isLoading && isBulkMode && (
+              <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Checkbox
+                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
+                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
+                  onChange={handleSelectAll}
+                  size="small"
+                  sx={{ color: theme.palette.primary.main }}
                 />
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
+                  {selectedUsers.length} selected
+                </Typography>
+              </Box>
+            )}
+
+            {isLoading ? (
+              <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <UserCardSkeleton key={item} isBulkMode={isBulkMode} isMobile={isMobile} />
+                ))}
               </Grid>
-            ))}
-          </AnimatePresence>
-        </Grid>
+            ) : (
+              <>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                  <AnimatePresence>
+                    {(paginatedUsers || []).map((user) => (
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={3}
+                        xl={3}
+                        key={user._id || user.id}
+                      >
+                        <UserCard
+                          user={user}
+                          onView={handleView}
+                          onEdit={handleEdit}
+                          onDelete={handleDeleteClick}
+                          onImpersonate={handleImpersonate}
+                          isSelected={selectedUsers.includes(user._id || user.id)}
+                          onSelect={handleSelectUser}
+                          isBulkMode={isBulkMode}
+                          role_id={role_id}
+                          isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
+                          isMobile={isMobile}
+                          isSubscriptionExpired={isSubscriptionExpired}
+                        />
+                      </Grid>
+                    ))}
+                  </AnimatePresence>
+                </Grid>
 
-        {/* Pagination Controls for Card View */}
-        {currentUsers.length > 0 && (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            gap: 2, 
-            mt: 3,
-            flexWrap: 'wrap',
-          }}>
-            <Button
-              variant="outlined"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 0}
-              size="small"
-              sx={{
-                borderColor: alpha(theme.palette.primary.main, 0.5),
-                color: theme.palette.primary.main,
-                fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                height: 34,
-                px: 2,
-                '&:hover': {
-                  borderColor: theme.palette.primary.main,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                },
-                '&.Mui-disabled': {
-                  borderColor: alpha(theme.palette.primary.main, 0.2),
-                  color: alpha(theme.palette.primary.main, 0.3),
-                },
-              }}
-              startIcon={<ArrowUpwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
-            >
-              Previous
-            </Button>
-            
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1,
-              bgcolor: alpha(theme.palette.primary.main, 0.05),
-              px: 2,
-              py: 0.5,
-              borderRadius: 2,
-            }}>
-              <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, fontWeight: 500 }}>
-                Page {page + 1} of {Math.ceil(currentUsers.length / rowsPerPage)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
-                ({currentUsers.length} total)
-              </Typography>
-            </Box>
-            
-            <Button
-              variant="outlined"
-              onClick={() => setPage(page + 1)}
-              disabled={(page + 1) * rowsPerPage >= currentUsers.length}
-              size="small"
-              sx={{
-                borderColor: alpha(theme.palette.primary.main, 0.5),
-                color: theme.palette.primary.main,
-                fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                height: 34,
-                px: 2,
-                '&:hover': {
-                  borderColor: theme.palette.primary.main,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                },
-                '&.Mui-disabled': {
-                  borderColor: alpha(theme.palette.primary.main, 0.2),
-                  color: alpha(theme.palette.primary.main, 0.3),
-                },
-              }}
-              endIcon={<ArrowDownwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
-            >
-              Next
-            </Button>
+                {/* Pagination Controls for Card View */}
+                {currentUsers.length > 0 && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                    mt: 3,
+                    flexWrap: 'wrap',
+                  }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setPage(page - 1)}
+                      disabled={page === 0}
+                      size="small"
+                      sx={{
+                        borderColor: alpha(theme.palette.primary.main, 0.5),
+                        color: theme.palette.primary.main,
+                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                        height: 34,
+                        px: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: alpha(theme.palette.primary.main, 0.2),
+                          color: alpha(theme.palette.primary.main, 0.3),
+                        },
+                      }}
+                      startIcon={<ArrowUpwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
+                    >
+                      Previous
+                    </Button>
+
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      px: 2,
+                      py: 0.5,
+                      borderRadius: 2,
+                    }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, fontWeight: 500 }}>
+                        Page {page + 1} of {Math.ceil(currentUsers.length / rowsPerPage)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                        ({currentUsers.length} total)
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      onClick={() => setPage(page + 1)}
+                      disabled={(page + 1) * rowsPerPage >= currentUsers.length}
+                      size="small"
+                      sx={{
+                        borderColor: alpha(theme.palette.primary.main, 0.5),
+                        color: theme.palette.primary.main,
+                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                        height: 34,
+                        px: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: alpha(theme.palette.primary.main, 0.2),
+                          color: alpha(theme.palette.primary.main, 0.3),
+                        },
+                      }}
+                      endIcon={<ArrowDownwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
+                    >
+                      Next
+                    </Button>
+                  </Box>
+                )}
+
+                {/* Optional: Rows per page selector for card view */}
+                {currentUsers.length > rowsPerPage && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    mt: 2,
+                    gap: 1,
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                      Items per page:
+                    </Typography>
+                    <Select
+                      value={rowsPerPage}
+                      onChange={(e) => {
+                        setRowsPerPage(parseInt(e.target.value, 10));
+                        setPage(0);
+                      }}
+                      size="small"
+                      sx={{
+                        height: 28,
+                        fontSize: '0.7rem',
+                        '& .MuiSelect-select': {
+                          py: 0.3,
+                          px: 1,
+                        },
+                      }}
+                    >
+                      <MenuItem value={8}>8</MenuItem>
+                      <MenuItem value={12}>12</MenuItem>
+                      <MenuItem value={16}>16</MenuItem>
+                      <MenuItem value={24}>24</MenuItem>
+                    </Select>
+                  </Box>
+                )}
+              </>
+            )}
           </Box>
         )}
-
-        {/* Optional: Rows per page selector for card view */}
-        {currentUsers.length > rowsPerPage && (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end', 
-            alignItems: 'center',
-            mt: 2,
-            gap: 1,
-          }}>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
-              Items per page:
-            </Typography>
-            <Select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              size="small"
-              sx={{
-                height: 28,
-                fontSize: '0.7rem',
-                '& .MuiSelect-select': {
-                  py: 0.3,
-                  px: 1,
-                },
-              }}
-            >
-              <MenuItem value={8}>8</MenuItem>
-              <MenuItem value={12}>12</MenuItem>
-              <MenuItem value={16}>16</MenuItem>
-              <MenuItem value={24}>24</MenuItem>
-            </Select>
-          </Box>
-        )}
-      </>
-    )}
-  </Box>
-)}
 
         {/* Loading State for Tabs */}
         {isLoading && viewMode === 'table' && (

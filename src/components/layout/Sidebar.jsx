@@ -953,8 +953,12 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
   ];
 
-  const menuItems = role_id === 2 ? superAdminMenuItems : adminMenuItems;
-  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
+  const filteredAdminMenuItems = Number(role_id) === 3 
+    ? adminMenuItems.filter(item => item.text !== 'Payment Plans' && item.text !== 'Transaction History')
+    : adminMenuItems;
+
+  const menuItems = Number(role_id) === 2 ? superAdminMenuItems : filteredAdminMenuItems;
+  const roleName = Number(role_id) === 2 ? 'Super Admin' : (Number(role_id) === 3 ? 'Sub Admin' : 'Admin');
 
   const isActive = (path) => location.pathname === path;
 

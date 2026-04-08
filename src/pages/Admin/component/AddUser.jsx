@@ -2151,8 +2151,9 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const [submitting, setSubmitting] = useState(false);
 
 
-  const isSuperAdmin = role_id === 2;
-  const isAdmin = role_id === 1;
+  const isSuperAdmin = Number(role_id) === 2;
+  const isAdmin = Number(role_id) === 1;
+  const isSubAdmin = Number(role_id) === 3;
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -2436,30 +2437,26 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       const creatorId = userDataa?._id || userData?._id;
       payload.append("createdby", creatorId);
 
-      if (Number(userDataa?.role_id) === 3) {
-        // Helper to decode JWT and extract adminId
-        const getAdminIdFromToken = () => {
-          try {
-            const token = localStorage.getItem('token');
-            if (!token) return null;
-            const base64Payload = token.split('.')[1];
-            const decoded = JSON.parse(atob(base64Payload));
-            return decoded.adminId || null;
-          } catch (e) {
-            console.error('Failed to decode token:', e);
-            return null;
-          }
-        };
-        const rootAdminId =
-          getAdminIdFromToken() ||
-          userDataa?.adminId?._id ||
-          (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null);
-
+      if (isSubAdmin || isAdmin) {
+        const rootAdminId = isSubAdmin 
+          ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
+          : creatorId;
+          
         if (rootAdminId) {
           payload.append("adminId", rootAdminId);
-
-        } else {
-          console.warn("Sub-admin has no adminId - new user may not appear in admin's list");
+        } else if (isSubAdmin) {
+          console.warn("Sub-admin has no adminId - checking token...");
+          // Fallback to token decoding if needed
+          try {
+            const token = localStorage.getItem('token');
+            if (token) {
+              const base64Payload = token.split('.')[1];
+              const decoded = JSON.parse(atob(base64Payload));
+              if (decoded.adminId) payload.append("adminId", decoded.adminId);
+            }
+          } catch (e) {
+            console.error('Failed to decode token:', e);
+          }
         }
       }
     }
@@ -2470,20 +2467,14 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
     if (!editingUser) {
       if (isAdmin) {
-  
         payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-
       } else if (isSuperAdmin) {
         payload.append("role_id", 1);
       } else {
-       
         payload.append("role_id", 0);
-
       }
     } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
-      // During edit, Admin can also toggle between Staff and Sub-admin
       payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-
     }
 
     // Handle avatar

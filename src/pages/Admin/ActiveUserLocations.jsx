@@ -979,17 +979,22 @@ const ActiveUserLocations = () => {
     libraries,
   });
 
+  const authUser = useSelector((state) => state.auth?.user || {});
+  const isSubAdmin = Number(authUser?.role_id) === 3;
+  const effectiveAdminId = adminId || (isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id));
+
   useEffect(() => {
     refreshData();
     setSelectedMarkerId(null);
     setSelectedUser(null);
-  }, [dispatch]);
+  }, [dispatch, effectiveAdminId]);
 
   const refreshData = async () => {
+    if (!effectiveAdminId) return;
     setIsRefreshing(true);
     setSelectedMarkerId(null);
     setSelectedUser(null);
-    await dispatch(getActiveUserLocations(adminId));
+    await dispatch(getActiveUserLocations(effectiveAdminId));
     setIsRefreshing(false);
   };
 

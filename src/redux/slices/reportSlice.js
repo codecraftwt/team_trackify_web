@@ -39,7 +39,7 @@ const initialState = {
 export const getReportsByAdmin = createAsyncThunk(
   "reports/getReportsByAdmin",
   async (
-    { fromDate, toDate, page = 1, limit = 10, search } = {},
+    { fromDate, toDate, page = 1, limit = 10, search, adminId } = {},
     { rejectWithValue }
   ) => {
     try {
@@ -47,6 +47,7 @@ export const getReportsByAdmin = createAsyncThunk(
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
       if (search) params.search = search;
+      if (adminId) params.adminId = adminId;
 
       const response = await api.get("/reports/admin", { params });
       return response.data;

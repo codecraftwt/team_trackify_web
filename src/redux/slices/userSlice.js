@@ -279,9 +279,10 @@ export const deleteConfig = createAsyncThunk(
 
 export const checkUserSubscription = createAsyncThunk(
   "user/checkSubscription",
-  async (_, { rejectWithValue, getState }) => {
+  async (adminId = null, { rejectWithValue, getState }) => {
     try {
-      const response = await api.get("users/user/check-subscription");
+      const url = adminId ? `users/user/check-subscription?adminId=${adminId}` : "users/user/check-subscription";
+      const response = await api.get(url);
       
       const state = getState();
       const userRole = state.auth?.user?.role_id || 

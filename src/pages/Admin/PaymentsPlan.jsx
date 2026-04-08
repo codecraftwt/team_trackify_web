@@ -2654,17 +2654,20 @@ const PaymentPlans = () => {
     fetchUserCustomPlan();
   }, [dispatch, isAuthenticated]);
 
-  useEffect(() => {
-    if (userData?._id) {
-      dispatch(getUserById(userData._id));
-    }
-  }, [dispatch, userData?._id]);
+  const isSubAdmin = Number(authUser?.role_id) === 3;
+  const effectiveAdminId = isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id);
 
   useEffect(() => {
-    if (isAuthenticated && authUser?._id) {
-      dispatch(getPaymentHistory({ adminId: authUser._id, page: 1, limit: 10 }));
+    if (effectiveAdminId) {
+      dispatch(getUserById(effectiveAdminId));
     }
-  }, [dispatch, isAuthenticated, authUser?._id]);
+  }, [dispatch, effectiveAdminId]);
+
+  useEffect(() => {
+    if (isAuthenticated && effectiveAdminId) {
+      dispatch(getPaymentHistory({ adminId: effectiveAdminId, page: 1, limit: 10 }));
+    }
+  }, [dispatch, isAuthenticated, effectiveAdminId]);
 
   useEffect(() => {
     if (isAuthenticated && authUser?.role === 'superadmin') {
@@ -2710,9 +2713,9 @@ const PaymentPlans = () => {
       setPaymentSuccess(successMessage);
       toast.success(successMessage);
 
-      if (authUser?._id) {
-        dispatch(getUserById(authUser._id));
-        dispatch(getPaymentHistory({ adminId: authUser._id }));
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
       }
 
       setTimeout(() => {
@@ -2731,9 +2734,9 @@ const PaymentPlans = () => {
       setPaymentSuccess(successMessage);
       toast.success(successMessage);
 
-      if (authUser?._id) {
-        dispatch(getUserById(authUser._id));
-        dispatch(getPaymentHistory({ adminId: authUser._id }));
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
       }
 
       setTimeout(() => {
@@ -2923,9 +2926,9 @@ const PaymentPlans = () => {
       setCancelDialogOpen(false);
       setPlanToCancel(null);
       // Refresh user data
-      if (authUser?._id) {
-        dispatch(getUserById(authUser._id));
-        dispatch(getPaymentHistory({ adminId: authUser._id }));
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
       }
     } catch (error) {
       toast.error(error?.message || 'Failed to cancel subscription');
@@ -2952,7 +2955,7 @@ const PaymentPlans = () => {
         return;
       }
 
-      const adminId = authUser._id || authUser.id || userData?._id;
+      const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
       if (!adminId) {
         toast.error("User ID not found. Please login again.");
@@ -3049,7 +3052,7 @@ const PaymentPlans = () => {
         return;
       }
 
-      const adminId = authUser._id || authUser.id || userData?._id;
+      const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
       dispatch(clearPaymentState());
       setPaymentSuccess(null);

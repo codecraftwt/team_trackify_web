@@ -4788,9 +4788,11 @@ const TransactionHistory = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const adminId = authUser._id || authUser.id || userData?._id;
-      if (adminId) {
-        dispatch(getPaymentHistory({ adminId, page: page + 1, limit: rowsPerPage }));
+      const isSubAdmin = Number(authUser?.role_id) === 3;
+      const effectiveAdminId = isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser._id || authUser.id || userData?._id);
+      
+      if (effectiveAdminId) {
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId, page: page + 1, limit: rowsPerPage }));
       }
     }
     
