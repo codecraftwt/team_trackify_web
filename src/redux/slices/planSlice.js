@@ -222,6 +222,35 @@ export const updateCustomPlan = createAsyncThunk(
   }
 );
 
+
+
+// NEW: Get Popular Plans for Dashboard
+export const getPopularPlans = createAsyncThunk(
+  "plan/getPopularPlans",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      // Clean params - remove empty values
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
+
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/plans/popular-plan${queryString ? `?${queryString}` : ""}`;
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching popular plans:", error);
+      const errorMessage = error.response?.data?.message || "Failed to fetch popular plans";
+      // Optional: Don't show toast for dashboard charts, handle quietly
+      return rejectWithValue(error.response?.data || errorMessage);
+    }
+  }
+);
+
 // NEW: Get Available Plans for Pricing (excludes Add on and Customize plans)
 export const getAvailablePlans = createAsyncThunk(
   "plan/getAvailablePlans",
@@ -264,6 +293,10 @@ const planSlice = createSlice({
     currentPlan: null,
     previousPlan: null,
     subscriptionCancelledAt: null,
+
+    // Popular Plans
+    popularPlans: [],
+    popularPlansLoading: false,
   },
   reducers: {
     clearPlanStore: (state) => {
@@ -487,7 +520,26 @@ const planSlice = createSlice({
       .addCase(getCancellationStatus.rejected, (state, action) => {
         state.cancellationStatusLoading = false;
         state.cancellationStatusError = action.payload;
-      });;
+      })
+      // Get Popular Plans
+      .addCase(getPopularPlans.pending, (state) => {
+        state.popularPlansLoading = true;
+      })
+      .addCase(getPopularPlans.fulfilled, (state, action) => {
+        state.popularPlansLoading = false;
+        // Backend returns { success, data, count } - data is a single plan or array
+        const payload = action.payload;
+        if (payload?.data) {
+          // Wrap in array if single plan
+          state.popularPlans = Array.isArray(payload.data) ? payload.data : [payload.data];
+        } else {
+          state.popularPlans = [];
+        }
+      })
+      .addCase(getPopularPlans.rejected, (state) => {
+        state.popularPlansLoading = false;
+        state.popularPlans = [];
+      });
   },
 });
 

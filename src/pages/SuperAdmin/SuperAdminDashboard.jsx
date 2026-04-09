@@ -3177,9 +3177,20 @@
 // export default SuperAdminDashboard;
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  Legend,
+} from "recharts";
 import {
   Box,
   Grid,
@@ -3194,10 +3205,14 @@ import {
   useMediaQuery,
   Skeleton,
   Button,
+  TextField,
+  Stack,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
   Visibility as VisibilityIcon,
+  FilterAlt as FilterAltIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -3207,13 +3222,16 @@ import {
   FaUserShield,
   FaChartLine,
   FaRupeeSign,
+  FaArrowDown,
   FaCalendarAlt,
   FaArrowUp,
 } from "react-icons/fa";
 import { getUserCounts } from "../../redux/slices/userSlice";
-import { getUsersWithExpiringPlans } from "../../redux/slices/planSlice";
+import { getUsersWithExpiringPlans, getPopularPlans } from "../../redux/slices/planSlice";
 import { getRevenueSummary } from "../../redux/slices/paymentSlice";
 import ExpiringPlansTable from "../../components/ExpiringPlansTable";
+import SearchFilter from "../../components/SearchFilter";
+import moment from "moment";
 
 // Stats Card Skeleton Component - Smaller height
 const StatsCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
@@ -3592,7 +3610,7 @@ const SuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
- 
+
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -3602,39 +3620,110 @@ const SuperAdminDashboard = () => {
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
+  // Sorting states
+  const [sortBy, setBy] = useState("date");
+  const [sortOrder, setOrder] = useState("desc");
+
+  // Debouncing effect for search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Safe Redux state access
   const userCounts = useSelector((state) => state.user?.userCounts || {});
   const expiringUsers = useSelector((state) => state.plan?.expiringUsers || []);
+  const popularPlans = useSelector((state) => state.plan?.popularPlans || []);
   const { revenueSummary } = useSelector(
     (state) => state.payment || {}
   );
 
+  // Initial Load (One-time)
   useEffect(() => {
-    dispatch(getUserCounts());
-    dispatch(getUsersWithExpiringPlans());
-    dispatch(getRevenueSummary());
-
     // Set first render loader to false after 1 second
     const timer = setTimeout(() => {
       setShowFirstRenderLoader(false);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [dispatch]);
+  }, []);
+
+  // Sync data fetching when filters change
+  useEffect(() => {
+    const commonParams = { 
+      startDate: startDate ? moment(startDate).format("YYYY-MM-DD") : "", 
+      endDate: endDate ? moment(endDate).format("YYYY-MM-DD") : "",
+      sortBy,
+      sortOrder
+    };
+
+    // Global Stats (No Search Filter)
+    dispatch(getUserCounts(commonParams));
+    dispatch(getRevenueSummary(commonParams));
+    dispatch(getPopularPlans(commonParams));
+
+    // Expiring Plans List (Include Search Filter)
+    const expiringParams = { ...commonParams, search: debouncedSearchQuery };
+    dispatch(getUsersWithExpiringPlans(expiringParams));
+  }, [dispatch, startDate, endDate, debouncedSearchQuery, sortBy, sortOrder]);
 
   const refreshData = () => {
     setLastUpdated(new Date());
-    dispatch(getUserCounts());
-    dispatch(getUsersWithExpiringPlans());
-    dispatch(getRevenueSummary());
+    const commonParams = { 
+      startDate: startDate ? moment(startDate).format("YYYY-MM-DD") : "", 
+      endDate: endDate ? moment(endDate).format("YYYY-MM-DD") : "",
+      sortBy,
+      sortOrder
+    };
+    
+    dispatch(getUserCounts(commonParams));
+    dispatch(getRevenueSummary(commonParams));
+    dispatch(getPopularPlans(commonParams));
+    
+    const expiringParams = { ...commonParams, search: debouncedSearchQuery };
+    dispatch(getUsersWithExpiringPlans(expiringParams));
   };
 
-  // Get only the first 10 users for the dashboard preview
-  const recentExpiringUsers = expiringUsers.slice(0, 10);
+  const clearFilters = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setSearchQuery("");
+  };
 
-  // User Stats with responsive icons
-  const userStats = [
+  const handleSortChange = (field, order) => {
+    setBy(field);
+    setOrder(order);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Filter expiring users by search query (Frontend Fallback)
+  const filteredExpiringUsers = useMemo(() => {
+    if (!debouncedSearchQuery) return expiringUsers;
+    const lowerQuery = debouncedSearchQuery.toLowerCase();
+    return expiringUsers.filter(user => 
+      user.userName?.toLowerCase().includes(lowerQuery) || 
+      user.userEmail?.toLowerCase().includes(lowerQuery) ||
+      user.planName?.toLowerCase().includes(lowerQuery) ||
+      user.userMobileNo?.toString().includes(lowerQuery)
+    );
+  }, [expiringUsers, debouncedSearchQuery]);
+
+  // Get only the first 10 users for the dashboard preview
+  const recentExpiringUsers = filteredExpiringUsers.slice(0, 10);
+
+  // User Stats with memoization to maintain stable references
+  const userStats = useMemo(() => [
     {
       key: "activeAdmins",
       label: "Active Admins",
@@ -3667,18 +3756,40 @@ const SuperAdminDashboard = () => {
       bgColor: alpha(theme.palette.secondary.main, 0.1),
       iconColor: theme.palette.secondary.main,
     },
-  ];
+  ], [userCounts, theme]);
 
-  // Stats Cards Component - Smaller height
-  const StatsCards = () => {
-    const itemVariants = {
-      hidden: { opacity: 0, y: 20 },
-      visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5 },
+  // Animation variants moved outside to maintain stable references
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
       },
-    };
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5 },
+    },
+  };
+
+  // Stats Cards Component - Memoized to prevent redundant renders
+  const StatsCards = memo(({ userStats, isSmallMobile, isMobile, isTablet }) => {
+    const theme = useTheme();
 
     // Get grid columns based on screen size
     const getGridColumns = () => {
@@ -3696,116 +3807,110 @@ const SuperAdminDashboard = () => {
       >
         {userStats.map((stat, index) => (
           <Grid item xs={getGridColumns()} key={stat.key || index}>
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: index * 0.1 }}
+            <Paper
+              elevation={0}
+              sx={{
+                p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+                borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
+                background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+                border: "1px solid",
+                borderColor: alpha(stat.iconColor, 0.2),
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative",
+                overflow: "hidden",
+                height: '100%',
+                minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "100%",
+                  background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
+                  zIndex: 0,
+                },
+                "&:hover": {
+                  transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
+                  boxShadow: !isMobile ? `0 12px 20px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
+                  borderColor: stat.iconColor,
+                },
+              }}
             >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-                  borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-                  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
-                  border: "1px solid",
-                  borderColor: alpha(stat.iconColor, 0.2),
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  position: "relative",
-                  overflow: "hidden",
-                  height: '100%',
-                  minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "100%",
-                    background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
-                    zIndex: 0,
-                  },
-                  "&:hover": {
-                    transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
-                    boxShadow: !isMobile ? `0 12px 20px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
-                    borderColor: stat.iconColor,
-                  },
-                }}
-              >
-                <Box sx={{ position: "relative", zIndex: 1 }}>
-                  <Box sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexDirection: isSmallMobile ? "column" : "row",
-                    textAlign: isSmallMobile ? "center" : "left",
-                    gap: isSmallMobile ? 0.5 : 0,
-                  }}>
-                    <Box>
-                      <Typography
-                        variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
-                        fontWeight="700"
-                        sx={{
-                          mb: 0.15,
-                          color: 'text.primary',
-                          fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {stat.count}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
-                        }}
-                      >
-                        {stat.label}
-                      </Typography>
-                    </Box>
-                    <Avatar
+              <Box sx={{ position: "relative", zIndex: 1 }}>
+                <Box sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexDirection: isSmallMobile ? "column" : "row",
+                  textAlign: isSmallMobile ? "center" : "left",
+                  gap: isSmallMobile ? 0.5 : 0,
+                }}>
+                  <Box>
+                    <Typography
+                      variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
+                      fontWeight="700"
                       sx={{
-                        bgcolor: alpha(stat.iconColor, 0.1),
-                        color: stat.iconColor,
-                        width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                        height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        boxShadow: `0 4px 8px -3px ${alpha(stat.iconColor, 0.2)}`,
-                        '& svg': {
-                          fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
-                        },
+                        mb: 0.15,
+                        color: 'text.primary',
+                        fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
+                        lineHeight: 1.2,
                       }}
                     >
-                      {stat.icon}
-                    </Avatar>
+                      {stat.count}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
                   </Box>
+                  <Avatar
+                    sx={{
+                      bgcolor: alpha(stat.iconColor, 0.1),
+                      color: stat.iconColor,
+                      width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                      height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: `0 4px 8px -3px ${alpha(stat.iconColor, 0.2)}`,
+                      '& svg': {
+                        fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
+                      },
+                    }}
+                  >
+                    {stat.icon}
+                  </Avatar>
                 </Box>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    width: "100%",
-                    height: 2.5,
-                    background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
-                    opacity: 0.8,
-                  }}
-                />
-              </Paper>
-            </motion.div>
+              </Box>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  height: 2.5,
+                  background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
+                  opacity: 0.8,
+                }}
+              />
+            </Paper>
           </Grid>
         ))}
       </Grid>
     );
-  };
+  });
 
-  // Revenue Card Component - Smaller height
-  const RevenueCard = () => {
+  // Revenue Card Component - Memoized to prevent redundant renders
+  const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet }) => {
+    const theme = useTheme();
     return (
       <Paper
         elevation={0}
@@ -3897,117 +4002,53 @@ const SuperAdminDashboard = () => {
         </Box>
 
         {/* Monthly Summary Section */}
+        <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1} sx={{ mb: 1 }}>
+          <Grid item xs={6}>
+         
+          </Grid>
+          <Grid item xs={6}>
+       
+          </Grid>
+        </Grid>
+
         <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
           <Grid item xs={6}>
             <Box
               sx={{
-                p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-                borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-                background: alpha("#ffffff", 0.08),
-                backdropFilter: "blur(4px)",
-                height: '100%',
-                minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
+                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+                borderRadius: isSmallMobile ? 0.8 : 1,
+                background: alpha("#ffffff", 0.05),
+                border: `1px solid ${alpha("#22c55e", 0.2)}`,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-                <Box>
-                  <Typography
-                    variant={isSmallMobile ? "caption" : isMobile ? "body2" : isTablet ? "body1" : "body1"}
-                    fontWeight="600"
-                    sx={{
-                      mb: 0.1,
-                      fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.9rem',
-                    }}
-                  >
-                    {revenueSummary?.currentMonthRevenue > 0
-                      ? `₹${revenueSummary?.currentMonthRevenue.toLocaleString()}`
-                      : "₹0"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: alpha("#ffffff", 0.7),
-                      fontSize: isSmallMobile ? '0.45rem' : isMobile ? '0.5rem' : isTablet ? '0.55rem' : '0.55rem',
-                    }}
-                  >
-                    This Month
-                  </Typography>
-                </Box>
-                <FaCalendarAlt size={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15} style={{ opacity: 0.5 }} />
-              </Box>
+              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Revenue</Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+                ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
+              </Typography>
+           
             </Box>
           </Grid>
           <Grid item xs={6}>
             <Box
               sx={{
-                p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-                borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-                background: alpha("#ffffff", 0.08),
-                backdropFilter: "blur(4px)",
-                height: '100%',
-                minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
+                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+                borderRadius: isSmallMobile ? 0.8 : 1,
+                background: alpha("#ffffff", 0.05),
+                border: `1px solid ${alpha("#F59E0B", 0.2)}`,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-                <Box>
-                  <Typography
-                    variant={isSmallMobile ? "caption" : isMobile ? "body2" : isTablet ? "body1" : "body1"}
-                    fontWeight="600"
-                    sx={{
-                      mb: 0.1,
-                      fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.75rem' : isTablet ? '0.8rem' : '0.9rem',
-                    }}
-                  >
-                    {revenueSummary?.lastMonthRevenue > 0
-                      ? `₹${revenueSummary?.lastMonthRevenue.toLocaleString()}`
-                      : "₹0"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: alpha("#ffffff", 0.7),
-                      fontSize: isSmallMobile ? '0.45rem' : isMobile ? '0.5rem' : isTablet ? '0.55rem' : '0.55rem',
-                    }}
-                  >
-                    Last Month
-                  </Typography>
-                </Box>
-                <FaCalendarAlt size={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15} style={{ opacity: 0.5 }} />
-              </Box>
+              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Discount</Typography>
+              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+                ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
+              </Typography>
+            
             </Box>
           </Grid>
         </Grid>
       </Paper>
     );
-  };
+  });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.5 },
-    },
-  };
 
   // If first render loader is active, show skeletons for everything except title and refresh button
   if (showFirstRenderLoader) {
@@ -4230,16 +4271,42 @@ const SuperAdminDashboard = () => {
               >
                 Super Admin Dashboard
               </Typography>
-              <IconButton size="small" onClick={refreshData} sx={{ width: 28, height: 28 }}>
-                <RefreshIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-              </IconButton>
+ 
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton size="small" onClick={refreshData} sx={{ width: 34, height: 34, bgcolor: alpha(theme.palette.primary.main, 0.1) }}>
+                  <RefreshIcon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* Global Search and Filter Bar */}
+            <Box sx={{ mb: 2.5 }}>
+              <SearchFilter
+                searchQuery={searchQuery}
+                setSearchQuery={handleSearchChange}
+                resultsCount={filteredExpiringUsers.length}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isSmallMobile={isSmallMobile}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                onApplyDateFilter={() => {}} // Controlled via useEffect
+                onClearDateFilter={clearFilters}
+                isFilterActive={Boolean(startDate || endDate)}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+                hideResults={true}
+              />
             </Box>
           </motion.div>
 
-          {/* Tracking Overview Section */}
-          <motion.section
-            variants={itemVariants}
-            style={{
+          {/* Tracking Overview Section - Animation Removed */}
+          <Box
+            component="section"
+            sx={{
               marginBottom: isSmallMobile ? "15px" : isMobile ? "20px" : isTablet ? "25px" : "30px"
             }}
           >
@@ -4283,10 +4350,63 @@ const SuperAdminDashboard = () => {
               />
             </Box>
 
-            <StatsCards />
-          </motion.section>
+            <StatsCards
+              userStats={userStats}
+              isSmallMobile={isSmallMobile}
+              isMobile={isMobile}
+              isTablet={isTablet}
+            />
+          </Box>
 
           {/* Revenue Overview Section - Moved up */}
+          <motion.section
+            variants={itemVariants}
+            style={{
+              marginBottom: isSmallMobile ? "15px" : isMobile ? "20px" : isTablet ? "25px" : "30px"
+            }}
+          >
+            <Box sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
+              px: isSmallMobile ? 0.5 : 0,
+              flexWrap: "wrap",
+              gap: 1
+            }}>
+              <Box sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+              }}>
+                <FaRupeeSign style={{
+                  color: theme.palette.primary.main,
+                  fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+                }} />
+                <Typography
+                  variant={isSmallMobile ? "caption" : "body2"}
+                  fontWeight="600"
+                  color="text.primary"
+                  sx={{
+                    fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.8rem' : isTablet ? '0.9rem' : '1rem'
+                  }}
+                >
+                  Revenue Overview
+                </Typography>
+              </Box>
+            </Box>
+
+            <motion.div variants={cardVariants}>
+              <RevenueCard
+                revenueSummary={revenueSummary}
+                isSmallMobile={isSmallMobile}
+                isMobile={isMobile}
+                isTablet={isTablet}
+              />
+            </motion.div>
+          </motion.section>
+
+          {/* Popular Plans Section - NEW */}
           <motion.section
             variants={itemVariants}
             style={{
@@ -4300,7 +4420,7 @@ const SuperAdminDashboard = () => {
               mb: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
               px: isSmallMobile ? 0.5 : 0,
             }}>
-              <FaRupeeSign style={{
+              <FaChartLine style={{
                 color: theme.palette.primary.main,
                 fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
               }} />
@@ -4312,12 +4432,12 @@ const SuperAdminDashboard = () => {
                   fontSize: isSmallMobile ? '0.7rem' : isMobile ? '0.8rem' : isTablet ? '0.9rem' : '1rem'
                 }}
               >
-                Revenue Overview
+                Popular Plans Overview
               </Typography>
             </Box>
 
             <motion.div variants={cardVariants}>
-              <RevenueCard />
+              <PopularPlansChart data={popularPlans} isMobile={isMobile} />
             </motion.div>
           </motion.section>
 
@@ -4330,7 +4450,7 @@ const SuperAdminDashboard = () => {
           >
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.8rem' }}>
-                Recent Expiring Plans
+                Recent Expiring Plans (Last 7 Days)
               </Typography>
               <Button
                 variant="outlined"
