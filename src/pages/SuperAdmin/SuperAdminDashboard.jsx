@@ -1194,6 +1194,7 @@
 // export default SuperAdminDashboard;
 
 
+<<<<<<< HEAD
 
 
 
@@ -2512,6 +2513,8 @@
 
 // export default SuperAdminDashboard;
 
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
 import React, { useEffect, useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -2542,17 +2545,23 @@ import {
   Button,
   TextField,
   Stack,
+<<<<<<< HEAD
   Popover,
   FormControl,
   InputLabel,
   OutlinedInput,
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
   Visibility as VisibilityIcon,
   FilterAlt as FilterAltIcon,
   Clear as ClearIcon,
+<<<<<<< HEAD
   CalendarToday as CalendarIcon,
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -2570,7 +2579,11 @@ import { getUserCounts } from "../../redux/slices/userSlice";
 import { getUsersWithExpiringPlans, getPopularPlans } from "../../redux/slices/planSlice";
 import { getRevenueSummary } from "../../redux/slices/paymentSlice";
 import ExpiringPlansTable from "../../components/ExpiringPlansTable";
+<<<<<<< HEAD
 // import SearchFilter from "../../components/SearchFilter";
+=======
+import SearchFilter from "../../components/SearchFilter";
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
 import moment from "moment";
 
 // Stats Card Skeleton Component - Smaller height
@@ -2965,11 +2978,14 @@ const SuperAdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   
+<<<<<<< HEAD
   // Date filter popover state
   const [dateFilterAnchorEl, setDateFilterAnchorEl] = useState(null);
   const [tempStartDate, setTempStartDate] = useState(null);
   const [tempEndDate, setTempEndDate] = useState(null);
   
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
   // Sorting states
   const [sortBy, setBy] = useState("date");
   const [sortOrder, setOrder] = useState("desc");
@@ -3052,6 +3068,7 @@ const SuperAdminDashboard = () => {
     setSearchQuery(e.target.value);
   };
 
+<<<<<<< HEAD
   // Date filter handlers
   const handleDateFilterClick = (event) => {
     setTempStartDate(startDate);
@@ -3130,6 +3147,8 @@ const SuperAdminDashboard = () => {
     return "Select Date Range";
   };
 
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
   // Filter expiring users by search query (Frontend Fallback)
   const filteredExpiringUsers = useMemo(() => {
     if (!debouncedSearchQuery) return expiringUsers;
@@ -3425,6 +3444,15 @@ const SuperAdminDashboard = () => {
         </Box>
 
         {/* Monthly Summary Section */}
+        <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1} sx={{ mb: 1 }}>
+          <Grid item xs={6}>
+         
+          </Grid>
+          <Grid item xs={6}>
+       
+          </Grid>
+        </Grid>
+
         <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
           <Grid item xs={6}>
             <Box
@@ -3439,6 +3467,10 @@ const SuperAdminDashboard = () => {
               <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
                 ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
               </Typography>
+<<<<<<< HEAD
+=======
+           
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
             </Box>
           </Grid>
           <Grid item xs={6}>
@@ -3454,12 +3486,20 @@ const SuperAdminDashboard = () => {
               <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
                 ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
               </Typography>
+<<<<<<< HEAD
+=======
+            
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
             </Box>
           </Grid>
         </Grid>
       </Paper>
     );
   });
+<<<<<<< HEAD
+=======
+
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
 
   // If first render loader is active, show skeletons for everything except title and refresh button
   if (showFirstRenderLoader) {
@@ -3688,10 +3728,40 @@ const SuperAdminDashboard = () => {
                   <RefreshIcon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
                 </IconButton>
               </Box>
+<<<<<<< HEAD
             </Box>
           </motion.div>
 
           {/* Tracking Overview Section - With Date Filter Button */}
+=======
+            </Box>
+
+            {/* Global Search and Filter Bar */}
+            <Box sx={{ mb: 2.5 }}>
+              <SearchFilter
+                searchQuery={searchQuery}
+                setSearchQuery={handleSearchChange}
+                resultsCount={filteredExpiringUsers.length}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isSmallMobile={isSmallMobile}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                onApplyDateFilter={() => {}} // Controlled via useEffect
+                onClearDateFilter={clearFilters}
+                isFilterActive={Boolean(startDate || endDate)}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+                hideResults={true}
+              />
+            </Box>
+          </motion.div>
+
+          {/* Tracking Overview Section - Animation Removed */}
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
           <Box
             component="section"
             sx={{

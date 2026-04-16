@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@mui/icons-material": "^6.5.0",
     "@mui/material": "^6.5.0",
+    "@mui/system": "^9.0.0",
     "@mui/x-date-pickers": "^8.27.2",
     "@react-google-maps/api": "^2.20.8",
     "@reduxjs/toolkit": "^2.11.2",
