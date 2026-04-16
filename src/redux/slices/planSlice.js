@@ -846,11 +846,14 @@ const planSlice = createSlice({
     // Popular Plans
     popularPlans: [],
     popularPlansLoading: false,
+<<<<<<< HEAD
 
     basePrice: null,
     previousPrice: null,
     priceHistoryLoading: false,
     priceHistoryError: null,
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
   },
   reducers: {
     clearPlanStore: (state) => {
@@ -1093,6 +1096,7 @@ const planSlice = createSlice({
       .addCase(getPopularPlans.rejected, (state) => {
         state.popularPlansLoading = false;
         state.popularPlans = [];
+<<<<<<< HEAD
       })
       // Set Base Price
       .addCase(setBasePrice.pending, (state) => {
@@ -1136,6 +1140,8 @@ const planSlice = createSlice({
       .addCase(getPriceHistory.rejected, (state, action) => {
         state.priceHistoryLoading = false;
         state.priceHistoryError = action.payload;
+=======
+>>>>>>> a95cb86f62d5335f948b57082f04b14af551a3a5
       });
   },
 });
