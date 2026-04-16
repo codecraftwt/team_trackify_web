@@ -4697,7 +4697,7 @@ const AdminDashboard = () => {
     if (totalInActiveUsers > 0) {
       navigate("/user?filter=inactive");
     }
-  },
+  }, 
     },
     {
       key: "checkedInUsers",
