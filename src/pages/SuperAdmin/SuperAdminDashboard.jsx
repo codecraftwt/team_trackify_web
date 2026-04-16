@@ -3961,7 +3961,7 @@ const SuperAdminDashboard = () => {
                 (tempEndDate && moment(tempEndDate).isAfter(moment(), 'day')) ||
                 (tempStartDate && tempEndDate && moment(tempEndDate).isBefore(tempStartDate, 'day'))
               }
-            >
+            > 
               Apply
             </Button>
           </Box>
