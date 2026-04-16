@@ -49,7 +49,7 @@ A modern, production-ready React application for GPS tracking and team managemen
 
 6. **Preview production build**
    ```bash
-   npm run preview
+   npm run previeww
    ```
 
 ## 📁 Project Structure

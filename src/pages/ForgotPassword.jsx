@@ -39,7 +39,7 @@ const ForgotPassword = () => {
       // Simulate API call to send reset email
       await new Promise((resolve) => setTimeout(resolve, 1400));
 
-      // console.log('Password reset requested for:', data.email);
+      console.log('Password reset requested for:', data.email);
 
       // In real app → call your backend endpoint (POST /forgot-password or /reset-password-request)
       // Backend should:

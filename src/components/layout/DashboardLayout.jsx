@@ -219,18 +219,7 @@ const DashboardLayout = () => {
 
   // Check if user is authenticated
   useEffect(() => {
-    // Robustly determine the roleId (fallback to user object if main state is null)
-    const currentRoleId = role_id ?? user?.role_id;
-    const isRoleIdMissing = currentRoleId === null || currentRoleId === undefined;
-
-    if (!isAuthenticated || !user || isRoleIdMissing) {
-      // console.log("🔒 Access denied - redirecting to login", { 
-      //   isAuthenticated, 
-      //   hasUser: !!user, 
-      //   role_id,
-      //   userRole: user?.role_id,
-      //   currentRoleId 
-      // });
+    if (!isAuthenticated || !user || !role_id) {
       navigate('/login', { replace: true });
     }
   }, [isAuthenticated, user, role_id, navigate]);
@@ -254,11 +243,8 @@ const DashboardLayout = () => {
     setMobileOpen(false);
   };
 
-  // Don't render if not authenticated or role is truly missing
-  const currentRoleId = role_id ?? user?.role_id;
-  const isRoleIdMissing = currentRoleId === null || currentRoleId === undefined;
-
-  if (!isAuthenticated || !user || isRoleIdMissing) {
+  // Don't render if not authenticated
+  if (!isAuthenticated || !user || !role_id) {
     return null;
   }
 

@@ -5,6 +5,7 @@ import { SnackbarProvider } from 'notistack';
 import { theme } from './theme';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
+
 // Layout
 import DashboardLayout from './components/layout/DashboardLayout';
 
@@ -45,7 +46,6 @@ import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
 import ExpiringPlansPage from './pages/SuperAdmin/Expiringplanspage.jsx';
 import PrivacyPolicy from './components/layout/PrivacyPolicy.jsx';
 import CouponManagement from './pages/SuperAdmin/CouponManagement.jsx';
-import ReportLocation from './pages/Admin/ReportLocation.jsx';
 
 // Settings page (shared)
 
@@ -60,7 +60,6 @@ function App() {
           horizontal: 'right',
         }}
       >
-
         <Router
           future={{
             v7_startTransition: true,
@@ -116,7 +115,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+         
 
             {/* Protected Routes with Dashboard Layout */}
             <Route element={<ProtectedRoute requireAuth={true} />}>
@@ -130,12 +129,11 @@ function App() {
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
                 <Route path="/reset-password-profile" element={<ResetPasswordProfile />} />
-
+                
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
-                <Route path="/report-locations" element={<ReportLocation />} />
                 <Route path="/admin/live-locations" element={<ActiveUserLocations />} />
-
+                
 
 
                 {/* <Route path="/admin/add-admin" element={<AddUser />} />  */}

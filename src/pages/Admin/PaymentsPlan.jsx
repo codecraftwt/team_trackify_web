@@ -59,6 +59,7 @@
 //   TrendingUp as TrendingUpIcon,
 //   Savings as SavingsIcon,
 //   CalendarToday as CalendarIcon,
+//   Cancel as CancelIcon,
 // } from "@mui/icons-material";
 // import { motion, AnimatePresence } from "framer-motion";
 // import { useDispatch, useSelector } from "react-redux";
@@ -67,6 +68,7 @@
 //   createCustomPlan,
 //   getUserCustomPlan,
 //   updateCustomPlan,
+//   cancelSubscription,
 // } from "../../redux/slices/planSlice";
 // import {
 //   createPaymentOrder,
@@ -81,12 +83,14 @@
 //   clearOrderData,
 //   clearVerificationData,
 //   setPaymentStatus,
+//   updatePaymentStatus,
 // } from "../../redux/slices/paymentSlice";
 // import Loader from "../../components/common/Loader";
 // import { RAZORPAY_KEY_ID } from "../../utils/constants";
 // import { getUserById } from "../../redux/slices/userSlice";
 // import moment from "moment";
-// import { toast } from "react-toastify";
+// import { toast, ToastContainer } from "react-toastify";
+// import { useLocation, useNavigate } from "react-router-dom";
 // import CouponPopup from "../Admin/component/CouponPopup";
 
 // // Plan Card Skeleton Component
@@ -174,7 +178,6 @@
 //     setPlanData(prev => ({ ...prev, [name]: value }));
 //   };
 
-//   // Calculate price preview
 //   const calculatePricePreview = () => {
 //     const BASE_PRICE_PER_USER_PER_MONTH = 100;
 //     const minUsers = parseInt(planData.minUsers) || 0;
@@ -244,7 +247,6 @@
 //       <DialogContent sx={{ p: 3 }}>
 //         <Box component="form">
 //           <Grid container spacing={2} sx={{ mt: 1 }}>
-//             {/* Min Users */}
 //             <Grid item xs={12} sm={6}>
 //               <TextField
 //                 fullWidth
@@ -261,7 +263,6 @@
 //               />
 //             </Grid>
 
-//             {/* Max Users */}
 //             <Grid item xs={12} sm={6}>
 //               <TextField
 //                 fullWidth
@@ -278,7 +279,6 @@
 //               />
 //             </Grid>
 
-//             {/* Duration Value */}
 //             <Grid item xs={12} sm={6}>
 //               <TextField
 //                 fullWidth
@@ -295,7 +295,6 @@
 //               />
 //             </Grid>
 
-//             {/* Duration Unit */}
 //             <Grid item xs={12} sm={6}>
 //               <FormControl fullWidth size="small">
 //                 <InputLabel>Duration Unit</InputLabel>
@@ -312,7 +311,6 @@
 //               </FormControl>
 //             </Grid>
 
-//             {/* Price Preview */}
 //             {planData.minUsers && planData.maxUsers && planData.durationValue && planData.durationUnit && (
 //               <Grid item xs={12}>
 //                 <Paper sx={{
@@ -341,11 +339,7 @@
 //         <Button
 //           onClick={onClose}
 //           variant="outlined"
-//           sx={{
-//             borderRadius: 2,
-//             flex: 1,
-//             py: 1,
-//           }}
+//           sx={{ borderRadius: 2, flex: 1, py: 1 }}
 //         >
 //           Cancel
 //         </Button>
@@ -367,9 +361,9 @@
 //   );
 // };
 
-// // Payment History Dialog
 // const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
 //   const theme = useTheme();
+//   const limitedPaymentHistory = paymentHistory?.slice(0, 10) || [];
 
 //   return (
 //     <Dialog
@@ -378,10 +372,7 @@
 //       maxWidth="md"
 //       fullWidth
 //       PaperProps={{
-//         sx: {
-//           borderRadius: 3,
-//           overflow: 'hidden',
-//         }
+//         sx: { borderRadius: 3, overflow: 'hidden' }
 //       }}
 //     >
 //       <DialogTitle sx={{
@@ -391,12 +382,18 @@
 //         px: 3,
 //         display: 'flex',
 //         alignItems: 'center',
+//         justifyContent: 'space-between',
 //         gap: 1.5,
 //       }}>
-//         <HistoryIcon />
-//         <Typography variant="h6" fontWeight={600}>
-//           Payment History
-//         </Typography>
+//         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+//           <HistoryIcon />
+//           <Typography variant="h6" fontWeight={600}>Payment History</Typography>
+//         </Box>
+//         {paymentHistory?.length > 2 && (
+//           <Typography variant="caption" sx={{ color: alpha('#ffffff', 0.8), fontSize: '0.7rem' }}>
+//             Showing last 10 of {paymentHistory.length} payments
+//           </Typography>
+//         )}
 //       </DialogTitle>
 
 //       <DialogContent sx={{ p: 3 }}>
@@ -404,7 +401,7 @@
 //           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
 //             <CircularProgress />
 //           </Box>
-//         ) : paymentHistory && paymentHistory.length > 0 ? (
+//         ) : limitedPaymentHistory.length > 0 ? (
 //           <TableContainer>
 //             <Table size="small">
 //               <TableHead>
@@ -417,7 +414,7 @@
 //                 </TableRow>
 //               </TableHead>
 //               <TableBody>
-//                 {paymentHistory.map((payment) => (
+//                 {limitedPaymentHistory.map((payment) => (
 //                   <TableRow key={payment._id}>
 //                     <TableCell>{moment(payment.createdAt).format('DD/MM/YYYY')}</TableCell>
 //                     <TableCell>{payment.planId?.name || 'N/A'}</TableCell>
@@ -463,8 +460,85 @@
 //       </DialogContent>
 
 //       <DialogActions sx={{ p: 3, pt: 0 }}>
-//         <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>
-//           Close
+//         <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>Close</Button>
+//       </DialogActions>
+//     </Dialog>
+//   );
+// };
+
+// // ✅ NEW: Cancel Subscription Confirmation Dialog
+// const CancelSubscriptionDialog = ({ open, onClose, onConfirm, isCancelling, planName }) => {
+//   const theme = useTheme();
+//   const [reason, setReason] = useState('');
+
+//   const handleConfirm = () => {
+//     onConfirm(reason);
+//     setReason('');
+//   };
+
+//   const handleClose = () => {
+//     setReason('');
+//     onClose();
+//   };
+
+//   return (
+//     <Dialog
+//       open={open}
+//       onClose={handleClose}
+//       maxWidth="xs"
+//       fullWidth
+//       PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+//     >
+//       <DialogTitle sx={{
+//         background: `linear-gradient(135deg, ${theme.palette.error.main}, ${theme.palette.error.dark})`,
+//         color: 'white',
+//         py: 2,
+//         px: 3,
+//         display: 'flex',
+//         alignItems: 'center',
+//         gap: 1.5,
+//       }}>
+//         <CancelIcon />
+//         <Typography variant="h6" fontWeight={600} sx={{ fontSize: '1rem' }}>
+//           Cancel Subscription
+//         </Typography>
+//       </DialogTitle>
+
+//       <DialogContent sx={{ p: 3 }}>
+//         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
+//           Are you sure you want to cancel <strong>{planName}</strong>? This action cannot be undone.
+//         </Typography>
+//         <TextField
+//           fullWidth
+//           label="Reason for cancellation (optional)"
+//           multiline
+//           rows={3}
+//           value={reason}
+//           onChange={(e) => setReason(e.target.value)}
+//           size="small"
+//           placeholder="Tell us why you're cancelling..."
+//           sx={{ mt: 1 }}
+//         />
+//       </DialogContent>
+
+//       <DialogActions sx={{ p: 3, pt: 0, gap: 1 }}>
+//         <Button
+//           onClick={handleClose}
+//           variant="outlined"
+//           sx={{ borderRadius: 2, flex: 1 }}
+//           disabled={isCancelling}
+//         >
+//           Keep Plan
+//         </Button>
+//         <Button
+//           onClick={handleConfirm}
+//           variant="contained"
+//           color="error"
+//           disabled={isCancelling}
+//           startIcon={isCancelling ? <CircularProgress size={14} color="inherit" /> : <CancelIcon sx={{ fontSize: 16 }} />}
+//           sx={{ borderRadius: 2, flex: 1 }}
+//         >
+//           {isCancelling ? 'Cancelling...' : 'Cancel Plan'}
 //         </Button>
 //       </DialogActions>
 //     </Dialog>
@@ -474,11 +548,11 @@
 // const PaymentPlans = () => {
 //   const theme = useTheme();
 //   const dispatch = useDispatch();
+//   const location = useLocation();
+//   const navigate = useNavigate();
 
-//   // Selectors from plan slice
-//   const { plansList, loading: plansLoading, userCustomPlan } = useSelector((state) => state.plan || {});
+//   const { plansList, loading: plansLoading, userCustomPlan, isCancelling } = useSelector((state) => state.plan || {});
 
-//   // Selectors from payment slice
 //   const {
 //     orderLoading,
 //     orderError,
@@ -508,12 +582,10 @@
 //     totalItems,
 //   } = useSelector((state) => state.payment || {});
 
-//   // Auth selectors
 //   const userData = useSelector((state) => state.user?.userInfo || {});
 //   const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated || false);
 //   const authUser = useSelector((state) => state.auth?.user || {});
 
-//   // Local states
 //   const [paymentSuccess, setPaymentSuccess] = useState(null);
 //   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 //   const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
@@ -543,7 +615,10 @@
 //   const [editingPlanId, setEditingPlanId] = useState(null);
 //   const [fetchingCustomPlan, setFetchingCustomPlan] = useState(false);
 
-//   // Check if current plan is the custom plan
+//   // ✅ NEW: Cancel subscription dialog state
+//   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+//   const [planToCancel, setPlanToCancel] = useState(null);
+
 //   const isCustomPlanPurchased = currentPlanDetails?.planId === userCustomPlan?._id;
 
 //   // Initial data fetch
@@ -565,7 +640,6 @@
 //     fetchInitialData();
 //   }, [dispatch]);
 
-//   // Fetch user's custom plan
 //   useEffect(() => {
 //     const fetchUserCustomPlan = async () => {
 //       if (isAuthenticated) {
@@ -573,38 +647,36 @@
 //         try {
 //           await dispatch(getUserCustomPlan()).unwrap();
 //         } catch (error) {
-//           console.log('No custom plan found for user');
+//           // console.log('No custom plan found for user');
 //         } finally {
 //           setFetchingCustomPlan(false);
 //         }
 //       }
 //     };
-
 //     fetchUserCustomPlan();
 //   }, [dispatch, isAuthenticated]);
 
-//   // Fetch user details when authenticated
-//   useEffect(() => {
-//     if (userData?._id) {
-//       dispatch(getUserById(userData._id));
-//     }
-//   }, [dispatch, userData?._id]);
+//   const isSubAdmin = Number(authUser?.role_id) === 3;
+//   const effectiveAdminId = isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id);
 
-//   // Fetch payment history for current user
 //   useEffect(() => {
-//     if (isAuthenticated && authUser?._id) {
-//       dispatch(getPaymentHistory({ adminId: authUser._id, page: 1, limit: 10 }));
+//     if (effectiveAdminId) {
+//       dispatch(getUserById(effectiveAdminId));
 //     }
-//   }, [dispatch, isAuthenticated, authUser?._id]);
+//   }, [dispatch, effectiveAdminId]);
 
-//   // Fetch all payment history for super admin
+//   useEffect(() => {
+//     if (isAuthenticated && effectiveAdminId) {
+//       dispatch(getPaymentHistory({ adminId: effectiveAdminId, page: 1, limit: 10 }));
+//     }
+//   }, [dispatch, isAuthenticated, effectiveAdminId]);
+
 //   useEffect(() => {
 //     if (isAuthenticated && authUser?.role === 'superadmin') {
 //       dispatch(getAllPaymentHistory({ page: 1, limit: 10 }));
 //     }
 //   }, [dispatch, isAuthenticated, authUser?.role]);
 
-//   // Fetch revenue summary (for admin dashboard)
 //   useEffect(() => {
 //     if (isAuthenticated && authUser?.role === 'superadmin') {
 //       dispatch(getRevenueSummary());
@@ -634,7 +706,6 @@
 //     }
 //   }, [userData]);
 
-//   // Handle payment verification success
 //   useEffect(() => {
 //     if (verificationData?.success) {
 //       const successMessage = verificationData.data?.couponCode
@@ -644,13 +715,11 @@
 //       setPaymentSuccess(successMessage);
 //       toast.success(successMessage);
 
-//       // Refresh user data and payment history
-//       if (authUser?._id) {
-//         dispatch(getUserById(authUser._id));
-//         dispatch(getPaymentHistory({ adminId: authUser._id }));
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //       }
 
-//       // Clear verification data after 5 seconds
 //       setTimeout(() => {
 //         dispatch(clearVerificationData());
 //         dispatch(setPaymentStatus('idle'));
@@ -658,7 +727,6 @@
 //     }
 //   }, [verificationData, dispatch, authUser?._id]);
 
-//   // Handle add-on verification success
 //   useEffect(() => {
 //     if (addOnVerificationData?.success) {
 //       const successMessage = addOnVerificationData.data?.addOnDetails?.addOnCouponCode
@@ -668,13 +736,11 @@
 //       setPaymentSuccess(successMessage);
 //       toast.success(successMessage);
 
-//       // Refresh user data and payment history
-//       if (authUser?._id) {
-//         dispatch(getUserById(authUser._id));
-//         dispatch(getPaymentHistory({ adminId: authUser._id }));
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //       }
 
-//       // Clear verification data after 5 seconds
 //       setTimeout(() => {
 //         dispatch(clearVerificationData());
 //         dispatch(setPaymentStatus('idle'));
@@ -682,7 +748,6 @@
 //     }
 //   }, [addOnVerificationData, dispatch, authUser?._id]);
 
-//   // Handle errors
 //   useEffect(() => {
 //     if (orderError) {
 //       toast.error(orderError?.message || 'Failed to create order');
@@ -694,7 +759,6 @@
 //     }
 //   }, [orderError, verificationError, dispatch]);
 
-//   // Separate plans into subscriptions and add-ons
 //   const subscriptionPlans = plansList?.filter(
 //     (plan) => !plan.name?.includes("Add on Plan") && plan.status === "active" && plan.name !== "Customize Plan"
 //   ) || [];
@@ -703,11 +767,53 @@
 //     (plan) => plan.name?.includes("Add on Plan") && plan.status === "active"
 //   ) || [];
 
+//   // Handle pending plan from registration/pricing flow
+//   useEffect(() => {
+
+//     if (!loading && subscriptionPlans.length > 0) {
+//       let pendingPlanData = location.state?.selectedPlan || authUser?.selectedPlan;
+
+//       if (!pendingPlanData) {
+//         const stored = sessionStorage.getItem('selectedPlan');
+//         if (stored) {
+//           try { pendingPlanData = JSON.parse(stored); } catch (e) { pendingPlanData = null; }
+//         }
+//       }
+
+//       if (pendingPlanData) {
+//         console.log("🎯 Found pending plan to process:", pendingPlanData);
+
+//         // Find the full plan object from the list to ensure we have all data
+//         const matchedPlan = subscriptionPlans.find(
+//           p => p._id === pendingPlanData._id || p.name === pendingPlanData.name
+//         );
+
+//         if (matchedPlan) {
+//           console.log("✅ Matched with active plan:", matchedPlan.name);
+
+
+//           setTimeout(() => {
+//             setSelectedPlanForCoupon(matchedPlan);
+//             setCouponPopupOpen(true);
+
+//             // Clear session storage to avoid re-opening
+//             sessionStorage.removeItem('selectedPlan');
+//             sessionStorage.removeItem('fromPricing');
+
+//             // Also notify user
+//             toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, {
+//               icon: "💳"
+//             });
+//           }, 500);
+//         }
+//       }
+//     }
+//   }, [plansLoading, plansList, userCustomPlan, loading, location, authUser]);
+
 //   // Custom Plan handlers
 //   const handleCreateCustomPlan = async (e) => {
 //     e?.preventDefault();
 
-//     // Validation
 //     const errors = {};
 //     if (!customPlanData.minUsers) errors.minUsers = 'Min users is required';
 //     if (!customPlanData.maxUsers) errors.maxUsers = 'Max users is required';
@@ -736,10 +842,7 @@
 //       };
 
 //       if (isEditingCustomPlan && editingPlanId) {
-//         const result = await dispatch(updateCustomPlan({
-//           planId: editingPlanId,
-//           data: payload
-//         })).unwrap();
+//         const result = await dispatch(updateCustomPlan({ planId: editingPlanId, data: payload })).unwrap();
 //         toast.success(result.message || 'Custom plan updated successfully!');
 //       } else {
 //         const result = await dispatch(createCustomPlan(payload)).unwrap();
@@ -807,214 +910,517 @@
 //         toast.warning("You already have an active subscription. You can only purchase add-on plans.");
 //         return;
 //       }
-
 //       setSelectedPlanForCoupon(userCustomPlan);
 //       setCouponPopupOpen(true);
 //     }
 //   };
 
-//   // Payment handlers
-//   const handleSubscriptionPayment = async (planId, couponCode = null) => {
-//     setProcessingPlanId(planId);
+//   // ✅ NEW: Cancel subscription handler
+//   const handleOpenCancelDialog = (plan, planName) => {
+//     setPlanToCancel({ plan, planName });
+//     setCancelDialogOpen(true);
+//   };
 
-//     if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
-//       toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//   const handleConfirmCancel = async (reason) => {
+//     try {
+//       await dispatch(cancelSubscription({ cancellationReason: reason })).unwrap();
+//       toast.success('Subscription cancelled successfully');
+//       setCancelDialogOpen(false);
+//       setPlanToCancel(null);
+//       // Refresh user data
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//       }
+//     } catch (error) {
+//       toast.error(error?.message || 'Failed to cancel subscription');
+//     }
+//   };
+
+//   // Payment handlers
+//   // const handleSubscriptionPayment = async (planId, couponCode = null) => {
+//   //   setProcessingPlanId(planId);
+
+//   //   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+//   //     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//   //     setProcessingPlanId(null);
+//   //     return;
+//   //   }
+
+//   //   try {
+//   //     dispatch(clearPaymentState());
+//   //     setPaymentSuccess(null);
+
+//   //     if (!isAuthenticated || !authUser) {
+//   //       toast.error("User not authenticated. Please login again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//   //     if (!adminId) {
+//   //       toast.error("User ID not found. Please login again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     if (!window.Razorpay) {
+//   //       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
+
+//   //     if (createPaymentOrder.rejected.match(orderResult)) {
+//   //       toast.error(orderResult.payload?.message || "Failed to create order");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderData = orderResult.payload?.data;
+
+//   //     if (!couponCode) {
+//   //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+//   //     } else if (orderData.discountApplied) {
+//   //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+//   //     }
+
+//   //     const options = {
+//   //       key: RAZORPAY_KEY_ID,
+//   //       amount: orderData.amount,
+//   //       currency: orderData.currency,
+//   //       name: "Team Trackify",
+//   //       description: couponCode
+//   //         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+//   //         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+//   //       order_id: orderData.orderId,
+//   //       handler: async function (response) {
+//   //         try {
+//   //           await dispatch(
+//   //             verifyPayment({
+//   //               razorpayOrderId: response.razorpay_order_id,
+//   //               razorpayPaymentId: response.razorpay_payment_id,
+//   //               razorpaySignature: response.razorpay_signature,
+//   //               paymentId: orderData.paymentId,
+//   //             })
+//   //           );
+//   //         } catch (verifyError) {
+//   //           console.error("Payment verification error:", verifyError);
+//   //           toast.error("Payment verification failed. Please contact support.");
+//   //         } finally {
+//   //           setProcessingPlanId(null);
+//   //         }
+//   //       },
+//   //       prefill: {
+//   //         name: authUser.name || userData?.name || "",
+//   //         email: authUser.email || userData?.email || "",
+//   //         contact: authUser.phone || userData?.phone || "",
+//   //       },
+//   //       theme: { color: theme.palette.primary.main },
+//   //       modal: {
+//   //         ondismiss: function () {
+//   //           dispatch(clearOrderData());
+//   //           setProcessingPlanId(null);
+//   //           dispatch(setPaymentStatus('idle'));
+//   //         },
+//   //       },
+//   //     };
+
+//   //     const rzp = new window.Razorpay(options);
+//   //     rzp.open();
+//   //   } catch (error) {
+//   //     console.error("Payment error:", error);
+//   //     toast.error("Payment failed: " + error.message);
+//   //     setProcessingPlanId(null);
+//   //     dispatch(setPaymentStatus('failed'));
+//   //   }
+//   // };
+// const handleSubscriptionPayment = async (planId, couponCode = null) => {
+//   setProcessingPlanId(planId);
+
+//   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+//     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//     setProcessingPlanId(null);
+//     return;
+//   }
+
+//   try {
+//     dispatch(clearPaymentState());
+//     setPaymentSuccess(null);
+
+//     if (!isAuthenticated || !authUser) {
+//       toast.error("User not authenticated. Please login again.");
 //       setProcessingPlanId(null);
 //       return;
 //     }
 
-//     try {
-//       dispatch(clearPaymentState());
-//       setPaymentSuccess(null);
+//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
-//       if (!isAuthenticated || !authUser) {
-//         toast.error("User not authenticated. Please login again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const adminId = authUser._id || authUser.id || userData?._id;
-
-//       if (!adminId) {
-//         toast.error("User ID not found. Please login again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       if (!window.Razorpay) {
-//         toast.error("Payment gateway not loaded. Please refresh the page and try again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderResult = await dispatch(
-//         createPaymentOrder({ adminId, planId, couponCode })
-//       );
-
-//       if (createPaymentOrder.rejected.match(orderResult)) {
-//         toast.error(orderResult.payload?.message || "Failed to create order");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderData = orderResult.payload?.data;
-
-//       if (!couponCode) {
-//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
-//       } else if (orderData.discountApplied) {
-//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
-//       }
-
-//       const options = {
-//         key: RAZORPAY_KEY_ID,
-//         amount: orderData.amount,
-//         currency: orderData.currency,
-//         name: "Team Trackify",
-//         description: couponCode
-//           ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
-//           : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
-//         order_id: orderData.orderId,
-//         handler: async function (response) {
-//           try {
-//             await dispatch(
-//               verifyPayment({
-//                 razorpayOrderId: response.razorpay_order_id,
-//                 razorpayPaymentId: response.razorpay_payment_id,
-//                 razorpaySignature: response.razorpay_signature,
-//                 paymentId: orderData.paymentId,
-//               })
-//             );
-//           } catch (verifyError) {
-//             console.error("Payment verification error:", verifyError);
-//             toast.error("Payment verification failed. Please contact support.");
-//           } finally {
-//             setProcessingPlanId(null);
-//           }
-//         },
-//         prefill: {
-//           name: authUser.name || userData?.name || "",
-//           email: authUser.email || userData?.email || "",
-//           contact: authUser.phone || userData?.phone || "",
-//         },
-//         theme: {
-//           color: theme.palette.primary.main,
-//         },
-//         modal: {
-//           ondismiss: function () {
-//             dispatch(clearOrderData());
-//             setProcessingPlanId(null);
-//             dispatch(setPaymentStatus('idle'));
-//           },
-//         },
-//       };
-
-//       const rzp = new window.Razorpay(options);
-//       rzp.open();
-//     } catch (error) {
-//       console.error("Payment error:", error);
-//       toast.error("Payment failed: " + error.message);
+//     if (!adminId) {
+//       toast.error("User ID not found. Please login again.");
 //       setProcessingPlanId(null);
-//       dispatch(setPaymentStatus('failed'));
+//       return;
 //     }
-//   };
 
-//   const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
-//     setProcessingPlanId(addOnPlanId);
+//     if (!window.Razorpay) {
+//       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
 
-//     try {
-//       if (!authUser) {
-//         toast.error("User not authenticated. Please login.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
+//     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
 
-//       if (!hasActiveSubscription || !currentPlanDetails) {
-//         toast.warning("You need an active subscription to purchase add-on plans.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
+//     if (createPaymentOrder.rejected.match(orderResult)) {
+//       toast.error(orderResult.payload?.message || "Failed to create order");
+//       setProcessingPlanId(null);
+//       return;
+//     }
 
-//       const adminId = authUser._id || authUser.id || userData?._id;
+//     const orderData = orderResult.payload?.data;
 
-//       dispatch(clearPaymentState());
-//       setPaymentSuccess(null);
+//     if (!couponCode) {
+//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+//     } else if (orderData.discountApplied) {
+//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+//     }
 
-//       // ✅ FIXED: Include paymentId from currentPlanDetails
-//       const orderResult = await dispatch(
-//         createAddOnOrder({
-//           adminId,
-//           addOnPlanId,
-//           paymentId: currentPlanDetails._id, // 👈 Add this!
-//           couponCode
-//         })
-//       );
+//     const options = {
+//       key: RAZORPAY_KEY_ID,
+//       amount: orderData.amount,
+//       currency: orderData.currency,
+//       name: "Team Trackify",
+//       description: couponCode
+//         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+//         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+//       order_id: orderData.orderId,
+//       handler: async function (response) {
+//         try {
+//           await dispatch(
+//             verifyPayment({
+//               razorpayOrderId: response.razorpay_order_id,
+//               razorpayPaymentId: response.razorpay_payment_id,
+//               razorpaySignature: response.razorpay_signature,
+//               paymentId: orderData.paymentId,
+//             })
+//           );
+//         } catch (verifyError) {
+//           console.error("Payment verification error:", verifyError);
+//           toast.error("Payment verification failed. Please contact support.");
+//         } finally {
+//           setProcessingPlanId(null);
+//         }
+//       },
+//       prefill: {
+//         name: authUser.name || userData?.name || "",
+//         email: authUser.email || userData?.email || "",
+//         contact: authUser.phone || userData?.phone || "",
+//       },
+//       theme: { color: theme.palette.primary.main },
+//       modal: {
+//         ondismiss: async function () {
+//           // User closed the modal - update status to cancelled
+//           setProcessingPlanId(null);
+//           dispatch(setPaymentStatus('idle'));
 
-//       if (createAddOnOrder.rejected.match(orderResult)) {
-//         toast.error(orderResult.payload?.message || "Failed to create order");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderData = orderResult.payload?.data;
-
-//       if (!couponCode) {
-//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
-//       } else if (orderData.discountApplied) {
-//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
-//       }
-
-//       const razorpayOptions = {
-//         key: RAZORPAY_KEY_ID,
-//         amount: orderData.amount,
-//         currency: orderData.currency,
-//         name: "Team Trackify",
-//         description: couponCode
-//           ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
-//           : `Payment for Add-on Plan`,
-//         order_id: orderData.orderId,
-//         handler: async (response) => {
 //           try {
-//             await dispatch(
-//               verifyAddOnPayment({
-//                 razorpayOrderId: response.razorpay_order_id,
-//                 razorpayPaymentId: response.razorpay_payment_id,
-//                 razorpaySignature: response.razorpay_signature,
-//                 paymentId: orderData.paymentId,
-//               })
-//             );
+//             await dispatch(updatePaymentStatus({
+//               razorpayOrderId: orderData.orderId,
+//               status: "cancelled",
+//               failureReason: "User closed the payment window"
+//             })).unwrap();
+
+//             toast.info("Payment cancelled");
+
+//             // Refresh payment history
+//             if (effectiveAdminId) {
+//               dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//             }
 //           } catch (error) {
-//             console.error("Add-on verification error:", error);
-//             toast.error("Payment verification failed");
-//           } finally {
-//             setProcessingPlanId(null);
+//             console.error("Failed to update payment status:", error);
 //           }
+
+//           dispatch(clearOrderData());
 //         },
-//         prefill: {
-//           name: authUser.name || userData?.name || "",
-//           email: authUser.email || userData?.email || "",
-//           contact: authUser.phone || userData?.phone || "",
-//         },
-//         theme: {
-//           color: theme.palette.primary.main,
-//         },
-//         modal: {
-//           ondismiss: function () {
-//             dispatch(clearOrderData());
+//       },
+//     };
+
+//     const rzp = new window.Razorpay(options);
+
+//     // Add payment failed handler
+//     rzp.on('payment.failed', async function (response) {
+//       console.error("Payment failed:", response.error);
+
+//       try {
+//         await dispatch(updatePaymentStatus({
+//           razorpayOrderId: orderData.orderId,
+//           status: "failed",
+//           failureReason: response.error?.description || "Payment failed"
+//         })).unwrap();
+
+//         toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//         // Refresh payment history
+//         if (effectiveAdminId) {
+//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//         }
+//       } catch (error) {
+//         console.error("Failed to update payment status:", error);
+//         toast.error("Payment failed. Please try again.");
+//       } finally {
+//         setProcessingPlanId(null);
+//         dispatch(setPaymentStatus('failed'));
+//         dispatch(clearOrderData());
+//       }
+//     });
+
+//     rzp.open();
+//   } catch (error) {
+//     console.error("Payment error:", error);
+//     toast.error("Payment failed: " + error.message);
+//     setProcessingPlanId(null);
+//     dispatch(setPaymentStatus('failed'));
+//   }
+// };
+//   // const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+//   //   setProcessingPlanId(addOnPlanId);
+
+//   //   try {
+//   //     if (!authUser) {
+//   //       toast.error("User not authenticated. Please login.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     if (!hasActiveSubscription || !currentPlanDetails) {
+//   //       toast.warning("You need an active subscription to purchase add-on plans.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//   //     dispatch(clearPaymentState());
+//   //     setPaymentSuccess(null);
+
+//   //     const orderResult = await dispatch(
+//   //       createAddOnOrder({
+//   //         adminId,
+//   //         addOnPlanId,
+//   //         paymentId: currentPlanDetails._id,
+//   //         couponCode
+//   //       })
+//   //     );
+
+//   //     if (createAddOnOrder.rejected.match(orderResult)) {
+//   //       toast.error(orderResult.payload?.message || "Failed to create order");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderData = orderResult.payload?.data;
+
+//   //     if (!couponCode) {
+//   //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+//   //     } else if (orderData.discountApplied) {
+//   //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+//   //     }
+
+//   //     const razorpayOptions = {
+//   //       key: RAZORPAY_KEY_ID,
+//   //       amount: orderData.amount,
+//   //       currency: orderData.currency,
+//   //       name: "Team Trackify",
+//   //       description: couponCode
+//   //         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+//   //         : `Payment for Add-on Plan`,
+//   //       order_id: orderData.orderId,
+//   //       handler: async (response) => {
+//   //         try {
+//   //           await dispatch(
+//   //             verifyAddOnPayment({
+//   //               razorpayOrderId: response.razorpay_order_id,
+//   //               razorpayPaymentId: response.razorpay_payment_id,
+//   //               razorpaySignature: response.razorpay_signature,
+//   //               paymentId: orderData.paymentId,
+//   //             })
+//   //           );
+//   //         } catch (error) {
+//   //           console.error("Add-on verification error:", error);
+//   //           toast.error("Payment verification failed");
+//   //         } finally {
+//   //           setProcessingPlanId(null);
+//   //         }
+//   //       },
+//   //       prefill: {
+//   //         name: authUser.name || userData?.name || "",
+//   //         email: authUser.email || userData?.email || "",
+//   //         contact: authUser.phone || userData?.phone || "",
+//   //       },
+//   //       theme: { color: theme.palette.primary.main },
+//   //       modal: {
+//   //         ondismiss: function () {
+//   //           dispatch(clearOrderData());
+//   //           setProcessingPlanId(null);
+//   //           dispatch(setPaymentStatus('idle'));
+//   //         },
+//   //       },
+//   //     };
+
+//   //     const razorpayInstance = new window.Razorpay(razorpayOptions);
+//   //     razorpayInstance.open();
+//   //   } catch (error) {
+//   //     console.error("Error in upgrading plan:", error);
+//   //     toast.error("An error occurred while upgrading your plan.");
+//   //     setProcessingPlanId(null);
+//   //     dispatch(setPaymentStatus('failed'));
+//   //   }
+//   // };
+// const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+//   setProcessingPlanId(addOnPlanId);
+
+//   try {
+//     if (!authUser) {
+//       toast.error("User not authenticated. Please login.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     if (!hasActiveSubscription || !currentPlanDetails) {
+//       toast.warning("You need an active subscription to purchase add-on plans.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//     dispatch(clearPaymentState());
+//     setPaymentSuccess(null);
+
+//     const orderResult = await dispatch(
+//       createAddOnOrder({
+//         adminId,
+//         addOnPlanId,
+//         paymentId: currentPlanDetails._id,
+//         couponCode
+//       })
+//     );
+
+//     if (createAddOnOrder.rejected.match(orderResult)) {
+//       toast.error(orderResult.payload?.message || "Failed to create order");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     const orderData = orderResult.payload?.data;
+
+//     if (!couponCode) {
+//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+//     } else if (orderData.discountApplied) {
+//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+//     }
+
+//     let paymentCompleted = false;
+
+//     const razorpayOptions = {
+//       key: RAZORPAY_KEY_ID,
+//       amount: orderData.amount,
+//       currency: orderData.currency,
+//       name: "Team Trackify",
+//       description: couponCode
+//         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+//         : `Payment for Add-on Plan`,
+//       order_id: orderData.orderId,
+//       handler: async (response) => {
+//         paymentCompleted = true;
+//         try {
+//           await dispatch(
+//             verifyAddOnPayment({
+//               razorpayOrderId: response.razorpay_order_id,
+//               razorpayPaymentId: response.razorpay_payment_id,
+//               razorpaySignature: response.razorpay_signature,
+//               paymentId: orderData.paymentId,
+//             })
+//           );
+//         } catch (error) {
+//           console.error("Add-on verification error:", error);
+//           toast.error("Payment verification failed");
+//         } finally {
+//           setProcessingPlanId(null);
+//         }
+//       },
+//       prefill: {
+//         name: authUser.name || userData?.name || "",
+//         email: authUser.email || userData?.email || "",
+//         contact: authUser.phone || userData?.phone || "",
+//       },
+//       theme: { color: theme.palette.primary.main },
+//       modal: {
+//         ondismiss: async function () {
+//           if (!paymentCompleted) {
 //             setProcessingPlanId(null);
 //             dispatch(setPaymentStatus('idle'));
-//           },
-//         },
-//       };
 
-//       const razorpayInstance = new window.Razorpay(razorpayOptions);
-//       razorpayInstance.open();
-//     } catch (error) {
-//       console.error("Error in upgrading plan:", error);
-//       toast.error("An error occurred while upgrading your plan.");
-//       setProcessingPlanId(null);
-//       dispatch(setPaymentStatus('failed'));
-//     }
-//   };
+//             try {
+//               await dispatch(updatePaymentStatus({
+//                 razorpayOrderId: orderData.orderId,
+//                 status: "cancelled",
+//                 failureReason: "User closed the payment window"
+//               })).unwrap();
+
+//               toast.info("Payment cancelled");
+
+//               if (effectiveAdminId) {
+//                 dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//               }
+//             } catch (error) {
+//               console.error("Failed to update payment status:", error);
+//             }
+
+//             dispatch(clearOrderData());
+//           }
+//         },
+//       },
+//     };
+
+//     const razorpayInstance = new window.Razorpay(razorpayOptions);
+
+//     // Add payment failed handler
+//     razorpayInstance.on('payment.failed', async function (response) {
+//       paymentCompleted = false;
+//       console.error("Add-on payment failed:", response.error);
+
+//       try {
+//         await dispatch(updatePaymentStatus({
+//           razorpayOrderId: orderData.orderId,
+//           status: "failed",
+//           failureReason: response.error?.description || "Payment failed"
+//         })).unwrap();
+
+//         toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//         if (effectiveAdminId) {
+//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//         }
+//       } catch (error) {
+//         console.error("Failed to update payment status:", error);
+//         toast.error("Payment failed. Please try again.");
+//       } finally {
+//         setProcessingPlanId(null);
+//         dispatch(setPaymentStatus('failed'));
+//         dispatch(clearOrderData());
+//       }
+//     });
+
+//     razorpayInstance.open();
+//   } catch (error) {
+//     console.error("Error in upgrading plan:", error);
+//     toast.error("An error occurred while upgrading your plan.");
+//     setProcessingPlanId(null);
+//     dispatch(setPaymentStatus('failed'));
+//   }
+// };
 //   const handleApplyCoupon = (couponData) => {
 //     if (couponData === null) {
 //       if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
@@ -1035,8 +1441,14 @@
 
 //   const renderPlanCard = (plan, index, isAddOn = false) => {
 //     const isCurrentPlan = currentPlanDetails?.planId === plan._id;
-//     const isDisabled = !isAddOn && hasActiveSubscription && !isCurrentPlan;
+//     // ✅ FIX: Only show as "current/active" if subscription is NOT expired
 //     const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
+//     const isActivePlan = isCurrentPlan && !isExpired; // truly active, not expired
+
+//     const isDisabled = isAddOn
+//       ? (!hasActiveSubscription || (subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())))
+//       : (!isAddOn && hasActiveSubscription && !isCurrentPlan);
+
 //     const isRecommended = plan.name === "Enterprise Plan" && !isAddOn;
 //     const hasCouponApplied = appliedCouponData && selectedPlanForCoupon?._id === plan._id;
 
@@ -1053,10 +1465,10 @@
 //               position: 'relative',
 //               borderRadius: 2.5,
 //               border: '1px solid',
-//               borderColor: isRecommended ? theme.palette.primary.main : (isCurrentPlan ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5)),
+//               borderColor: isRecommended ? theme.palette.primary.main : (isActivePlan ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5)),
 //               boxShadow: isRecommended
 //                 ? `0 8px 25px -8px ${alpha(theme.palette.primary.main, 0.5)}`
-//                 : isCurrentPlan
+//                 : isActivePlan
 //                   ? `0 8px 25px -8px ${alpha(theme.palette.primary.main, 0.5)}`
 //                   : '0 2px 8px rgba(0,0,0,0.03)',
 //               transition: 'all 0.3s ease',
@@ -1074,7 +1486,6 @@
 //               } : {},
 //             }}
 //           >
-//             {/* Recommended Label */}
 //             {isRecommended && (
 //               <Box
 //                 sx={{
@@ -1100,7 +1511,6 @@
 //               </Box>
 //             )}
 
-//             {/* Header */}
 //             <CardHeader
 //               sx={{
 //                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
@@ -1111,12 +1521,7 @@
 //                 borderTopRightRadius: 10,
 //               }}
 //               avatar={
-//                 <Avatar sx={{
-//                   bgcolor: alpha('#ffffff', 0.2),
-//                   color: 'white',
-//                   width: 32,
-//                   height: 32,
-//                 }}>
+//                 <Avatar sx={{ bgcolor: alpha('#ffffff', 0.2), color: 'white', width: 32, height: 32 }}>
 //                   {isAddOn ? <AddIcon sx={{ fontSize: 18 }} /> : <CreditCardIcon sx={{ fontSize: 18 }} />}
 //                 </Avatar>
 //               }
@@ -1134,24 +1539,16 @@
 //                 <Chip
 //                   label={plan.duration}
 //                   size="small"
-//                   sx={{
-//                     bgcolor: 'white',
-//                     color: theme.palette.primary.main,
-//                     fontWeight: 600,
-//                     fontSize: '0.6rem',
-//                     height: 22,
-//                   }}
+//                   sx={{ bgcolor: 'white', color: theme.palette.primary.main, fontWeight: 600, fontSize: '0.6rem', height: 22 }}
 //                 />
 //               }
 //             />
 
 //             <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-//               {/* Description */}
 //               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.74rem', mb: 1.5, display: 'block' }}>
 //                 {plan.description}
 //               </Typography>
 
-//               {/* Price with Coupon Applied */}
 //               <Box sx={{ textAlign: 'center', mb: 2.5, position: 'relative' }}>
 //                 {hasCouponApplied && (
 //                   <Chip
@@ -1167,10 +1564,7 @@
 //                       color: '#22c55e',
 //                       fontSize: '0.55rem',
 //                       height: 20,
-//                       '& .MuiChip-deleteIcon': {
-//                         color: '#22c55e',
-//                         fontSize: 14,
-//                       },
+//                       '& .MuiChip-deleteIcon': { color: '#22c55e', fontSize: 14 },
 //                     }}
 //                   />
 //                 )}
@@ -1178,9 +1572,7 @@
 //                   variant="h5"
 //                   fontWeight={700}
 //                   sx={{
-//                     color: hasCouponApplied
-//                       ? alpha(theme.palette.primary.main, 0.5)
-//                       : theme.palette.primary.main,
+//                     color: hasCouponApplied ? alpha(theme.palette.primary.main, 0.5) : theme.palette.primary.main,
 //                     textDecoration: hasCouponApplied ? 'line-through' : 'none',
 //                     fontSize: hasCouponApplied ? '1.2rem' : '1.5rem',
 //                   }}
@@ -1188,15 +1580,7 @@
 //                   ₹{plan.price}
 //                 </Typography>
 //                 {hasCouponApplied && (
-//                   <Typography
-//                     variant="h5"
-//                     fontWeight={700}
-//                     sx={{
-//                       color: '#22c55e',
-//                       fontSize: '1.5rem',
-//                       lineHeight: 1,
-//                     }}
-//                   >
+//                   <Typography variant="h5" fontWeight={700} sx={{ color: '#22c55e', fontSize: '1.5rem', lineHeight: 1 }}>
 //                     ₹{appliedCouponData.finalAmount}
 //                   </Typography>
 //                 )}
@@ -1205,57 +1589,27 @@
 //                 </Typography>
 //               </Box>
 
-//               {/* User Limits */}
 //               <Stack direction="row" spacing={1.5} sx={{ mb: 2.5 }}>
-           
 //                 <Box sx={{
-//                   flex: 1,
-//                   p: 1.2,
+//                   flex: 1, p: 1.2,
 //                   bgcolor: alpha(theme.palette.primary.main, 0.05),
 //                   borderRadius: 1.5,
-//                   display: 'flex',
-//                   flexDirection: 'column',
-//                   alignItems: 'center',
-//                   justifyContent: 'center',
-//                   textAlign: 'center',
+//                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
 //                 }}>
-//                   <Typography
-//                     variant="caption"
-//                     color="text.secondary"
-//                     sx={{
-//                       fontSize: '0.64rem',
-//                       textAlign: 'center',
-//                       width: '100%',
-//                       display: 'block'
-//                     }}
-//                   >
+//                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', textAlign: 'center', width: '100%', display: 'block' }}>
 //                     Max Users
 //                   </Typography>
-//                   <Box sx={{
-//                     display: 'flex',
-//                     alignItems: 'center',
-//                     justifyContent: 'center',
-//                     gap: 0.5,
-//                     width: '100%'
-//                   }}>
+//                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, width: '100%' }}>
 //                     <PeopleIcon sx={{ color: theme.palette.primary.main, fontSize: 14 }} />
-//                     <Typography
-//                       variant="body2"
-//                       fontWeight={600}
-//                       sx={{
-//                         fontSize: '0.7rem',
-//                         color: 'text.primary',
-//                         textAlign: 'center'
-//                       }}
-//                     >
+//                     <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'text.primary', textAlign: 'center' }}>
 //                       {plan.maxUsers}
 //                     </Typography>
 //                   </Box>
 //                 </Box>
 //               </Stack>
 
-//               {/* Payment Stats for completed plans */}
-//               {paymentStats && isCurrentPlan && (
+//               {/* ✅ FIX: Only show "Active Plan" badge when truly active (not expired) */}
+//               {paymentStats && isActivePlan && (
 //                 <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5 }}>
 //                   <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, display: 'block', textAlign: 'center' }}>
 //                     ✓ Active Plan
@@ -1265,51 +1619,93 @@
 //             </CardContent>
 
 //             <CardActions sx={{ p: 2.5, pt: 0 }}>
-//               {!isAddOn && hasActiveSubscription ? (
-//                 isCurrentPlan ? (
+//               {/* ✅ FIX: Completely rewritten action button logic */}
+//               {!isAddOn && isActivePlan ? (
+//                 // Truly active plan — show Active + Cancel buttons
+//                 <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
 //                   <Button
 //                     fullWidth
-//                     variant={isExpired ? "outlined" : "contained"}
-//                     color={isExpired ? "warning" : "success"}
-//                     disabled={!isExpired}
+//                     variant="contained"
+//                     color="success"
+//                     disabled
 //                     startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
 //                     size="small"
 //                     sx={{
-//                       py: 1.2,
-//                       borderRadius: 1.5,
-//                       bgcolor: isExpired ? 'transparent' : '#22c55e',
-//                       color: isExpired ? theme.palette.warning.main : 'white',
-//                       borderColor: isExpired ? theme.palette.warning.main : 'transparent',
-//                       fontSize: '0.7rem',
-//                       '&:hover': isExpired ? {
-//                         borderColor: theme.palette.warning.dark,
-//                         bgcolor: alpha(theme.palette.warning.main, 0.1),
-//                       } : {
-//                         bgcolor: '#16a34a',
+//                       py: 1.2, borderRadius: 1.5,
+//                       bgcolor: '#22c55e', color: 'white', fontSize: '0.7rem',
+//                       '&:hover': { bgcolor: '#16a34a' },
+//                     }}
+//                   >
+//                     Active Plan
+//                   </Button>
+//                   {/* ✅ NEW: Cancel button only on active plan */}
+//                   <Button
+//                     variant="outlined"
+//                     color="error"
+//                     size="small"
+//                     onClick={() => handleOpenCancelDialog(plan, plan.name)}
+//                     disabled={isCancelling}
+//                     startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+//                     sx={{
+//                       py: 1.2, borderRadius: 1.5,
+//                       borderColor: alpha(theme.palette.error.main, 0.5),
+//                       color: theme.palette.error.main,
+//                       fontSize: '0.65rem',
+//                       minWidth: 'auto',
+//                       px: 1.5,
+//                       '&:hover': {
+//                         borderColor: theme.palette.error.main,
+//                         bgcolor: alpha(theme.palette.error.main, 0.05),
 //                       },
 //                     }}
 //                   >
-//                     {isExpired ? 'Expired - Renew Now' : 'Active Plan'}
+//                     Cancel
 //                   </Button>
-//                 ) : (
-//                   <Button
-//                     fullWidth
-//                     variant="outlined"
-//                     disabled
-//                     startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
-//                     size="small"
-//                     sx={{
-//                       py: 1.2,
-//                       borderRadius: 1.5,
-//                       borderColor: alpha(theme.palette.divider, 0.5),
-//                       color: 'text.disabled',
-//                       fontSize: '0.7rem',
-//                     }}
-//                   >
-//                     Subscribe Now
-//                   </Button>
-//                 )
+//                 </Box>
+//               ) : !isAddOn && isCurrentPlan && isExpired ? (
+//                 // ✅ FIX: Expired plan — show Subscribe Now (not "Active Plan")
+//                 <Button
+//                   fullWidth
+//                   variant="contained"
+//                   onClick={() => {
+//                     setSelectedPlanForCoupon(plan);
+//                     setCouponPopupOpen(true);
+//                   }}
+//                   disabled={orderLoading || processingPlanId === plan._id}
+//                   startIcon={
+//                     processingPlanId === plan._id
+//                       ? <CircularProgress size={14} sx={{ color: 'white' }} />
+//                       : <CreditCardIcon sx={{ fontSize: 16 }} />
+//                   }
+//                   size="small"
+//                   sx={{
+//                     py: 1.2, borderRadius: 1.5,
+//                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+//                     fontSize: '0.7rem',
+//                     '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` },
+//                     '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.3) },
+//                   }}
+//                 >
+//                   Renew Plan
+//                 </Button>
+//               ) : !isAddOn && hasActiveSubscription && !isCurrentPlan ? (
+//                 // Other plan when user has a different active subscription
+//                 <Button
+//                   fullWidth
+//                   variant="outlined"
+//                   disabled
+//                   startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
+//                   size="small"
+//                   sx={{
+//                     py: 1.2, borderRadius: 1.5,
+//                     borderColor: alpha(theme.palette.divider, 0.5),
+//                     color: 'text.disabled', fontSize: '0.7rem',
+//                   }}
+//                 >
+//                   Subscribe Now
+//                 </Button>
 //               ) : (
+//                 // Default: no active subscription or add-on
 //                 <Button
 //                   fullWidth
 //                   variant="contained"
@@ -1329,16 +1725,11 @@
 //                   }
 //                   size="small"
 //                   sx={{
-//                     py: 1.2,
-//                     borderRadius: 1.5,
+//                     py: 1.2, borderRadius: 1.5,
 //                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
 //                     fontSize: '0.7rem',
-//                     '&:hover': {
-//                       background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-//                     },
-//                     '&.Mui-disabled': {
-//                       background: alpha(theme.palette.primary.main, 0.3),
-//                     },
+//                     '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` },
+//                     '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.3) },
 //                   }}
 //                 >
 //                   {isAddOn ? 'Upgrade Now' : 'Subscribe Now'}
@@ -1353,7 +1744,6 @@
 
 //   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
-//   // If first render loader is active, show skeletons
 //   if (showFirstRenderLoader) {
 //     return (
 //       <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
@@ -1377,12 +1767,9 @@
 //                 Choose the perfect plan for your team
 //               </Typography>
 //             </Box>
-
-//             {/* History Button Skeleton */}
 //             <Skeleton variant="rounded" width={100} height={36} sx={{ borderRadius: 2 }} />
 //           </Box>
 
-//           {/* Subscription Plans Section Skeleton */}
 //           <Box sx={{ mb: 5 }}>
 //             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2.5 }}>
 //               <Skeleton variant="circular" width={32} height={32} />
@@ -1395,7 +1782,6 @@
 //             </Grid>
 //           </Box>
 
-//           {/* Add-on Plans Section Skeleton */}
 //           <Box>
 //             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2.5 }}>
 //               <Skeleton variant="circular" width={32} height={32} />
@@ -1412,8 +1798,21 @@
 
 //   return (
 //     <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={5000}
+//         hideProgressBar={false}
+//         newestOnTop
+//         closeOnClick
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//         theme="light"
+//         style={{ top: "70px" }}
+//       />
 //       <Container maxWidth="xl">
-//         {/* Header with History Button */}
+//         {/* Header */}
 //         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 //           <Box>
 //             <Typography
@@ -1434,7 +1833,6 @@
 //             </Typography>
 //           </Box>
 
-//           {/* Payment History Button */}
 //           <Button
 //             variant="outlined"
 //             startIcon={<HistoryIcon />}
@@ -1559,11 +1957,6 @@
 //           </Alert>
 //         )}
 
-
-
-
-
-
 //         {paymentSuccess && (
 //           <motion.div
 //             initial={{ opacity: 0, y: -20 }}
@@ -1609,7 +2002,6 @@
 //           </Box>
 //         )}
 
-//         {/* Custom Plan Card */}
 //         {fetchingCustomPlan && (
 //           <Box sx={{ mb: 4, p: 3, textAlign: 'center' }}>
 //             <CircularProgress size={30} />
@@ -1646,7 +2038,6 @@
 //                     },
 //                   }}
 //                 >
-//                   {/* Status Badge */}
 //                   <Box
 //                     sx={{
 //                       position: 'absolute',
@@ -1670,7 +2061,6 @@
 //                     {isCustomPlanPurchased ? 'ACTIVE' : 'YOUR PLAN'}
 //                   </Box>
 
-//                   {/* Header */}
 //                   <CardHeader
 //                     sx={{
 //                       background: `linear-gradient(135deg, ${isCustomPlanPurchased ? theme.palette.success.main : '#9c27b0'}, ${isCustomPlanPurchased ? theme.palette.success.dark : '#7b1fa2'})`,
@@ -1681,12 +2071,7 @@
 //                       borderTopRightRadius: 10,
 //                     }}
 //                     avatar={
-//                       <Avatar sx={{
-//                         bgcolor: alpha('#ffffff', 0.2),
-//                         color: 'white',
-//                         width: 32,
-//                         height: 32,
-//                       }}>
+//                       <Avatar sx={{ bgcolor: alpha('#ffffff', 0.2), color: 'white', width: 32, height: 32 }}>
 //                         <BuildIcon sx={{ fontSize: 18 }} />
 //                       </Avatar>
 //                     }
@@ -1721,14 +2106,7 @@
 //                     </Typography>
 
 //                     <Box sx={{ textAlign: 'center', mb: 2.5 }}>
-//                       <Typography
-//                         variant="h5"
-//                         fontWeight={700}
-//                         sx={{
-//                           color: '#9c27b0',
-//                           fontSize: '1.5rem',
-//                         }}
-//                       >
+//                       <Typography variant="h5" fontWeight={700} sx={{ color: '#9c27b0', fontSize: '1.5rem' }}>
 //                         ₹{userCustomPlan.price}
 //                       </Typography>
 //                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.66rem' }}>
@@ -1737,38 +2115,18 @@
 //                     </Box>
 
 //                     <Stack direction="row" spacing={1.5} sx={{ mb: 2.5 }}>
-                      
 //                       <Box sx={{
-//                         flex: 1,
-//                         p: 1.2,
+//                         flex: 1, p: 1.2,
 //                         bgcolor: alpha('#9c27b0', 0.05),
 //                         borderRadius: 1.5,
-//                         display: 'flex',
-//                         flexDirection: 'column',
-//                         alignItems: 'center',     // Center horizontally
-//                         justifyContent: 'center', // Center vertically
-//                         textAlign: 'center',      // Center text
+//                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
 //                       }}>
-//                         <Typography variant="caption" color="text.secondary" sx={{
-//                           fontSize: '0.64rem',
-//                           textAlign: 'center',
-//                           width: '100%'
-//                         }}>
+//                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', textAlign: 'center', width: '100%' }}>
 //                           Max Users
 //                         </Typography>
-//                         <Box sx={{
-//                           display: 'flex',
-//                           alignItems: 'center',
-//                           justifyContent: 'center', // Center the icon and text
-//                           gap: 0.5,
-//                           width: '100%'
-//                         }}>
+//                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, width: '100%' }}>
 //                           <PeopleIcon sx={{ color: '#9c27b0', fontSize: 14 }} />
-//                           <Typography variant="body2" fontWeight={600} sx={{
-//                             fontSize: '0.7rem',
-//                             color: 'text.primary',
-//                             textAlign: 'center'
-//                           }}>
+//                           <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'text.primary', textAlign: 'center' }}>
 //                             {userCustomPlan.maxUsers}
 //                           </Typography>
 //                         </Box>
@@ -1786,23 +2144,42 @@
 
 //                   <CardActions sx={{ p: 2.5, pt: 0 }}>
 //                     {isCustomPlanPurchased ? (
-//                       <Button
-//                         fullWidth
-//                         variant="contained"
-//                         color="success"
-//                         disabled
-//                         startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
-//                         size="small"
-//                         sx={{
-//                           py: 1.2,
-//                           borderRadius: 1.5,
-//                           bgcolor: theme.palette.success.main,
-//                           color: 'white',
-//                           fontSize: '0.7rem',
-//                         }}
-//                       >
-//                         Active Plan
-//                       </Button>
+//                       // ✅ Custom plan active: show Active + Cancel
+//                       <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
+//                         <Button
+//                           fullWidth
+//                           variant="contained"
+//                           color="success"
+//                           disabled
+//                           startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+//                           size="small"
+//                           sx={{ py: 1.2, borderRadius: 1.5, bgcolor: theme.palette.success.main, color: 'white', fontSize: '0.7rem' }}
+//                         >
+//                           Active Plan
+//                         </Button>
+//                         <Button
+//                           variant="outlined"
+//                           color="error"
+//                           size="small"
+//                           onClick={() => handleOpenCancelDialog(userCustomPlan, userCustomPlan.name)}
+//                           disabled={isCancelling}
+//                           startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+//                           sx={{
+//                             py: 1.2, borderRadius: 1.5,
+//                             borderColor: alpha(theme.palette.error.main, 0.5),
+//                             color: theme.palette.error.main,
+//                             fontSize: '0.65rem',
+//                             minWidth: 'auto',
+//                             px: 1.5,
+//                             '&:hover': {
+//                               borderColor: theme.palette.error.main,
+//                               bgcolor: alpha(theme.palette.error.main, 0.05),
+//                             },
+//                           }}
+//                         >
+//                           Cancel
+//                         </Button>
+//                       </Box>
 //                     ) : (
 //                       <>
 //                         <Button
@@ -1813,16 +2190,10 @@
 //                           size="small"
 //                           disabled={isCustomPlanPurchased}
 //                           sx={{
-//                             py: 1.2,
-//                             borderRadius: 1.5,
+//                             py: 1.2, borderRadius: 1.5,
 //                             borderColor: alpha('#9c27b0', 0.3),
-//                             color: '#9c27b0',
-//                             fontSize: '0.7rem',
-//                             mr: 1,
-//                             '&:hover': {
-//                               borderColor: '#9c27b0',
-//                               bgcolor: alpha('#9c27b0', 0.05),
-//                             },
+//                             color: '#9c27b0', fontSize: '0.7rem', mr: 1,
+//                             '&:hover': { borderColor: '#9c27b0', bgcolor: alpha('#9c27b0', 0.05) },
 //                           }}
 //                         >
 //                           Edit Plan
@@ -1835,16 +2206,11 @@
 //                           startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
 //                           size="small"
 //                           sx={{
-//                             py: 1.2,
-//                             borderRadius: 1.5,
+//                             py: 1.2, borderRadius: 1.5,
 //                             background: `linear-gradient(135deg, #9c27b0, #7b1fa2)`,
 //                             fontSize: '0.7rem',
-//                             '&:hover': {
-//                               background: `linear-gradient(135deg, #7b1fa2, #9c27b0)`,
-//                             },
-//                             '&.Mui-disabled': {
-//                               background: alpha('#9c27b0', 0.3),
-//                             },
+//                             '&:hover': { background: `linear-gradient(135deg, #7b1fa2, #9c27b0)` },
+//                             '&.Mui-disabled': { background: alpha('#9c27b0', 0.3) },
 //                           }}
 //                         >
 //                           Subscribe
@@ -1861,15 +2227,8 @@
 //         {/* Payment Status Alerts */}
 //         <AnimatePresence>
 //           {paymentStatus === 'processing' && (
-//             <motion.div
-//               initial={{ opacity: 0, y: -20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               exit={{ opacity: 0, y: -20 }}
-//             >
-//               <Alert
-//                 severity="info"
-//                 sx={{ mb: 2.5, borderRadius: 1.5 }}
-//               >
+//             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+//               <Alert severity="info" sx={{ mb: 2.5, borderRadius: 1.5 }}>
 //                 <AlertTitle sx={{ fontSize: '0.85rem' }}>Processing Payment</AlertTitle>
 //                 <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
 //                   Please wait while we process your payment...
@@ -1878,76 +2237,15 @@
 //             </motion.div>
 //           )}
 
-//           {/* {paymentSuccess && (
-//             <motion.div
-//               initial={{ opacity: 0, y: -20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               exit={{ opacity: 0, y: -20 }}
-//             >
-//               <Alert
-//                 severity="success"
-//                 onClose={() => setPaymentSuccess(null)}
-//                 sx={{ mb: 2.5, borderRadius: 1.5 }}
-//               >
-//                 <AlertTitle sx={{ fontSize: '0.85rem' }}>Payment Successful!</AlertTitle>
-//                 <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>{paymentSuccess}</Typography>
-//               </Alert>
-//             </motion.div>
-//           )} */}
-
 //           {orderError && (
-//             <motion.div
-//               initial={{ opacity: 0, y: -20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               exit={{ opacity: 0, y: -20 }}
-//             >
-//               <Alert
-//                 severity="error"
-//                 onClose={() => dispatch(clearPaymentState())}
-//                 sx={{ mb: 2.5, borderRadius: 1.5 }}
-//               >
+//             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+//               <Alert severity="error" onClose={() => dispatch(clearPaymentState())} sx={{ mb: 2.5, borderRadius: 1.5 }}>
 //                 <AlertTitle sx={{ fontSize: '0.85rem' }}>Payment Error</AlertTitle>
 //                 <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>{orderError?.message || 'An error occurred'}</Typography>
 //               </Alert>
 //             </motion.div>
 //           )}
 //         </AnimatePresence>
-
-//         {/* Active Subscription Notice */}
-//         {/* {(hasActiveSubscription || isExpired) && (
-//           <Alert
-//             severity={isExpired ? "warning" : "info"}
-//             icon={isExpired ? <WarningIcon sx={{ fontSize: 18 }} /> : <InfoIcon sx={{ fontSize: 18 }} />}
-//             sx={{
-//               mb: 3,
-//               borderRadius: 1.5,
-//               border: '1px solid',
-//               borderColor: isExpired ? alpha(theme.palette.warning.main, 0.2) : alpha(theme.palette.primary.main, 0.2),
-//             }}
-//           >
-//             <AlertTitle sx={{ fontWeight: 600, fontSize: '0.85rem', color: isExpired ? theme.palette.warning.main : theme.palette.primary.main }}>
-//               {isExpired ? "Subscription Expired" : "Active Subscription"}
-//             </AlertTitle>
-//             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
-//               {isExpired ? (
-//                 <>
-//                   Your subscription expired on {moment(subscriptionExpiry).format("MMMM Do YYYY")}.
-//                   <br />
-//                   To continue using the service, please purchase one of the subscription plans below.
-//                 </>
-//               ) : (
-//                 <>
-//                   You currently have an active subscription plan.
-//                   {subscriptionExpiry && (
-//                     <> It will expire on {moment(subscriptionExpiry).format("MMMM Do YYYY")}.</>
-//                   )}
-//                   <br />
-//                   You can purchase add-on plans to increase your user limit.
-//                 </>
-//               )}
-//             </Typography>
-//           </Alert>
-//         )} */}
 
 //         {/* Subscription Plans Section */}
 //         <Box sx={{ mb: 5 }}>
@@ -2031,13 +2329,24 @@
 //           paymentHistory={paymentHistory}
 //           loading={historyLoading}
 //         />
+
+//         {/* ✅ NEW: Cancel Subscription Dialog */}
+//         <CancelSubscriptionDialog
+//           open={cancelDialogOpen}
+//           onClose={() => {
+//             setCancelDialogOpen(false);
+//             setPlanToCancel(null);
+//           }}
+//           onConfirm={handleConfirmCancel}
+//           isCancelling={isCancelling}
+//           planName={planToCancel?.planName || ''}
+//         />
 //       </Container>
 //     </Box>
 //   );
 // };
 
 // export default PaymentPlans;
-
 
 
 
@@ -2103,6 +2412,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Savings as SavingsIcon,
   CalendarToday as CalendarIcon,
+  Cancel as CancelIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -2111,6 +2421,8 @@ import {
   createCustomPlan,
   getUserCustomPlan,
   updateCustomPlan,
+  cancelSubscription,
+  getPriceHistory
 } from "../../redux/slices/planSlice";
 import {
   createPaymentOrder,
@@ -2125,12 +2437,14 @@ import {
   clearOrderData,
   clearVerificationData,
   setPaymentStatus,
+  updatePaymentStatus,
 } from "../../redux/slices/paymentSlice";
 import Loader from "../../components/common/Loader";
 import { RAZORPAY_KEY_ID } from "../../utils/constants";
 import { getUserById } from "../../redux/slices/userSlice";
 import moment from "moment";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { useLocation, useNavigate } from "react-router-dom";
 import CouponPopup from "../Admin/component/CouponPopup";
 
 // Plan Card Skeleton Component
@@ -2207,39 +2521,51 @@ const PlanCardSkeleton = () => {
   );
 };
 
-// Custom Plan Popup Component
+// Custom Plan Popup Component (Updated with dynamic base price)
 const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, errors, isCreating, isEditing }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
-  const durationUnits = ['days', 'weeks', 'months', 'years'];
+  // Get base price from Redux state
+  const { basePrice, priceHistoryLoading } = useSelector((state) => state.plan || {});
+
+  // Only months and years for duration units
+  const durationUnits = ['months', 'years'];
+
+  // Fetch price history when popup opens
+  useEffect(() => {
+    if (open && !basePrice) {
+      dispatch(getPriceHistory());
+    }
+  }, [open, dispatch, basePrice]);
+
+  // Set default minUsers to 1 when popup opens in create mode
+  useEffect(() => {
+    if (open && !isEditing && !planData.minUsers) {
+      setPlanData(prev => ({ ...prev, minUsers: '1' }));
+    }
+  }, [open, isEditing, planData.minUsers, setPlanData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPlanData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Calculate price preview
   const calculatePricePreview = () => {
-    const BASE_PRICE_PER_USER_PER_MONTH = 100;
     const minUsers = parseInt(planData.minUsers) || 0;
     const maxUsers = parseInt(planData.maxUsers) || 0;
     const durationValue = parseInt(planData.durationValue) || 0;
     const durationUnit = planData.durationUnit;
 
-    if (!minUsers || !maxUsers || !durationValue) return 0;
+    if (!minUsers || !maxUsers || !durationValue || !durationUnit) return 0;
 
     const userCount = maxUsers || minUsers || 1;
 
+    // Use dynamic base price from Redux, fallback to 100
+    const currentBasePrice = basePrice || 100;
+
     let totalMonths = 0;
     switch (durationUnit?.toLowerCase()) {
-      case 'day':
-      case 'days':
-        totalMonths = durationValue / 30;
-        break;
-      case 'week':
-      case 'weeks':
-        totalMonths = durationValue / 4;
-        break;
       case 'month':
       case 'months':
         totalMonths = durationValue;
@@ -2252,10 +2578,11 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
         totalMonths = durationValue;
     }
 
-    return Math.round(userCount * BASE_PRICE_PER_USER_PER_MONTH * totalMonths);
+    return Math.round(userCount * currentBasePrice * totalMonths);
   };
 
   const estimatedPrice = calculatePricePreview();
+  const currentBasePrice = basePrice || 100;
 
   return (
     <Dialog
@@ -2288,7 +2615,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
       <DialogContent sx={{ p: 3 }}>
         <Box component="form">
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            {/* Min Users */}
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -2305,7 +2631,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
               />
             </Grid>
 
-            {/* Max Users */}
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -2322,7 +2647,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
               />
             </Grid>
 
-            {/* Duration Value */}
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -2339,7 +2663,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
               />
             </Grid>
 
-            {/* Duration Unit */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth size="small">
                 <InputLabel>Duration Unit</InputLabel>
@@ -2356,7 +2679,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
               </FormControl>
             </Grid>
 
-            {/* Price Preview */}
             {planData.minUsers && planData.maxUsers && planData.durationValue && planData.durationUnit && (
               <Grid item xs={12}>
                 <Paper sx={{
@@ -2368,12 +2690,18 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Estimated Price:
                   </Typography>
-                  <Typography variant="h5" fontWeight={700} color="primary.main">
-                    ₹{estimatedPrice.toLocaleString()}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Based on {planData.maxUsers} users × ₹100 × {planData.durationValue} {planData.durationUnit}
-                  </Typography>
+                  {priceHistoryLoading ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <>
+                      <Typography variant="h5" fontWeight={700} color="primary.main">
+                        ₹{estimatedPrice.toLocaleString()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Based on {planData.maxUsers} users × ₹{currentBasePrice} (base price) × {planData.durationValue} {planData.durationUnit}
+                      </Typography>
+                    </>
+                  )}
                 </Paper>
               </Grid>
             )}
@@ -2385,11 +2713,7 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
         <Button
           onClick={onClose}
           variant="outlined"
-          sx={{
-            borderRadius: 2,
-            flex: 1,
-            py: 1,
-          }}
+          sx={{ borderRadius: 2, flex: 1, py: 1 }}
         >
           Cancel
         </Button>
@@ -2410,114 +2734,8 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
     </Dialog>
   );
 };
-
-// Payment History Dialog
-// const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
-//   const theme = useTheme();
-
-//   return (
-//     <Dialog
-//       open={open}
-//       onClose={onClose}
-//       maxWidth="md"
-//       fullWidth
-//       PaperProps={{
-//         sx: {
-//           borderRadius: 3,
-//           overflow: 'hidden',
-//         }
-//       }}
-//     >
-//       <DialogTitle sx={{
-//         background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-//         color: 'white',
-//         py: 2,
-//         px: 3,
-//         display: 'flex',
-//         alignItems: 'center',
-//         gap: 1.5,
-//       }}>
-//         <HistoryIcon />
-//         <Typography variant="h6" fontWeight={600}>
-//           Payment History
-//         </Typography>
-//       </DialogTitle>
-
-//       <DialogContent sx={{ p: 3 }}>
-//         {loading ? (
-//           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-//             <CircularProgress />
-//           </Box>
-//         ) : paymentHistory && paymentHistory.length > 0 ? (
-//           <TableContainer>
-//             <Table size="small">
-//               <TableHead>
-//                 <TableRow>
-//                   <TableCell>Date</TableCell>
-//                   <TableCell>Plan</TableCell>
-//                   <TableCell>Amount</TableCell>
-//                   <TableCell>Status</TableCell>
-//                   <TableCell>Coupon</TableCell>
-//                 </TableRow>
-//               </TableHead>
-//               <TableBody>
-//                 {paymentHistory.map((payment) => (
-//                   <TableRow key={payment._id}>
-//                     <TableCell>{moment(payment.createdAt).format('DD/MM/YYYY')}</TableCell>
-//                     <TableCell>{payment.planId?.name || 'N/A'}</TableCell>
-//                     <TableCell>
-//                       <Typography fontWeight={600}>
-//                         ₹{payment.amount}
-//                         {payment.discountAmount > 0 && (
-//                           <Typography component="span" color="success.main" sx={{ ml: 1, fontSize: '0.7rem' }}>
-//                             (Saved ₹{payment.discountAmount})
-//                           </Typography>
-//                         )}
-//                       </Typography>
-//                     </TableCell>
-//                     <TableCell>
-//                       <Chip
-//                         label={payment.status}
-//                         size="small"
-//                         color={payment.status === 'completed' ? 'success' : 'warning'}
-//                         sx={{ fontSize: '0.6rem', height: 20 }}
-//                       />
-//                     </TableCell>
-//                     <TableCell>
-//                       {payment.couponCode ? (
-//                         <Chip
-//                           label={payment.couponCode}
-//                           size="small"
-//                           icon={<LocalOfferIcon sx={{ fontSize: 12 }} />}
-//                           sx={{ fontSize: '0.6rem', height: 20 }}
-//                         />
-//                       ) : '-'}
-//                     </TableCell>
-//                   </TableRow>
-//                 ))}
-//               </TableBody>
-//             </Table>
-//           </TableContainer>
-//         ) : (
-//           <Box sx={{ textAlign: 'center', py: 4 }}>
-//             <ReceiptIcon sx={{ fontSize: 48, color: alpha(theme.palette.primary.main, 0.3), mb: 2 }} />
-//             <Typography color="text.secondary">No payment history found</Typography>
-//           </Box>
-//         )}
-//       </DialogContent>
-
-//       <DialogActions sx={{ p: 3, pt: 0 }}>
-//         <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>
-//           Close
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   );
-// };
 const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
   const theme = useTheme();
-  
-  // Limit to show only last 2 payments
   const limitedPaymentHistory = paymentHistory?.slice(0, 10) || [];
 
   return (
@@ -2527,10 +2745,7 @@ const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: {
-          borderRadius: 3,
-          overflow: 'hidden',
-        }
+        sx: { borderRadius: 3, overflow: 'hidden' }
       }}
     >
       <DialogTitle sx={{
@@ -2545,9 +2760,7 @@ const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <HistoryIcon />
-          <Typography variant="h6" fontWeight={600}>
-            Payment History
-          </Typography>
+          <Typography variant="h6" fontWeight={600}>Payment History</Typography>
         </Box>
         {paymentHistory?.length > 2 && (
           <Typography variant="caption" sx={{ color: alpha('#ffffff', 0.8), fontSize: '0.7rem' }}>
@@ -2620,21 +2833,99 @@ const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 0 }}>
-        <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>
-          Close
+        <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// ✅ NEW: Cancel Subscription Confirmation Dialog
+const CancelSubscriptionDialog = ({ open, onClose, onConfirm, isCancelling, planName }) => {
+  const theme = useTheme();
+  const [reason, setReason] = useState('');
+
+  const handleConfirm = () => {
+    onConfirm(reason);
+    setReason('');
+  };
+
+  const handleClose = () => {
+    setReason('');
+    onClose();
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+    >
+      <DialogTitle sx={{
+        background: `linear-gradient(135deg, ${theme.palette.error.main}, ${theme.palette.error.dark})`,
+        color: 'white',
+        py: 2,
+        px: 3,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+      }}>
+        <CancelIcon />
+        <Typography variant="h6" fontWeight={600} sx={{ fontSize: '1rem' }}>
+          Cancel Subscription
+        </Typography>
+      </DialogTitle>
+
+      <DialogContent sx={{ p: 3 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.85rem' }}>
+          Are you sure you want to cancel <strong>{planName}</strong>? This action cannot be undone.
+        </Typography>
+        <TextField
+          fullWidth
+          label="Reason for cancellation (optional)"
+          multiline
+          rows={3}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          size="small"
+          placeholder="Tell us why you're cancelling..."
+          sx={{ mt: 1 }}
+        />
+      </DialogContent>
+
+      <DialogActions sx={{ p: 3, pt: 0, gap: 1 }}>
+        <Button
+          onClick={handleClose}
+          variant="outlined"
+          sx={{ borderRadius: 2, flex: 1 }}
+          disabled={isCancelling}
+        >
+          Keep Plan
+        </Button>
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          color="error"
+          disabled={isCancelling}
+          startIcon={isCancelling ? <CircularProgress size={14} color="inherit" /> : <CancelIcon sx={{ fontSize: 16 }} />}
+          sx={{ borderRadius: 2, flex: 1 }}
+        >
+          {isCancelling ? 'Cancelling...' : 'Cancel Plan'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
+
 const PaymentPlans = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Selectors from plan slice
-  const { plansList, loading: plansLoading, userCustomPlan } = useSelector((state) => state.plan || {});
+  const { plansList, loading: plansLoading, userCustomPlan, isCancelling } = useSelector((state) => state.plan || {});
 
-  // Selectors from payment slice
   const {
     orderLoading,
     orderError,
@@ -2664,12 +2955,10 @@ const PaymentPlans = () => {
     totalItems,
   } = useSelector((state) => state.payment || {});
 
-  // Auth selectors
   const userData = useSelector((state) => state.user?.userInfo || {});
   const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated || false);
   const authUser = useSelector((state) => state.auth?.user || {});
 
-  // Local states
   const [paymentSuccess, setPaymentSuccess] = useState(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
@@ -2699,7 +2988,10 @@ const PaymentPlans = () => {
   const [editingPlanId, setEditingPlanId] = useState(null);
   const [fetchingCustomPlan, setFetchingCustomPlan] = useState(false);
 
-  // Check if current plan is the custom plan
+  // ✅ NEW: Cancel subscription dialog state
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [planToCancel, setPlanToCancel] = useState(null);
+
   const isCustomPlanPurchased = currentPlanDetails?.planId === userCustomPlan?._id;
 
   // Initial data fetch
@@ -2721,7 +3013,6 @@ const PaymentPlans = () => {
     fetchInitialData();
   }, [dispatch]);
 
-  // Fetch user's custom plan
   useEffect(() => {
     const fetchUserCustomPlan = async () => {
       if (isAuthenticated) {
@@ -2735,32 +3026,30 @@ const PaymentPlans = () => {
         }
       }
     };
-
     fetchUserCustomPlan();
   }, [dispatch, isAuthenticated]);
 
-  // Fetch user details when authenticated
-  useEffect(() => {
-    if (userData?._id) {
-      dispatch(getUserById(userData._id));
-    }
-  }, [dispatch, userData?._id]);
+  const isSubAdmin = Number(authUser?.role_id) === 3;
+  const effectiveAdminId = isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id);
 
-  // Fetch payment history for current user
   useEffect(() => {
-    if (isAuthenticated && authUser?._id) {
-      dispatch(getPaymentHistory({ adminId: authUser._id, page: 1, limit: 10 }));
+    if (effectiveAdminId) {
+      dispatch(getUserById(effectiveAdminId));
     }
-  }, [dispatch, isAuthenticated, authUser?._id]);
+  }, [dispatch, effectiveAdminId]);
 
-  // Fetch all payment history for super admin
+  useEffect(() => {
+    if (isAuthenticated && effectiveAdminId) {
+      dispatch(getPaymentHistory({ adminId: effectiveAdminId, page: 1, limit: 10 }));
+    }
+  }, [dispatch, isAuthenticated, effectiveAdminId]);
+
   useEffect(() => {
     if (isAuthenticated && authUser?.role === 'superadmin') {
       dispatch(getAllPaymentHistory({ page: 1, limit: 10 }));
     }
   }, [dispatch, isAuthenticated, authUser?.role]);
 
-  // Fetch revenue summary (for admin dashboard)
   useEffect(() => {
     if (isAuthenticated && authUser?.role === 'superadmin') {
       dispatch(getRevenueSummary());
@@ -2790,7 +3079,6 @@ const PaymentPlans = () => {
     }
   }, [userData]);
 
-  // Handle payment verification success
   useEffect(() => {
     if (verificationData?.success) {
       const successMessage = verificationData.data?.couponCode
@@ -2800,19 +3088,18 @@ const PaymentPlans = () => {
       setPaymentSuccess(successMessage);
       toast.success(successMessage);
 
-      // Refresh user data and payment history
-      if (authUser?._id) {
-        dispatch(getUserById(authUser._id));
-        dispatch(getPaymentHistory({ adminId: authUser._id }));
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
       }
 
-      // Clear verification data IMMEDIATELY to prevent repeat toast on navigation
-      dispatch(clearVerificationData());
-      dispatch(setPaymentStatus('idle'));
+      setTimeout(() => {
+        dispatch(clearVerificationData());
+        dispatch(setPaymentStatus('idle'));
+      }, 5000);
     }
   }, [verificationData, dispatch, authUser?._id]);
 
-  // Handle add-on verification success
   useEffect(() => {
     if (addOnVerificationData?.success) {
       const successMessage = addOnVerificationData.data?.addOnDetails?.addOnCouponCode
@@ -2822,19 +3109,18 @@ const PaymentPlans = () => {
       setPaymentSuccess(successMessage);
       toast.success(successMessage);
 
-      // Refresh user data and payment history
-      if (authUser?._id) {
-        dispatch(getUserById(authUser._id));
-        dispatch(getPaymentHistory({ adminId: authUser._id }));
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
       }
 
-      // Clear verification data IMMEDIATELY to prevent repeat toast on navigation
-      dispatch(clearVerificationData());
-      dispatch(setPaymentStatus('idle'));
+      setTimeout(() => {
+        dispatch(clearVerificationData());
+        dispatch(setPaymentStatus('idle'));
+      }, 5000);
     }
   }, [addOnVerificationData, dispatch, authUser?._id]);
 
-  // Handle errors
   useEffect(() => {
     if (orderError) {
       toast.error(orderError?.message || 'Failed to create order');
@@ -2846,7 +3132,6 @@ const PaymentPlans = () => {
     }
   }, [orderError, verificationError, dispatch]);
 
-  // Separate plans into subscriptions and add-ons
   const subscriptionPlans = plansList?.filter(
     (plan) => !plan.name?.includes("Add on Plan") && plan.status === "active" && plan.name !== "Customize Plan"
   ) || [];
@@ -2855,11 +3140,53 @@ const PaymentPlans = () => {
     (plan) => plan.name?.includes("Add on Plan") && plan.status === "active"
   ) || [];
 
+  // Handle pending plan from registration/pricing flow
+  useEffect(() => {
+
+    if (!loading && subscriptionPlans.length > 0) {
+      let pendingPlanData = location.state?.selectedPlan || authUser?.selectedPlan;
+
+      if (!pendingPlanData) {
+        const stored = sessionStorage.getItem('selectedPlan');
+        if (stored) {
+          try { pendingPlanData = JSON.parse(stored); } catch (e) { pendingPlanData = null; }
+        }
+      }
+
+      if (pendingPlanData) {
+        console.log("🎯 Found pending plan to process:", pendingPlanData);
+
+        // Find the full plan object from the list to ensure we have all data
+        const matchedPlan = subscriptionPlans.find(
+          p => p._id === pendingPlanData._id || p.name === pendingPlanData.name
+        );
+
+        if (matchedPlan) {
+          console.log("✅ Matched with active plan:", matchedPlan.name);
+
+
+          setTimeout(() => {
+            setSelectedPlanForCoupon(matchedPlan);
+            setCouponPopupOpen(true);
+
+            // Clear session storage to avoid re-opening
+            sessionStorage.removeItem('selectedPlan');
+            sessionStorage.removeItem('fromPricing');
+
+            // Also notify user
+            toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, {
+              icon: "💳"
+            });
+          }, 500);
+        }
+      }
+    }
+  }, [plansLoading, plansList, userCustomPlan, loading, location, authUser]);
+
   // Custom Plan handlers
   const handleCreateCustomPlan = async (e) => {
     e?.preventDefault();
 
-    // Validation
     const errors = {};
     if (!customPlanData.minUsers) errors.minUsers = 'Min users is required';
     if (!customPlanData.maxUsers) errors.maxUsers = 'Max users is required';
@@ -2888,14 +3215,11 @@ const PaymentPlans = () => {
       };
 
       if (isEditingCustomPlan && editingPlanId) {
-        const result = await dispatch(updateCustomPlan({
-          planId: editingPlanId,
-          data: payload
-        })).unwrap();
-        toast.success(result.message || 'Custom plan updated successfully!');
+        const result = await dispatch(updateCustomPlan({ planId: editingPlanId, data: payload })).unwrap();
+        // toast.success(result.message || 'Custom plan updated successfully!');
       } else {
         const result = await dispatch(createCustomPlan(payload)).unwrap();
-        toast.success(result.message || 'Custom plan created successfully!');
+        // toast.success(result.message || 'Custom plan created successfully!');
       }
 
       setCustomPlanPopupOpen(false);
@@ -2959,13 +3283,133 @@ const PaymentPlans = () => {
         toast.warning("You already have an active subscription. You can only purchase add-on plans.");
         return;
       }
-
       setSelectedPlanForCoupon(userCustomPlan);
       setCouponPopupOpen(true);
     }
   };
 
+  // ✅ NEW: Cancel subscription handler
+  const handleOpenCancelDialog = (plan, planName) => {
+    setPlanToCancel({ plan, planName });
+    setCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = async (reason) => {
+    try {
+      await dispatch(cancelSubscription({ cancellationReason: reason })).unwrap();
+      toast.success('Subscription cancelled successfully');
+      setCancelDialogOpen(false);
+      setPlanToCancel(null);
+      // Refresh user data
+      if (effectiveAdminId) {
+        dispatch(getUserById(effectiveAdminId));
+        dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+      }
+    } catch (error) {
+      toast.error(error?.message || 'Failed to cancel subscription');
+    }
+  };
+
   // Payment handlers
+  // const handleSubscriptionPayment = async (planId, couponCode = null) => {
+  //   setProcessingPlanId(planId);
+
+  //   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+  //     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+  //     setProcessingPlanId(null);
+  //     return;
+  //   }
+
+  //   try {
+  //     dispatch(clearPaymentState());
+  //     setPaymentSuccess(null);
+
+  //     if (!isAuthenticated || !authUser) {
+  //       toast.error("User not authenticated. Please login again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+  //     if (!adminId) {
+  //       toast.error("User ID not found. Please login again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     if (!window.Razorpay) {
+  //       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
+
+  //     if (createPaymentOrder.rejected.match(orderResult)) {
+  //       toast.error(orderResult.payload?.message || "Failed to create order");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderData = orderResult.payload?.data;
+
+  //     if (!couponCode) {
+  //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+  //     } else if (orderData.discountApplied) {
+  //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+  //     }
+
+  //     const options = {
+  //       key: RAZORPAY_KEY_ID,
+  //       amount: orderData.amount,
+  //       currency: orderData.currency,
+  //       name: "Team Trackify",
+  //       description: couponCode
+  //         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+  //         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+  //       order_id: orderData.orderId,
+  //       handler: async function (response) {
+  //         try {
+  //           await dispatch(
+  //             verifyPayment({
+  //               razorpayOrderId: response.razorpay_order_id,
+  //               razorpayPaymentId: response.razorpay_payment_id,
+  //               razorpaySignature: response.razorpay_signature,
+  //               paymentId: orderData.paymentId,
+  //             })
+  //           );
+  //         } catch (verifyError) {
+  //           console.error("Payment verification error:", verifyError);
+  //           toast.error("Payment verification failed. Please contact support.");
+  //         } finally {
+  //           setProcessingPlanId(null);
+  //         }
+  //       },
+  //       prefill: {
+  //         name: authUser.name || userData?.name || "",
+  //         email: authUser.email || userData?.email || "",
+  //         contact: authUser.phone || userData?.phone || "",
+  //       },
+  //       theme: { color: theme.palette.primary.main },
+  //       modal: {
+  //         ondismiss: function () {
+  //           dispatch(clearOrderData());
+  //           setProcessingPlanId(null);
+  //           dispatch(setPaymentStatus('idle'));
+  //         },
+  //       },
+  //     };
+
+  //     const rzp = new window.Razorpay(options);
+  //     rzp.open();
+  //   } catch (error) {
+  //     console.error("Payment error:", error);
+  //     toast.error("Payment failed: " + error.message);
+  //     setProcessingPlanId(null);
+  //     dispatch(setPaymentStatus('failed'));
+  //   }
+  // };
   const handleSubscriptionPayment = async (planId, couponCode = null) => {
     setProcessingPlanId(planId);
 
@@ -2985,7 +3429,7 @@ const PaymentPlans = () => {
         return;
       }
 
-      const adminId = authUser._id || authUser.id || userData?._id;
+      const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
       if (!adminId) {
         toast.error("User ID not found. Please login again.");
@@ -2999,9 +3443,7 @@ const PaymentPlans = () => {
         return;
       }
 
-      const orderResult = await dispatch(
-        createPaymentOrder({ adminId, planId, couponCode })
-      );
+      const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
 
       if (createPaymentOrder.rejected.match(orderResult)) {
         toast.error(orderResult.payload?.message || "Failed to create order");
@@ -3048,19 +3490,64 @@ const PaymentPlans = () => {
           email: authUser.email || userData?.email || "",
           contact: authUser.phone || userData?.phone || "",
         },
-        theme: {
-          color: theme.palette.primary.main,
-        },
+        theme: { color: theme.palette.primary.main },
         modal: {
-          ondismiss: function () {
-            dispatch(clearOrderData());
+          ondismiss: async function () {
+            // User closed the modal - update status to cancelled
             setProcessingPlanId(null);
             dispatch(setPaymentStatus('idle'));
+
+            try {
+              await dispatch(updatePaymentStatus({
+                razorpayOrderId: orderData.orderId,
+                status: "cancelled",
+                failureReason: "User closed the payment window"
+              })).unwrap();
+
+              toast.info("Payment cancelled");
+
+              // Refresh payment history
+              if (effectiveAdminId) {
+                dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+              }
+            } catch (error) {
+              console.error("Failed to update payment status:", error);
+            }
+
+            dispatch(clearOrderData());
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
+
+      // Add payment failed handler
+      rzp.on('payment.failed', async function (response) {
+        console.error("Payment failed:", response.error);
+
+        try {
+          await dispatch(updatePaymentStatus({
+            razorpayOrderId: orderData.orderId,
+            status: "failed",
+            failureReason: response.error?.description || "Payment failed"
+          })).unwrap();
+
+          toast.error(response.error?.description || "Payment failed. Please try again.");
+
+          // Refresh payment history
+          if (effectiveAdminId) {
+            dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+          }
+        } catch (error) {
+          console.error("Failed to update payment status:", error);
+          toast.error("Payment failed. Please try again.");
+        } finally {
+          setProcessingPlanId(null);
+          dispatch(setPaymentStatus('failed'));
+          dispatch(clearOrderData());
+        }
+      });
+
       rzp.open();
     } catch (error) {
       console.error("Payment error:", error);
@@ -3069,7 +3556,100 @@ const PaymentPlans = () => {
       dispatch(setPaymentStatus('failed'));
     }
   };
+  // const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+  //   setProcessingPlanId(addOnPlanId);
 
+  //   try {
+  //     if (!authUser) {
+  //       toast.error("User not authenticated. Please login.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     if (!hasActiveSubscription || !currentPlanDetails) {
+  //       toast.warning("You need an active subscription to purchase add-on plans.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+  //     dispatch(clearPaymentState());
+  //     setPaymentSuccess(null);
+
+  //     const orderResult = await dispatch(
+  //       createAddOnOrder({
+  //         adminId,
+  //         addOnPlanId,
+  //         paymentId: currentPlanDetails._id,
+  //         couponCode
+  //       })
+  //     );
+
+  //     if (createAddOnOrder.rejected.match(orderResult)) {
+  //       toast.error(orderResult.payload?.message || "Failed to create order");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderData = orderResult.payload?.data;
+
+  //     if (!couponCode) {
+  //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+  //     } else if (orderData.discountApplied) {
+  //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+  //     }
+
+  //     const razorpayOptions = {
+  //       key: RAZORPAY_KEY_ID,
+  //       amount: orderData.amount,
+  //       currency: orderData.currency,
+  //       name: "Team Trackify",
+  //       description: couponCode
+  //         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+  //         : `Payment for Add-on Plan`,
+  //       order_id: orderData.orderId,
+  //       handler: async (response) => {
+  //         try {
+  //           await dispatch(
+  //             verifyAddOnPayment({
+  //               razorpayOrderId: response.razorpay_order_id,
+  //               razorpayPaymentId: response.razorpay_payment_id,
+  //               razorpaySignature: response.razorpay_signature,
+  //               paymentId: orderData.paymentId,
+  //             })
+  //           );
+  //         } catch (error) {
+  //           console.error("Add-on verification error:", error);
+  //           toast.error("Payment verification failed");
+  //         } finally {
+  //           setProcessingPlanId(null);
+  //         }
+  //       },
+  //       prefill: {
+  //         name: authUser.name || userData?.name || "",
+  //         email: authUser.email || userData?.email || "",
+  //         contact: authUser.phone || userData?.phone || "",
+  //       },
+  //       theme: { color: theme.palette.primary.main },
+  //       modal: {
+  //         ondismiss: function () {
+  //           dispatch(clearOrderData());
+  //           setProcessingPlanId(null);
+  //           dispatch(setPaymentStatus('idle'));
+  //         },
+  //       },
+  //     };
+
+  //     const razorpayInstance = new window.Razorpay(razorpayOptions);
+  //     razorpayInstance.open();
+  //   } catch (error) {
+  //     console.error("Error in upgrading plan:", error);
+  //     toast.error("An error occurred while upgrading your plan.");
+  //     setProcessingPlanId(null);
+  //     dispatch(setPaymentStatus('failed'));
+  //   }
+  // };
   const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
     setProcessingPlanId(addOnPlanId);
 
@@ -3086,17 +3666,16 @@ const PaymentPlans = () => {
         return;
       }
 
-      const adminId = authUser._id || authUser.id || userData?._id;
+      const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
       dispatch(clearPaymentState());
       setPaymentSuccess(null);
 
-      // ✅ FIXED: Include paymentId from currentPlanDetails
       const orderResult = await dispatch(
         createAddOnOrder({
           adminId,
           addOnPlanId,
-          paymentId: currentPlanDetails._id, // 👈 Add this!
+          paymentId: currentPlanDetails._id,
           couponCode
         })
       );
@@ -3115,6 +3694,8 @@ const PaymentPlans = () => {
         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
       }
 
+      let paymentCompleted = false;
+
       const razorpayOptions = {
         key: RAZORPAY_KEY_ID,
         amount: orderData.amount,
@@ -3125,6 +3706,7 @@ const PaymentPlans = () => {
           : `Payment for Add-on Plan`,
         order_id: orderData.orderId,
         handler: async (response) => {
+          paymentCompleted = true;
           try {
             await dispatch(
               verifyAddOnPayment({
@@ -3146,19 +3728,64 @@ const PaymentPlans = () => {
           email: authUser.email || userData?.email || "",
           contact: authUser.phone || userData?.phone || "",
         },
-        theme: {
-          color: theme.palette.primary.main,
-        },
+        theme: { color: theme.palette.primary.main },
         modal: {
-          ondismiss: function () {
-            dispatch(clearOrderData());
-            setProcessingPlanId(null);
-            dispatch(setPaymentStatus('idle'));
+          ondismiss: async function () {
+            if (!paymentCompleted) {
+              setProcessingPlanId(null);
+              dispatch(setPaymentStatus('idle'));
+
+              try {
+                await dispatch(updatePaymentStatus({
+                  razorpayOrderId: orderData.orderId,
+                  status: "cancelled",
+                  failureReason: "User closed the payment window"
+                })).unwrap();
+
+                toast.info("Payment cancelled");
+
+                if (effectiveAdminId) {
+                  dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+                }
+              } catch (error) {
+                console.error("Failed to update payment status:", error);
+              }
+
+              dispatch(clearOrderData());
+            }
           },
         },
       };
 
       const razorpayInstance = new window.Razorpay(razorpayOptions);
+
+      // Add payment failed handler
+      razorpayInstance.on('payment.failed', async function (response) {
+        paymentCompleted = false;
+        console.error("Add-on payment failed:", response.error);
+
+        try {
+          await dispatch(updatePaymentStatus({
+            razorpayOrderId: orderData.orderId,
+            status: "failed",
+            failureReason: response.error?.description || "Payment failed"
+          })).unwrap();
+
+          toast.error(response.error?.description || "Payment failed. Please try again.");
+
+          if (effectiveAdminId) {
+            dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+          }
+        } catch (error) {
+          console.error("Failed to update payment status:", error);
+          toast.error("Payment failed. Please try again.");
+        } finally {
+          setProcessingPlanId(null);
+          dispatch(setPaymentStatus('failed'));
+          dispatch(clearOrderData());
+        }
+      });
+
       razorpayInstance.open();
     } catch (error) {
       console.error("Error in upgrading plan:", error);
@@ -3185,15 +3812,18 @@ const PaymentPlans = () => {
     }
   };
 
- const renderPlanCard = (plan, index, isAddOn = false) => {
-  const isCurrentPlan = currentPlanDetails?.planId === plan._id;
-  // Modified logic: disable add-ons if no active subscription or subscription expired
-  const isDisabled = isAddOn 
-    ? (!hasActiveSubscription || subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment()))
-    : (!isAddOn && hasActiveSubscription && !isCurrentPlan);
-  const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
-  const isRecommended = plan.name === "Enterprise Plan" && !isAddOn;
-  const hasCouponApplied = appliedCouponData && selectedPlanForCoupon?._id === plan._id;
+  const renderPlanCard = (plan, index, isAddOn = false) => {
+    const isCurrentPlan = currentPlanDetails?.planId === plan._id;
+    // ✅ FIX: Only show as "current/active" if subscription is NOT expired
+    const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
+    const isActivePlan = isCurrentPlan && !isExpired; // truly active, not expired
+
+    const isDisabled = isAddOn
+      ? (!hasActiveSubscription || (subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())))
+      : (!isAddOn && hasActiveSubscription && !isCurrentPlan);
+
+    const isRecommended = plan.name === "Enterprise Plan" && !isAddOn;
+    const hasCouponApplied = appliedCouponData && selectedPlanForCoupon?._id === plan._id;
 
     return (
       <Grid item xs={12} md={6} lg={4} key={plan._id} sx={{ display: 'flex' }}>
@@ -3208,10 +3838,10 @@ const PaymentPlans = () => {
               position: 'relative',
               borderRadius: 2.5,
               border: '1px solid',
-              borderColor: isRecommended ? theme.palette.primary.main : (isCurrentPlan ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5)),
+              borderColor: isRecommended ? theme.palette.primary.main : (isActivePlan ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5)),
               boxShadow: isRecommended
                 ? `0 8px 25px -8px ${alpha(theme.palette.primary.main, 0.5)}`
-                : isCurrentPlan
+                : isActivePlan
                   ? `0 8px 25px -8px ${alpha(theme.palette.primary.main, 0.5)}`
                   : '0 2px 8px rgba(0,0,0,0.03)',
               transition: 'all 0.3s ease',
@@ -3229,7 +3859,6 @@ const PaymentPlans = () => {
               } : {},
             }}
           >
-            {/* Recommended Label */}
             {isRecommended && (
               <Box
                 sx={{
@@ -3255,7 +3884,6 @@ const PaymentPlans = () => {
               </Box>
             )}
 
-            {/* Header */}
             <CardHeader
               sx={{
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
@@ -3266,12 +3894,7 @@ const PaymentPlans = () => {
                 borderTopRightRadius: 10,
               }}
               avatar={
-                <Avatar sx={{
-                  bgcolor: alpha('#ffffff', 0.2),
-                  color: 'white',
-                  width: 32,
-                  height: 32,
-                }}>
+                <Avatar sx={{ bgcolor: alpha('#ffffff', 0.2), color: 'white', width: 32, height: 32 }}>
                   {isAddOn ? <AddIcon sx={{ fontSize: 18 }} /> : <CreditCardIcon sx={{ fontSize: 18 }} />}
                 </Avatar>
               }
@@ -3289,24 +3912,16 @@ const PaymentPlans = () => {
                 <Chip
                   label={plan.duration}
                   size="small"
-                  sx={{
-                    bgcolor: 'white',
-                    color: theme.palette.primary.main,
-                    fontWeight: 600,
-                    fontSize: '0.6rem',
-                    height: 22,
-                  }}
+                  sx={{ bgcolor: 'white', color: theme.palette.primary.main, fontWeight: 600, fontSize: '0.6rem', height: 22 }}
                 />
               }
             />
 
             <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-              {/* Description */}
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.74rem', mb: 1.5, display: 'block' }}>
                 {plan.description}
               </Typography>
 
-              {/* Price with Coupon Applied */}
               <Box sx={{ textAlign: 'center', mb: 2.5, position: 'relative' }}>
                 {hasCouponApplied && (
                   <Chip
@@ -3322,10 +3937,7 @@ const PaymentPlans = () => {
                       color: '#22c55e',
                       fontSize: '0.55rem',
                       height: 20,
-                      '& .MuiChip-deleteIcon': {
-                        color: '#22c55e',
-                        fontSize: 14,
-                      },
+                      '& .MuiChip-deleteIcon': { color: '#22c55e', fontSize: 14 },
                     }}
                   />
                 )}
@@ -3333,9 +3945,7 @@ const PaymentPlans = () => {
                   variant="h5"
                   fontWeight={700}
                   sx={{
-                    color: hasCouponApplied
-                      ? alpha(theme.palette.primary.main, 0.5)
-                      : theme.palette.primary.main,
+                    color: hasCouponApplied ? alpha(theme.palette.primary.main, 0.5) : theme.palette.primary.main,
                     textDecoration: hasCouponApplied ? 'line-through' : 'none',
                     fontSize: hasCouponApplied ? '1.2rem' : '1.5rem',
                   }}
@@ -3343,15 +3953,7 @@ const PaymentPlans = () => {
                   ₹{plan.price}
                 </Typography>
                 {hasCouponApplied && (
-                  <Typography
-                    variant="h5"
-                    fontWeight={700}
-                    sx={{
-                      color: '#22c55e',
-                      fontSize: '1.5rem',
-                      lineHeight: 1,
-                    }}
-                  >
+                  <Typography variant="h5" fontWeight={700} sx={{ color: '#22c55e', fontSize: '1.5rem', lineHeight: 1 }}>
                     ₹{appliedCouponData.finalAmount}
                   </Typography>
                 )}
@@ -3360,57 +3962,27 @@ const PaymentPlans = () => {
                 </Typography>
               </Box>
 
-              {/* User Limits */}
               <Stack direction="row" spacing={1.5} sx={{ mb: 2.5 }}>
-           
                 <Box sx={{
-                  flex: 1,
-                  p: 1.2,
+                  flex: 1, p: 1.2,
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
                   borderRadius: 1.5,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
                 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: '0.64rem',
-                      textAlign: 'center',
-                      width: '100%',
-                      display: 'block'
-                    }}
-                  >
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', textAlign: 'center', width: '100%', display: 'block' }}>
                     Max Users
                   </Typography>
-                  <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 0.5,
-                    width: '100%'
-                  }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, width: '100%' }}>
                     <PeopleIcon sx={{ color: theme.palette.primary.main, fontSize: 14 }} />
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      sx={{
-                        fontSize: '0.7rem',
-                        color: 'text.primary',
-                        textAlign: 'center'
-                      }}
-                    >
+                    <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'text.primary', textAlign: 'center' }}>
                       {plan.maxUsers}
                     </Typography>
                   </Box>
                 </Box>
               </Stack>
 
-              {/* Payment Stats for completed plans */}
-              {paymentStats && isCurrentPlan && (
+              {/* ✅ FIX: Only show "Active Plan" badge when truly active (not expired) */}
+              {paymentStats && isActivePlan && (
                 <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5 }}>
                   <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, display: 'block', textAlign: 'center' }}>
                     ✓ Active Plan
@@ -3420,51 +3992,93 @@ const PaymentPlans = () => {
             </CardContent>
 
             <CardActions sx={{ p: 2.5, pt: 0 }}>
-              {!isAddOn && hasActiveSubscription ? (
-                isCurrentPlan ? (
+              {/* ✅ FIX: Completely rewritten action button logic */}
+              {!isAddOn && isActivePlan ? (
+                // Truly active plan — show Active + Cancel buttons
+                <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
                   <Button
                     fullWidth
-                    variant={isExpired ? "outlined" : "contained"}
-                    color={isExpired ? "warning" : "success"}
-                    disabled={!isExpired}
+                    variant="contained"
+                    color="success"
+                    disabled
                     startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
                     size="small"
                     sx={{
-                      py: 1.2,
-                      borderRadius: 1.5,
-                      bgcolor: isExpired ? 'transparent' : '#22c55e',
-                      color: isExpired ? theme.palette.warning.main : 'white',
-                      borderColor: isExpired ? theme.palette.warning.main : 'transparent',
-                      fontSize: '0.7rem',
-                      '&:hover': isExpired ? {
-                        borderColor: theme.palette.warning.dark,
-                        bgcolor: alpha(theme.palette.warning.main, 0.1),
-                      } : {
-                        bgcolor: '#16a34a',
+                      py: 1.2, borderRadius: 1.5,
+                      bgcolor: '#22c55e', color: 'white', fontSize: '0.7rem',
+                      '&:hover': { bgcolor: '#16a34a' },
+                    }}
+                  >
+                    Active Plan
+                  </Button>
+                  {/* ✅ NEW: Cancel button only on active plan */}
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => handleOpenCancelDialog(plan, plan.name)}
+                    disabled={isCancelling}
+                    startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+                    sx={{
+                      py: 1.2, borderRadius: 1.5,
+                      borderColor: alpha(theme.palette.error.main, 0.5),
+                      color: theme.palette.error.main,
+                      fontSize: '0.65rem',
+                      minWidth: 'auto',
+                      px: 1.5,
+                      '&:hover': {
+                        borderColor: theme.palette.error.main,
+                        bgcolor: alpha(theme.palette.error.main, 0.05),
                       },
                     }}
                   >
-                    {isExpired ? 'Expired - Renew Now' : 'Active Plan'}
+                    Cancel
                   </Button>
-                ) : (
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    disabled
-                    startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
-                    size="small"
-                    sx={{
-                      py: 1.2,
-                      borderRadius: 1.5,
-                      borderColor: alpha(theme.palette.divider, 0.5),
-                      color: 'text.disabled',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Subscribe Now
-                  </Button>
-                )
+                </Box>
+              ) : !isAddOn && isCurrentPlan && isExpired ? (
+                // ✅ FIX: Expired plan — show Subscribe Now (not "Active Plan")
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => {
+                    setSelectedPlanForCoupon(plan);
+                    setCouponPopupOpen(true);
+                  }}
+                  disabled={orderLoading || processingPlanId === plan._id}
+                  startIcon={
+                    processingPlanId === plan._id
+                      ? <CircularProgress size={14} sx={{ color: 'white' }} />
+                      : <CreditCardIcon sx={{ fontSize: 16 }} />
+                  }
+                  size="small"
+                  sx={{
+                    py: 1.2, borderRadius: 1.5,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                    fontSize: '0.7rem',
+                    '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` },
+                    '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.3) },
+                  }}
+                >
+                  Renew Plan
+                </Button>
+              ) : !isAddOn && hasActiveSubscription && !isCurrentPlan ? (
+                // Other plan when user has a different active subscription
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  disabled
+                  startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
+                  size="small"
+                  sx={{
+                    py: 1.2, borderRadius: 1.5,
+                    borderColor: alpha(theme.palette.divider, 0.5),
+                    color: 'text.disabled', fontSize: '0.7rem',
+                  }}
+                >
+                  Subscribe Now
+                </Button>
               ) : (
+                // Default: no active subscription or add-on
                 <Button
                   fullWidth
                   variant="contained"
@@ -3484,16 +4098,11 @@ const PaymentPlans = () => {
                   }
                   size="small"
                   sx={{
-                    py: 1.2,
-                    borderRadius: 1.5,
+                    py: 1.2, borderRadius: 1.5,
                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                     fontSize: '0.7rem',
-                    '&:hover': {
-                      background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                    },
-                    '&.Mui-disabled': {
-                      background: alpha(theme.palette.primary.main, 0.3),
-                    },
+                    '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` },
+                    '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.3) },
                   }}
                 >
                   {isAddOn ? 'Upgrade Now' : 'Subscribe Now'}
@@ -3508,7 +4117,6 @@ const PaymentPlans = () => {
 
   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
-  // If first render loader is active, show skeletons
   if (showFirstRenderLoader) {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
@@ -3532,12 +4140,9 @@ const PaymentPlans = () => {
                 Choose the perfect plan for your team
               </Typography>
             </Box>
-
-            {/* History Button Skeleton */}
             <Skeleton variant="rounded" width={100} height={36} sx={{ borderRadius: 2 }} />
           </Box>
 
-          {/* Subscription Plans Section Skeleton */}
           <Box sx={{ mb: 5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2.5 }}>
               <Skeleton variant="circular" width={32} height={32} />
@@ -3550,7 +4155,6 @@ const PaymentPlans = () => {
             </Grid>
           </Box>
 
-          {/* Add-on Plans Section Skeleton */}
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2.5 }}>
               <Skeleton variant="circular" width={32} height={32} />
@@ -3567,8 +4171,21 @@ const PaymentPlans = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ top: "70px" }}
+      />
       <Container maxWidth="xl">
-        {/* Header with History Button */}
+        {/* Header */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             <Typography
@@ -3589,7 +4206,6 @@ const PaymentPlans = () => {
             </Typography>
           </Box>
 
-          {/* Payment History Button */}
           <Button
             variant="outlined"
             startIcon={<HistoryIcon />}
@@ -3714,11 +4330,6 @@ const PaymentPlans = () => {
           </Alert>
         )}
 
-
-
-
-
-
         {paymentSuccess && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -3764,7 +4375,6 @@ const PaymentPlans = () => {
           </Box>
         )}
 
-        {/* Custom Plan Card */}
         {fetchingCustomPlan && (
           <Box sx={{ mb: 4, p: 3, textAlign: 'center' }}>
             <CircularProgress size={30} />
@@ -3801,7 +4411,6 @@ const PaymentPlans = () => {
                     },
                   }}
                 >
-                  {/* Status Badge */}
                   <Box
                     sx={{
                       position: 'absolute',
@@ -3825,7 +4434,6 @@ const PaymentPlans = () => {
                     {isCustomPlanPurchased ? 'ACTIVE' : 'YOUR PLAN'}
                   </Box>
 
-                  {/* Header */}
                   <CardHeader
                     sx={{
                       background: `linear-gradient(135deg, ${isCustomPlanPurchased ? theme.palette.success.main : '#9c27b0'}, ${isCustomPlanPurchased ? theme.palette.success.dark : '#7b1fa2'})`,
@@ -3836,12 +4444,7 @@ const PaymentPlans = () => {
                       borderTopRightRadius: 10,
                     }}
                     avatar={
-                      <Avatar sx={{
-                        bgcolor: alpha('#ffffff', 0.2),
-                        color: 'white',
-                        width: 32,
-                        height: 32,
-                      }}>
+                      <Avatar sx={{ bgcolor: alpha('#ffffff', 0.2), color: 'white', width: 32, height: 32 }}>
                         <BuildIcon sx={{ fontSize: 18 }} />
                       </Avatar>
                     }
@@ -3876,14 +4479,7 @@ const PaymentPlans = () => {
                     </Typography>
 
                     <Box sx={{ textAlign: 'center', mb: 2.5 }}>
-                      <Typography
-                        variant="h5"
-                        fontWeight={700}
-                        sx={{
-                          color: '#9c27b0',
-                          fontSize: '1.5rem',
-                        }}
-                      >
+                      <Typography variant="h5" fontWeight={700} sx={{ color: '#9c27b0', fontSize: '1.5rem' }}>
                         ₹{userCustomPlan.price}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.66rem' }}>
@@ -3892,38 +4488,18 @@ const PaymentPlans = () => {
                     </Box>
 
                     <Stack direction="row" spacing={1.5} sx={{ mb: 2.5 }}>
-                      
                       <Box sx={{
-                        flex: 1,
-                        p: 1.2,
+                        flex: 1, p: 1.2,
                         bgcolor: alpha('#9c27b0', 0.05),
                         borderRadius: 1.5,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',     // Center horizontally
-                        justifyContent: 'center', // Center vertically
-                        textAlign: 'center',      // Center text
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
                       }}>
-                        <Typography variant="caption" color="text.secondary" sx={{
-                          fontSize: '0.64rem',
-                          textAlign: 'center',
-                          width: '100%'
-                        }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', textAlign: 'center', width: '100%' }}>
                           Max Users
                         </Typography>
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center', // Center the icon and text
-                          gap: 0.5,
-                          width: '100%'
-                        }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, width: '100%' }}>
                           <PeopleIcon sx={{ color: '#9c27b0', fontSize: 14 }} />
-                          <Typography variant="body2" fontWeight={600} sx={{
-                            fontSize: '0.7rem',
-                            color: 'text.primary',
-                            textAlign: 'center'
-                          }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.7rem', color: 'text.primary', textAlign: 'center' }}>
                             {userCustomPlan.maxUsers}
                           </Typography>
                         </Box>
@@ -3941,23 +4517,42 @@ const PaymentPlans = () => {
 
                   <CardActions sx={{ p: 2.5, pt: 0 }}>
                     {isCustomPlanPurchased ? (
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        color="success"
-                        disabled
-                        startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
-                        size="small"
-                        sx={{
-                          py: 1.2,
-                          borderRadius: 1.5,
-                          bgcolor: theme.palette.success.main,
-                          color: 'white',
-                          fontSize: '0.7rem',
-                        }}
-                      >
-                        Active Plan
-                      </Button>
+                      // ✅ Custom plan active: show Active + Cancel
+                      <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          color="success"
+                          disabled
+                          startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+                          size="small"
+                          sx={{ py: 1.2, borderRadius: 1.5, bgcolor: theme.palette.success.main, color: 'white', fontSize: '0.7rem' }}
+                        >
+                          Active Plan
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleOpenCancelDialog(userCustomPlan, userCustomPlan.name)}
+                          disabled={isCancelling}
+                          startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+                          sx={{
+                            py: 1.2, borderRadius: 1.5,
+                            borderColor: alpha(theme.palette.error.main, 0.5),
+                            color: theme.palette.error.main,
+                            fontSize: '0.65rem',
+                            minWidth: 'auto',
+                            px: 1.5,
+                            '&:hover': {
+                              borderColor: theme.palette.error.main,
+                              bgcolor: alpha(theme.palette.error.main, 0.05),
+                            },
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
                     ) : (
                       <>
                         <Button
@@ -3968,16 +4563,10 @@ const PaymentPlans = () => {
                           size="small"
                           disabled={isCustomPlanPurchased}
                           sx={{
-                            py: 1.2,
-                            borderRadius: 1.5,
+                            py: 1.2, borderRadius: 1.5,
                             borderColor: alpha('#9c27b0', 0.3),
-                            color: '#9c27b0',
-                            fontSize: '0.7rem',
-                            mr: 1,
-                            '&:hover': {
-                              borderColor: '#9c27b0',
-                              bgcolor: alpha('#9c27b0', 0.05),
-                            },
+                            color: '#9c27b0', fontSize: '0.7rem', mr: 1,
+                            '&:hover': { borderColor: '#9c27b0', bgcolor: alpha('#9c27b0', 0.05) },
                           }}
                         >
                           Edit Plan
@@ -3990,16 +4579,11 @@ const PaymentPlans = () => {
                           startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
                           size="small"
                           sx={{
-                            py: 1.2,
-                            borderRadius: 1.5,
+                            py: 1.2, borderRadius: 1.5,
                             background: `linear-gradient(135deg, #9c27b0, #7b1fa2)`,
                             fontSize: '0.7rem',
-                            '&:hover': {
-                              background: `linear-gradient(135deg, #7b1fa2, #9c27b0)`,
-                            },
-                            '&.Mui-disabled': {
-                              background: alpha('#9c27b0', 0.3),
-                            },
+                            '&:hover': { background: `linear-gradient(135deg, #7b1fa2, #9c27b0)` },
+                            '&.Mui-disabled': { background: alpha('#9c27b0', 0.3) },
                           }}
                         >
                           Subscribe
@@ -4016,15 +4600,8 @@ const PaymentPlans = () => {
         {/* Payment Status Alerts */}
         <AnimatePresence>
           {paymentStatus === 'processing' && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Alert
-                severity="info"
-                sx={{ mb: 2.5, borderRadius: 1.5 }}
-              >
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <Alert severity="info" sx={{ mb: 2.5, borderRadius: 1.5 }}>
                 <AlertTitle sx={{ fontSize: '0.85rem' }}>Processing Payment</AlertTitle>
                 <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
                   Please wait while we process your payment...
@@ -4033,76 +4610,15 @@ const PaymentPlans = () => {
             </motion.div>
           )}
 
-          {/* {paymentSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Alert
-                severity="success"
-                onClose={() => setPaymentSuccess(null)}
-                sx={{ mb: 2.5, borderRadius: 1.5 }}
-              >
-                <AlertTitle sx={{ fontSize: '0.85rem' }}>Payment Successful!</AlertTitle>
-                <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>{paymentSuccess}</Typography>
-              </Alert>
-            </motion.div>
-          )} */}
-
           {orderError && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Alert
-                severity="error"
-                onClose={() => dispatch(clearPaymentState())}
-                sx={{ mb: 2.5, borderRadius: 1.5 }}
-              >
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <Alert severity="error" onClose={() => dispatch(clearPaymentState())} sx={{ mb: 2.5, borderRadius: 1.5 }}>
                 <AlertTitle sx={{ fontSize: '0.85rem' }}>Payment Error</AlertTitle>
                 <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>{orderError?.message || 'An error occurred'}</Typography>
               </Alert>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Active Subscription Notice */}
-        {/* {(hasActiveSubscription || isExpired) && (
-          <Alert
-            severity={isExpired ? "warning" : "info"}
-            icon={isExpired ? <WarningIcon sx={{ fontSize: 18 }} /> : <InfoIcon sx={{ fontSize: 18 }} />}
-            sx={{
-              mb: 3,
-              borderRadius: 1.5,
-              border: '1px solid',
-              borderColor: isExpired ? alpha(theme.palette.warning.main, 0.2) : alpha(theme.palette.primary.main, 0.2),
-            }}
-          >
-            <AlertTitle sx={{ fontWeight: 600, fontSize: '0.85rem', color: isExpired ? theme.palette.warning.main : theme.palette.primary.main }}>
-              {isExpired ? "Subscription Expired" : "Active Subscription"}
-            </AlertTitle>
-            <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
-              {isExpired ? (
-                <>
-                  Your subscription expired on {moment(subscriptionExpiry).format("MMMM Do YYYY")}.
-                  <br />
-                  To continue using the service, please purchase one of the subscription plans below.
-                </>
-              ) : (
-                <>
-                  You currently have an active subscription plan.
-                  {subscriptionExpiry && (
-                    <> It will expire on {moment(subscriptionExpiry).format("MMMM Do YYYY")}.</>
-                  )}
-                  <br />
-                  You can purchase add-on plans to increase your user limit.
-                </>
-              )}
-            </Typography>
-          </Alert>
-        )} */}
 
         {/* Subscription Plans Section */}
         <Box sx={{ mb: 5 }}>
@@ -4185,6 +4701,18 @@ const PaymentPlans = () => {
           onClose={() => setHistoryDialogOpen(false)}
           paymentHistory={paymentHistory}
           loading={historyLoading}
+        />
+
+        {/* ✅ NEW: Cancel Subscription Dialog */}
+        <CancelSubscriptionDialog
+          open={cancelDialogOpen}
+          onClose={() => {
+            setCancelDialogOpen(false);
+            setPlanToCancel(null);
+          }}
+          onConfirm={handleConfirmCancel}
+          isCancelling={isCancelling}
+          planName={planToCancel?.planName || ''}
         />
       </Container>
     </Box>

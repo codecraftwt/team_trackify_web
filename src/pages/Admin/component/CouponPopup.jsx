@@ -16,7 +16,7 @@
 //   Skeleton,
 //   Fade,
 //   Tooltip,
-//   Collapse,
+//   Chip,
 // } from '@mui/material';
 // import {
 //   Close as CloseIcon,
@@ -31,6 +31,8 @@
 //   Discount as DiscountIcon,
 //   AutoAwesome as AutoAwesomeIcon,
 //   ArrowForward as ArrowForwardIcon,
+//   DateRange as DateRangeIcon,
+//   People as PeopleIcon,
 // } from '@mui/icons-material';
 // import { motion, AnimatePresence } from 'framer-motion';
 // import { useDispatch, useSelector } from 'react-redux';
@@ -45,7 +47,7 @@
 //   return <Slide direction="up" ref={ref} {...props} />;
 // });
 
-// // ── design tokens (light theme) ───────────────────────────────────────────────
+// // Design tokens
 // const T = {
 //   indigo: '#6366f1',
 //   indigoLight: '#818cf8',
@@ -66,7 +68,23 @@
 //   textMuted: '#94a3b8',
 // };
 
-// // ── CouponSkeleton ─────────────────────────────────────────────────────────────
+// // Helper function to format date
+// const formatDate = (dateString) => {
+//   if (!dateString) return '';
+//   const date = new Date(dateString);
+//   return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+// };
+
+// // Helper to check if coupon is about to expire (within 7 days)
+// const isExpiringSoon = (endDate) => {
+//   if (!endDate) return false;
+//   const now = new Date();
+//   const end = new Date(endDate);
+//   const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+//   return daysLeft <= 7 && daysLeft > 0;
+// };
+
+// // CouponSkeleton
 // const CouponSkeleton = () => (
 //   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
 //     {[1, 2, 3].map((item) => (
@@ -85,7 +103,7 @@
 //   </Box>
 // );
 
-// // ── CouponCard (compact, light theme) ─────────────────────────────────────────
+// // CouponCard Component with new fields
 // const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying }) => {
 //   const [isHovered, setIsHovered] = useState(false);
 //   const isPercent = coupon.discountType === 'percentage';
@@ -93,6 +111,9 @@
 //   const accentPale = isPercent ? T.indigoPale : T.emeraldPale;
 //   const accentLight = isPercent ? T.indigoLight : T.emeraldLight;
 //   const isPopular = coupon.discountValue > 20 && isPercent;
+//   const expiringSoon = isExpiringSoon(coupon.endDate);
+//   const isUnlimited = coupon.maxUsageCount === null || coupon.maxUsageCount === undefined;
+//   const remainingUses = !isUnlimited ? (coupon.maxUsageCount - (coupon.usedCount || 0)) : null;
 
 //   return (
 //     <motion.div
@@ -129,7 +150,6 @@
 //           } : {},
 //         }}
 //       >
-//         {/* Loading overlay */}
 //         {isApplying && (
 //           <Box sx={{
 //             position: 'absolute', inset: 0, borderRadius: 2,
@@ -143,9 +163,7 @@
 //         )}
 
 //         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-//           {/* Left: code + copy */}
 //           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
-//             {/* Popular tag */}
 //             {isPopular && (
 //               <Box sx={{
 //                 display: 'flex', alignItems: 'center', gap: 0.2,
@@ -157,8 +175,18 @@
 //                 <Typography sx={{ fontSize: '0.48rem', fontWeight: 800, color: T.gold, letterSpacing: 0.3 }}>HOT</Typography>
 //               </Box>
 //             )}
+            
+//             {expiringSoon && !isPopular && (
+//               <Box sx={{
+//                 display: 'flex', alignItems: 'center', gap: 0.2,
+//                 px: 0.5, py: 0.1, borderRadius: 0.8,
+//                 bgcolor: alpha(T.gold, 0.08),
+//                 border: `1px solid ${alpha(T.gold, 0.2)}`,
+//               }}>
+//                 <Typography sx={{ fontSize: '0.48rem', fontWeight: 600, color: T.gold }}>Expiring Soon</Typography>
+//               </Box>
+//             )}
 
-//             {/* Code pill */}
 //             <Box sx={{
 //               display: 'flex', alignItems: 'center', gap: 0.4,
 //               px: 0.8, py: 0.3, borderRadius: 1,
@@ -171,7 +199,6 @@
 //               </Typography>
 //             </Box>
 
-//             {/* Copy btn */}
 //             <Tooltip title="Copy code">
 //               <IconButton size="small" onClick={(e) => { e.stopPropagation(); onCopy(coupon.code); }}
 //                 sx={{
@@ -179,7 +206,6 @@
 //                   color: copiedCode === coupon.code ? T.emerald : T.textMuted,
 //                   '&:hover': { color: accent, bgcolor: alpha(accent, 0.08) },
 //                   transition: 'all 0.15s',
-//                   position: 'relative',
 //                 }}>
 //                 <ContentCopyIcon sx={{ fontSize: 10 }} />
 //                 {copiedCode === coupon.code && (
@@ -195,7 +221,6 @@
 //             </Tooltip>
 //           </Box>
 
-//           {/* Right: discount badge */}
 //           <Box sx={{
 //             display: 'flex', alignItems: 'center', gap: 0.2,
 //             px: 0.7, py: 0.2, borderRadius: 0.8,
@@ -211,7 +236,6 @@
 //           </Box>
 //         </Box>
 
-//         {/* Description */}
 //         <Typography sx={{
 //           fontSize: '0.6rem', color: T.textSub,
 //           mt: 0.5, lineHeight: 1.3,
@@ -221,8 +245,7 @@
 //           {coupon.description}
 //         </Typography>
 
-//         {/* Footer */}
-//         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.5 }}>
+//         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.5, flexWrap: 'wrap' }}>
 //           {coupon.minAmount > 0 && (
 //             <Typography sx={{
 //               fontSize: '0.5rem', color: T.textMuted,
@@ -232,13 +255,49 @@
 //               Min ₹{coupon.minAmount}
 //             </Typography>
 //           )}
-//           <Typography sx={{
-//             fontSize: '0.5rem', color: T.textMuted,
-//             px: 0.5, py: 0.1, borderRadius: 0.6,
-//             bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-//           }}>
-//             {coupon.usedCount || 0} used
-//           </Typography>
+          
+//           {!isUnlimited && remainingUses !== null && (
+//             <Tooltip title={`${remainingUses} uses left`}>
+//               <Box sx={{
+//                 display: 'flex', alignItems: 'center', gap: 0.3,
+//                 px: 0.5, py: 0.1, borderRadius: 0.6,
+//                 bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+//               }}>
+//                 <PeopleIcon sx={{ fontSize: 8, color: T.textMuted }} />
+//                 <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+//                   {remainingUses} left
+//                 </Typography>
+//               </Box>
+//             </Tooltip>
+//           )}
+          
+//           {isUnlimited && (
+//             <Tooltip title="Unlimited uses">
+//               <Box sx={{
+//                 display: 'flex', alignItems: 'center', gap: 0.3,
+//                 px: 0.5, py: 0.1, borderRadius: 0.6,
+//                 bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+//               }}>
+//                 <PeopleIcon sx={{ fontSize: 8, color: T.textMuted }} />
+//                 <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+//                   Unlimited
+//                 </Typography>
+//               </Box>
+//             </Tooltip>
+//           )}
+
+//           <Tooltip title={`Valid until ${formatDate(coupon.endDate)}`}>
+//             <Box sx={{
+//               display: 'flex', alignItems: 'center', gap: 0.3,
+//               px: 0.5, py: 0.1, borderRadius: 0.6,
+//               bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+//             }}>
+//               <DateRangeIcon sx={{ fontSize: 8, color: T.textMuted }} />
+//               <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+//                 {formatDate(coupon.endDate)}
+//               </Typography>
+//             </Box>
+//           </Tooltip>
 
 //           {!isEligible && (
 //             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3 }}>
@@ -261,7 +320,7 @@
 //   );
 // };
 
-// // ── Main CouponPopup ───────────────────────────────────────────────────────────
+// // Main CouponPopup Component
 // const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
 //   const theme = useTheme();
 //   const dispatch = useDispatch();
@@ -272,8 +331,7 @@
 //   const [copiedCode, setCopiedCode] = useState(null);
 //   const [fetchError, setFetchError] = useState(false);
 //   const [isDirectPayment, setIsDirectPayment] = useState(false);
-//   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-//   const [applyingCode, setApplyingCode] = useState(null); // which card is applying
+//   const [applyingCode, setApplyingCode] = useState(null);
 
 //   const {
 //     validationLoading,
@@ -285,16 +343,18 @@
 //   } = useSelector((state) => state.coupon);
 
 //   useEffect(() => {
-//     const savedCoupon = localStorage.getItem('appliedCoupon');
-//     if (savedCoupon && open) {
-//       try { setAppliedCoupon(JSON.parse(savedCoupon)); }
-//       catch (e) { console.error('Failed to parse saved coupon:', e); }
+//     if (open) {
+//       setCouponCode('');
+//       setAppliedCoupon(null);
+//       setValidationError('');
+//       setCopiedCode(null);
+//       setFetchError(false);
+//       setIsDirectPayment(false);
+//       setApplyingCode(null);
+//       dispatch(clearValidationResult());
+//       localStorage.removeItem('appliedCoupon');
 //     }
-//   }, [open]);
-
-//   useEffect(() => {
-//     if (!open) { setIsDirectPayment(false); setShowRemoveConfirm(false); setApplyingCode(null); }
-//   }, [open]);
+//   }, [open, dispatch]);
 
 //   useEffect(() => {
 //     if (open) {
@@ -309,7 +369,6 @@
 //     ? coupons.filter(c => c.status === 'active' && c.minAmount <= planPrice)
 //     : [];
 
-//   // Shared validate logic — used by both manual input and card click
 //   const doValidate = async (code) => {
 //     if (!code?.trim()) { setValidationError('Please enter a coupon code'); return; }
 //     setValidationError('');
@@ -317,24 +376,27 @@
 //     if (validateCoupon.fulfilled.match(result)) {
 //       const couponData = result.payload.data;
 //       setAppliedCoupon(couponData);
-//       localStorage.setItem('appliedCoupon', JSON.stringify(couponData));
+//       const savedAmount = couponData.discountAmount;
 //       toast.success(
 //         <Box>
 //           <Typography variant="body2" fontWeight="bold">🎉 Coupon Applied!</Typography>
-//           <Typography variant="caption">You saved ₹{couponData.discountAmount}</Typography>
+//           <Typography variant="caption">You saved ₹{savedAmount}</Typography>
+//           {couponData.remainingUses !== "Unlimited" && couponData.remainingUses <= 5 && (
+//             <Typography variant="caption" sx={{ display: 'block', color: T.gold }}>
+//               Only {couponData.remainingUses} uses left!
+//             </Typography>
+//           )}
 //         </Box>,
 //         { icon: <CelebrationIcon sx={{ color: T.emerald }} /> }
 //       );
 //     } else {
 //       setValidationError(result.payload?.message || 'Invalid coupon code');
 //       setAppliedCoupon(null);
-//       localStorage.removeItem('appliedCoupon');
 //     }
 //   };
 
 //   const handleValidateCoupon = () => doValidate(couponCode);
 
-//   // Card click — auto apply immediately
 //   const handleUseCoupon = async (code) => {
 //     setApplyingCode(code);
 //     setCouponCode(code);
@@ -353,6 +415,10 @@
 //         discountType: appliedCoupon.discountType,
 //         discountValue: appliedCoupon.discountValue,
 //         description: appliedCoupon.description,
+//         maxUsageCount: appliedCoupon.maxUsageCount,
+//         remainingUses: appliedCoupon.remainingUses,
+//         validFrom: appliedCoupon.validFrom,
+//         validUntil: appliedCoupon.validUntil,
 //       });
 //       onClose();
 //     }
@@ -362,8 +428,6 @@
 //     setAppliedCoupon(null);
 //     setCouponCode('');
 //     setValidationError('');
-//     setShowRemoveConfirm(false);
-//     localStorage.removeItem('appliedCoupon');
 //     dispatch(clearValidationResult());
 //     toast.info('Coupon removed');
 //   };
@@ -406,7 +470,6 @@
 //         }
 //       }}
 //     >
-//       {/* ── Header ── */}
 //       <Box sx={{
 //         px: 2, py: 1.5,
 //         background: `linear-gradient(135deg, ${T.indigoPale} 0%, ${alpha(T.indigo, 0.04)} 100%)`,
@@ -443,12 +506,11 @@
 //       </Box>
 
 //       <DialogContent sx={{ p: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-//         <Box sx={{ px: 2, pt: 1.8, pb: 1.5, overflowY: 'auto', flex: 1,
+//         <Box sx={{
+//           px: 2, pt: 1.8, pb: 1.5, overflowY: 'auto', flex: 1,
 //           '&::-webkit-scrollbar': { width: 3 },
 //           '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
 //         }}>
-
-//           {/* ── Plan info ── */}
 //           <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.07 }}>
 //             <Box sx={{
 //               px: 1.8, py: 1.2, mb: 1.8, borderRadius: 2,
@@ -476,7 +538,6 @@
 //             </Box>
 //           </motion.div>
 
-//           {/* ── Applied coupon / Input ── */}
 //           <AnimatePresence mode="wait">
 //             {appliedCoupon ? (
 //               <motion.div key="applied"
@@ -488,7 +549,6 @@
 //                   bgcolor: T.emeraldPale,
 //                   border: `1.5px solid ${alpha(T.emerald, 0.3)}`,
 //                 }}>
-//                   {/* Header */}
 //                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
 //                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
 //                       <Box sx={{
@@ -504,7 +564,7 @@
 //                       </Box>
 //                     </Box>
 //                     <Tooltip title="Remove Coupon">
-//                       <IconButton onClick={() => setShowRemoveConfirm(!showRemoveConfirm)} size="small"
+//                       <IconButton onClick={handleRemoveCoupon} size="small"
 //                         sx={{
 //                           width: 22, height: 22,
 //                           bgcolor: alpha(T.emerald, 0.1), border: `1px solid ${alpha(T.emerald, 0.2)}`, color: T.emerald,
@@ -516,34 +576,29 @@
 //                     </Tooltip>
 //                   </Box>
 
-//                   {/* Remove confirm */}
-//                   <Collapse in={showRemoveConfirm}>
-//                     <Box sx={{
-//                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-//                       px: 1, py: 0.7, mb: 1, borderRadius: 1.2,
-//                       bgcolor: T.redPale, border: `1px solid ${alpha(T.red, 0.2)}`,
-//                     }}>
-//                       <Typography sx={{ fontSize: '0.6rem', color: T.red }}>Remove this coupon?</Typography>
-//                       <Box sx={{ display: 'flex', gap: 0.5 }}>
-//                         <Button size="small" onClick={handleRemoveCoupon}
-//                           sx={{ height: 20, px: 0.8, fontSize: '0.55rem', fontWeight: 700, bgcolor: T.red, color: 'white', borderRadius: 0.8, '&:hover': { bgcolor: '#dc2626' }, minWidth: 'auto' }}>
-//                           Yes
-//                         </Button>
-//                         <Button size="small" onClick={() => setShowRemoveConfirm(false)}
-//                           sx={{ height: 20, px: 0.8, fontSize: '0.55rem', fontWeight: 700, border: `1px solid ${alpha(T.red, 0.4)}`, color: T.red, borderRadius: 0.8, minWidth: 'auto' }}>
-//                           No
-//                         </Button>
-//                       </Box>
-//                     </Box>
-//                   </Collapse>
-
 //                   <Typography sx={{ fontSize: '0.6rem', color: T.textSub, fontStyle: 'italic', mb: 1.2, lineHeight: 1.4 }}>
 //                     "{appliedCoupon.description}"
 //                   </Typography>
 
+//                   <Box sx={{ display: 'flex', gap: 0.8, mb: 1.2, flexWrap: 'wrap' }}>
+//                     {appliedCoupon.maxUsageCount !== "Unlimited" && appliedCoupon.remainingUses !== "Unlimited" && (
+//                       <Chip
+//                         icon={<PeopleIcon sx={{ fontSize: 12 }} />}
+//                         label={`${appliedCoupon.remainingUses} uses left`}
+//                         size="small"
+//                         sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
+//                       />
+//                     )}
+//                     <Chip
+//                       icon={<DateRangeIcon sx={{ fontSize: 12 }} />}
+//                       label={`Valid until ${formatDate(appliedCoupon.validUntil)}`}
+//                       size="small"
+//                       sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
+//                     />
+//                   </Box>
+
 //                   <Divider sx={{ borderColor: alpha(T.emerald, 0.15), mb: 1.2 }} />
 
-//                   {/* Price breakdown */}
 //                   <Box sx={{ display: 'flex', gap: 0.8, mb: 0.8 }}>
 //                     <Box sx={{ flex: 1, p: 1, borderRadius: 1.2, bgcolor: T.surface, border: `1px solid ${T.border}` }}>
 //                       <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, mb: 0.2 }}>Original</Typography>
@@ -555,7 +610,6 @@
 //                     </Box>
 //                   </Box>
 
-//                   {/* Final */}
 //                   <Box sx={{
 //                     px: 1.5, py: 1, borderRadius: 1.2,
 //                     background: `linear-gradient(135deg, ${alpha(T.emerald, 0.1)}, ${alpha(T.emeraldLight, 0.06)})`,
@@ -626,7 +680,6 @@
 //             )}
 //           </AnimatePresence>
 
-//           {/* ── Available Coupons ── */}
 //           {!appliedCoupon && (
 //             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
 //               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -648,7 +701,8 @@
 //                 )}
 //               </Box>
 
-//               <Box sx={{ maxHeight: 220, overflowY: 'auto', pr: 0.3,
+//               <Box sx={{
+//                 maxHeight: 220, overflowY: 'auto', pr: 0.3,
 //                 '&::-webkit-scrollbar': { width: 2 },
 //                 '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
 //               }}>
@@ -684,7 +738,6 @@
 //                 )}
 //               </Box>
 
-//               {/* OR divider */}
 //               <Box sx={{ mt: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
 //                 <Box sx={{ flex: 1, height: '1px', bgcolor: T.border }} />
 //                 <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: T.textMuted, letterSpacing: 0.8 }}>OR</Typography>
@@ -706,7 +759,6 @@
 //             </motion.div>
 //           )}
 
-//           {/* Errors */}
 //           {validationError && !appliedCoupon && (
 //             <Fade in>
 //               <Box sx={{
@@ -743,7 +795,6 @@
 //         </Box>
 //       </DialogContent>
 
-//       {/* ── Footer ── */}
 //       <Box sx={{
 //         px: 2, py: 1.5,
 //         borderTop: `1px solid ${T.border}`,
@@ -783,11 +834,6 @@
 // };
 
 // export default CouponPopup;
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -801,11 +847,11 @@ import {
   Divider,
   InputAdornment,
   alpha,
-  useTheme,
   Slide,
   Skeleton,
   Fade,
   Tooltip,
+  Chip,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -820,6 +866,8 @@ import {
   Discount as DiscountIcon,
   AutoAwesome as AutoAwesomeIcon,
   ArrowForward as ArrowForwardIcon,
+  DateRange as DateRangeIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
@@ -834,7 +882,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-// ── design tokens (light theme) ───────────────────────────────────────────────
+// Design tokens - hardcoded to avoid theme issues
 const T = {
   indigo: '#6366f1',
   indigoLight: '#818cf8',
@@ -855,7 +903,40 @@ const T = {
   textMuted: '#94a3b8',
 };
 
-// ── CouponSkeleton ─────────────────────────────────────────────────────────────
+// Safe Icon Component - CRITICAL FIX
+const SafeIcon = ({ icon: Icon, sx, fontSize, color, ...props }) => {
+  if (!Icon) return null;
+  const safeSx = sx && typeof sx === 'object' ? sx : {};
+  return <Icon sx={safeSx} fontSize={fontSize || 'medium'} color={color} {...props} />;
+};
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch (error) {
+    return '';
+  }
+};
+
+// Helper to check if coupon is about to expire (within 7 days)
+const isExpiringSoon = (endDate) => {
+  if (!endDate) return false;
+  try {
+    const now = new Date();
+    const end = new Date(endDate);
+    if (isNaN(end.getTime())) return false;
+    const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    return daysLeft <= 7 && daysLeft > 0;
+  } catch (error) {
+    return false;
+  }
+};
+
+// CouponSkeleton
 const CouponSkeleton = () => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
     {[1, 2, 3].map((item) => (
@@ -874,14 +955,35 @@ const CouponSkeleton = () => (
   </Box>
 );
 
-// ── CouponCard (compact, light theme) ─────────────────────────────────────────
+// CouponCard Component - COMPLETELY SAFE VERSION
 const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const isPercent = coupon.discountType === 'percentage';
+  
+  if (!coupon || typeof coupon !== 'object') return null;
+  
+  // Safe access with fallbacks
+  const discountType = coupon.discountType || 'fixed';
+  const discountValue = coupon.discountValue || 0;
+  const code = coupon.code || '';
+  const description = coupon.description || 'No description';
+  const minAmount = coupon.minAmount || 0;
+  const endDate = coupon.endDate;
+  const maxUsageCount = coupon.maxUsageCount;
+  const usedCount = coupon.usedCount || 0;
+  
+  if (!code) return null;
+  
+  const isPercent = discountType === 'percentage';
   const accent = isPercent ? T.indigo : T.emerald;
   const accentPale = isPercent ? T.indigoPale : T.emeraldPale;
   const accentLight = isPercent ? T.indigoLight : T.emeraldLight;
-  const isPopular = coupon.discountValue > 20 && isPercent;
+  const isPopular = discountValue > 20 && isPercent;
+  const expiringSoon = isExpiringSoon(endDate);
+  const isUnlimited = maxUsageCount === null || maxUsageCount === undefined;
+  const remainingUses = !isUnlimited ? (maxUsageCount - usedCount) : null;
+
+  const iconStyle = { fontSize: 9 };
+  const smallIconStyle = { fontSize: 8 };
 
   return (
     <motion.div
@@ -892,7 +994,7 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
       <Box
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => isEligible && !isApplying && onUse(coupon.code)}
+        onClick={() => isEligible && !isApplying && onUse(code)}
         sx={{
           px: 1.5, py: 1.1,
           borderRadius: 2,
@@ -906,19 +1008,8 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
           boxShadow: isHovered && isEligible ? `0 2px 12px -3px ${alpha(accent, 0.18)}` : 'none',
           position: 'relative',
           overflow: 'hidden',
-          '&::before': isEligible ? {
-            content: '""',
-            position: 'absolute',
-            left: 0, top: 0, bottom: 0,
-            width: '3px',
-            background: accent,
-            opacity: isHovered ? 1 : 0,
-            transition: 'opacity 0.18s ease',
-            borderRadius: '0 2px 2px 0',
-          } : {},
         }}
       >
-        {/* Loading overlay */}
         {isApplying && (
           <Box sx={{
             position: 'absolute', inset: 0, borderRadius: 2,
@@ -932,9 +1023,7 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
         )}
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Left: code + copy */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
-            {/* Popular tag */}
             {isPopular && (
               <Box sx={{
                 display: 'flex', alignItems: 'center', gap: 0.2,
@@ -942,36 +1031,44 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
                 bgcolor: alpha(T.gold, 0.12),
                 border: `1px solid ${alpha(T.gold, 0.3)}`,
               }}>
-                <BoltIcon sx={{ fontSize: 9, color: T.gold }} />
+                <SafeIcon icon={BoltIcon} sx={iconStyle} color={T.gold} />
                 <Typography sx={{ fontSize: '0.48rem', fontWeight: 800, color: T.gold, letterSpacing: 0.3 }}>HOT</Typography>
               </Box>
             )}
+            
+            {expiringSoon && !isPopular && (
+              <Box sx={{
+                display: 'flex', alignItems: 'center', gap: 0.2,
+                px: 0.5, py: 0.1, borderRadius: 0.8,
+                bgcolor: alpha(T.gold, 0.08),
+                border: `1px solid ${alpha(T.gold, 0.2)}`,
+              }}>
+                <Typography sx={{ fontSize: '0.48rem', fontWeight: 600, color: T.gold }}>Expiring Soon</Typography>
+              </Box>
+            )}
 
-            {/* Code pill */}
             <Box sx={{
               display: 'flex', alignItems: 'center', gap: 0.4,
               px: 0.8, py: 0.3, borderRadius: 1,
               bgcolor: alpha(accent, 0.08),
               border: `1px solid ${alpha(accent, 0.2)}`,
             }}>
-              <LocalOfferIcon sx={{ fontSize: 9, color: accent }} />
+              <SafeIcon icon={LocalOfferIcon} sx={iconStyle} color={accent} />
               <Typography sx={{ fontSize: '0.6rem', fontWeight: 800, color: accent, letterSpacing: 0.8 }}>
-                {coupon.code}
+                {code}
               </Typography>
             </Box>
 
-            {/* Copy btn */}
             <Tooltip title="Copy code">
-              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onCopy(coupon.code); }}
+              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onCopy(code); }}
                 sx={{
                   width: 18, height: 18, p: 0,
-                  color: copiedCode === coupon.code ? T.emerald : T.textMuted,
+                  color: copiedCode === code ? T.emerald : T.textMuted,
                   '&:hover': { color: accent, bgcolor: alpha(accent, 0.08) },
                   transition: 'all 0.15s',
-                  position: 'relative',
                 }}>
-                <ContentCopyIcon sx={{ fontSize: 10 }} />
-                {copiedCode === coupon.code && (
+                <SafeIcon icon={ContentCopyIcon} sx={smallIconStyle} />
+                {copiedCode === code && (
                   <Box sx={{
                     position: 'absolute', top: -16, left: '50%',
                     transform: 'translateX(-50%)',
@@ -984,7 +1081,6 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
             </Tooltip>
           </Box>
 
-          {/* Right: discount badge */}
           <Box sx={{
             display: 'flex', alignItems: 'center', gap: 0.2,
             px: 0.7, py: 0.2, borderRadius: 0.8,
@@ -992,46 +1088,82 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
             border: `1px solid ${alpha(accent, 0.2)}`,
           }}>
             {isPercent
-              ? <PercentIcon sx={{ fontSize: 8, color: accentLight }} />
-              : <CurrencyRupeeIcon sx={{ fontSize: 8, color: accentLight }} />}
+              ? <SafeIcon icon={PercentIcon} sx={smallIconStyle} color={accentLight} />
+              : <SafeIcon icon={CurrencyRupeeIcon} sx={smallIconStyle} color={accentLight} />}
             <Typography sx={{ fontSize: '0.55rem', fontWeight: 800, color: accent }}>
-              {isPercent ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`} OFF
+              {isPercent ? `${discountValue}%` : `₹${discountValue}`} OFF
             </Typography>
           </Box>
         </Box>
 
-        {/* Description */}
         <Typography sx={{
           fontSize: '0.6rem', color: T.textSub,
           mt: 0.5, lineHeight: 1.3,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           maxWidth: '90%',
         }}>
-          {coupon.description}
+          {description}
         </Typography>
 
-        {/* Footer */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.5 }}>
-          {coupon.minAmount > 0 && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.5, flexWrap: 'wrap' }}>
+          {minAmount > 0 && (
             <Typography sx={{
               fontSize: '0.5rem', color: T.textMuted,
               px: 0.5, py: 0.1, borderRadius: 0.6,
               bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
             }}>
-              Min ₹{coupon.minAmount}
+              Min ₹{minAmount}
             </Typography>
           )}
-          <Typography sx={{
-            fontSize: '0.5rem', color: T.textMuted,
-            px: 0.5, py: 0.1, borderRadius: 0.6,
-            bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-          }}>
-            {coupon.usedCount || 0} used
-          </Typography>
+          
+          {!isUnlimited && remainingUses !== null && remainingUses > 0 && (
+            <Tooltip title={`${remainingUses} uses left`}>
+              <Box sx={{
+                display: 'flex', alignItems: 'center', gap: 0.3,
+                px: 0.5, py: 0.1, borderRadius: 0.6,
+                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+              }}>
+                <SafeIcon icon={PeopleIcon} sx={smallIconStyle} color={T.textMuted} />
+                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+                  {remainingUses} left
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
+          
+          {isUnlimited && (
+            <Tooltip title="Unlimited uses">
+              <Box sx={{
+                display: 'flex', alignItems: 'center', gap: 0.3,
+                px: 0.5, py: 0.1, borderRadius: 0.6,
+                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+              }}>
+                <SafeIcon icon={PeopleIcon} sx={smallIconStyle} color={T.textMuted} />
+                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+                  Unlimited
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
+
+          {endDate && (
+            <Tooltip title={`Valid until ${formatDate(endDate)}`}>
+              <Box sx={{
+                display: 'flex', alignItems: 'center', gap: 0.3,
+                px: 0.5, py: 0.1, borderRadius: 0.6,
+                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
+              }}>
+                <SafeIcon icon={DateRangeIcon} sx={smallIconStyle} color={T.textMuted} />
+                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+                  {formatDate(endDate)}
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
 
           {!isEligible && (
             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-              <ErrorIcon sx={{ fontSize: 9, color: T.red }} />
+              <SafeIcon icon={ErrorIcon} sx={smallIconStyle} color={T.red} />
               <Typography sx={{ fontSize: '0.5rem', color: T.red }}>Not eligible</Typography>
             </Box>
           )}
@@ -1039,7 +1171,7 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
           {isEligible && isHovered && !isApplying && (
             <motion.div initial={{ opacity: 0, x: 4 }} animate={{ opacity: 1, x: 0 }} style={{ marginLeft: 'auto' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
-                <AutoAwesomeIcon sx={{ fontSize: 8, color: accent }} />
+                <SafeIcon icon={AutoAwesomeIcon} sx={smallIconStyle} color={accent} />
                 <Typography sx={{ fontSize: '0.5rem', color: accent, fontWeight: 700 }}>Click to apply</Typography>
               </Box>
             </motion.div>
@@ -1050,9 +1182,8 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
   );
 };
 
-// ── Main CouponPopup ───────────────────────────────────────────────────────────
+// Main CouponPopup Component
 const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
-  const theme = useTheme();
   const dispatch = useDispatch();
 
   const [couponCode, setCouponCode] = useState('');
@@ -1061,7 +1192,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
   const [copiedCode, setCopiedCode] = useState(null);
   const [fetchError, setFetchError] = useState(false);
   const [isDirectPayment, setIsDirectPayment] = useState(false);
-  const [applyingCode, setApplyingCode] = useState(null); // which card is applying
+  const [applyingCode, setApplyingCode] = useState(null);
 
   const {
     validationLoading,
@@ -1072,10 +1203,8 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
     error
   } = useSelector((state) => state.coupon);
 
-  // Reset all state when popup opens to ensure fresh start
   useEffect(() => {
     if (open) {
-      // Clear all state when popup opens
       setCouponCode('');
       setAppliedCoupon(null);
       setValidationError('');
@@ -1084,7 +1213,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
       setIsDirectPayment(false);
       setApplyingCode(null);
       dispatch(clearValidationResult());
-      localStorage.removeItem('appliedCoupon'); // Clear any saved coupon
     }
   }, [open, dispatch]);
 
@@ -1098,41 +1226,26 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
   }, [dispatch, open]);
 
   const availableCoupons = Array.isArray(coupons)
-    ? coupons.filter(c => c.status === 'active' && c.minAmount <= planPrice)
+    ? coupons.filter(c => c && c.status === 'active' && (c.minAmount || 0) <= (planPrice || 0))
     : [];
 
-  // Shared validate logic — used by both manual input and card click
   const doValidate = async (code) => {
     if (!code?.trim()) { setValidationError('Please enter a coupon code'); return; }
     setValidationError('');
-    const result = await dispatch(validateCoupon({ code, amount: planPrice }));
-    
+    const result = await dispatch(validateCoupon({ code, amount: planPrice || 0 }));
     if (validateCoupon.fulfilled.match(result)) {
-      const couponData = result.payload?.data || result.payload;
-      
-      if (!couponData) {
-        setValidationError('Invalid response from server');
-        return;
-      }
-      
+      const couponData = result.payload.data;
       setAppliedCoupon(couponData);
-      toast.success(
-        <Box>
-          <Typography variant="body2" fontWeight="bold">🎉 Coupon Applied!</Typography>
-          <Typography variant="caption">You saved ₹{couponData.discountAmount || 0}</Typography>
-        </Box>,
-        { icon: <CelebrationIcon style={{ color: T.emerald }} /> }
-      );
+      const savedAmount = couponData.discountAmount || 0;
+      toast.success(`🎉 Coupon Applied! You saved ₹${savedAmount}`);
     } else {
-      const errorMsg = result.payload?.message || (typeof result.payload === 'string' ? result.payload : 'Invalid coupon code');
-      setValidationError(errorMsg);
+      setValidationError(result.payload?.message || 'Invalid coupon code');
       setAppliedCoupon(null);
     }
   };
 
   const handleValidateCoupon = () => doValidate(couponCode);
 
-  // Card click — auto apply immediately
   const handleUseCoupon = async (code) => {
     setApplyingCode(code);
     setCouponCode(code);
@@ -1151,6 +1264,10 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
         discountType: appliedCoupon.discountType,
         discountValue: appliedCoupon.discountValue,
         description: appliedCoupon.description,
+        maxUsageCount: appliedCoupon.maxUsageCount,
+        remainingUses: appliedCoupon.remainingUses,
+        validFrom: appliedCoupon.validFrom,
+        validUntil: appliedCoupon.validUntil,
       });
       onClose();
     }
@@ -1168,7 +1285,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
-    toast.success('Code copied!', { icon: <ContentCopyIcon sx={{ fontSize: 18 }} /> });
+    toast.success('Code copied!');
   };
 
   const handleDirectPayment = () => {
@@ -1202,7 +1319,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
         }
       }}
     >
-      {/* ── Header ── */}
       <Box sx={{
         px: 2, py: 1.5,
         background: `linear-gradient(135deg, ${T.indigoPale} 0%, ${alpha(T.indigo, 0.04)} 100%)`,
@@ -1244,8 +1360,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
           '&::-webkit-scrollbar': { width: 3 },
           '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
         }}>
-
-          {/* ── Plan info ── */}
           <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.07 }}>
             <Box sx={{
               px: 1.8, py: 1.2, mb: 1.8, borderRadius: 2,
@@ -1258,7 +1372,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                   Selected Plan
                 </Typography>
                 <Typography sx={{ fontSize: '0.82rem', fontWeight: 800, color: T.text, letterSpacing: -0.1 }}>
-                  {planName}
+                  {planName || 'Plan'}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: 'right' }}>
@@ -1266,14 +1380,13 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.2 }}>
                   <Typography sx={{ fontSize: '0.7rem', color: T.gold, fontWeight: 700 }}>₹</Typography>
                   <Typography sx={{ fontSize: '1.35rem', fontWeight: 900, color: T.gold, letterSpacing: -0.8, lineHeight: 1 }}>
-                    {planPrice}
+                    {planPrice || 0}
                   </Typography>
                 </Box>
               </Box>
             </Box>
           </motion.div>
 
-          {/* ── Applied coupon / Input ── */}
           <AnimatePresence mode="wait">
             {appliedCoupon ? (
               <motion.div key="applied"
@@ -1285,7 +1398,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                   bgcolor: T.emeraldPale,
                   border: `1.5px solid ${alpha(T.emerald, 0.3)}`,
                 }}>
-                  {/* Header - Simplified without remove confirmation */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                       <Box sx={{
@@ -1314,24 +1426,44 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                   </Box>
 
                   <Typography sx={{ fontSize: '0.6rem', color: T.textSub, fontStyle: 'italic', mb: 1.2, lineHeight: 1.4 }}>
-                    "{appliedCoupon.description}"
+                    "{appliedCoupon.description || 'No description'}"
                   </Typography>
+
+                  <Box sx={{ display: 'flex', gap: 0.8, mb: 1.2, flexWrap: 'wrap' }}>
+                    {typeof appliedCoupon.maxUsageCount === 'number' && 
+                     typeof appliedCoupon.remainingUses === 'number' && 
+                     appliedCoupon.remainingUses > 0 && (
+                      <Chip
+                        icon={<PeopleIcon sx={{ fontSize: 12 }} />}
+                        label={`${appliedCoupon.remainingUses} uses left`}
+                        size="small"
+                        sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
+                      />
+                    )}
+                    
+                    {appliedCoupon.validUntil && (
+                      <Chip
+                        icon={<DateRangeIcon sx={{ fontSize: 12 }} />}
+                        label={`Valid until ${formatDate(appliedCoupon.validUntil)}`}
+                        size="small"
+                        sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
+                      />
+                    )}
+                  </Box>
 
                   <Divider sx={{ borderColor: alpha(T.emerald, 0.15), mb: 1.2 }} />
 
-                  {/* Price breakdown */}
                   <Box sx={{ display: 'flex', gap: 0.8, mb: 0.8 }}>
                     <Box sx={{ flex: 1, p: 1, borderRadius: 1.2, bgcolor: T.surface, border: `1px solid ${T.border}` }}>
                       <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, mb: 0.2 }}>Original</Typography>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.textSub }}>₹{appliedCoupon.originalAmount}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.textSub }}>₹{appliedCoupon.originalAmount || 0}</Typography>
                     </Box>
                     <Box sx={{ flex: 1, p: 1, borderRadius: 1.2, bgcolor: alpha(T.emerald, 0.06), border: `1px solid ${alpha(T.emerald, 0.15)}` }}>
                       <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, mb: 0.2 }}>Discount</Typography>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.emerald }}>−₹{appliedCoupon.discountAmount}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.emerald }}>−₹{appliedCoupon.discountAmount || 0}</Typography>
                     </Box>
                   </Box>
 
-                  {/* Final */}
                   <Box sx={{
                     px: 1.5, py: 1, borderRadius: 1.2,
                     background: `linear-gradient(135deg, ${alpha(T.emerald, 0.1)}, ${alpha(T.emeraldLight, 0.06)})`,
@@ -1341,10 +1473,10 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                     <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: T.text }}>Final Amount</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.6 }}>
                       <Typography sx={{ fontSize: '0.6rem', color: T.textMuted, textDecoration: 'line-through' }}>
-                        ₹{appliedCoupon.originalAmount}
+                        ₹{appliedCoupon.originalAmount || 0}
                       </Typography>
                       <Typography sx={{ fontSize: '1.2rem', fontWeight: 900, color: T.emerald, letterSpacing: -0.5 }}>
-                        ₹{appliedCoupon.finalAmount}
+                        ₹{appliedCoupon.finalAmount || 0}
                       </Typography>
                     </Box>
                   </Box>
@@ -1402,7 +1534,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
             )}
           </AnimatePresence>
 
-          {/* ── Available Coupons ── */}
           {!appliedCoupon && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -1443,13 +1574,15 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                 ) : availableCoupons.length > 0 ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
                     {availableCoupons.map((coupon) => (
-                      <CouponCard key={coupon._id} coupon={coupon}
-                        onUse={handleUseCoupon}
-                        onCopy={handleCopyCode}
-                        copiedCode={copiedCode}
-                        isEligible={true}
-                        isApplying={applyingCode === coupon.code}
-                      />
+                      coupon && coupon.code ? (
+                        <CouponCard key={coupon._id} coupon={coupon}
+                          onUse={handleUseCoupon}
+                          onCopy={handleCopyCode}
+                          copiedCode={copiedCode}
+                          isEligible={true}
+                          isApplying={applyingCode === coupon.code}
+                        />
+                      ) : null
                     ))}
                   </Box>
                 ) : (
@@ -1461,7 +1594,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                 )}
               </Box>
 
-              {/* OR divider */}
               <Box sx={{ mt: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ flex: 1, height: '1px', bgcolor: T.border }} />
                 <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: T.textMuted, letterSpacing: 0.8 }}>OR</Typography>
@@ -1478,12 +1610,11 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                   '&:hover': { border: `1px dashed ${T.indigo}`, bgcolor: T.indigoPale, color: T.indigo },
                   transition: 'all 0.18s ease',
                 }}>
-                Continue without coupon — ₹{planPrice}
+                Continue without coupon — ₹{planPrice || 0}
               </Button>
             </motion.div>
           )}
 
-          {/* Errors */}
           {validationError && !appliedCoupon && (
             <Fade in>
               <Box sx={{
@@ -1520,7 +1651,6 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
         </Box>
       </DialogContent>
 
-      {/* ── Footer ── */}
       <Box sx={{
         px: 2, py: 1.5,
         borderTop: `1px solid ${T.border}`,
@@ -1539,7 +1669,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
         {appliedCoupon && (
           <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
             <Button fullWidth onClick={handleApplyCoupon}
-              startIcon={<AutoAwesomeIcon sx={{ fontSize: 14 }} />}
+              startIcon={<AutoAwesomeIcon sx={{ fontSize: 14 }} />} 
               sx={{
                 py: 0.8, borderRadius: 1.8, fontSize: '0.68rem', fontWeight: 800,
                 background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`,
@@ -1550,7 +1680,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
                   boxShadow: `0 6px 18px -3px ${alpha(T.emerald, 0.45)}`,
                 },
               }}>
-              Pay ₹{appliedCoupon.finalAmount}
+              Pay ₹{appliedCoupon.finalAmount || 0}
             </Button>
           </motion.div>
         )}

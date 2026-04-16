@@ -61,7 +61,7 @@ const TopBar = ({ onMenuClick, showMenuButton = false }) => {
     handleMenuClose();
   };
 
-  const roleName = Number(role_id) === 2 ? 'Super Admin' : (Number(role_id) === 3 ? 'Sub-admin' : 'Admin');
+  const roleName = role_id === 2 ? 'Super Admin' : 'Admin';
 
   return (
     <AppBar 

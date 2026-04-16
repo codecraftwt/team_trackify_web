@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
@@ -38,6 +39,8 @@ import {
   useTheme,
   useMediaQuery,
   Alert,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -63,7 +66,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import moment from "moment";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -72,6 +75,7 @@ import {
   deleteUser,
   getUserById,
   getUsersUnderAdmin,
+  checkUserSubscription,
 
 } from "../../redux/slices/userSlice";
 import {
@@ -208,7 +212,7 @@ const UserCardSkeleton = ({ isBulkMode, isMobile }) => {
           <Stack spacing={1} sx={{ mb: 1.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Skeleton variant="text" width={35} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
-              <Skeleton variant="text" width={70} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
+              <Skeleton variant="rounded" width={55} height={18} sx={{ borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Skeleton variant="text" width={35} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
@@ -309,8 +313,274 @@ const TabsSkeleton = ({ isMobile }) => {
     </Paper>
   );
 };
+// const UserCard = ({
+//   user,
+//   onView,
+//   onEdit,
+//   onDelete,
+//   onImpersonate,
+//   isSelected,
+//   onSelect,
+//   isBulkMode,
+//   role_id,
+//   isDeleting,
+//   isMobile,
+//   isSubscriptionExpired,
+// }) => {
+//   const theme = useTheme();
+//   const isSuperAdmin = role_id === 2;
+//   const isLoggedInAdmin = role_id === 1;
+//   const isSubAdmin = user.role_id === 3;
+//   const userId = user._id || user.id;
+//   const userName = user.name || user.name;
+//   const userEmail = user.email;
+//   const userMobile = user.mobile_no;
+//   const userIsActive = user.isActive;
+//   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
+//   const userAvatar = user.avtar || user.profileImage;
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, y: 20 }}
+//       animate={{ opacity: 1, y: 0 }}
+//       exit={{ opacity: 0, scale: 0.9 }}
+//       transition={{ duration: 0.3 }}
+//       style={{ height: '100%' }}
+//     >
+//       <Card
+//         sx={{
+//           position: 'relative',
+//           borderRadius: 2,
+//           border: '1px solid',
+//           borderColor: isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
+//           boxShadow: isSelected ? `0 4px 12px -4px ${alpha(theme.palette.primary.main, 0.5)}` : '0 1px 4px rgba(0,0,0,0.03)',
+//           transition: 'all 0.2s ease',
+//           height: '100%',
+//           '&:hover': {
+//             transform: !isMobile ? 'translateY(-2px)' : 'none',
+//             boxShadow: !isMobile ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+//             borderColor: theme.palette.primary.main,
+//           },
+//         }}
+//       >
+//         {isBulkMode && (
+//           <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1 }}>
+//             <Checkbox
+//               checked={isSelected}
+//               onChange={() => onSelect(userId)}
+//               size="small"
+//               sx={{
+//                 color: theme.palette.primary.main,
+//                 '&.Mui-checked': {
+//                   color: theme.palette.primary.main,
+//                 },
+//                 padding: '4px',
+//               }}
+//             />
+//           </Box>
+//         )}
+//         <CardContent sx={{ p: { xs: 1.5, sm: 1.75 } }}>
+//           {/* User Info Row */}
+//           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}>
+//             <Avatar
+//               src={userAvatar}
+//               sx={{
+//                 width: { xs: 40, sm: 44 },
+//                 height: { xs: 40, sm: 44 },
+//                 flexShrink: 0,
+//                 bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                 color: theme.palette.primary.main,
+//                 border: '1.5px solid',
+//                 borderColor: alpha(theme.palette.primary.main, 0.2),
+//                 fontSize: { xs: '0.9rem', sm: '1rem' },
+//               }}
+//             >
+//               {userName?.charAt(0) || 'U'}
+//             </Avatar>
+//             <Box sx={{ flex: 1, minWidth: 0 }}>
+//               {/* ✅ FIX: fixed-height name row — SB badge sits inline, name truncates, no wrapping */}
+//               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, height: 20, overflow: 'hidden' }}>
+//                 <Typography
+//                   variant="body2"
+//                   fontWeight={600}
+//                   color="text.primary"
+//                   sx={{
+//                     fontSize: { xs: '0.85rem', sm: '0.9rem' },
+//                     whiteSpace: 'nowrap',
+//                     overflow: 'hidden',
+//                     textOverflow: 'ellipsis',
+//                     flexShrink: 1,
+//                     minWidth: 0,
+//                   }}
+//                 >
+//                   {userName}
+//                 </Typography>
+//                 {/* SB Badge - Only show when logged-in user is role_id 1 and current user is role_id 3 */}
+//                 {isLoggedInAdmin && isSubAdmin && (
+//                   <Chip
+//                     label="SB"
+//                     size="small"
+//                     sx={{
+//                       bgcolor: alpha('#22c55e', 0.15),
+//                       color: '#22c55e',
+//                       fontWeight: 700,
+//                       fontSize: '0.6rem',
+//                       height: 18,
+//                       flexShrink: 0,
+//                       '& .MuiChip-label': {
+//                         px: 0.75,
+//                       },
+//                     }}
+//                   />
+//                 )}
+//               </Box>
+//               <Typography
+//                 variant="caption"
+//                 color="text.secondary"
+//                 sx={{
+//                   fontSize: { xs: '0.6rem', sm: '0.65rem' },
+//                   display: 'block',
+//                   whiteSpace: 'nowrap',
+//                   overflow: 'hidden',
+//                   textOverflow: 'ellipsis',
+//                   mb: 0.25,
+//                 }}
+//               >
+//                 {userEmail}
+//               </Typography>
+//               {isSuperAdmin && userMobile && (
+//                 <Typography
+//                   variant="caption"
+//                   color="text.secondary"
+//                   sx={{
+//                     fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                     display: 'block',
+//                     whiteSpace: 'nowrap',
+//                     overflow: 'hidden',
+//                     textOverflow: 'ellipsis',
+//                   }}
+//                 >
+//                   {userMobile}
+//                 </Typography>
+//               )}
+//             </Box>
+//           </Box>
+//           {/* Status and Joined Info */}
+//           <Box
+//             sx={{
+//               p: { xs: 1, sm: 1.25 },
+//               mb: 1.25,
+//             }}
+//           >
+//             <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.primary.main, 0.08) }} />
+//             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.75 }}>
+//               <Typography
+//                 variant="caption"
+//                 color="text.secondary"
+//                 sx={{
+//                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                   fontWeight: 500,
+//                   letterSpacing: 0.3,
+//                 }}
+//               >
+//                 Joined
+//               </Typography>
+//               <Typography
+//                 variant="caption"
+//                 fontWeight={600}
+//                 color="text.primary"
+//                 sx={{
+//                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                   letterSpacing: 0.2,
+//                 }}
+//               >
+//                 {moment(userCreatedAt).format("MMM D, YYYY")}
+//               </Typography>
+//             </Box>
+//           </Box>
+//           {/* Action Buttons */}
+//           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+//             <Tooltip title="View Details">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onView(user)}
+//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   sx={{
+//                     color: theme.palette.primary.main,
+//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                   }}
+//                 >
+//                   <VisibilityIcon sx={{ fontSize: 16 }} />
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+//             {/* Impersonate button - only for super admin */}
+//             {isSuperAdmin && (
+//               <Tooltip title="Login as User">
+//                 <span>
+//                   <IconButton
+//                     size="small"
+//                     onClick={() => onImpersonate(user)}
+//                     sx={{
+//                       color: theme.palette.secondary.main,
+//                       '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.1) },
+//                       width: 28,
+//                       height: 28,
+//                     }}
+//                   >
+//                     <LoginIcon sx={{ fontSize: 16 }} />
+//                   </IconButton>
+//                 </span>
+//               </Tooltip>
+//             )}
+//             <Tooltip title="Edit">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onEdit(user)}
+//                   disabled={role_id === 1 && isSubscriptionExpired === true}
+//                   sx={{
+//                     color: theme.palette.primary.main,
+//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                   }}
+//                 >
+//                   <EditIcon sx={{ fontSize: 16 }} />
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+//             <Tooltip title="Delete">
+//               <span>
+//                 <IconButton
+//                   size="small"
+//                   onClick={() => onDelete(user)}
+//                   disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
+//                   sx={{
+//                     color: '#ef4444',
+//                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
+//                     width: 28,
+//                     height: 28,
+//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                   }}
+//                 >
+//                   {isDeleting ? <CircularProgress size={12} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
+//                 </IconButton>
+//               </span>
+//             </Tooltip>
+//           </Box>
+//         </CardContent>
+//       </Card>
+//     </motion.div>
+//   );
+// };
 
-// User Card Component
+
+//With SB Batch for SUB ADMIN Also
 const UserCard = ({
   user,
   onView,
@@ -322,11 +592,14 @@ const UserCard = ({
   isBulkMode,
   role_id,
   isDeleting,
-  isMobile
+  isMobile,
+  isSubscriptionExpired,
 }) => {
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
-
+  const isLoggedInAdmin = role_id === 1;
+  const isSubAdmin = user.role_id === 3;
+  const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
   const userId = user._id || user.id;
   const userName = user.name || user.name;
   const userEmail = user.email;
@@ -341,137 +614,179 @@ const UserCard = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.3 }}
+      style={{ height: '100%' }}
     >
       <Card
         sx={{
           position: 'relative',
-          borderRadius: 2.5,
+          borderRadius: 2,
           border: '1px solid',
           borderColor: isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
-          boxShadow: isSelected ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.5)}` : '0 2px 10px rgba(0,0,0,0.03)',
-          transition: 'all 0.3s ease',
+          boxShadow: isSelected ? `0 4px 12px -4px ${alpha(theme.palette.primary.main, 0.5)}` : '0 1px 4px rgba(0,0,0,0.03)',
+          transition: 'all 0.2s ease',
           height: '100%',
           '&:hover': {
-            transform: !isMobile ? 'translateY(-4px)' : 'none',
-            boxShadow: !isMobile ? `0 20px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+            transform: !isMobile ? 'translateY(-2px)' : 'none',
+            boxShadow: !isMobile ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
             borderColor: theme.palette.primary.main,
           },
         }}
       >
-          <Box 
-            sx={{ 
-              position: 'absolute', 
-              top: 10, 
-              left: 10, 
-              zIndex: 1,
-              cursor: 'pointer',
-              p: 0.5,
-              borderRadius: 1,
-              '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) }
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(userId);
-            }}
-          >
+        {isBulkMode && (
+          <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1 }}>
             <Checkbox
               checked={isSelected}
               onChange={() => onSelect(userId)}
-              onClick={(e) => e.stopPropagation()}
               size="small"
               sx={{
                 color: theme.palette.primary.main,
                 '&.Mui-checked': {
                   color: theme.palette.primary.main,
                 },
-                p: 0
+                padding: '4px',
               }}
             />
           </Box>
-
-        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
+        )}
+        <CardContent sx={{ p: { xs: 1.5, sm: 1.75 } }}>
+          {/* User Info Row */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}>
             <Avatar
               src={userAvatar}
               sx={{
-                width: { xs: 44, sm: 48 },
-                height: { xs: 44, sm: 48 },
+                width: { xs: 40, sm: 44 },
+                height: { xs: 40, sm: 44 },
+                flexShrink: 0,
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
-                border: '2px solid',
+                border: '1.5px solid',
                 borderColor: alpha(theme.palette.primary.main, 0.2),
+                fontSize: { xs: '0.9rem', sm: '1rem' },
               }}
             >
               {userName?.charAt(0) || 'U'}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body1" fontWeight={600} color="text.primary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {userName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {/* ✅ FIX: fixed-height name row — SB badge sits inline, name truncates, no wrapping */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, height: 20, overflow: 'hidden' }}>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  color="text.primary"
+                  sx={{
+                    fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    flexShrink: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  {userName}
+                </Typography>
+                {/* SB Badge - Show for ALL users with role_id 3 */}
+                {showSBBadge && (
+                  <Chip
+                    label="SB"
+                    size="small"
+                    sx={{
+                      bgcolor: alpha('#22c55e', 0.15),
+                      color: '#22c55e',
+                      fontWeight: 700,
+                      fontSize: '0.6rem',
+                      height: 18,
+                      flexShrink: 0,
+                      '& .MuiChip-label': {
+                        px: 0.75,
+                      },
+                    }}
+                  />
+                )}
+              </Box>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                  display: 'block',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  mb: 0.25,
+                }}
+              >
                 {userEmail}
               </Typography>
               {isSuperAdmin && userMobile && (
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                    display: 'block',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
                   {userMobile}
                 </Typography>
               )}
             </Box>
           </Box>
-
-          <Stack spacing={1} sx={{ mb: 1.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                Status
-              </Typography>
-              <Chip
-                label={userIsActive ? "Active" : "Inactive"}
-                size="small"
+          {/* Status and Joined Info */}
+          <Box
+            sx={{
+              p: { xs: 1, sm: 1.25 },
+              mb: 1.25,
+            }}
+          >
+            <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.primary.main, 0.08) }} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.75 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
                 sx={{
-                  bgcolor: userIsActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
-                  color: userIsActive ? '#22c55e' : theme.palette.text.secondary,
-                  fontWeight: 600,
                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                  height: 18,
+                  fontWeight: 500,
+                  letterSpacing: 0.3,
                 }}
-              />
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                Role
-              </Typography>
-              <Typography variant="caption" fontWeight={600} color="primary.main" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                {user.role_id === 3 ? "Sub-admin" : user.role_id === 1 ? "Admin" : "Staff"}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+              >
                 Joined
               </Typography>
-              <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+              <Typography
+                variant="caption"
+                fontWeight={600}
+                color="text.primary"
+                sx={{
+                  fontSize: { xs: '0.55rem', sm: '0.6rem' },
+                  letterSpacing: 0.2,
+                }}
+              >
                 {moment(userCreatedAt).format("MMM D, YYYY")}
               </Typography>
             </Box>
-          </Stack>
-
-          <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
-
+          </Box>
+          {/* Action Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
             <Tooltip title="View Details">
-              <IconButton
-                size="small"
-                onClick={() => onView(user)}
-                sx={{
-                  color: theme.palette.primary.main,
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-                  width: 28,
-                  height: 28,
-                }}
-              >
-                <VisibilityIcon sx={{ fontSize: 16 }} />
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => onView(user)}
+                  disabled={role_id === 1 && isSubscriptionExpired === true}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                    width: 28,
+                    height: 28,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                  }}
+                >
+                  <VisibilityIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </span>
             </Tooltip>
-
             {/* Impersonate button - only for super admin */}
             {isSuperAdmin && (
               <Tooltip title="Login as User">
@@ -491,36 +806,39 @@ const UserCard = ({
                 </span>
               </Tooltip>
             )}
-
             <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={() => onEdit(user)}
-                sx={{
-                  color: theme.palette.primary.main,
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-                  width: 28,
-                  height: 28,
-                }}
-              >
-                <EditIcon sx={{ fontSize: 16 }} />
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={() => onEdit(user)}
+                  disabled={role_id === 1 && isSubscriptionExpired === true}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                    width: 28,
+                    height: 28,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                  }}
+                >
+                  <EditIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </span>
             </Tooltip>
-
             <Tooltip title="Delete">
               <span>
                 <IconButton
                   size="small"
                   onClick={() => onDelete(user)}
-                  disabled={isDeleting}
+                  disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
                   sx={{
                     color: '#ef4444',
                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
                     width: 28,
                     height: 28,
+                    opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
                   }}
                 >
-                  {isDeleting ? <CircularProgress size={14} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
+                  {isDeleting ? <CircularProgress size={12} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
                 </IconButton>
               </span>
             </Tooltip>
@@ -531,7 +849,278 @@ const UserCard = ({
   );
 };
 
-// Responsive Table Component
+// const ResponsiveTable = ({
+//   users,
+//   isBulkMode,
+//   selectedUsers,
+//   handleSelectUser,
+//   handleSelectAll,
+//   handleView,
+//   handleEdit,
+//   handleDeleteClick,
+//   handleImpersonate,
+//   sortOrder,
+//   onSort,
+//   page,
+//   rowsPerPage,
+//   onPageChange,
+//   onRowsPerPageChange,
+//   totalCount,
+//   isMobile,
+//   isTablet,
+//   loading,
+//   role_id,
+//   isSubscriptionExpired,
+//   isDeleting,
+// }) => {
+//   const theme = useTheme();
+//   const isSuperAdmin = role_id === 2;
+//   const isLoggedInAdmin = role_id === 1;
+
+//   if (loading) {
+//     return (
+//       <TableContainer sx={{
+//         overflowX: 'auto',
+//         '&::-webkit-scrollbar': { height: '6px' },
+//         '&::-webkit-scrollbar-thumb': {
+//           backgroundColor: alpha(theme.palette.primary.main, 0.3),
+//           borderRadius: '3px',
+//         },
+//       }}>
+//         <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
+//           <TableHead>
+//             <TableRow>
+//               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
+//               <TableCell>Name</TableCell>
+//               <TableCell>Email</TableCell>
+//               {isSuperAdmin && <TableCell>Mobile No</TableCell>}
+//               <TableCell>Joined Date</TableCell>
+//               <TableCell align="right">Actions</TableCell>
+//             </TableRow>
+//           </TableHead>
+//           <TableBody>
+//             {[1, 2, 3, 4, 5].map((item) => (
+//               <TableRowSkeleton
+//                 key={item}
+//                 isBulkMode={isBulkMode}
+//                 isMobile={isMobile}
+//                 isTablet={isTablet}
+//                 role_id={role_id}
+//               />
+//             ))}
+//           </TableBody>
+//         </Table>
+//       </TableContainer>
+//     );
+//   }
+
+//   return (
+//     <TableContainer sx={{
+//       overflowX: 'auto',
+//       '&::-webkit-scrollbar': { height: '6px' },
+//       '&::-webkit-scrollbar-thumb': {
+//         backgroundColor: alpha(theme.palette.primary.main, 0.3),
+//         borderRadius: '3px',
+//       },
+//     }}>
+//       <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
+//         <TableHead>
+//           <TableRow>
+//             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
+//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+//               Name
+//             </TableCell>
+//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+//               Email
+//             </TableCell>
+//             {isSuperAdmin && (
+//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+//                 Mobile No
+//               </TableCell>
+//             )}
+//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+//               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+//                 Joined Date
+//                 {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+//               </Box>
+//             </TableCell>
+//             <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+//               Actions
+//             </TableCell>
+//           </TableRow>
+//         </TableHead>
+//         <TableBody>
+//           <AnimatePresence>
+//             {(users || []).map((user) => {
+//               const isSubAdmin = user.role_id === 3;
+//               return (
+//                 <motion.tr
+//                   key={user._id || user.id}
+//                   initial={{ opacity: 0 }}
+//                   animate={{ opacity: 1 }}
+//                   exit={{ opacity: 0 }}
+//                   transition={{ duration: 0.2 }}
+//                   style={{ cursor: 'pointer' }}
+//                   onMouseEnter={(e) => {
+//                     if (!isMobile) {
+//                       e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
+//                     }
+//                   }}
+//                   onMouseLeave={(e) => {
+//                     if (!isMobile) {
+//                       e.currentTarget.style.backgroundColor = 'transparent';
+//                     }
+//                   }}
+//                 >
+//                   {isBulkMode && (
+//                     <TableCell padding="checkbox" sx={{ pl: 2 }}>
+//                       <Checkbox
+//                         checked={selectedUsers.includes(user._id || user.id)}
+//                         onChange={() => handleSelectUser(user._id || user.id)}
+//                         size="small"
+//                         sx={{ color: theme.palette.primary.main }}
+//                       />
+//                     </TableCell>
+//                   )}
+//                   <TableCell>
+//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+//                       <Avatar
+//                         src={user.avtar || user.profileImage}
+//                         sx={{
+//                           width: { xs: 28, sm: 32 },
+//                           height: { xs: 28, sm: 32 },
+//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                           color: theme.palette.primary.main,
+//                         }}
+//                       >
+//                         {(user.name || user.name)?.charAt(0)}
+//                       </Avatar>
+//                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+//                         <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
+//                           {user.name || user.name}
+//                         </Typography>
+//                         {/* SB Badge - Only show when logged-in user is role_id 1 and current user is role_id 3 */}
+//                         {isLoggedInAdmin && isSubAdmin && (
+//                           <Chip
+//                             label="SB"
+//                             size="small"
+//                             sx={{
+//                               bgcolor: alpha('#22c55e', 0.15),
+//                               color: '#22c55e',
+//                               fontWeight: 700,
+//                               fontSize: '0.55rem',
+//                               height: 16,
+//                               '& .MuiChip-label': {
+//                                 px: 0.5,
+//                               },
+//                             }}
+//                           />
+//                         )}
+//                       </Box>
+//                     </Box>
+//                   </TableCell>
+//                   <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+//                     {user.email}
+//                   </TableCell>
+//                   {isSuperAdmin && (
+//                     <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+//                       {user.mobile_no}
+//                     </TableCell>
+//                   )}
+//                   <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
+//                     {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
+//                   </TableCell>
+//                   <TableCell align="right">
+//                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+//                       <Tooltip title="View">
+//                         <span>
+//                           <IconButton
+//                             size="small"
+//                             onClick={() => handleView(user)}
+//                             disabled={role_id === 1 && isSubscriptionExpired === true}
+//                             sx={{
+//                               color: theme.palette.primary.main,
+//                               width: 26,
+//                               height: 26,
+//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                             }}
+//                           >
+//                             <VisibilityIcon sx={{ fontSize: 14 }} />
+//                           </IconButton>
+//                         </span>
+//                       </Tooltip>
+
+//                       {/* Impersonate button - only for super admin */}
+//                       {isSuperAdmin && (
+//                         <Tooltip title="Login as User">
+//                           <IconButton
+//                             size="small"
+//                             onClick={() => handleImpersonate(user)}
+//                             sx={{
+//                               color: theme.palette.secondary.main,
+//                               width: 26,
+//                               height: 26,
+//                               '&:hover': {
+//                                 bgcolor: alpha(theme.palette.secondary.main, 0.1)
+//                               }
+//                             }}
+//                           >
+//                             <LoginIcon sx={{ fontSize: 14 }} />
+//                           </IconButton>
+//                         </Tooltip>
+//                       )}
+
+//                       <Tooltip title="Edit">
+//                         <span>
+//                           <IconButton
+//                             size="small"
+//                             onClick={() => handleEdit(user)}
+//                             disabled={role_id === 1 && isSubscriptionExpired === true}
+//                             sx={{
+//                               color: theme.palette.primary.main,
+//                               width: 26,
+//                               height: 26,
+//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                             }}
+//                           >
+//                             <EditIcon sx={{ fontSize: 14 }} />
+//                           </IconButton>
+//                         </span>
+//                       </Tooltip>
+
+//                       <Tooltip title="Delete">
+//                         <span>
+//                           <IconButton
+//                             size="small"
+//                             onClick={() => handleDeleteClick(user)}
+//                             disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
+//                             sx={{
+//                               color: '#ef4444',
+//                               width: 26,
+//                               height: 26,
+//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+//                             }}
+//                           >
+//                             <DeleteIcon sx={{ fontSize: 14 }} />
+//                           </IconButton>
+//                         </span>
+//                       </Tooltip>
+//                     </Box>
+//                   </TableCell>
+//                 </motion.tr>
+//               );
+//             })}
+//           </AnimatePresence>
+//         </TableBody>
+//       </Table>
+//     </TableContainer>
+//   );
+// };
+// Main Component
+
+
+
+//With SB Batch for SUB ADMIN Also
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -552,12 +1141,13 @@ const ResponsiveTable = ({
   isMobile,
   isTablet,
   loading,
-  role_id
+  role_id,
+  isSubscriptionExpired,
+  isDeleting,
 }) => {
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
-
-  // console.log(users, "Users in the tabnle <-------------- ")
+  const isLoggedInAdmin = role_id === 1;
 
   if (loading) {
     return (
@@ -576,8 +1166,6 @@ const ResponsiveTable = ({
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               {isSuperAdmin && <TableCell>Mobile No</TableCell>}
-              <TableCell>Role</TableCell>
-              <TableCell>Status</TableCell>
               <TableCell>Joined Date</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -623,12 +1211,6 @@ const ResponsiveTable = ({
               </TableCell>
             )}
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-              Role
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-              Status
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
                 Joined Date
                 {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
@@ -641,159 +1223,173 @@ const ResponsiveTable = ({
         </TableHead>
         <TableBody>
           <AnimatePresence>
-            {(users || []).map((user) => (
-              <motion.tr
-                key={user._id || user.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{ cursor: 'pointer' }}
-                onMouseEnter={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMobile) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
-              >
-                {isBulkMode && (
-                  <TableCell 
-                    padding="checkbox" 
-                    sx={{ 
-                      pl: 2, 
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) } 
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectUser(user._id || user.id);
-                    }}
-                  >
-                    <Checkbox
-                      checked={selectedUsers.includes(user._id || user.id)}
-                      onChange={() => handleSelectUser(user._id || user.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      size="small"
-                      sx={{ color: theme.palette.primary.main }}
-                    />
-                  </TableCell>
-                )}
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-                    <Avatar
-                      src={user.avtar || user.profileImage}
-                      sx={{
-                        width: { xs: 28, sm: 32 },
-                        height: { xs: 28, sm: 32 },
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      {(user.name || user.name)?.charAt(0)}
-                    </Avatar>
-                    <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
-                      {user.name || user.name}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
-                  {user.email}
-                </TableCell>
-                {isSuperAdmin && (
-                  <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
-                    {user.mobile_no}
-                  </TableCell>
-                )}
-                <TableCell>
-                  <Typography variant="body2" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }, fontWeight: 600, color: user.role_id === 3 ? 'primary.main' : 'text.secondary' }}>
-                    {user.role_id === 3 ? "Sub-admin" : user.role_id === 1 ? "Admin" : "Staff"}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={user.isActive ? 'Active' : 'Inactive'}
-                    size="small"
-                    sx={{
-                      bgcolor: user.isActive ? alpha('#22c55e', 0.1) : alpha(theme.palette.text.secondary, 0.1),
-                      color: user.isActive ? '#22c55e' : theme.palette.text.secondary,
-                      fontWeight: 600,
-                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.70rem' },
-                      height: { xs: 18, sm: 20 },
-                    }}
-                  />
-                </TableCell>
-                <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
-                  {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
-                </TableCell>
-                <TableCell align="right">
-                  <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                    <Tooltip title="View">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleView(user)}
-                        sx={{ color: theme.palette.primary.main, width: 26, height: 26 }}
-                      >
-                        <VisibilityIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    </Tooltip>
+            {(users || []).map((user) => {
+              const isSubAdmin = user.role_id === 3;
+              const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
 
-                    {/* Impersonate button - only for super admin */}
-                    {isSuperAdmin && (
-                      <Tooltip title="Login as User">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleImpersonate(user)}
-                          sx={{
-                            color: theme.palette.secondary.main,
-                            width: 26,
-                            height: 26,
-                            '&:hover': {
-                              bgcolor: alpha(theme.palette.secondary.main, 0.1)
-                            }
-                          }}
-                        >
-                          <LoginIcon sx={{ fontSize: 14 }} />
-                        </IconButton>
+              return (
+                <motion.tr
+                  key={user._id || user.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={(e) => {
+                    if (!isMobile) {
+                      e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isMobile) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  {isBulkMode && (
+                    <TableCell padding="checkbox" sx={{ pl: 2 }}>
+                      <Checkbox
+                        checked={selectedUsers.includes(user._id || user.id)}
+                        onChange={() => handleSelectUser(user._id || user.id)}
+                        size="small"
+                        sx={{ color: theme.palette.primary.main }}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+                      <Avatar
+                        src={user.avtar || user.profileImage}
+                        sx={{
+                          width: { xs: 28, sm: 32 },
+                          height: { xs: 28, sm: 32 },
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                        }}
+                      >
+                        {(user.name || user.name)?.charAt(0)}
+                      </Avatar>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
+                          {user.name || user.name}
+                        </Typography>
+                        {/* SB Badge - Show for ALL users with role_id 3 */}
+                        {showSBBadge && (
+                          <Chip
+                            label="SB"
+                            size="small"
+                            sx={{
+                              bgcolor: alpha('#22c55e', 0.15),
+                              color: '#22c55e',
+                              fontWeight: 700,
+                              fontSize: '0.55rem',
+                              height: 16,
+                              '& .MuiChip-label': {
+                                px: 0.5,
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+                    {user.email}
+                  </TableCell>
+                  {isSuperAdmin && (
+                    <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+                      {user.mobile_no}
+                    </TableCell>
+                  )}
+                  <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
+                    {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                      <Tooltip title="View">
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleView(user)}
+                            disabled={role_id === 1 && isSubscriptionExpired === true}
+                            sx={{
+                              color: theme.palette.primary.main,
+                              width: 26,
+                              height: 26,
+                              opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                            }}
+                          >
+                            <VisibilityIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </span>
                       </Tooltip>
-                    )}
 
-                    <Tooltip title="Edit">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEdit(user)}
-                        sx={{ color: theme.palette.primary.main, width: 26, height: 26 }}
-                      >
-                        <EditIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    </Tooltip>
+                      {/* Impersonate button - only for super admin */}
+                      {isSuperAdmin && (
+                        <Tooltip title="Login as User">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleImpersonate(user)}
+                            sx={{
+                              color: theme.palette.secondary.main,
+                              width: 26,
+                              height: 26,
+                              '&:hover': {
+                                bgcolor: alpha(theme.palette.secondary.main, 0.1)
+                              }
+                            }}
+                          >
+                            <LoginIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
 
-                    <Tooltip title="Delete">
-                      <span>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteClick(user)}
-                          sx={{ color: '#ef4444', width: 26, height: 26 }}
-                        >
-                          <DeleteIcon sx={{ fontSize: 14 }} />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
-              </motion.tr>
-            ))}
+                      <Tooltip title="Edit">
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEdit(user)}
+                            disabled={role_id === 1 && isSubscriptionExpired === true}
+                            sx={{
+                              color: theme.palette.primary.main,
+                              width: 26,
+                              height: 26,
+                              opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                            }}
+                          >
+                            <EditIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+
+                      <Tooltip title="Delete">
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteClick(user)}
+                            disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
+                            sx={{
+                              color: '#ef4444',
+                              width: 26,
+                              height: 26,
+                              opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+                            }}
+                          >
+                            <DeleteIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  </TableCell>
+                </motion.tr>
+              );
+            })}
           </AnimatePresence>
         </TableBody>
       </Table>
     </TableContainer>
   );
 };
-
-// Main Component
 const UserManagement = () => {
   const theme = useTheme();
   const location = useLocation();
@@ -848,7 +1444,7 @@ const UserManagement = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        // console.log('User from localStorage:', parsedUser); 
+        // console.log('User from localStorage:', parsedUser); // Debug log
         return parsedUser;
       } catch (e) {
         console.error('Error parsing stored user:', e);
@@ -904,8 +1500,11 @@ const UserManagement = () => {
 
   const loading = useSelector((state) => state.user?.loading || false);
   const currentUser = getUserData();
-  // const maxUser = currentUser?.currentPaymentId?.maxUser;
-  const subscriptionExpiry = currentUser?.currentPaymentId?.expiresAt;
+
+  // Use organization data from Redux if available (fetched via getUserById(adminId) for sub-admins)
+  const orgData = (Number(role_id) === 3 && userData?._id) ? userData : currentUser;
+
+  const subscriptionExpiry = orgData?.currentPaymentId?.expiresAt || orgData?.currentPaymentId?.expiryDate;
   const isExpired = subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
 
 
@@ -915,11 +1514,12 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchPaymentData = async () => {
       const user = getUserData();
-      // Hierarchy Fix: If sub-admin (3) or staff (0), use parent's payment context from userData
-      // userData is fetched using parent ID (targetId) in fetchAllData
-      const paymentId = (Number(role_id) === 3 || Number(role_id) === 0)
-        ? (userData?.currentPaymentId || user?.currentPaymentId)
-        : user?.currentPaymentId;
+      const isSubAdmin = Number(user?.role_id) === 3;
+
+      // For sub-admins, if userData (from Redux) is populated with the admin's info, use it.
+      // Otherwise, fallback to the current user's paymentId (for primary admins).
+      const targetUser = (isSubAdmin && userData?._id) ? userData : user;
+      const paymentId = targetUser?.currentPaymentId;
 
       if (paymentId && typeof paymentId === 'string') {
         setIsLoadingPayment(true);
@@ -936,15 +1536,15 @@ const UserManagement = () => {
           // console.log("Max User set to:", maxUserValue);
 
         } catch (error) {
-          console.error("Error fetching payment data:", error)
+          console.error("Error fetching payment data:", error);
           setMaxUser(null);
         } finally {
           setIsLoadingPayment(false);
         }
       } else {
         // If paymentId is not a string (maybe it's already an object with maxUser)
-        if (paymentId && typeof paymentId === 'object' && paymentId.maxUser) {
-          setMaxUser(paymentId.maxUser);
+        if (paymentId && typeof paymentId === 'object' && (paymentId.maxUser || paymentId.userLimit)) {
+          setMaxUser(paymentId.maxUser || paymentId.userLimit);
         } else {
           setMaxUser(null);
         }
@@ -952,12 +1552,11 @@ const UserManagement = () => {
     };
 
     fetchPaymentData();
-  }, [dispatch, getUserData, currentUser?._id, userData?.currentPaymentId]);
+  }, [dispatch, getUserData, currentUser?._id, userData?._id]);
 
   // Now you can use maxUser directly
   // console.log("Max User from state:", maxUser);
-  // console.log("-----------------------", getUserData());
-  // console.log("current>-----------------------", currentUser.currentPaymentId);
+
 
   // Read filter from URL
   useEffect(() => {
@@ -1000,45 +1599,23 @@ const UserManagement = () => {
       setFetchError("User data not available");
       return;
     }
+
     setIsRefreshing(true);
     setFetchError(null);
 
     try {
-      // Helper: decode JWT to get adminId for sub-admins
-      // adminId is stored in the JWT payload but NOT in the user object in localStorage
-      const getAdminIdFromToken = () => {
-        try {
-          const token = localStorage.getItem('token');
-          if (!token) return null;
-          const base64Payload = token.split('.')[1];
-          const decoded = JSON.parse(atob(base64Payload));
-          return decoded.adminId || null;
-        } catch (e) {
-          console.error('Failed to decode token:', e);
-          return null;
-        }
-      };
-
-      // For sub-admin (role_id=3): fetch using the root admin's ID
-      // For admin (role_id=1): fetch using their own ID
-      let targetId;
-      if (role_id === 3) {
-        targetId =
-          getAdminIdFromToken() ||                         // JWT adminId (most reliable)
-          (userState.userInfo?.adminId?._id || userState.userInfo?.adminId) || // if adminId is in userInfo
-          userId;                                          // last resort: own ID
-      } else {
-        targetId = userId;
-      }
-
-      // console.log("User Management fetch role_id:", role_id);
-      // console.log("User Management fetch targetId:", targetId);
+      const isSubAdmin = Number(role_id) === 3;
+      const rawAdminId = user?.adminId;
+      const effectiveAdminId = isSubAdmin
+        ? (typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId)
+        : (user?._id || user?.id);
 
       if (role_id === 1 || role_id === 3) {
         await Promise.all([
-          dispatch(getUserById(targetId)),
+          // If sub-admin, fetch the parent admin's info to get plan details
+          dispatch(getUserById(effectiveAdminId)),
           dispatch(getUsersUnderAdmin({
-            adminId: targetId,
+            adminId: effectiveAdminId,
             page: 1,
             limit: 20,
             search: ''
@@ -1080,8 +1657,7 @@ const UserManagement = () => {
   useEffect(() => {
     const handleFocus = () => {
       const user = getUserData();
-      // Only refresh if NO modal is open to avoid resetting local state/props
-      if (user?._id && !isRefreshing && dataFetched && !addUserModalOpen && !showDeleteModal) {
+      if (user?._id && !isRefreshing && dataFetched) {
         fetchAllData();
       }
     };
@@ -1089,6 +1665,43 @@ const UserManagement = () => {
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [fetchAllData, getUserData, isRefreshing, dataFetched]);
+
+
+  // Get subscription data from Redux state
+  const subscriptionData = useSelector((state) => state.user?.subscription?.data);
+  const isSubscriptionExpired = useSelector((state) => state.user?.subscription?.expired);
+  const hasSubscription = useSelector((state) => state.user?.subscription?.hasSubscription);
+  const remainingDays = useSelector((state) => state.user?.subscription?.remainingDays);
+  const planName = useSelector((state) => state.user?.subscription?.planName);
+  const subscriptionLoading = useSelector((state) => state.user?.subscription?.loading);
+
+  // Log to debug
+  // console.log("Subscription Data from Redux:", subscriptionData);
+  // console.log("Is Expired:", isSubscriptionExpired);
+  // console.log("Has Subscription:", hasSubscription);
+
+  // In your UserManagement component
+  useEffect(() => {
+    const checkSubscription = async () => {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+      // console.log("Token exists:", !!token);
+      // console.log("User role:", user?.role_id);
+
+      if (token) {
+        const isSubAdmin = Number(user?.role_id) === 3;
+        const rawAdminId = user?.adminId;
+        const effectiveAdminId = isSubAdmin
+          ? (typeof rawAdminId === 'object' ? rawAdminId?._id || rawAdminId?.id : rawAdminId)
+          : (user?._id || user?.id);
+        const result = await dispatch(checkUserSubscription(effectiveAdminId));
+      }
+    };
+
+    checkSubscription();
+  }, [dispatch]);
+
 
   const refreshData = async () => {
     await fetchAllData();
@@ -1222,12 +1835,12 @@ const UserManagement = () => {
     // For roleId = 2, filter users where isActive and deleted === "false"
     activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
-  } else if (role_id === 1 || role_id === 3) {
-    // For roleId = 1 or 3, filter users based on isActive only
+  } else if (role_id === 1) {
+    // For roleId = 1, filter users based on isActive only
     activeUsers = (filteredUsers || []).filter((user) => user.isActive);
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
   } else {
-    // Default case (if roleId is neither 1, 2, nor 3)
+    // Default case (if roleId is neither 1 nor 2)
     // You can either use the roleId=1 logic or roleId=2 logic, or handle as needed
     activeUsers = (filteredUsers || []).filter((user) => user.isActive);
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
@@ -1264,11 +1877,10 @@ const UserManagement = () => {
 
   const handleDeleteConfirm = () => {
     setIsDeleting(true);
-    // console.log(selectedUser, "<---------------- seleed user ")
     dispatch(deleteUser(selectedUser?._id || selectedUser?.id))
       .unwrap()
       .then(() => {
-        toast.success("User deleted successfully!");
+        // toast.success("User deleted successfully!");
         setShowDeleteModal(false);
         refreshData();
       })
@@ -1399,22 +2011,11 @@ const UserManagement = () => {
   };
 
   const canCreateUser = role_id === 2 ||
-    (maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
+    ((role_id === 1 || role_id === 3) && maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
   const currentUsers = tabValue === 0 ? activeUsers : inactiveUsers;
   const paginatedUsers = (currentUsers || []).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-
-
-  // Debug logs
-  // console.log('Role ID:', role_id);
-  // console.log('Users List:', usersList);
-  // console.log('Loading:', loading);
-  // console.log('Data Fetched:', dataFetched);
-  // console.log('Fetch Error:', fetchError);
-  // console.log('Current User:', currentUser);
-
-  // Show error if any
   if (fetchError) {
     return (
       <Box sx={{ p: 3 }}>
@@ -1458,7 +2059,7 @@ const UserManagement = () => {
                 },
               }}
             >
-              {(role_id === 1 || role_id === 3) ? 'User Management' : 'Organization Management'}
+              {role_id === 1 ? 'User Management' : 'Organization Management'}
             </Typography>
           </Box>
           <Box sx={{
@@ -1523,7 +2124,20 @@ const UserManagement = () => {
   }
 
   return (
+
     <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {/* Header */}
       <Box sx={{
         display: 'flex',
@@ -1551,10 +2165,10 @@ const UserManagement = () => {
               },
             }}
           >
-            {(role_id === 1 || role_id === 3) ? 'User Management' : 'Organization Management'}
+            {role_id === 1 ? 'User Management' : 'Organization Management'}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
-            {(role_id === 1 || role_id === 3)
+            {role_id === 1
               ? 'Manage your team members and their access'
               : 'Manage organizations and their users'
             }
@@ -1697,7 +2311,7 @@ const UserManagement = () => {
             </Button>
           )}
 
-          <Button
+          {/* <Button
             variant="contained"
             startIcon={<AddIcon sx={{ fontSize: 16 }} />}
             onClick={handleAddUserClick}
@@ -1711,7 +2325,26 @@ const UserManagement = () => {
               },
             }}
           >
-            {(role_id === 1 || role_id === 3) ? 'Add User' : 'Add Organization'}
+            {role_id === 1 ? 'Add User' : 'Add Organization'}
+          </Button> */}
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon sx={{ fontSize: 16 }} />}
+            onClick={handleAddUserClick}
+            disabled={role_id === 1 && isSubscriptionExpired === true}
+            size={isMobile ? "small" : "small"}
+            sx={{
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              fontSize: { xs: '0.65rem', sm: '0.7rem' },
+              height: 34,
+              opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
+              '&:hover': {
+                background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+              },
+            }}
+          >
+            {role_id === 2 ? 'Add Organization' : 'Add User'}
           </Button>
         </Box>
       </Box>
@@ -2074,8 +2707,8 @@ const UserManagement = () => {
             {!isLoading && isBulkMode && (
               <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Checkbox
-                  checked={paginatedUsers.length > 0 && paginatedUsers.every(user => selectedUsers.includes(user._id || user.id))}
-                  indeterminate={selectedUsers.length > 0 && !paginatedUsers.every(user => selectedUsers.includes(user._id || user.id)) && paginatedUsers.some(user => selectedUsers.includes(user._id || user.id))}
+                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
+                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
                   onChange={handleSelectAll}
                   size="small"
                   sx={{ color: theme.palette.primary.main }}
@@ -2110,6 +2743,8 @@ const UserManagement = () => {
               isTablet={isTablet}
               loading={isLoading}
               role_id={role_id}
+              isSubscriptionExpired={isSubscriptionExpired}
+              isDeleting={isDeleting}
             />
 
             {!isLoading && (
@@ -2140,13 +2775,13 @@ const UserManagement = () => {
         )}
 
         {/* Card View */}
-        {viewMode === 'card' && (
+        {/* {viewMode === 'card' && (
           <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
             {!isLoading && isBulkMode && (
               <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Checkbox
-                  checked={paginatedUsers.length > 0 && paginatedUsers.every(user => selectedUsers.includes(user._id || user.id))}
-                  indeterminate={selectedUsers.length > 0 && !paginatedUsers.every(user => selectedUsers.includes(user._id || user.id)) && paginatedUsers.some(user => selectedUsers.includes(user._id || user.id))}
+                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
+                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
                   onChange={handleSelectAll}
                   size="small"
                   sx={{ color: theme.palette.primary.main }}
@@ -2168,7 +2803,15 @@ const UserManagement = () => {
                 <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                   <AnimatePresence>
                     {(paginatedUsers || []).map((user) => (
-                      <Grid item xs={12} sm={6} md={4} key={user._id || user.id}>
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={3}  // Added lg breakpoint for 4 cards (12/3 = 4)
+                        xl={3}  // Optional: keep same for xl or adjust as needed
+                        key={user._id || user.id}
+                      >
                         <UserCard
                           user={user}
                           onView={handleView}
@@ -2181,6 +2824,7 @@ const UserManagement = () => {
                           role_id={role_id}
                           isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
                           isMobile={isMobile}
+                          isSubscriptionExpired={isSubscriptionExpired}
                         />
                       </Grid>
                     ))}
@@ -2207,6 +2851,180 @@ const UserManagement = () => {
                     >
                       Load More
                     </Button>
+                  </Box>
+                )}
+              </>
+            )}
+          </Box>
+        )} */}
+        {viewMode === 'card' && (
+          <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
+            {!isLoading && isBulkMode && (
+              <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Checkbox
+                  checked={paginatedUsers.length > 0 && selectedUsers.length === paginatedUsers.length}
+                  indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
+                  onChange={handleSelectAll}
+                  size="small"
+                  sx={{ color: theme.palette.primary.main }}
+                />
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
+                  {selectedUsers.length} selected
+                </Typography>
+              </Box>
+            )}
+
+            {isLoading ? (
+              <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <UserCardSkeleton key={item} isBulkMode={isBulkMode} isMobile={isMobile} />
+                ))}
+              </Grid>
+            ) : (
+              <>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                  <AnimatePresence>
+                    {(paginatedUsers || []).map((user) => (
+                      <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={3}
+                        xl={3}
+                        key={user._id || user.id}
+                      >
+                        <UserCard
+                          user={user}
+                          onView={handleView}
+                          onEdit={handleEdit}
+                          onDelete={handleDeleteClick}
+                          onImpersonate={handleImpersonate}
+                          isSelected={selectedUsers.includes(user._id || user.id)}
+                          onSelect={handleSelectUser}
+                          isBulkMode={isBulkMode}
+                          role_id={role_id}
+                          isDeleting={isDeleting && selectedUsers.includes(user._id || user.id)}
+                          isMobile={isMobile}
+                          isSubscriptionExpired={isSubscriptionExpired}
+                        />
+                      </Grid>
+                    ))}
+                  </AnimatePresence>
+                </Grid>
+
+                {/* Pagination Controls for Card View */}
+                {currentUsers.length > 0 && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                    mt: 3,
+                    flexWrap: 'wrap',
+                  }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setPage(page - 1)}
+                      disabled={page === 0}
+                      size="small"
+                      sx={{
+                        borderColor: alpha(theme.palette.primary.main, 0.5),
+                        color: theme.palette.primary.main,
+                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                        height: 34,
+                        px: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: alpha(theme.palette.primary.main, 0.2),
+                          color: alpha(theme.palette.primary.main, 0.3),
+                        },
+                      }}
+                      startIcon={<ArrowUpwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
+                    >
+                      Previous
+                    </Button>
+
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      px: 2,
+                      py: 0.5,
+                      borderRadius: 2,
+                    }}>
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, fontWeight: 500 }}>
+                        Page {page + 1} of {Math.ceil(currentUsers.length / rowsPerPage)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                        ({currentUsers.length} total)
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      onClick={() => setPage(page + 1)}
+                      disabled={(page + 1) * rowsPerPage >= currentUsers.length}
+                      size="small"
+                      sx={{
+                        borderColor: alpha(theme.palette.primary.main, 0.5),
+                        color: theme.palette.primary.main,
+                        fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                        height: 34,
+                        px: 2,
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        },
+                        '&.Mui-disabled': {
+                          borderColor: alpha(theme.palette.primary.main, 0.2),
+                          color: alpha(theme.palette.primary.main, 0.3),
+                        },
+                      }}
+                      endIcon={<ArrowDownwardIcon sx={{ fontSize: 14, transform: 'rotate(-90deg)' }} />}
+                    >
+                      Next
+                    </Button>
+                  </Box>
+                )}
+
+                {/* Optional: Rows per page selector for card view */}
+                {currentUsers.length > rowsPerPage && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    mt: 2,
+                    gap: 1,
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                      Items per page:
+                    </Typography>
+                    <Select
+                      value={rowsPerPage}
+                      onChange={(e) => {
+                        setRowsPerPage(parseInt(e.target.value, 10));
+                        setPage(0);
+                      }}
+                      size="small"
+                      sx={{
+                        height: 28,
+                        fontSize: '0.7rem',
+                        '& .MuiSelect-select': {
+                          py: 0.3,
+                          px: 1,
+                        },
+                      }}
+                    >
+                      <MenuItem value={8}>8</MenuItem>
+                      <MenuItem value={12}>12</MenuItem>
+                      <MenuItem value={16}>16</MenuItem>
+                      <MenuItem value={24}>24</MenuItem>
+                    </Select>
                   </Box>
                 )}
               </>
@@ -2288,8 +3106,8 @@ const UserManagement = () => {
         <DialogContent sx={{ py: 1 }}>
           <DialogContentText textAlign="center" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
             {isExpired
-              ? (role_id === 3 ? 'The organization subscription has expired. Please contact your administrator.' : 'Your subscription has expired. Renew now to continue adding users.')
-              : (role_id === 3 ? `The organization has reached the maximum limit of ${maxUser || 'allowed'} users. Please contact your administrator.` : `You've reached the maximum limit of ${maxUser} users. Upgrade your plan to add more.`)}
+              ? 'Your subscription has expired. Renew now to continue adding users.'
+              : `You've reached the maximum limit of ${maxUser} users. Upgrade your plan to add more.`}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{
@@ -2298,8 +3116,6 @@ const UserManagement = () => {
           pb: { xs: 2, sm: 2.5 },
           flexDirection: { xs: 'column', sm: 'row' },
         }}>
-
-          
           <Button
             variant="outlined"
             onClick={() => setShowLimitModal(false)}
@@ -2319,25 +3135,23 @@ const UserManagement = () => {
           >
             Cancel
           </Button>
-          {role_id !== 3 && (
-            <Button
-              variant="contained"
-              onClick={() => navigate('/admin/payments-plans')}
-              fullWidth={isSmallMobile}
-              size="small"
-              sx={{
-                bgcolor: isExpired ? '#ef4444' : theme.palette.secondary.main,
-                '&:hover': {
-                  bgcolor: isExpired ? '#dc2626' : theme.palette.secondary.dark,
-                },
-                px: { xs: 2, sm: 3 },
-                fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                height: 32,
-              }}
-            >
-              {isExpired ? 'Renew Now' : 'Upgrade Plan'}
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            onClick={() => navigate('/admin/payments-plans')}
+            fullWidth={isSmallMobile}
+            size="small"
+            sx={{
+              bgcolor: isExpired ? '#ef4444' : theme.palette.secondary.main,
+              '&:hover': {
+                bgcolor: isExpired ? '#dc2626' : theme.palette.secondary.dark,
+              },
+              px: { xs: 2, sm: 3 },
+              fontSize: { xs: '0.7rem', sm: '0.75rem' },
+              height: 32,
+            }}
+          >
+            {isExpired ? 'Renew Now' : 'Upgrade Plan'}
+          </Button>
         </DialogActions>
       </Dialog>
 

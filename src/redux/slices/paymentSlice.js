@@ -75,12 +75,12 @@ export const createPaymentOrder = createAsyncThunk(
       });
 
       if (couponCode && response.data.data.discountApplied) {
-        toast.success(`Coupon applied! You saved ₹${response.data.data.discountAmount}`);
+        // toast.success(`Coupon applied! You saved ₹${response.data.data.discountAmount}`);
       }
 
       return response.data;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create order");
+      // toast.error(error.response?.data?.message || "Failed to create order");
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -152,19 +152,9 @@ export const getAllPaymentHistory = createAsyncThunk(
 
 export const getRevenueSummary = createAsyncThunk(
   "payment/getRevenueSummary",
-  async (params = {}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // Clean params - remove empty values
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
-
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/payments/revenue-summary${queryString ? `?${queryString}` : ""}`;
-      const response = await api.get(url);
+      const response = await api.get("/payments/revenue-summary");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -208,9 +198,9 @@ export const createAddOnOrder = createAsyncThunk(
 
       // Optional: Add specific error toasts
       if (errorMessage.includes('active subscription')) {
-        toast.error('You need an active subscription to purchase add-ons');
+        // toast.error('You need an active subscription to purchase add-ons');
       } else {
-        toast.error(errorMessage);
+        // toast.error(errorMessage);
       }
 
       return rejectWithValue(error.response?.data || error.message);
@@ -248,6 +238,23 @@ export const testPaymentAPI = createAsyncThunk(
   }
 );
 
+// Add this after your existing exports
+export const updatePaymentStatus = createAsyncThunk(
+  "payment/updateStatus",
+  async ({ razorpayOrderId, status, failureReason }, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/payments/update-payment-status", {
+        razorpayOrderId,
+        status,
+        failureReason,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const initialState = {
   // Order creation
   orderLoading: false,
@@ -276,6 +283,9 @@ const initialState = {
   currentPage: 1,
   totalPages: 1,
   totalItems: 0,
+
+  statusUpdateLoading: false,
+  statusUpdateError: null,
 
   paymentStats: {
     totalPayments: 0,
@@ -336,8 +346,6 @@ const paymentSlice = createSlice({
     clearVerificationData: (state) => {
       state.verificationData = null;
       state.verificationError = null;
-      state.addOnVerificationData = null;
-      state.addOnVerificationError = null;
     },
   },
   extraReducers: (builder) => {
@@ -531,6 +539,28 @@ const paymentSlice = createSlice({
       .addCase(testPaymentAPI.rejected, (state, action) => {
         state.testLoading = false;
         state.testError = action.payload;
+      })
+
+      .addCase(updatePaymentStatus.pending, (state) => {
+        state.statusUpdateLoading = true;
+        state.statusUpdateError = null;
+      })
+      .addCase(updatePaymentStatus.fulfilled, (state, action) => {
+        state.statusUpdateLoading = false;
+        // Update payment in history if exists
+        if (state.paymentHistory.length > 0) {
+          const updatedPayment = action.payload.data;
+          const index = state.paymentHistory.findIndex(
+            p => p.razorpayOrderId === updatedPayment.razorpayOrderId
+          );
+          if (index !== -1) {
+            state.paymentHistory[index].status = updatedPayment.status;
+          }
+        }
+      })
+      .addCase(updatePaymentStatus.rejected, (state, action) => {
+        state.statusUpdateLoading = false;
+        state.statusUpdateError = action.payload;
       });
   },
 });

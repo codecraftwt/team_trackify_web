@@ -716,6 +716,7 @@ const PlanModal = ({
         minUsers: parseInt(localPlanData.minUsers),
         maxUsers: parseInt(localPlanData.maxUsers),
         price: parseFloat(localPlanData.price),
+             status: localPlanData.status || "active",
       };
 
       let response;
