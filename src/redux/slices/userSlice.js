@@ -114,24 +114,24 @@ export const deleteUser = createAsyncThunk(
 );
 
 export const getUserCounts = createAsyncThunk(
-  "user/getUserCounts",
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const cleanParams = {};
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          cleanParams[key] = params[key];
-        }
-      });
+  "user/getUserCounts",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const cleanParams = {};
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          cleanParams[key] = params[key];
+        }
+      });
 
-      const queryString = new URLSearchParams(cleanParams).toString();
-      const url = `/users/user-counts${queryString ? `?${queryString}` : ""}`;
-      const response = await api.get(url);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
+      const queryString = new URLSearchParams(cleanParams).toString();
+      const url = `/users/user-counts${queryString ? `?${queryString}` : ""}`;
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
 );
 
 export const getAllAdmins = createAsyncThunk(
@@ -283,10 +283,10 @@ export const checkUserSubscription = createAsyncThunk(
     try {
       const url = adminId ? `users/user/check-subscription?adminId=${adminId}` : "users/user/check-subscription";
       const response = await api.get(url);
-      
+
       const state = getState();
-      const userRole = state.auth?.user?.role_id || 
-        state.user?.userInfo?.role_id || 
+      const userRole = state.auth?.user?.role_id ||
+        state.user?.userInfo?.role_id ||
         JSON.parse(localStorage.getItem("user") || "{}")?.role_id;
 
       if (userRole === 2) {
@@ -400,6 +400,20 @@ export const getUserSummary = createAsyncThunk(
   }
 );
 
+// Fetch current locations of active users for an admin
+export const getCurrentLocationsOfActiveUsers = createAsyncThunk(
+  "user/getCurrentLocationsOfActiveUsers",
+  async (adminId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/Tracking/admin/${adminId}/users/current-locations`);
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to fetch active user locations");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -421,7 +435,7 @@ const userSlice = createSlice({
     lastTrackedUsers: [],
     lastTrackedUsersLoading: false,
     lastTrackedUsersError: null,
-    
+
     // Config states
     config: null,
     configLoading: false,
@@ -430,7 +444,7 @@ const userSlice = createSlice({
     configUpdateError: null,
     configDeleteLoading: false,
     configDeleteError: null,
-    
+
     // Admin User Management States
     adminUsersList: [],
     adminUsersPagination: {
@@ -493,6 +507,12 @@ const userSlice = createSlice({
     adminStats: null,
     adminStatsLoading: false,
     adminStatsError: null,
+
+    // Add to initialState object:
+    currentActiveLocations: [],
+    currentActiveLocationsSummary: null,
+    currentActiveLocationsLoading: false,
+    currentActiveLocationsError: null,
   },
   reducers: {
     logoutUser: (state) => {
@@ -840,6 +860,20 @@ const userSlice = createSlice({
         state.userSummary = null;
         state.activeUserLocations = [];
         localStorage.removeItem("user");
+      })
+      // Add to extraReducers builder:
+      .addCase(getCurrentLocationsOfActiveUsers.pending, (state) => {
+        state.currentActiveLocationsLoading = true;
+        state.currentActiveLocationsError = null;
+      })
+      .addCase(getCurrentLocationsOfActiveUsers.fulfilled, (state, action) => {
+        state.currentActiveLocationsLoading = false;
+        state.currentActiveLocations = action.payload.data?.activeUsers || [];
+        state.currentActiveLocationsSummary = action.payload.data?.summary || null;
+      })
+      .addCase(getCurrentLocationsOfActiveUsers.rejected, (state, action) => {
+        state.currentActiveLocationsLoading = false;
+        state.currentActiveLocationsError = action.payload?.message || "Failed to fetch active user locations";
       });
   },
 });

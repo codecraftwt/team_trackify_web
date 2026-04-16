@@ -23,26 +23,23 @@
 //   useMediaQuery,
 //   Drawer,
 //   Fab,
+//   Button,
 // } from "@mui/material";
 // import {
 //   Refresh as RefreshIcon,
 //   Person as PersonIcon,
-//   Email as EmailIcon,
 //   AccessTime as TimeIcon,
 //   LocationOn as LocationIcon,
-//   Image as ImageIcon,
 //   Close as CloseIcon,
-//   Fullscreen as FullscreenIcon,
 //   ZoomIn as ZoomInIcon,
 //   ZoomOut as ZoomOutIcon,
 //   MyLocation as MyLocationIcon,
-//   Menu as MenuIcon,
 //   ChevronRight as ChevronRightIcon,
 //   ChevronLeft as ChevronLeftIcon,
 //   People as PeopleIcon,
 //   ArrowBack as ArrowBackIcon,
 // } from "@mui/icons-material";
-// import { motion, AnimatePresence } from "framer-motion";
+// import { motion } from "framer-motion";
 // import { useDispatch, useSelector } from "react-redux";
 // import { getActiveUserLocations } from "../../redux/slices/userSlice";
 // import { useLocation, useNavigate } from "react-router-dom";
@@ -51,34 +48,39 @@
 
 // const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
 
+// // Helper function to check if coordinates are valid (not 0,0 and not null/undefined)
+// const isValidCoordinates = (lat, lng) => {
+//   if (!lat || !lng) return false;
+//   const numLat = parseFloat(lat);
+//   const numLng = parseFloat(lng);
+//   return !isNaN(numLat) && !isNaN(numLng) &&
+//     !(numLat === 0 && numLng === 0) &&
+//     Math.abs(numLat) <= 90 && Math.abs(numLng) <= 180;
+// };
+
 // const ActiveUserLocations = () => {
 //   const navigate = useNavigate();
 //   const location = useLocation();
 //   const theme = useTheme();
 //   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 //   const isSmallMobile = useMediaQuery('(max-width:480px)');
-//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-//   const isLandscape = useMediaQuery('(orientation: landscape)');
 
 //   const dispatch = useDispatch();
 //   const { activeUserLocations, activeUserLocationsLoading } = useSelector(
 //     (state) => state.user || {}
 //   );
-//   // ✅ Get adminId from navigation state
 //   const adminId = location.state?.adminId;
 
-//   // ✅ Log for debugging
-//   console.log("ActiveUserLocations - Received adminId:", adminId);
-//   console.log("ActiveUserLocations - Full location state:", location.state);
 //   const [coordinates, setCoordinates] = useState([]);
 //   const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 });
 //   const [mapZoom, setMapZoom] = useState(5);
 //   const [mapReady, setMapReady] = useState(false);
-//   const [selectedMarker, setSelectedMarker] = useState(null);
+//   const [selectedMarkerId, setSelectedMarkerId] = useState(null); // Store only ONE marker ID
 //   const [showUserList, setShowUserList] = useState(!isMobile);
 //   const [selectedUser, setSelectedUser] = useState(null);
 //   const [isRefreshing, setIsRefreshing] = useState(false);
 //   const [drawerOpen, setDrawerOpen] = useState(false);
+//   const [isMapInitialized, setIsMapInitialized] = useState(false);
 
 //   const mapRef = useRef(null);
 
@@ -91,19 +93,31 @@
 //     libraries,
 //   });
 
+//   const authUser = useSelector((state) => state.auth?.user || {});
+//   const isSubAdmin = Number(authUser?.role_id) === 3;
+//   const effectiveAdminId = adminId || (isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id));
+
 //   useEffect(() => {
 //     refreshData();
-//   }, [dispatch]);
+//     setSelectedMarkerId(null);
+//     setSelectedUser(null);
+//   }, [dispatch, effectiveAdminId]);
 
 //   const refreshData = async () => {
+//     if (!effectiveAdminId) return;
 //     setIsRefreshing(true);
-//     await dispatch(getActiveUserLocations(adminId));
+//     setSelectedMarkerId(null);
+//     setSelectedUser(null);
+//     await dispatch(getActiveUserLocations(effectiveAdminId));
 //     setIsRefreshing(false);
 //   };
 
 //   const handleMapLoad = useCallback((map) => {
 //     mapRef.current = map;
 //     setMapReady(true);
+//     setIsMapInitialized(true);
+//     setSelectedMarkerId(null);
+//     setSelectedUser(null);
 //   }, []);
 
 //   // Process user locations data
@@ -112,8 +126,10 @@
 //       const validLocations = activeUserLocations.filter(
 //         (item) =>
 //           item.latestLocation &&
-//           !isNaN(parseFloat(item.latestLocation.latitude)) &&
-//           !isNaN(parseFloat(item.latestLocation.longitude))
+//           isValidCoordinates(
+//             parseFloat(item.latestLocation.latitude),
+//             parseFloat(item.latestLocation.longitude)
+//           )
 //       );
 
 //       if (validLocations.length === 0) return;
@@ -131,8 +147,10 @@
 //       }));
 
 //       setCoordinates(coords);
+//       setSelectedMarkerId(null);
+//       setSelectedUser(null);
 
-//       if (coords.length > 0 && mapRef.current && window.google) {
+//       if (coords.length > 0 && mapRef.current && window.google && isMapInitialized) {
 //         try {
 //           const bounds = new window.google.maps.LatLngBounds();
 //           coords.forEach((c) => bounds.extend(c));
@@ -142,27 +160,40 @@
 //         }
 //       }
 //     }
-//   }, [activeUserLocations, mapReady]);
+//   }, [activeUserLocations, mapReady, isMapInitialized]);
 
+//   // Handle marker click - opens ONLY the clicked marker
 //   const handleMarkerClick = (marker) => {
-//     setSelectedMarker(marker);
-//     setSelectedUser(marker);
+//     // If clicking the same marker that's open, close it
+//     if (selectedMarkerId === marker.id) {
+//       setSelectedMarkerId(null);
+//       setSelectedUser(null);
+//     } else {
+//       // If clicking a different marker, close previous and open this one
+//       setSelectedMarkerId(marker.id);
+//       setSelectedUser(marker);
+//     }
+
 //     if (isMobile) {
 //       setDrawerOpen(false);
 //     }
 //   };
 
+//   // Handle InfoWindow close button click
 //   const handleInfoWindowClose = () => {
-//     setSelectedMarker(null);
+//     setSelectedMarkerId(null);
+//     setSelectedUser(null);
 //   };
 
+//   // Handle user selection from list
 //   const handleUserSelect = (user) => {
 //     setSelectedUser(user);
-//     if (user.lat && user.lng) {
+//     setSelectedMarkerId(user.id);
+
+//     if (user.lat && user.lng && isValidCoordinates(user.lat, user.lng)) {
 //       mapRef.current?.panTo({ lat: user.lat, lng: user.lng });
 //       mapRef.current?.setZoom(16);
 //     }
-//     setSelectedMarker(user);
 
 //     if (isMobile) {
 //       setDrawerOpen(false);
@@ -213,6 +244,16 @@
 //     });
 //   };
 
+//   const validActiveUsers = activeUserLocations?.filter(user =>
+//     user.latestLocation &&
+//     isValidCoordinates(
+//       parseFloat(user.latestLocation.latitude),
+//       parseFloat(user.latestLocation.longitude)
+//     )
+//   ) || [];
+
+//   const invalidUsersCount = (activeUserLocations?.length || 0) - (validActiveUsers?.length || 0);
+
 //   const LoadingSpinner = () => (
 //     <Box
 //       sx={{
@@ -231,13 +272,12 @@
 //     </Box>
 //   );
 
-//   // Map Controls Component - Now on LEFT side
 //   const MapControls = () => (
 //     <Box
 //       sx={{
 //         position: 'absolute',
 //         top: 16,
-//         left: 16, // Changed from right to left
+//         left: 16,
 //         zIndex: 10,
 //         display: 'flex',
 //         flexDirection: 'column',
@@ -325,7 +365,6 @@
 //     </Box>
 //   );
 
-//   // User List Component (for desktop)
 //   const UserList = ({ isDesktop }) => (
 //     <Box sx={{
 //       height: '100%',
@@ -333,7 +372,6 @@
 //       flexDirection: 'column',
 //       width: isDesktop ? 280 : '100%',
 //     }}>
-//       {/* Header */}
 //       <Box sx={{
 //         p: { xs: 1.5, sm: 2 },
 //         borderBottom: '1px solid',
@@ -350,7 +388,7 @@
 //           </Box>
 //           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
 //             <Chip
-//               label={activeUserLocations?.length || 0}
+//               label={validActiveUsers.length}
 //               size="small"
 //               sx={{
 //                 bgcolor: '#ffffff',
@@ -360,6 +398,22 @@
 //                 height: { xs: 16, sm: 18 },
 //               }}
 //             />
+//             {invalidUsersCount > 0 && (
+//               <Tooltip title={`${invalidUsersCount} user(s) with invalid location`}>
+//                 <Chip
+//                   label="!"
+//                   size="small"
+//                   sx={{
+//                     bgcolor: alpha('#ef4444', 0.2),
+//                     color: '#ef4444',
+//                     fontWeight: 600,
+//                     fontSize: { xs: '0.55rem', sm: '0.6rem' },
+//                     height: { xs: 16, sm: 18 },
+//                     minWidth: 20,
+//                   }}
+//                 />
+//               </Tooltip>
+//             )}
 //             {isDesktop && (
 //               <Tooltip title="Hide List">
 //                 <IconButton
@@ -382,7 +436,6 @@
 //         </Box>
 //       </Box>
 
-//       {/* User List */}
 //       <Box sx={{
 //         flex: 1,
 //         overflowY: 'auto',
@@ -399,10 +452,14 @@
 //           <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
 //             <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
 //           </Box>
-//         ) : activeUserLocations?.length > 0 ? (
+//         ) : validActiveUsers.length > 0 ? (
 //           <Stack spacing={1}>
-//             {activeUserLocations.map((user, index) => {
-//               const hasLocation = user.latestLocation?.latitude && user.latestLocation?.longitude;
+//             {validActiveUsers.map((user, index) => {
+//               const hasLocation = user.latestLocation?.latitude && user.latestLocation?.longitude &&
+//                 isValidCoordinates(
+//                   parseFloat(user.latestLocation?.latitude),
+//                   parseFloat(user.latestLocation?.longitude)
+//                 );
 //               const isSelected = selectedUser?.userId === user.userId;
 
 //               return (
@@ -496,13 +553,17 @@
 //           <Box sx={{ textAlign: 'center', py: 3 }}>
 //             <PersonIcon sx={{ fontSize: { xs: 28, sm: 32 }, color: alpha(theme.palette.primary.main, 0.3), mb: 1 }} />
 //             <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
-//               No active users found
+//               {activeUserLocations?.length > 0 ? 'No valid location data available' : 'No active users found'}
 //             </Typography>
+//             {activeUserLocations?.length > 0 && invalidUsersCount > 0 && (
+//               <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', mt: 0.5 }}>
+//                 ({invalidUsersCount} user(s) have invalid location coordinates)
+//               </Typography>
+//             )}
 //           </Box>
 //         )}
 //       </Box>
 
-//       {/* Footer */}
 //       <Box sx={{
 //         p: { xs: 1, sm: 1.2 },
 //         borderTop: '1px solid',
@@ -524,7 +585,7 @@
 //             </IconButton>
 //           </Tooltip>
 //           <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, ml: 0.5 }}>
-//             {coordinates.length} active
+//             {coordinates.length} on map
 //           </Typography>
 //         </Box>
 
@@ -583,7 +644,6 @@
 //   return (
 //     <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper, display: 'flex', flexDirection: 'column' }}>
 
-//       {/* Custom Header with Back Button */}
 //       <Box
 //         sx={{
 //           backgroundColor: theme.palette.background.paper,
@@ -619,7 +679,6 @@
 //           Live User Locations
 //         </Typography>
 
-//         {/* Mobile Menu Button */}
 //         {isMobile && (
 //           <Box sx={{ ml: 'auto' }}>
 //             <Fab
@@ -643,14 +702,12 @@
 //         height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
 //         position: 'relative',
 //       }}>
-//         {/* Map Container */}
 //         <Box sx={{
 //           flex: 1,
 //           position: 'relative',
 //           height: '100%',
 //           transition: 'width 0.3s ease',
 //         }}>
-//           {/* Toggle Button - Desktop only */}
 //           {!isMobile && !showUserList && (
 //             <motion.div
 //               initial={{ x: 50, opacity: 0 }}
@@ -688,7 +745,7 @@
 //                 <ChevronLeftIcon sx={{ fontSize: 16 }} />
 //                 <PeopleIcon sx={{ fontSize: 14 }} />
 //                 <Chip
-//                   label={activeUserLocations?.length || 0}
+//                   label={validActiveUsers.length}
 //                   size="small"
 //                   sx={{
 //                     bgcolor: '#ffffff',
@@ -704,10 +761,8 @@
 //             </motion.div>
 //           )}
 
-//           {/* Map Controls - Now on LEFT side */}
 //           <MapControls />
 
-//           {/* Google Map */}
 //           <GoogleMap
 //             mapContainerStyle={{ width: '100%', height: '100%' }}
 //             center={mapCenter}
@@ -741,55 +796,220 @@
 //                     scaledSize: new window.google.maps.Size(isSmallMobile ? 24 : 28, isSmallMobile ? 24 : 28),
 //                   }}
 //                 >
-//                   {selectedMarker?.id === coord.id && (
-//                     <InfoWindow onCloseClick={handleInfoWindowClose}>
-//                       <Box sx={{ maxWidth: { xs: 180, sm: 220 }, p: 0.3 }}>
-//                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 0.8 }}>
+//                   {/* ✅ ONLY show InfoWindow for the marker whose ID matches selectedMarkerId */}
+//                   {selectedMarkerId === coord.id && (
+//                     // <InfoWindow 
+//                     //   onCloseClick={handleInfoWindowClose}
+//                     //   options={{ 
+//                     //     maxWidth: 250,
+//                     //     pixelOffset: new window.google.maps.Size(0, -30)
+//                     //   }}
+//                     // >
+//                     //   <Box sx={{ maxWidth: { xs: 180, sm: 220 }, p: 0.3 }}>
+//                     //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 0.8 }}>
+//                     //       <Avatar
+//                     //         sx={{
+//                     //           width: { xs: 24, sm: 28 },
+//                     //           height: { xs: 24, sm: 28 },
+//                     //           bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                     //           color: theme.palette.primary.main,
+//                     //           fontSize: { xs: '0.65rem', sm: '0.7rem' },
+//                     //         }}
+//                     //       >
+//                     //         {coord.name?.charAt(0)}
+//                     //       </Avatar>
+//                     //       <Box>
+//                     //         <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+//                     //           {coord.name}
+//                     //         </Typography>
+//                     //         <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }} color="text.secondary">
+//                     //           {coord.email}
+//                     //         </Typography>
+//                     //       </Box>
+//                     //     </Box>
+
+//                     //     <Divider sx={{ my: 0.5 }} />
+
+//                     //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mb: 0.3, flexWrap: 'wrap' }}>
+//                     //       <TimeIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 10, sm: 12 } }} />
+//                     //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                     //         {formatDate(coord.timestamp)} at {formatTime(coord.timestamp)}
+//                     //       </Typography>
+//                     //     </Box>
+
+//                     //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+//                     //       <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 12 } }} />
+//                     //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                     //         {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
+//                     //       </Typography>
+//                     //     </Box>
+
+//                     //     {coord.image && (
+//                     //       <Box sx={{ mt: 0.8 }}>
+//                     //         <img
+//                     //           src={coord.image}
+//                     //           alt="Location"
+//                     //           style={{
+//                     //             width: '100%',
+//                     //             maxHeight: { xs: 80, sm: 100 },
+//                     //             objectFit: 'cover',
+//                     //             borderRadius: 4,
+//                     //           }}
+//                     //         />
+//                     //       </Box>
+//                     //     )}
+
+//                     //     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+//                     //       <IconButton
+//                     //         size="small"
+//                     //         onClick={handleInfoWindowClose}
+//                     //         sx={{
+//                     //           color: theme.palette.text.secondary,
+//                     //           '&:hover': { color: theme.palette.primary.main },
+//                     //           p: 0.5,
+//                     //         }}
+//                     //       >
+//                     //         <CloseIcon sx={{ fontSize: 12 }} />
+//                     //       </IconButton>
+//                     //     </Box>
+//                     //   </Box>
+//                     // </InfoWindow>
+//                     <InfoWindow>
+//                       <Box
+//                         sx={{
+//                           maxWidth: 220,
+//                           width: '100%',
+//                           p: 0.8,
+//                           borderRadius: 2,
+//                           background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+//                           boxShadow: '0 8px 20px -4px rgba(0, 0, 0, 0.1)',
+//                           backdropFilter: 'blur(8px)',
+//                           position: 'relative',
+//                         }}
+//                       >
+                       
+
+//                         {/* Header Section */}
+//                         <Box sx={{
+//                           display: 'flex',
+//                           alignItems: 'center',
+//                           gap: 0.6,
+//                           mb: 0.6,
+//                           pr: 2.5, // Add space for close button
+//                         }}>
 //                           <Avatar
 //                             sx={{
-//                               width: { xs: 24, sm: 28 },
-//                               height: { xs: 24, sm: 28 },
-//                               bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                               color: theme.palette.primary.main,
-//                               fontSize: { xs: '0.65rem', sm: '0.7rem' },
+//                               width: 28,
+//                               height: 28,
+//                               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+//                               color: 'white',
+//                               fontSize: '0.75rem',
+//                               fontWeight: 600,
+//                               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
 //                             }}
 //                           >
-//                             {coord.name?.charAt(0)}
+//                             {coord.name?.charAt(0).toUpperCase()}
 //                           </Avatar>
-//                           <Box>
-//                             <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+//                           <Box sx={{ flex: 1 }}>
+//                             <Typography
+//                               variant="caption"
+//                               fontWeight={700}
+//                               sx={{
+//                                 fontSize: '0.7rem',
+//                                 lineHeight: 1.2,
+//                                 color: '#667eea',
+//                                 display: 'block',
+//                               }}
+//                             >
 //                               {coord.name}
 //                             </Typography>
-//                             <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }} color="text.secondary">
-//                               {coord.email}
+//                             <Typography
+//                               variant="caption"
+//                               sx={{
+//                                 fontSize: '0.55rem',
+//                                 color: 'text.secondary',
+//                                 display: 'flex',
+//                                 alignItems: 'center',
+//                                 gap: 0.3,
+//                               }}
+//                             >
+//                               <Box component="span" sx={{
+//                                 width: 4,
+//                                 height: 4,
+//                                 borderRadius: '50%',
+//                                 bgcolor: '#4ade80',
+//                                 display: 'inline-block',
+//                               }} />
+//                               {coord.email || 'User'}
 //                             </Typography>
 //                           </Box>
 //                         </Box>
 
-//                         <Divider sx={{ my: 0.5 }} />
+//                         <Divider sx={{
+//                           my: 0.5,
+//                           borderColor: alpha(theme.palette.primary.main, 0.1),
+//                         }} />
 
-//                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mb: 0.3, flexWrap: 'wrap' }}>
-//                           <TimeIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 10, sm: 12 } }} />
-//                           <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-//                             {formatDate(coord.timestamp)} at {formatTime(coord.timestamp)}
+//                         {/* Time Section */}
+//                         <Box sx={{
+//                           display: 'flex',
+//                           alignItems: 'center',
+//                           gap: 0.5,
+//                           mb: 0.5,
+//                         }}>
+//                           <TimeIcon sx={{
+//                             color: theme.palette.primary.main,
+//                             fontSize: 10
+//                           }} />
+//                           <Typography
+//                             variant="caption"
+//                             sx={{
+//                               fontSize: '0.55rem',
+//                               color: 'text.primary',
+//                               fontWeight: 500,
+//                             }}
+//                           >
+//                             {formatDate(coord.timestamp)} • {formatTime(coord.timestamp)}
 //                           </Typography>
 //                         </Box>
 
-//                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-//                           <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 12 } }} />
-//                           <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
+//                         {/* Location Section */}
+//                         <Box sx={{
+//                           display: 'flex',
+//                           alignItems: 'center',
+//                           gap: 0.5,
+//                           mb: coord.image ? 0.5 : 0,
+//                         }}>
+//                           <LocationIcon sx={{
+//                             color: theme.palette.primary.main,
+//                             fontSize: 10
+//                           }} />
+//                           <Typography
+//                             variant="caption"
+//                             sx={{
+//                               fontSize: '0.55rem',
+//                               color: 'text.primary',
+//                               fontFamily: 'monospace',
+//                             }}
+//                           >
 //                             {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
 //                           </Typography>
 //                         </Box>
 
+//                         {/* Image Section */}
 //                         {coord.image && (
-//                           <Box sx={{ mt: 0.8 }}>
+//                           <Box sx={{
+//                             mt: 0.5,
+//                             borderRadius: 1,
+//                             overflow: 'hidden',
+//                             cursor: 'pointer',
+//                           }}>
 //                             <img
 //                               src={coord.image}
 //                               alt="Location"
 //                               style={{
 //                                 width: '100%',
-//                                 maxHeight: { xs: 80, sm: 100 },
+//                                 maxHeight: 70,
 //                                 objectFit: 'cover',
 //                                 borderRadius: 4,
 //                               }}
@@ -803,7 +1023,6 @@
 //               ))}
 //           </GoogleMap>
 
-//           {/* Loading Overlay */}
 //           {activeUserLocationsLoading && (
 //             <Box
 //               sx={{
@@ -825,7 +1044,6 @@
 //           )}
 //         </Box>
 
-//         {/* Desktop User List Sidebar */}
 //         {!isMobile && showUserList && (
 //           <motion.div
 //             initial={{ x: 300, opacity: 0 }}
@@ -847,7 +1065,6 @@
 //           </motion.div>
 //         )}
 
-//         {/* Mobile Drawer */}
 //         {isMobile && (
 //           <Drawer
 //             anchor="right"
@@ -927,12 +1144,89 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { getActiveUserLocations } from "../../redux/slices/userSlice";
+import { getCurrentLocationsOfActiveUsers } from "../../redux/slices/userSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const libraries = ["places"];
 
 const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
+
+// Helper function to decode JWT token
+const decodeToken = (token) => {
+  try {
+    if (!token) return null;
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
+  }
+};
+
+// Helper function to get user object from localStorage
+const getStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      return JSON.parse(storedUser);
+    }
+  } catch (e) {
+    console.error('Error parsing stored user:', e);
+  }
+  return null;
+};
+
+// Helper function to get admin ID from localStorage or token
+const getAdminId = () => {
+  // Method 1: Try to get from localStorage user object
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      const isSubAdmin = Number(parsedUser.role_id) === 3;
+      
+      if (isSubAdmin) {
+        // For sub-admin, get parent admin ID
+        const rawAdminId = parsedUser.adminId;
+        if (rawAdminId) {
+          return typeof rawAdminId === 'object' 
+            ? (rawAdminId._id || rawAdminId.id) 
+            : rawAdminId;
+        }
+      } else {
+        // For regular admin, use their own ID
+        return parsedUser._id || parsedUser.id;
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing stored user for admin ID:', e);
+  }
+
+  // Method 2: Try to get from token
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeToken(token);
+      if (decoded?.adminId) {
+        return decoded.adminId;
+      }
+      if (decoded?.id) {
+        return decoded.id;
+      }
+    }
+  } catch (e) {
+    console.error('Error getting admin ID from token:', e);
+  }
+
+  return null;
+};
 
 // Helper function to check if coordinates are valid (not 0,0 and not null/undefined)
 const isValidCoordinates = (lat, lng) => {
@@ -952,16 +1246,19 @@ const ActiveUserLocations = () => {
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
   const dispatch = useDispatch();
-  const { activeUserLocations, activeUserLocationsLoading } = useSelector(
-    (state) => state.user || {}
-  );
-  const adminId = location.state?.adminId;
+  const { 
+    currentActiveLocations, 
+    currentActiveLocationsLoading,
+    currentActiveLocationsSummary 
+  } = useSelector((state) => state.user || {});
+  
+  const adminId = location.state?.adminId || getAdminId();
 
   const [coordinates, setCoordinates] = useState([]);
   const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 });
   const [mapZoom, setMapZoom] = useState(5);
   const [mapReady, setMapReady] = useState(false);
-  const [selectedMarkerId, setSelectedMarkerId] = useState(null); // Store only ONE marker ID
+  const [selectedMarkerId, setSelectedMarkerId] = useState(null);
   const [showUserList, setShowUserList] = useState(!isMobile);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -979,9 +1276,11 @@ const ActiveUserLocations = () => {
     libraries,
   });
 
-  const authUser = useSelector((state) => state.auth?.user || {});
-  const isSubAdmin = Number(authUser?.role_id) === 3;
-  const effectiveAdminId = adminId || (isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id));
+  const storedUser = getStoredUser();
+  const isSubAdmin = Number(storedUser?.role_id) === 3;
+  const effectiveAdminId = adminId || (isSubAdmin 
+    ? (typeof storedUser?.adminId === 'object' ? storedUser?.adminId?._id || storedUser?.adminId?.id : storedUser?.adminId) 
+    : (storedUser?._id || storedUser?.id));
 
   useEffect(() => {
     refreshData();
@@ -994,7 +1293,7 @@ const ActiveUserLocations = () => {
     setIsRefreshing(true);
     setSelectedMarkerId(null);
     setSelectedUser(null);
-    await dispatch(getActiveUserLocations(effectiveAdminId));
+    await dispatch(getCurrentLocationsOfActiveUsers(effectiveAdminId));
     setIsRefreshing(false);
   };
 
@@ -1006,30 +1305,32 @@ const ActiveUserLocations = () => {
     setSelectedUser(null);
   }, []);
 
-  // Process user locations data
+  // Process user locations data from new API response
   useEffect(() => {
-    if (activeUserLocations?.length > 0 && mapReady) {
-      const validLocations = activeUserLocations.filter(
+    if (currentActiveLocations?.length > 0 && mapReady) {
+      const validLocations = currentActiveLocations.filter(
         (item) =>
-          item.latestLocation &&
+          item.currentLocation &&
           isValidCoordinates(
-            parseFloat(item.latestLocation.latitude),
-            parseFloat(item.latestLocation.longitude)
+            parseFloat(item.currentLocation.latitude),
+            parseFloat(item.currentLocation.longitude)
           )
       );
 
       if (validLocations.length === 0) return;
 
       const coords = validLocations.map((item) => ({
-        lat: parseFloat(item.latestLocation.latitude),
-        lng: parseFloat(item.latestLocation.longitude),
-        id: item.latestLocation._id,
-        userId: item.userId,
-        name: item.name,
-        email: item.email,
-        image: item.latestLocation.location_image,
-        timestamp: item.latestLocation.timestamp,
-        trackerId: item.trackerId,
+        lat: parseFloat(item.currentLocation.latitude),
+        lng: parseFloat(item.currentLocation.longitude),
+        id: item.session?.sessionId || item.user?.userId,
+        userId: item.user?.userId,
+        name: item.user?.name,
+        email: item.user?.email,
+        employeeId: item.user?.employeeId,
+        image: item.user?.profileImage,
+        timestamp: item.currentLocation?.timestamp,
+        sessionStartTime: item.session?.startTime,
+        isOnline: item.currentLocation?.isOnline,
       }));
 
       setCoordinates(coords);
@@ -1046,16 +1347,14 @@ const ActiveUserLocations = () => {
         }
       }
     }
-  }, [activeUserLocations, mapReady, isMapInitialized]);
+  }, [currentActiveLocations, mapReady, isMapInitialized]);
 
   // Handle marker click - opens ONLY the clicked marker
   const handleMarkerClick = (marker) => {
-    // If clicking the same marker that's open, close it
     if (selectedMarkerId === marker.id) {
       setSelectedMarkerId(null);
       setSelectedUser(null);
     } else {
-      // If clicking a different marker, close previous and open this one
       setSelectedMarkerId(marker.id);
       setSelectedUser(marker);
     }
@@ -1130,15 +1429,35 @@ const ActiveUserLocations = () => {
     });
   };
 
-  const validActiveUsers = activeUserLocations?.filter(user =>
+  // Transform currentActiveLocations to match the expected format for UserList
+  const transformedActiveUsers = currentActiveLocations?.map(item => ({
+    userId: item.user?.userId,
+    name: item.user?.name,
+    email: item.user?.email,
+    employeeId: item.user?.employeeId,
+    profileImage: item.user?.profileImage,
+    status: item.user?.status,
+    latestLocation: item.currentLocation ? {
+      _id: item.session?.sessionId,
+      latitude: item.currentLocation.latitude,
+      longitude: item.currentLocation.longitude,
+      timestamp: item.currentLocation.timestamp,
+      location_image: item.user?.profileImage,
+      isOnline: item.currentLocation.isOnline,
+    } : null,
+    sessionStartTime: item.session?.startTime,
+    trackerId: item.session?.sessionId,
+  })) || [];
+
+  const validActiveUsers = transformedActiveUsers.filter(user =>
     user.latestLocation &&
     isValidCoordinates(
       parseFloat(user.latestLocation.latitude),
       parseFloat(user.latestLocation.longitude)
     )
-  ) || [];
+  );
 
-  const invalidUsersCount = (activeUserLocations?.length || 0) - (validActiveUsers?.length || 0);
+  const invalidUsersCount = (transformedActiveUsers?.length || 0) - (validActiveUsers?.length || 0);
 
   const LoadingSpinner = () => (
     <Box
@@ -1269,7 +1588,7 @@ const ActiveUserLocations = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <PersonIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
             <Typography variant="subtitle2" fontWeight={600} color="#ffffff" sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-              Active Users
+              Active Users ({currentActiveLocationsSummary?.usersWithTodayLocation || validActiveUsers.length})
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -1284,22 +1603,6 @@ const ActiveUserLocations = () => {
                 height: { xs: 16, sm: 18 },
               }}
             />
-            {invalidUsersCount > 0 && (
-              <Tooltip title={`${invalidUsersCount} user(s) with invalid location`}>
-                <Chip
-                  label="!"
-                  size="small"
-                  sx={{
-                    bgcolor: alpha('#ef4444', 0.2),
-                    color: '#ef4444',
-                    fontWeight: 600,
-                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                    height: { xs: 16, sm: 18 },
-                    minWidth: 20,
-                  }}
-                />
-              </Tooltip>
-            )}
             {isDesktop && (
               <Tooltip title="Hide List">
                 <IconButton
@@ -1320,6 +1623,11 @@ const ActiveUserLocations = () => {
             )}
           </Box>
         </Box>
+        {currentActiveLocationsSummary && (
+          <Typography variant="caption" sx={{ color: alpha('#ffffff', 0.8), fontSize: '0.6rem', mt: 0.5, display: 'block' }}>
+            {currentActiveLocationsSummary.totalActiveSessionsToday} active sessions • {currentActiveLocationsSummary.totalUsersUnderAdmin} total users
+          </Typography>
+        )}
       </Box>
 
       <Box sx={{
@@ -1334,7 +1642,7 @@ const ActiveUserLocations = () => {
           borderRadius: '2px',
         },
       }}>
-        {activeUserLocationsLoading ? (
+        {currentActiveLocationsLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
             <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
           </Box>
@@ -1401,6 +1709,7 @@ const ActiveUserLocations = () => {
                         }
                       >
                         <Avatar
+                          src={user.profileImage}
                           sx={{
                             width: { xs: 28, sm: 32 },
                             height: { xs: 28, sm: 32 },
@@ -1415,6 +1724,11 @@ const ActiveUserLocations = () => {
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                           {user.name}
+                          {user.employeeId && (
+                            <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 0.5, fontSize: '0.55rem' }}>
+                              #{user.employeeId}
+                            </Typography>
+                          )}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
                           {user.email}
@@ -1439,13 +1753,8 @@ const ActiveUserLocations = () => {
           <Box sx={{ textAlign: 'center', py: 3 }}>
             <PersonIcon sx={{ fontSize: { xs: 28, sm: 32 }, color: alpha(theme.palette.primary.main, 0.3), mb: 1 }} />
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
-              {activeUserLocations?.length > 0 ? 'No valid location data available' : 'No active users found'}
+              {transformedActiveUsers?.length > 0 ? 'No valid location data available' : 'No active users found'}
             </Typography>
-            {activeUserLocations?.length > 0 && invalidUsersCount > 0 && (
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, display: 'block', mt: 0.5 }}>
-                ({invalidUsersCount} user(s) have invalid location coordinates)
-              </Typography>
-            )}
           </Box>
         )}
       </Box>
@@ -1669,7 +1978,7 @@ const ActiveUserLocations = () => {
               ],
             }}
           >
-            {!activeUserLocationsLoading &&
+            {!currentActiveLocationsLoading &&
               coordinates.map((coord) => (
                 <Marker
                   key={coord.id}
@@ -1682,85 +1991,8 @@ const ActiveUserLocations = () => {
                     scaledSize: new window.google.maps.Size(isSmallMobile ? 24 : 28, isSmallMobile ? 24 : 28),
                   }}
                 >
-                  {/* ✅ ONLY show InfoWindow for the marker whose ID matches selectedMarkerId */}
                   {selectedMarkerId === coord.id && (
-                    // <InfoWindow 
-                    //   onCloseClick={handleInfoWindowClose}
-                    //   options={{ 
-                    //     maxWidth: 250,
-                    //     pixelOffset: new window.google.maps.Size(0, -30)
-                    //   }}
-                    // >
-                    //   <Box sx={{ maxWidth: { xs: 180, sm: 220 }, p: 0.3 }}>
-                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 0.8 }}>
-                    //       <Avatar
-                    //         sx={{
-                    //           width: { xs: 24, sm: 28 },
-                    //           height: { xs: 24, sm: 28 },
-                    //           bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    //           color: theme.palette.primary.main,
-                    //           fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                    //         }}
-                    //       >
-                    //         {coord.name?.charAt(0)}
-                    //       </Avatar>
-                    //       <Box>
-                    //         <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-                    //           {coord.name}
-                    //         </Typography>
-                    //         <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }} color="text.secondary">
-                    //           {coord.email}
-                    //         </Typography>
-                    //       </Box>
-                    //     </Box>
-
-                    //     <Divider sx={{ my: 0.5 }} />
-
-                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mb: 0.3, flexWrap: 'wrap' }}>
-                    //       <TimeIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 10, sm: 12 } }} />
-                    //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                    //         {formatDate(coord.timestamp)} at {formatTime(coord.timestamp)}
-                    //       </Typography>
-                    //     </Box>
-
-                    //     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                    //       <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 10, sm: 12 } }} />
-                    //       <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' } }}>
-                    //         {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
-                    //       </Typography>
-                    //     </Box>
-
-                    //     {coord.image && (
-                    //       <Box sx={{ mt: 0.8 }}>
-                    //         <img
-                    //           src={coord.image}
-                    //           alt="Location"
-                    //           style={{
-                    //             width: '100%',
-                    //             maxHeight: { xs: 80, sm: 100 },
-                    //             objectFit: 'cover',
-                    //             borderRadius: 4,
-                    //           }}
-                    //         />
-                    //       </Box>
-                    //     )}
-
-                    //     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                    //       <IconButton
-                    //         size="small"
-                    //         onClick={handleInfoWindowClose}
-                    //         sx={{
-                    //           color: theme.palette.text.secondary,
-                    //           '&:hover': { color: theme.palette.primary.main },
-                    //           p: 0.5,
-                    //         }}
-                    //       >
-                    //         <CloseIcon sx={{ fontSize: 12 }} />
-                    //       </IconButton>
-                    //     </Box>
-                    //   </Box>
-                    // </InfoWindow>
-                    <InfoWindow>
+                    <InfoWindow onCloseClick={handleInfoWindowClose}>
                       <Box
                         sx={{
                           maxWidth: 220,
@@ -1773,15 +2005,12 @@ const ActiveUserLocations = () => {
                           position: 'relative',
                         }}
                       >
-                       
-
-                        {/* Header Section */}
                         <Box sx={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: 0.6,
                           mb: 0.6,
-                          pr: 2.5, // Add space for close button
+                          pr: 2.5,
                         }}>
                           <Avatar
                             sx={{
@@ -1823,7 +2052,7 @@ const ActiveUserLocations = () => {
                                 width: 4,
                                 height: 4,
                                 borderRadius: '50%',
-                                bgcolor: '#4ade80',
+                                bgcolor: coord.isOnline !== false ? '#4ade80' : '#ef4444',
                                 display: 'inline-block',
                               }} />
                               {coord.email || 'User'}
@@ -1836,7 +2065,6 @@ const ActiveUserLocations = () => {
                           borderColor: alpha(theme.palette.primary.main, 0.1),
                         }} />
 
-                        {/* Time Section */}
                         <Box sx={{
                           display: 'flex',
                           alignItems: 'center',
@@ -1859,7 +2087,6 @@ const ActiveUserLocations = () => {
                           </Typography>
                         </Box>
 
-                        {/* Location Section */}
                         <Box sx={{
                           display: 'flex',
                           alignItems: 'center',
@@ -1881,27 +2108,6 @@ const ActiveUserLocations = () => {
                             {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
                           </Typography>
                         </Box>
-
-                        {/* Image Section */}
-                        {coord.image && (
-                          <Box sx={{
-                            mt: 0.5,
-                            borderRadius: 1,
-                            overflow: 'hidden',
-                            cursor: 'pointer',
-                          }}>
-                            <img
-                              src={coord.image}
-                              alt="Location"
-                              style={{
-                                width: '100%',
-                                maxHeight: 70,
-                                objectFit: 'cover',
-                                borderRadius: 4,
-                              }}
-                            />
-                          </Box>
-                        )}
                       </Box>
                     </InfoWindow>
                   )}
@@ -1909,7 +2115,7 @@ const ActiveUserLocations = () => {
               ))}
           </GoogleMap>
 
-          {activeUserLocationsLoading && (
+          {currentActiveLocationsLoading && (
             <Box
               sx={{
                 position: 'absolute',

@@ -83,12 +83,14 @@
 //   clearOrderData,
 //   clearVerificationData,
 //   setPaymentStatus,
+//   updatePaymentStatus,
 // } from "../../redux/slices/paymentSlice";
 // import Loader from "../../components/common/Loader";
 // import { RAZORPAY_KEY_ID } from "../../utils/constants";
 // import { getUserById } from "../../redux/slices/userSlice";
 // import moment from "moment";
-// import { toast } from "react-toastify";
+// import { toast, ToastContainer } from "react-toastify";
+// import { useLocation, useNavigate } from "react-router-dom";
 // import CouponPopup from "../Admin/component/CouponPopup";
 
 // // Plan Card Skeleton Component
@@ -546,6 +548,8 @@
 // const PaymentPlans = () => {
 //   const theme = useTheme();
 //   const dispatch = useDispatch();
+//   const location = useLocation();
+//   const navigate = useNavigate();
 
 //   const { plansList, loading: plansLoading, userCustomPlan, isCancelling } = useSelector((state) => state.plan || {});
 
@@ -652,17 +656,20 @@
 //     fetchUserCustomPlan();
 //   }, [dispatch, isAuthenticated]);
 
-//   useEffect(() => {
-//     if (userData?._id) {
-//       dispatch(getUserById(userData._id));
-//     }
-//   }, [dispatch, userData?._id]);
+//   const isSubAdmin = Number(authUser?.role_id) === 3;
+//   const effectiveAdminId = isSubAdmin ? (typeof authUser?.adminId === 'object' ? authUser?.adminId?._id || authUser?.adminId?.id : authUser?.adminId) : (authUser?._id || authUser?.id);
 
 //   useEffect(() => {
-//     if (isAuthenticated && authUser?._id) {
-//       dispatch(getPaymentHistory({ adminId: authUser._id, page: 1, limit: 10 }));
+//     if (effectiveAdminId) {
+//       dispatch(getUserById(effectiveAdminId));
 //     }
-//   }, [dispatch, isAuthenticated, authUser?._id]);
+//   }, [dispatch, effectiveAdminId]);
+
+//   useEffect(() => {
+//     if (isAuthenticated && effectiveAdminId) {
+//       dispatch(getPaymentHistory({ adminId: effectiveAdminId, page: 1, limit: 10 }));
+//     }
+//   }, [dispatch, isAuthenticated, effectiveAdminId]);
 
 //   useEffect(() => {
 //     if (isAuthenticated && authUser?.role === 'superadmin') {
@@ -708,9 +715,9 @@
 //       setPaymentSuccess(successMessage);
 //       toast.success(successMessage);
 
-//       if (authUser?._id) {
-//         dispatch(getUserById(authUser._id));
-//         dispatch(getPaymentHistory({ adminId: authUser._id }));
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //       }
 
 //       setTimeout(() => {
@@ -729,9 +736,9 @@
 //       setPaymentSuccess(successMessage);
 //       toast.success(successMessage);
 
-//       if (authUser?._id) {
-//         dispatch(getUserById(authUser._id));
-//         dispatch(getPaymentHistory({ adminId: authUser._id }));
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //       }
 
 //       setTimeout(() => {
@@ -759,6 +766,49 @@
 //   const addOnPlans = plansList?.filter(
 //     (plan) => plan.name?.includes("Add on Plan") && plan.status === "active"
 //   ) || [];
+
+//   // Handle pending plan from registration/pricing flow
+//   useEffect(() => {
+
+//     if (!loading && subscriptionPlans.length > 0) {
+//       let pendingPlanData = location.state?.selectedPlan || authUser?.selectedPlan;
+
+//       if (!pendingPlanData) {
+//         const stored = sessionStorage.getItem('selectedPlan');
+//         if (stored) {
+//           try { pendingPlanData = JSON.parse(stored); } catch (e) { pendingPlanData = null; }
+//         }
+//       }
+
+//       if (pendingPlanData) {
+//         console.log("🎯 Found pending plan to process:", pendingPlanData);
+
+//         // Find the full plan object from the list to ensure we have all data
+//         const matchedPlan = subscriptionPlans.find(
+//           p => p._id === pendingPlanData._id || p.name === pendingPlanData.name
+//         );
+
+//         if (matchedPlan) {
+//           console.log("✅ Matched with active plan:", matchedPlan.name);
+
+
+//           setTimeout(() => {
+//             setSelectedPlanForCoupon(matchedPlan);
+//             setCouponPopupOpen(true);
+
+//             // Clear session storage to avoid re-opening
+//             sessionStorage.removeItem('selectedPlan');
+//             sessionStorage.removeItem('fromPricing');
+
+//             // Also notify user
+//             toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, {
+//               icon: "💳"
+//             });
+//           }, 500);
+//         }
+//       }
+//     }
+//   }, [plansLoading, plansList, userCustomPlan, loading, location, authUser]);
 
 //   // Custom Plan handlers
 //   const handleCreateCustomPlan = async (e) => {
@@ -878,9 +928,9 @@
 //       setCancelDialogOpen(false);
 //       setPlanToCancel(null);
 //       // Refresh user data
-//       if (authUser?._id) {
-//         dispatch(getUserById(authUser._id));
-//         dispatch(getPaymentHistory({ adminId: authUser._id }));
+//       if (effectiveAdminId) {
+//         dispatch(getUserById(effectiveAdminId));
+//         dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //       }
 //     } catch (error) {
 //       toast.error(error?.message || 'Failed to cancel subscription');
@@ -888,201 +938,489 @@
 //   };
 
 //   // Payment handlers
-//   const handleSubscriptionPayment = async (planId, couponCode = null) => {
-//     setProcessingPlanId(planId);
+//   // const handleSubscriptionPayment = async (planId, couponCode = null) => {
+//   //   setProcessingPlanId(planId);
 
-//     if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
-//       toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//   //   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+//   //     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//   //     setProcessingPlanId(null);
+//   //     return;
+//   //   }
+
+//   //   try {
+//   //     dispatch(clearPaymentState());
+//   //     setPaymentSuccess(null);
+
+//   //     if (!isAuthenticated || !authUser) {
+//   //       toast.error("User not authenticated. Please login again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//   //     if (!adminId) {
+//   //       toast.error("User ID not found. Please login again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     if (!window.Razorpay) {
+//   //       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
+
+//   //     if (createPaymentOrder.rejected.match(orderResult)) {
+//   //       toast.error(orderResult.payload?.message || "Failed to create order");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderData = orderResult.payload?.data;
+
+//   //     if (!couponCode) {
+//   //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+//   //     } else if (orderData.discountApplied) {
+//   //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+//   //     }
+
+//   //     const options = {
+//   //       key: RAZORPAY_KEY_ID,
+//   //       amount: orderData.amount,
+//   //       currency: orderData.currency,
+//   //       name: "Team Trackify",
+//   //       description: couponCode
+//   //         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+//   //         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+//   //       order_id: orderData.orderId,
+//   //       handler: async function (response) {
+//   //         try {
+//   //           await dispatch(
+//   //             verifyPayment({
+//   //               razorpayOrderId: response.razorpay_order_id,
+//   //               razorpayPaymentId: response.razorpay_payment_id,
+//   //               razorpaySignature: response.razorpay_signature,
+//   //               paymentId: orderData.paymentId,
+//   //             })
+//   //           );
+//   //         } catch (verifyError) {
+//   //           console.error("Payment verification error:", verifyError);
+//   //           toast.error("Payment verification failed. Please contact support.");
+//   //         } finally {
+//   //           setProcessingPlanId(null);
+//   //         }
+//   //       },
+//   //       prefill: {
+//   //         name: authUser.name || userData?.name || "",
+//   //         email: authUser.email || userData?.email || "",
+//   //         contact: authUser.phone || userData?.phone || "",
+//   //       },
+//   //       theme: { color: theme.palette.primary.main },
+//   //       modal: {
+//   //         ondismiss: function () {
+//   //           dispatch(clearOrderData());
+//   //           setProcessingPlanId(null);
+//   //           dispatch(setPaymentStatus('idle'));
+//   //         },
+//   //       },
+//   //     };
+
+//   //     const rzp = new window.Razorpay(options);
+//   //     rzp.open();
+//   //   } catch (error) {
+//   //     console.error("Payment error:", error);
+//   //     toast.error("Payment failed: " + error.message);
+//   //     setProcessingPlanId(null);
+//   //     dispatch(setPaymentStatus('failed'));
+//   //   }
+//   // };
+// const handleSubscriptionPayment = async (planId, couponCode = null) => {
+//   setProcessingPlanId(planId);
+
+//   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+//     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+//     setProcessingPlanId(null);
+//     return;
+//   }
+
+//   try {
+//     dispatch(clearPaymentState());
+//     setPaymentSuccess(null);
+
+//     if (!isAuthenticated || !authUser) {
+//       toast.error("User not authenticated. Please login again.");
 //       setProcessingPlanId(null);
 //       return;
 //     }
 
-//     try {
-//       dispatch(clearPaymentState());
-//       setPaymentSuccess(null);
+//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
-//       if (!isAuthenticated || !authUser) {
-//         toast.error("User not authenticated. Please login again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const adminId = authUser._id || authUser.id || userData?._id;
-
-//       if (!adminId) {
-//         toast.error("User ID not found. Please login again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       if (!window.Razorpay) {
-//         toast.error("Payment gateway not loaded. Please refresh the page and try again.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
-
-//       if (createPaymentOrder.rejected.match(orderResult)) {
-//         toast.error(orderResult.payload?.message || "Failed to create order");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderData = orderResult.payload?.data;
-
-//       if (!couponCode) {
-//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
-//       } else if (orderData.discountApplied) {
-//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
-//       }
-
-//       const options = {
-//         key: RAZORPAY_KEY_ID,
-//         amount: orderData.amount,
-//         currency: orderData.currency,
-//         name: "Team Trackify",
-//         description: couponCode
-//           ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
-//           : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
-//         order_id: orderData.orderId,
-//         handler: async function (response) {
-//           try {
-//             await dispatch(
-//               verifyPayment({
-//                 razorpayOrderId: response.razorpay_order_id,
-//                 razorpayPaymentId: response.razorpay_payment_id,
-//                 razorpaySignature: response.razorpay_signature,
-//                 paymentId: orderData.paymentId,
-//               })
-//             );
-//           } catch (verifyError) {
-//             console.error("Payment verification error:", verifyError);
-//             toast.error("Payment verification failed. Please contact support.");
-//           } finally {
-//             setProcessingPlanId(null);
-//           }
-//         },
-//         prefill: {
-//           name: authUser.name || userData?.name || "",
-//           email: authUser.email || userData?.email || "",
-//           contact: authUser.phone || userData?.phone || "",
-//         },
-//         theme: { color: theme.palette.primary.main },
-//         modal: {
-//           ondismiss: function () {
-//             dispatch(clearOrderData());
-//             setProcessingPlanId(null);
-//             dispatch(setPaymentStatus('idle'));
-//           },
-//         },
-//       };
-
-//       const rzp = new window.Razorpay(options);
-//       rzp.open();
-//     } catch (error) {
-//       console.error("Payment error:", error);
-//       toast.error("Payment failed: " + error.message);
+//     if (!adminId) {
+//       toast.error("User ID not found. Please login again.");
 //       setProcessingPlanId(null);
-//       dispatch(setPaymentStatus('failed'));
+//       return;
 //     }
-//   };
 
-//   const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
-//     setProcessingPlanId(addOnPlanId);
+//     if (!window.Razorpay) {
+//       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
 
-//     try {
-//       if (!authUser) {
-//         toast.error("User not authenticated. Please login.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
+//     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
 
-//       if (!hasActiveSubscription || !currentPlanDetails) {
-//         toast.warning("You need an active subscription to purchase add-on plans.");
-//         setProcessingPlanId(null);
-//         return;
-//       }
+//     if (createPaymentOrder.rejected.match(orderResult)) {
+//       toast.error(orderResult.payload?.message || "Failed to create order");
+//       setProcessingPlanId(null);
+//       return;
+//     }
 
-//       const adminId = authUser._id || authUser.id || userData?._id;
+//     const orderData = orderResult.payload?.data;
 
-//       dispatch(clearPaymentState());
-//       setPaymentSuccess(null);
+//     if (!couponCode) {
+//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+//     } else if (orderData.discountApplied) {
+//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+//     }
 
-//       const orderResult = await dispatch(
-//         createAddOnOrder({
-//           adminId,
-//           addOnPlanId,
-//           paymentId: currentPlanDetails._id,
-//           couponCode
-//         })
-//       );
+//     const options = {
+//       key: RAZORPAY_KEY_ID,
+//       amount: orderData.amount,
+//       currency: orderData.currency,
+//       name: "Team Trackify",
+//       description: couponCode
+//         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+//         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+//       order_id: orderData.orderId,
+//       handler: async function (response) {
+//         try {
+//           await dispatch(
+//             verifyPayment({
+//               razorpayOrderId: response.razorpay_order_id,
+//               razorpayPaymentId: response.razorpay_payment_id,
+//               razorpaySignature: response.razorpay_signature,
+//               paymentId: orderData.paymentId,
+//             })
+//           );
+//         } catch (verifyError) {
+//           console.error("Payment verification error:", verifyError);
+//           toast.error("Payment verification failed. Please contact support.");
+//         } finally {
+//           setProcessingPlanId(null);
+//         }
+//       },
+//       prefill: {
+//         name: authUser.name || userData?.name || "",
+//         email: authUser.email || userData?.email || "",
+//         contact: authUser.phone || userData?.phone || "",
+//       },
+//       theme: { color: theme.palette.primary.main },
+//       modal: {
+//         ondismiss: async function () {
+//           // User closed the modal - update status to cancelled
+//           setProcessingPlanId(null);
+//           dispatch(setPaymentStatus('idle'));
 
-//       if (createAddOnOrder.rejected.match(orderResult)) {
-//         toast.error(orderResult.payload?.message || "Failed to create order");
-//         setProcessingPlanId(null);
-//         return;
-//       }
-
-//       const orderData = orderResult.payload?.data;
-
-//       if (!couponCode) {
-//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
-//       } else if (orderData.discountApplied) {
-//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
-//       }
-
-//       const razorpayOptions = {
-//         key: RAZORPAY_KEY_ID,
-//         amount: orderData.amount,
-//         currency: orderData.currency,
-//         name: "Team Trackify",
-//         description: couponCode
-//           ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
-//           : `Payment for Add-on Plan`,
-//         order_id: orderData.orderId,
-//         handler: async (response) => {
 //           try {
-//             await dispatch(
-//               verifyAddOnPayment({
-//                 razorpayOrderId: response.razorpay_order_id,
-//                 razorpayPaymentId: response.razorpay_payment_id,
-//                 razorpaySignature: response.razorpay_signature,
-//                 paymentId: orderData.paymentId,
-//               })
-//             );
+//             await dispatch(updatePaymentStatus({
+//               razorpayOrderId: orderData.orderId,
+//               status: "cancelled",
+//               failureReason: "User closed the payment window"
+//             })).unwrap();
+
+//             toast.info("Payment cancelled");
+
+//             // Refresh payment history
+//             if (effectiveAdminId) {
+//               dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//             }
 //           } catch (error) {
-//             console.error("Add-on verification error:", error);
-//             toast.error("Payment verification failed");
-//           } finally {
-//             setProcessingPlanId(null);
+//             console.error("Failed to update payment status:", error);
 //           }
+
+//           dispatch(clearOrderData());
 //         },
-//         prefill: {
-//           name: authUser.name || userData?.name || "",
-//           email: authUser.email || userData?.email || "",
-//           contact: authUser.phone || userData?.phone || "",
-//         },
-//         theme: { color: theme.palette.primary.main },
-//         modal: {
-//           ondismiss: function () {
-//             dispatch(clearOrderData());
+//       },
+//     };
+
+//     const rzp = new window.Razorpay(options);
+
+//     // Add payment failed handler
+//     rzp.on('payment.failed', async function (response) {
+//       console.error("Payment failed:", response.error);
+
+//       try {
+//         await dispatch(updatePaymentStatus({
+//           razorpayOrderId: orderData.orderId,
+//           status: "failed",
+//           failureReason: response.error?.description || "Payment failed"
+//         })).unwrap();
+
+//         toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//         // Refresh payment history
+//         if (effectiveAdminId) {
+//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//         }
+//       } catch (error) {
+//         console.error("Failed to update payment status:", error);
+//         toast.error("Payment failed. Please try again.");
+//       } finally {
+//         setProcessingPlanId(null);
+//         dispatch(setPaymentStatus('failed'));
+//         dispatch(clearOrderData());
+//       }
+//     });
+
+//     rzp.open();
+//   } catch (error) {
+//     console.error("Payment error:", error);
+//     toast.error("Payment failed: " + error.message);
+//     setProcessingPlanId(null);
+//     dispatch(setPaymentStatus('failed'));
+//   }
+// };
+//   // const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+//   //   setProcessingPlanId(addOnPlanId);
+
+//   //   try {
+//   //     if (!authUser) {
+//   //       toast.error("User not authenticated. Please login.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     if (!hasActiveSubscription || !currentPlanDetails) {
+//   //       toast.warning("You need an active subscription to purchase add-on plans.");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//   //     dispatch(clearPaymentState());
+//   //     setPaymentSuccess(null);
+
+//   //     const orderResult = await dispatch(
+//   //       createAddOnOrder({
+//   //         adminId,
+//   //         addOnPlanId,
+//   //         paymentId: currentPlanDetails._id,
+//   //         couponCode
+//   //       })
+//   //     );
+
+//   //     if (createAddOnOrder.rejected.match(orderResult)) {
+//   //       toast.error(orderResult.payload?.message || "Failed to create order");
+//   //       setProcessingPlanId(null);
+//   //       return;
+//   //     }
+
+//   //     const orderData = orderResult.payload?.data;
+
+//   //     if (!couponCode) {
+//   //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+//   //     } else if (orderData.discountApplied) {
+//   //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+//   //     }
+
+//   //     const razorpayOptions = {
+//   //       key: RAZORPAY_KEY_ID,
+//   //       amount: orderData.amount,
+//   //       currency: orderData.currency,
+//   //       name: "Team Trackify",
+//   //       description: couponCode
+//   //         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+//   //         : `Payment for Add-on Plan`,
+//   //       order_id: orderData.orderId,
+//   //       handler: async (response) => {
+//   //         try {
+//   //           await dispatch(
+//   //             verifyAddOnPayment({
+//   //               razorpayOrderId: response.razorpay_order_id,
+//   //               razorpayPaymentId: response.razorpay_payment_id,
+//   //               razorpaySignature: response.razorpay_signature,
+//   //               paymentId: orderData.paymentId,
+//   //             })
+//   //           );
+//   //         } catch (error) {
+//   //           console.error("Add-on verification error:", error);
+//   //           toast.error("Payment verification failed");
+//   //         } finally {
+//   //           setProcessingPlanId(null);
+//   //         }
+//   //       },
+//   //       prefill: {
+//   //         name: authUser.name || userData?.name || "",
+//   //         email: authUser.email || userData?.email || "",
+//   //         contact: authUser.phone || userData?.phone || "",
+//   //       },
+//   //       theme: { color: theme.palette.primary.main },
+//   //       modal: {
+//   //         ondismiss: function () {
+//   //           dispatch(clearOrderData());
+//   //           setProcessingPlanId(null);
+//   //           dispatch(setPaymentStatus('idle'));
+//   //         },
+//   //       },
+//   //     };
+
+//   //     const razorpayInstance = new window.Razorpay(razorpayOptions);
+//   //     razorpayInstance.open();
+//   //   } catch (error) {
+//   //     console.error("Error in upgrading plan:", error);
+//   //     toast.error("An error occurred while upgrading your plan.");
+//   //     setProcessingPlanId(null);
+//   //     dispatch(setPaymentStatus('failed'));
+//   //   }
+//   // };
+// const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+//   setProcessingPlanId(addOnPlanId);
+
+//   try {
+//     if (!authUser) {
+//       toast.error("User not authenticated. Please login.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     if (!hasActiveSubscription || !currentPlanDetails) {
+//       toast.warning("You need an active subscription to purchase add-on plans.");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+//     dispatch(clearPaymentState());
+//     setPaymentSuccess(null);
+
+//     const orderResult = await dispatch(
+//       createAddOnOrder({
+//         adminId,
+//         addOnPlanId,
+//         paymentId: currentPlanDetails._id,
+//         couponCode
+//       })
+//     );
+
+//     if (createAddOnOrder.rejected.match(orderResult)) {
+//       toast.error(orderResult.payload?.message || "Failed to create order");
+//       setProcessingPlanId(null);
+//       return;
+//     }
+
+//     const orderData = orderResult.payload?.data;
+
+//     if (!couponCode) {
+//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+//     } else if (orderData.discountApplied) {
+//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+//     }
+
+//     let paymentCompleted = false;
+
+//     const razorpayOptions = {
+//       key: RAZORPAY_KEY_ID,
+//       amount: orderData.amount,
+//       currency: orderData.currency,
+//       name: "Team Trackify",
+//       description: couponCode
+//         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+//         : `Payment for Add-on Plan`,
+//       order_id: orderData.orderId,
+//       handler: async (response) => {
+//         paymentCompleted = true;
+//         try {
+//           await dispatch(
+//             verifyAddOnPayment({
+//               razorpayOrderId: response.razorpay_order_id,
+//               razorpayPaymentId: response.razorpay_payment_id,
+//               razorpaySignature: response.razorpay_signature,
+//               paymentId: orderData.paymentId,
+//             })
+//           );
+//         } catch (error) {
+//           console.error("Add-on verification error:", error);
+//           toast.error("Payment verification failed");
+//         } finally {
+//           setProcessingPlanId(null);
+//         }
+//       },
+//       prefill: {
+//         name: authUser.name || userData?.name || "",
+//         email: authUser.email || userData?.email || "",
+//         contact: authUser.phone || userData?.phone || "",
+//       },
+//       theme: { color: theme.palette.primary.main },
+//       modal: {
+//         ondismiss: async function () {
+//           if (!paymentCompleted) {
 //             setProcessingPlanId(null);
 //             dispatch(setPaymentStatus('idle'));
-//           },
+
+//             try {
+//               await dispatch(updatePaymentStatus({
+//                 razorpayOrderId: orderData.orderId,
+//                 status: "cancelled",
+//                 failureReason: "User closed the payment window"
+//               })).unwrap();
+
+//               toast.info("Payment cancelled");
+
+//               if (effectiveAdminId) {
+//                 dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//               }
+//             } catch (error) {
+//               console.error("Failed to update payment status:", error);
+//             }
+
+//             dispatch(clearOrderData());
+//           }
 //         },
-//       };
+//       },
+//     };
 
-//       const razorpayInstance = new window.Razorpay(razorpayOptions);
-//       razorpayInstance.open();
-//     } catch (error) {
-//       console.error("Error in upgrading plan:", error);
-//       toast.error("An error occurred while upgrading your plan.");
-//       setProcessingPlanId(null);
-//       dispatch(setPaymentStatus('failed'));
-//     }
-//   };
+//     const razorpayInstance = new window.Razorpay(razorpayOptions);
 
+//     // Add payment failed handler
+//     razorpayInstance.on('payment.failed', async function (response) {
+//       paymentCompleted = false;
+//       console.error("Add-on payment failed:", response.error);
+
+//       try {
+//         await dispatch(updatePaymentStatus({
+//           razorpayOrderId: orderData.orderId,
+//           status: "failed",
+//           failureReason: response.error?.description || "Payment failed"
+//         })).unwrap();
+
+//         toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//         if (effectiveAdminId) {
+//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//         }
+//       } catch (error) {
+//         console.error("Failed to update payment status:", error);
+//         toast.error("Payment failed. Please try again.");
+//       } finally {
+//         setProcessingPlanId(null);
+//         dispatch(setPaymentStatus('failed'));
+//         dispatch(clearOrderData());
+//       }
+//     });
+
+//     razorpayInstance.open();
+//   } catch (error) {
+//     console.error("Error in upgrading plan:", error);
+//     toast.error("An error occurred while upgrading your plan.");
+//     setProcessingPlanId(null);
+//     dispatch(setPaymentStatus('failed'));
+//   }
+// };
 //   const handleApplyCoupon = (couponData) => {
 //     if (couponData === null) {
 //       if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
@@ -1460,6 +1798,19 @@
 
 //   return (
 //     <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={5000}
+//         hideProgressBar={false}
+//         newestOnTop
+//         closeOnClick
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//         theme="light"
+//         style={{ top: "70px" }}
+//       />
 //       <Container maxWidth="xl">
 //         {/* Header */}
 //         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2071,6 +2422,7 @@ import {
   getUserCustomPlan,
   updateCustomPlan,
   cancelSubscription,
+  getPriceHistory
 } from "../../redux/slices/planSlice";
 import {
   createPaymentOrder,
@@ -2085,12 +2437,14 @@ import {
   clearOrderData,
   clearVerificationData,
   setPaymentStatus,
+  updatePaymentStatus,
 } from "../../redux/slices/paymentSlice";
 import Loader from "../../components/common/Loader";
 import { RAZORPAY_KEY_ID } from "../../utils/constants";
 import { getUserById } from "../../redux/slices/userSlice";
 import moment from "moment";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { useLocation, useNavigate } from "react-router-dom";
 import CouponPopup from "../Admin/component/CouponPopup";
 
 // Plan Card Skeleton Component
@@ -2167,11 +2521,30 @@ const PlanCardSkeleton = () => {
   );
 };
 
-// Custom Plan Popup Component
+// Custom Plan Popup Component (Updated with dynamic base price)
 const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, errors, isCreating, isEditing }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
-  const durationUnits = ['days', 'weeks', 'months', 'years'];
+  // Get base price from Redux state
+  const { basePrice, priceHistoryLoading } = useSelector((state) => state.plan || {});
+
+  // Only months and years for duration units
+  const durationUnits = ['months', 'years'];
+
+  // Fetch price history when popup opens
+  useEffect(() => {
+    if (open && !basePrice) {
+      dispatch(getPriceHistory());
+    }
+  }, [open, dispatch, basePrice]);
+
+  // Set default minUsers to 1 when popup opens in create mode
+  useEffect(() => {
+    if (open && !isEditing && !planData.minUsers) {
+      setPlanData(prev => ({ ...prev, minUsers: '1' }));
+    }
+  }, [open, isEditing, planData.minUsers, setPlanData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -2179,26 +2552,20 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
   };
 
   const calculatePricePreview = () => {
-    const BASE_PRICE_PER_USER_PER_MONTH = 100;
     const minUsers = parseInt(planData.minUsers) || 0;
     const maxUsers = parseInt(planData.maxUsers) || 0;
     const durationValue = parseInt(planData.durationValue) || 0;
     const durationUnit = planData.durationUnit;
 
-    if (!minUsers || !maxUsers || !durationValue) return 0;
+    if (!minUsers || !maxUsers || !durationValue || !durationUnit) return 0;
 
     const userCount = maxUsers || minUsers || 1;
 
+    // Use dynamic base price from Redux, fallback to 100
+    const currentBasePrice = basePrice || 100;
+
     let totalMonths = 0;
     switch (durationUnit?.toLowerCase()) {
-      case 'day':
-      case 'days':
-        totalMonths = durationValue / 30;
-        break;
-      case 'week':
-      case 'weeks':
-        totalMonths = durationValue / 4;
-        break;
       case 'month':
       case 'months':
         totalMonths = durationValue;
@@ -2211,10 +2578,11 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
         totalMonths = durationValue;
     }
 
-    return Math.round(userCount * BASE_PRICE_PER_USER_PER_MONTH * totalMonths);
+    return Math.round(userCount * currentBasePrice * totalMonths);
   };
 
   const estimatedPrice = calculatePricePreview();
+  const currentBasePrice = basePrice || 100;
 
   return (
     <Dialog
@@ -2322,12 +2690,18 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Estimated Price:
                   </Typography>
-                  <Typography variant="h5" fontWeight={700} color="primary.main">
-                    ₹{estimatedPrice.toLocaleString()}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Based on {planData.maxUsers} users × ₹100 × {planData.durationValue} {planData.durationUnit}
-                  </Typography>
+                  {priceHistoryLoading ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <>
+                      <Typography variant="h5" fontWeight={700} color="primary.main">
+                        ₹{estimatedPrice.toLocaleString()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Based on {planData.maxUsers} users × ₹{currentBasePrice} (base price) × {planData.durationValue} {planData.durationUnit}
+                      </Typography>
+                    </>
+                  )}
                 </Paper>
               </Grid>
             )}
@@ -2360,7 +2734,6 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
     </Dialog>
   );
 };
-
 const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
   const theme = useTheme();
   const limitedPaymentHistory = paymentHistory?.slice(0, 10) || [];
@@ -2548,6 +2921,8 @@ const CancelSubscriptionDialog = ({ open, onClose, onConfirm, isCancelling, plan
 const PaymentPlans = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { plansList, loading: plansLoading, userCustomPlan, isCancelling } = useSelector((state) => state.plan || {});
 
@@ -2806,7 +3181,7 @@ const PaymentPlans = () => {
         }
       }
     }
-  }, [plansLoading, plansList, userCustomPlan]);
+  }, [plansLoading, plansList, userCustomPlan, loading, location, authUser]);
 
   // Custom Plan handlers
   const handleCreateCustomPlan = async (e) => {
@@ -2841,10 +3216,10 @@ const PaymentPlans = () => {
 
       if (isEditingCustomPlan && editingPlanId) {
         const result = await dispatch(updateCustomPlan({ planId: editingPlanId, data: payload })).unwrap();
-        toast.success(result.message || 'Custom plan updated successfully!');
+        // toast.success(result.message || 'Custom plan updated successfully!');
       } else {
         const result = await dispatch(createCustomPlan(payload)).unwrap();
-        toast.success(result.message || 'Custom plan created successfully!');
+        // toast.success(result.message || 'Custom plan created successfully!');
       }
 
       setCustomPlanPopupOpen(false);
@@ -2936,6 +3311,105 @@ const PaymentPlans = () => {
   };
 
   // Payment handlers
+  // const handleSubscriptionPayment = async (planId, couponCode = null) => {
+  //   setProcessingPlanId(planId);
+
+  //   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+  //     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
+  //     setProcessingPlanId(null);
+  //     return;
+  //   }
+
+  //   try {
+  //     dispatch(clearPaymentState());
+  //     setPaymentSuccess(null);
+
+  //     if (!isAuthenticated || !authUser) {
+  //       toast.error("User not authenticated. Please login again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+  //     if (!adminId) {
+  //       toast.error("User ID not found. Please login again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     if (!window.Razorpay) {
+  //       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
+
+  //     if (createPaymentOrder.rejected.match(orderResult)) {
+  //       toast.error(orderResult.payload?.message || "Failed to create order");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderData = orderResult.payload?.data;
+
+  //     if (!couponCode) {
+  //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+  //     } else if (orderData.discountApplied) {
+  //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+  //     }
+
+  //     const options = {
+  //       key: RAZORPAY_KEY_ID,
+  //       amount: orderData.amount,
+  //       currency: orderData.currency,
+  //       name: "Team Trackify",
+  //       description: couponCode
+  //         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+  //         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+  //       order_id: orderData.orderId,
+  //       handler: async function (response) {
+  //         try {
+  //           await dispatch(
+  //             verifyPayment({
+  //               razorpayOrderId: response.razorpay_order_id,
+  //               razorpayPaymentId: response.razorpay_payment_id,
+  //               razorpaySignature: response.razorpay_signature,
+  //               paymentId: orderData.paymentId,
+  //             })
+  //           );
+  //         } catch (verifyError) {
+  //           console.error("Payment verification error:", verifyError);
+  //           toast.error("Payment verification failed. Please contact support.");
+  //         } finally {
+  //           setProcessingPlanId(null);
+  //         }
+  //       },
+  //       prefill: {
+  //         name: authUser.name || userData?.name || "",
+  //         email: authUser.email || userData?.email || "",
+  //         contact: authUser.phone || userData?.phone || "",
+  //       },
+  //       theme: { color: theme.palette.primary.main },
+  //       modal: {
+  //         ondismiss: function () {
+  //           dispatch(clearOrderData());
+  //           setProcessingPlanId(null);
+  //           dispatch(setPaymentStatus('idle'));
+  //         },
+  //       },
+  //     };
+
+  //     const rzp = new window.Razorpay(options);
+  //     rzp.open();
+  //   } catch (error) {
+  //     console.error("Payment error:", error);
+  //     toast.error("Payment failed: " + error.message);
+  //     setProcessingPlanId(null);
+  //     dispatch(setPaymentStatus('failed'));
+  //   }
+  // };
   const handleSubscriptionPayment = async (planId, couponCode = null) => {
     setProcessingPlanId(planId);
 
@@ -3018,15 +3492,62 @@ const PaymentPlans = () => {
         },
         theme: { color: theme.palette.primary.main },
         modal: {
-          ondismiss: function () {
-            dispatch(clearOrderData());
+          ondismiss: async function () {
+            // User closed the modal - update status to cancelled
             setProcessingPlanId(null);
             dispatch(setPaymentStatus('idle'));
+
+            try {
+              await dispatch(updatePaymentStatus({
+                razorpayOrderId: orderData.orderId,
+                status: "cancelled",
+                failureReason: "User closed the payment window"
+              })).unwrap();
+
+              toast.info("Payment cancelled");
+
+              // Refresh payment history
+              if (effectiveAdminId) {
+                dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+              }
+            } catch (error) {
+              console.error("Failed to update payment status:", error);
+            }
+
+            dispatch(clearOrderData());
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
+
+      // Add payment failed handler
+      rzp.on('payment.failed', async function (response) {
+        console.error("Payment failed:", response.error);
+
+        try {
+          await dispatch(updatePaymentStatus({
+            razorpayOrderId: orderData.orderId,
+            status: "failed",
+            failureReason: response.error?.description || "Payment failed"
+          })).unwrap();
+
+          toast.error(response.error?.description || "Payment failed. Please try again.");
+
+          // Refresh payment history
+          if (effectiveAdminId) {
+            dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+          }
+        } catch (error) {
+          console.error("Failed to update payment status:", error);
+          toast.error("Payment failed. Please try again.");
+        } finally {
+          setProcessingPlanId(null);
+          dispatch(setPaymentStatus('failed'));
+          dispatch(clearOrderData());
+        }
+      });
+
       rzp.open();
     } catch (error) {
       console.error("Payment error:", error);
@@ -3035,7 +3556,100 @@ const PaymentPlans = () => {
       dispatch(setPaymentStatus('failed'));
     }
   };
+  // const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+  //   setProcessingPlanId(addOnPlanId);
 
+  //   try {
+  //     if (!authUser) {
+  //       toast.error("User not authenticated. Please login.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     if (!hasActiveSubscription || !currentPlanDetails) {
+  //       toast.warning("You need an active subscription to purchase add-on plans.");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+
+  //     dispatch(clearPaymentState());
+  //     setPaymentSuccess(null);
+
+  //     const orderResult = await dispatch(
+  //       createAddOnOrder({
+  //         adminId,
+  //         addOnPlanId,
+  //         paymentId: currentPlanDetails._id,
+  //         couponCode
+  //       })
+  //     );
+
+  //     if (createAddOnOrder.rejected.match(orderResult)) {
+  //       toast.error(orderResult.payload?.message || "Failed to create order");
+  //       setProcessingPlanId(null);
+  //       return;
+  //     }
+
+  //     const orderData = orderResult.payload?.data;
+
+  //     if (!couponCode) {
+  //       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+  //     } else if (orderData.discountApplied) {
+  //       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+  //     }
+
+  //     const razorpayOptions = {
+  //       key: RAZORPAY_KEY_ID,
+  //       amount: orderData.amount,
+  //       currency: orderData.currency,
+  //       name: "Team Trackify",
+  //       description: couponCode
+  //         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+  //         : `Payment for Add-on Plan`,
+  //       order_id: orderData.orderId,
+  //       handler: async (response) => {
+  //         try {
+  //           await dispatch(
+  //             verifyAddOnPayment({
+  //               razorpayOrderId: response.razorpay_order_id,
+  //               razorpayPaymentId: response.razorpay_payment_id,
+  //               razorpaySignature: response.razorpay_signature,
+  //               paymentId: orderData.paymentId,
+  //             })
+  //           );
+  //         } catch (error) {
+  //           console.error("Add-on verification error:", error);
+  //           toast.error("Payment verification failed");
+  //         } finally {
+  //           setProcessingPlanId(null);
+  //         }
+  //       },
+  //       prefill: {
+  //         name: authUser.name || userData?.name || "",
+  //         email: authUser.email || userData?.email || "",
+  //         contact: authUser.phone || userData?.phone || "",
+  //       },
+  //       theme: { color: theme.palette.primary.main },
+  //       modal: {
+  //         ondismiss: function () {
+  //           dispatch(clearOrderData());
+  //           setProcessingPlanId(null);
+  //           dispatch(setPaymentStatus('idle'));
+  //         },
+  //       },
+  //     };
+
+  //     const razorpayInstance = new window.Razorpay(razorpayOptions);
+  //     razorpayInstance.open();
+  //   } catch (error) {
+  //     console.error("Error in upgrading plan:", error);
+  //     toast.error("An error occurred while upgrading your plan.");
+  //     setProcessingPlanId(null);
+  //     dispatch(setPaymentStatus('failed'));
+  //   }
+  // };
   const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
     setProcessingPlanId(addOnPlanId);
 
@@ -3080,6 +3694,8 @@ const PaymentPlans = () => {
         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
       }
 
+      let paymentCompleted = false;
+
       const razorpayOptions = {
         key: RAZORPAY_KEY_ID,
         amount: orderData.amount,
@@ -3090,6 +3706,7 @@ const PaymentPlans = () => {
           : `Payment for Add-on Plan`,
         order_id: orderData.orderId,
         handler: async (response) => {
+          paymentCompleted = true;
           try {
             await dispatch(
               verifyAddOnPayment({
@@ -3113,15 +3730,62 @@ const PaymentPlans = () => {
         },
         theme: { color: theme.palette.primary.main },
         modal: {
-          ondismiss: function () {
-            dispatch(clearOrderData());
-            setProcessingPlanId(null);
-            dispatch(setPaymentStatus('idle'));
+          ondismiss: async function () {
+            if (!paymentCompleted) {
+              setProcessingPlanId(null);
+              dispatch(setPaymentStatus('idle'));
+
+              try {
+                await dispatch(updatePaymentStatus({
+                  razorpayOrderId: orderData.orderId,
+                  status: "cancelled",
+                  failureReason: "User closed the payment window"
+                })).unwrap();
+
+                toast.info("Payment cancelled");
+
+                if (effectiveAdminId) {
+                  dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+                }
+              } catch (error) {
+                console.error("Failed to update payment status:", error);
+              }
+
+              dispatch(clearOrderData());
+            }
           },
         },
       };
 
       const razorpayInstance = new window.Razorpay(razorpayOptions);
+
+      // Add payment failed handler
+      razorpayInstance.on('payment.failed', async function (response) {
+        paymentCompleted = false;
+        console.error("Add-on payment failed:", response.error);
+
+        try {
+          await dispatch(updatePaymentStatus({
+            razorpayOrderId: orderData.orderId,
+            status: "failed",
+            failureReason: response.error?.description || "Payment failed"
+          })).unwrap();
+
+          toast.error(response.error?.description || "Payment failed. Please try again.");
+
+          if (effectiveAdminId) {
+            dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+          }
+        } catch (error) {
+          console.error("Failed to update payment status:", error);
+          toast.error("Payment failed. Please try again.");
+        } finally {
+          setProcessingPlanId(null);
+          dispatch(setPaymentStatus('failed'));
+          dispatch(clearOrderData());
+        }
+      });
+
       razorpayInstance.open();
     } catch (error) {
       console.error("Error in upgrading plan:", error);
@@ -3130,7 +3794,6 @@ const PaymentPlans = () => {
       dispatch(setPaymentStatus('failed'));
     }
   };
-
   const handleApplyCoupon = (couponData) => {
     if (couponData === null) {
       if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
@@ -3508,6 +4171,19 @@ const PaymentPlans = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: alpha(theme.palette.primary.main, 0.05), py: 3 }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ top: "70px" }}
+      />
       <Container maxWidth="xl">
         {/* Header */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

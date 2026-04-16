@@ -45,6 +45,7 @@ import ActiveUserLocations from './pages/Admin/ActiveUserLocations.jsx';
 import ExpiringPlansPage from './pages/SuperAdmin/Expiringplanspage.jsx';
 import PrivacyPolicy from './components/layout/PrivacyPolicy.jsx';
 import CouponManagement from './pages/SuperAdmin/CouponManagement.jsx';
+import ReportLocation from './pages/Admin/ReportLocation.jsx';
 
 // Settings page (shared)
 
@@ -132,6 +133,7 @@ function App() {
 
                 <Route path="/trackingdata" element={<TrackingData />} />
                 <Route path="/locations" element={<Locations />} />
+                <Route path="/report-locations" element={<ReportLocation />} />
                 <Route path="/admin/live-locations" element={<ActiveUserLocations />} />
 
 

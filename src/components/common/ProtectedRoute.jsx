@@ -27,7 +27,7 @@
 
 // export default ProtectedRoute;
 
-// src/components/common/ProtectedRoute.jsx
+
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -45,15 +45,6 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   // ✅ FIX 2: role_id from API is a STRING "1" or "2" — use Number() to compare
   const rawRoleId = role_id ?? localUser?.role_id;
   const roleIdNum = Number(rawRoleId);
-
-  // console.log('ProtectedRoute - Auth State:', {
-  //   isAuthenticated,
-  //   isAuth,
-  //   role_id,
-  //   rawRoleId,
-  //   roleIdNum,
-  //   hasToken: !!token,
-  // });
 
   // Not authenticated → redirect to login
   if (requireAuth && !isAuth) {
