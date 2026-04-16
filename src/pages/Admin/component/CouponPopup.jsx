@@ -1669,7 +1669,7 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
         {appliedCoupon && (
           <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
             <Button fullWidth onClick={handleApplyCoupon}
-              startIcon={<AutoAwesomeIcon sx={{ fontSize: 14 }} />}
+              startIcon={<AutoAwesomeIcon sx={{ fontSize: 14 }} />} 
               sx={{
                 py: 0.8, borderRadius: 1.8, fontSize: '0.68rem', fontWeight: 800,
                 background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`,
