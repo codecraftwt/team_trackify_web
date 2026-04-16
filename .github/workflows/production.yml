@@ -84,6 +84,8 @@ jobs:
             echo "Staging contents:"
             ls -lah "${{ env.STAGING_PATH }}"
 
+
+
       # 10. Sync to production
       - name: Deploy to production
         uses: appleboy/ssh-action@v1.0.0
