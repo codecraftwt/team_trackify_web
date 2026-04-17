@@ -331,6 +331,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //   const isSuperAdmin = role_id === 2;
 //   const isLoggedInAdmin = role_id === 1;
 //   const isSubAdmin = user.role_id === 3;
+//   const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
 //   const userId = user._id || user.id;
 //   const userName = user.name || user.name;
 //   const userEmail = user.email;
@@ -338,6 +339,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //   const userIsActive = user.isActive;
 //   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
 //   const userAvatar = user.avtar || user.profileImage;
+
 //   return (
 //     <motion.div
 //       initial={{ opacity: 0, y: 20 }}
@@ -348,6 +350,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //     >
 //       <Card
 //         sx={{
+//           cursor: 'pointer',
 //           position: 'relative',
 //           borderRadius: 2,
 //           border: '1px solid',
@@ -380,7 +383,9 @@ const TabsSkeleton = ({ isMobile }) => {
 //         )}
 //         <CardContent sx={{ p: { xs: 1.5, sm: 1.75 } }}>
 //           {/* User Info Row */}
-//           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}>
+//           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}
+//             onClick={() => onView(user)}
+//           >
 //             <Avatar
 //               src={userAvatar}
 //               sx={{
@@ -414,8 +419,8 @@ const TabsSkeleton = ({ isMobile }) => {
 //                 >
 //                   {userName}
 //                 </Typography>
-//                 {/* SB Badge - Only show when logged-in user is role_id 1 and current user is role_id 3 */}
-//                 {isLoggedInAdmin && isSubAdmin && (
+//                 {/* SB Badge - Show for ALL users with role_id 3 */}
+//                 {showSBBadge && (
 //                   <Chip
 //                     label="SB"
 //                     size="small"
@@ -579,8 +584,6 @@ const TabsSkeleton = ({ isMobile }) => {
 //   );
 // };
 
-
-//With SB Batch for SUB ADMIN Also
 const UserCard = ({
   user,
   onView,
@@ -599,7 +602,7 @@ const UserCard = ({
   const isSuperAdmin = role_id === 2;
   const isLoggedInAdmin = role_id === 1;
   const isSubAdmin = user.role_id === 3;
-  const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
+  const showSBBadge = isSubAdmin;
   const userId = user._id || user.id;
   const userName = user.name || user.name;
   const userEmail = user.email;
@@ -607,6 +610,18 @@ const UserCard = ({
   const userIsActive = user.isActive;
   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
   const userAvatar = user.avtar || user.profileImage;
+
+  // Handle card click with proper event propagation
+  const handleCardClick = (event) => {
+    // Check if the click target or its parent is an interactive element
+    const target = event.target;
+    const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root, .MuiCheckbox-root');
+    
+    // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
+    if (!isInteractive) {
+      onView(user);
+    }
+  };
 
   return (
     <motion.div
@@ -618,6 +633,7 @@ const UserCard = ({
     >
       <Card
         sx={{
+          cursor: 'pointer',
           position: 'relative',
           borderRadius: 2,
           border: '1px solid',
@@ -631,12 +647,14 @@ const UserCard = ({
             borderColor: theme.palette.primary.main,
           },
         }}
+        onClick={handleCardClick}
       >
         {isBulkMode && (
           <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1 }}>
             <Checkbox
               checked={isSelected}
               onChange={() => onSelect(userId)}
+              onClick={(e) => e.stopPropagation()} // Prevent card click when clicking checkbox
               size="small"
               sx={{
                 color: theme.palette.primary.main,
@@ -649,7 +667,7 @@ const UserCard = ({
           </Box>
         )}
         <CardContent sx={{ p: { xs: 1.5, sm: 1.75 } }}>
-          {/* User Info Row */}
+          {/* User Info Row - Removed onClick from here since it's now on Card */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}>
             <Avatar
               src={userAvatar}
@@ -667,7 +685,6 @@ const UserCard = ({
               {userName?.charAt(0) || 'U'}
             </Avatar>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              {/* ✅ FIX: fixed-height name row — SB badge sits inline, name truncates, no wrapping */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, height: 20, overflow: 'hidden' }}>
                 <Typography
                   variant="body2"
@@ -684,7 +701,6 @@ const UserCard = ({
                 >
                   {userName}
                 </Typography>
-                {/* SB Badge - Show for ALL users with role_id 3 */}
                 {showSBBadge && (
                   <Chip
                     label="SB"
@@ -773,7 +789,10 @@ const UserCard = ({
               <span>
                 <IconButton
                   size="small"
-                  onClick={() => onView(user)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    onView(user);
+                  }}
                   disabled={role_id === 1 && isSubscriptionExpired === true}
                   sx={{
                     color: theme.palette.primary.main,
@@ -793,7 +812,10 @@ const UserCard = ({
                 <span>
                   <IconButton
                     size="small"
-                    onClick={() => onImpersonate(user)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      onImpersonate(user);
+                    }}
                     sx={{
                       color: theme.palette.secondary.main,
                       '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.1) },
@@ -810,7 +832,10 @@ const UserCard = ({
               <span>
                 <IconButton
                   size="small"
-                  onClick={() => onEdit(user)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    onEdit(user);
+                  }}
                   disabled={role_id === 1 && isSubscriptionExpired === true}
                   sx={{
                     color: theme.palette.primary.main,
@@ -828,7 +853,10 @@ const UserCard = ({
               <span>
                 <IconButton
                   size="small"
-                  onClick={() => onDelete(user)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    onDelete(user);
+                  }}
                   disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
                   sx={{
                     color: '#ef4444',
@@ -953,6 +981,8 @@ const UserCard = ({
 //           <AnimatePresence>
 //             {(users || []).map((user) => {
 //               const isSubAdmin = user.role_id === 3;
+//               const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
+
 //               return (
 //                 <motion.tr
 //                   key={user._id || user.id}
@@ -961,6 +991,7 @@ const UserCard = ({
 //                   exit={{ opacity: 0 }}
 //                   transition={{ duration: 0.2 }}
 //                   style={{ cursor: 'pointer' }}
+
 //                   onMouseEnter={(e) => {
 //                     if (!isMobile) {
 //                       e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
@@ -982,8 +1013,14 @@ const UserCard = ({
 //                       />
 //                     </TableCell>
 //                   )}
-//                   <TableCell>
-//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+//                   <TableCell
+//                     onClick={() => handleView(user)}
+
+//                   >
+//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}
+//                     // onClick={() => handleView(user)}
+//                     >
+
 //                       <Avatar
 //                         src={user.avtar || user.profileImage}
 //                         sx={{
@@ -999,8 +1036,8 @@ const UserCard = ({
 //                         <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
 //                           {user.name || user.name}
 //                         </Typography>
-//                         {/* SB Badge - Only show when logged-in user is role_id 1 and current user is role_id 3 */}
-//                         {isLoggedInAdmin && isSubAdmin && (
+//                         {/* SB Badge - Show for ALL users with role_id 3 */}
+//                         {showSBBadge && (
 //                           <Chip
 //                             label="SB"
 //                             size="small"
@@ -1019,11 +1056,11 @@ const UserCard = ({
 //                       </Box>
 //                     </Box>
 //                   </TableCell>
-//                   <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+//                   <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
 //                     {user.email}
 //                   </TableCell>
 //                   {isSuperAdmin && (
-//                     <TableCell fontWeight={500} sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
+//                     <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
 //                       {user.mobile_no}
 //                     </TableCell>
 //                   )}
@@ -1116,11 +1153,7 @@ const UserCard = ({
 //     </TableContainer>
 //   );
 // };
-// Main Component
 
-
-
-//With SB Batch for SUB ADMIN Also
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -1148,6 +1181,18 @@ const ResponsiveTable = ({
   const theme = useTheme();
   const isSuperAdmin = role_id === 2;
   const isLoggedInAdmin = role_id === 1;
+
+  // Handle row click with proper event propagation
+  const handleRowClick = (user, event) => {
+    // Check if the click target or its parent is an interactive element
+    const target = event.target;
+    const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
+    
+    // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
+    if (!isInteractive) {
+      handleView(user);
+    }
+  };
 
   if (loading) {
     return (
@@ -1225,7 +1270,7 @@ const ResponsiveTable = ({
           <AnimatePresence>
             {(users || []).map((user) => {
               const isSubAdmin = user.role_id === 3;
-              const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
+              const showSBBadge = isSubAdmin;
 
               return (
                 <motion.tr
@@ -1235,6 +1280,7 @@ const ResponsiveTable = ({
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   style={{ cursor: 'pointer' }}
+                  onClick={(event) => handleRowClick(user, event)}
                   onMouseEnter={(e) => {
                     if (!isMobile) {
                       e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
@@ -1253,6 +1299,7 @@ const ResponsiveTable = ({
                         onChange={() => handleSelectUser(user._id || user.id)}
                         size="small"
                         sx={{ color: theme.palette.primary.main }}
+                        onClick={(e) => e.stopPropagation()} // Prevent row click when clicking checkbox
                       />
                     </TableCell>
                   )}
@@ -1273,7 +1320,6 @@ const ResponsiveTable = ({
                         <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
                           {user.name || user.name}
                         </Typography>
-                        {/* SB Badge - Show for ALL users with role_id 3 */}
                         {showSBBadge && (
                           <Chip
                             label="SB"
@@ -1310,7 +1356,10 @@ const ResponsiveTable = ({
                         <span>
                           <IconButton
                             size="small"
-                            onClick={() => handleView(user)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              handleView(user);
+                            }}
                             disabled={role_id === 1 && isSubscriptionExpired === true}
                             sx={{
                               color: theme.palette.primary.main,
@@ -1329,7 +1378,10 @@ const ResponsiveTable = ({
                         <Tooltip title="Login as User">
                           <IconButton
                             size="small"
-                            onClick={() => handleImpersonate(user)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              handleImpersonate(user);
+                            }}
                             sx={{
                               color: theme.palette.secondary.main,
                               width: 26,
@@ -1348,7 +1400,10 @@ const ResponsiveTable = ({
                         <span>
                           <IconButton
                             size="small"
-                            onClick={() => handleEdit(user)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              handleEdit(user);
+                            }}
                             disabled={role_id === 1 && isSubscriptionExpired === true}
                             sx={{
                               color: theme.palette.primary.main,
@@ -1366,7 +1421,10 @@ const ResponsiveTable = ({
                         <span>
                           <IconButton
                             size="small"
-                            onClick={() => handleDeleteClick(user)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click
+                              handleDeleteClick(user);
+                            }}
                             disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
                             sx={{
                               color: '#ef4444',
