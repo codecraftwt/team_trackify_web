@@ -313,276 +313,6 @@ const TabsSkeleton = ({ isMobile }) => {
     </Paper>
   );
 };
-// const UserCard = ({
-//   user,
-//   onView,
-//   onEdit,
-//   onDelete,
-//   onImpersonate,
-//   isSelected,
-//   onSelect,
-//   isBulkMode,
-//   role_id,
-//   isDeleting,
-//   isMobile,
-//   isSubscriptionExpired,
-// }) => {
-//   const theme = useTheme();
-//   const isSuperAdmin = role_id === 2;
-//   const isLoggedInAdmin = role_id === 1;
-//   const isSubAdmin = user.role_id === 3;
-//   const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
-//   const userId = user._id || user.id;
-//   const userName = user.name || user.name;
-//   const userEmail = user.email;
-//   const userMobile = user.mobile_no;
-//   const userIsActive = user.isActive;
-//   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
-//   const userAvatar = user.avtar || user.profileImage;
-
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       exit={{ opacity: 0, scale: 0.9 }}
-//       transition={{ duration: 0.3 }}
-//       style={{ height: '100%' }}
-//     >
-//       <Card
-//         sx={{
-//           cursor: 'pointer',
-//           position: 'relative',
-//           borderRadius: 2,
-//           border: '1px solid',
-//           borderColor: isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.5),
-//           boxShadow: isSelected ? `0 4px 12px -4px ${alpha(theme.palette.primary.main, 0.5)}` : '0 1px 4px rgba(0,0,0,0.03)',
-//           transition: 'all 0.2s ease',
-//           height: '100%',
-//           '&:hover': {
-//             transform: !isMobile ? 'translateY(-2px)' : 'none',
-//             boxShadow: !isMobile ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
-//             borderColor: theme.palette.primary.main,
-//           },
-//         }}
-//       >
-//         {isBulkMode && (
-//           <Box sx={{ position: 'absolute', top: 6, left: 6, zIndex: 1 }}>
-//             <Checkbox
-//               checked={isSelected}
-//               onChange={() => onSelect(userId)}
-//               size="small"
-//               sx={{
-//                 color: theme.palette.primary.main,
-//                 '&.Mui-checked': {
-//                   color: theme.palette.primary.main,
-//                 },
-//                 padding: '4px',
-//               }}
-//             />
-//           </Box>
-//         )}
-//         <CardContent sx={{ p: { xs: 1.5, sm: 1.75 } }}>
-//           {/* User Info Row */}
-//           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.25, sm: 1.5 }, mb: 1.5 }}
-//             onClick={() => onView(user)}
-//           >
-//             <Avatar
-//               src={userAvatar}
-//               sx={{
-//                 width: { xs: 40, sm: 44 },
-//                 height: { xs: 40, sm: 44 },
-//                 flexShrink: 0,
-//                 bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                 color: theme.palette.primary.main,
-//                 border: '1.5px solid',
-//                 borderColor: alpha(theme.palette.primary.main, 0.2),
-//                 fontSize: { xs: '0.9rem', sm: '1rem' },
-//               }}
-//             >
-//               {userName?.charAt(0) || 'U'}
-//             </Avatar>
-//             <Box sx={{ flex: 1, minWidth: 0 }}>
-//               {/* ✅ FIX: fixed-height name row — SB badge sits inline, name truncates, no wrapping */}
-//               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, height: 20, overflow: 'hidden' }}>
-//                 <Typography
-//                   variant="body2"
-//                   fontWeight={600}
-//                   color="text.primary"
-//                   sx={{
-//                     fontSize: { xs: '0.85rem', sm: '0.9rem' },
-//                     whiteSpace: 'nowrap',
-//                     overflow: 'hidden',
-//                     textOverflow: 'ellipsis',
-//                     flexShrink: 1,
-//                     minWidth: 0,
-//                   }}
-//                 >
-//                   {userName}
-//                 </Typography>
-//                 {/* SB Badge - Show for ALL users with role_id 3 */}
-//                 {showSBBadge && (
-//                   <Chip
-//                     label="SB"
-//                     size="small"
-//                     sx={{
-//                       bgcolor: alpha('#22c55e', 0.15),
-//                       color: '#22c55e',
-//                       fontWeight: 700,
-//                       fontSize: '0.6rem',
-//                       height: 18,
-//                       flexShrink: 0,
-//                       '& .MuiChip-label': {
-//                         px: 0.75,
-//                       },
-//                     }}
-//                   />
-//                 )}
-//               </Box>
-//               <Typography
-//                 variant="caption"
-//                 color="text.secondary"
-//                 sx={{
-//                   fontSize: { xs: '0.6rem', sm: '0.65rem' },
-//                   display: 'block',
-//                   whiteSpace: 'nowrap',
-//                   overflow: 'hidden',
-//                   textOverflow: 'ellipsis',
-//                   mb: 0.25,
-//                 }}
-//               >
-//                 {userEmail}
-//               </Typography>
-//               {isSuperAdmin && userMobile && (
-//                 <Typography
-//                   variant="caption"
-//                   color="text.secondary"
-//                   sx={{
-//                     fontSize: { xs: '0.55rem', sm: '0.6rem' },
-//                     display: 'block',
-//                     whiteSpace: 'nowrap',
-//                     overflow: 'hidden',
-//                     textOverflow: 'ellipsis',
-//                   }}
-//                 >
-//                   {userMobile}
-//                 </Typography>
-//               )}
-//             </Box>
-//           </Box>
-//           {/* Status and Joined Info */}
-//           <Box
-//             sx={{
-//               p: { xs: 1, sm: 1.25 },
-//               mb: 1.25,
-//             }}
-//           >
-//             <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.primary.main, 0.08) }} />
-//             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.75 }}>
-//               <Typography
-//                 variant="caption"
-//                 color="text.secondary"
-//                 sx={{
-//                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
-//                   fontWeight: 500,
-//                   letterSpacing: 0.3,
-//                 }}
-//               >
-//                 Joined
-//               </Typography>
-//               <Typography
-//                 variant="caption"
-//                 fontWeight={600}
-//                 color="text.primary"
-//                 sx={{
-//                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
-//                   letterSpacing: 0.2,
-//                 }}
-//               >
-//                 {moment(userCreatedAt).format("MMM D, YYYY")}
-//               </Typography>
-//             </Box>
-//           </Box>
-//           {/* Action Buttons */}
-//           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-//             <Tooltip title="View Details">
-//               <span>
-//                 <IconButton
-//                   size="small"
-//                   onClick={() => onView(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
-//                   sx={{
-//                     color: theme.palette.primary.main,
-//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-//                     width: 28,
-//                     height: 28,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                   }}
-//                 >
-//                   <VisibilityIcon sx={{ fontSize: 16 }} />
-//                 </IconButton>
-//               </span>
-//             </Tooltip>
-//             {/* Impersonate button - only for super admin */}
-//             {isSuperAdmin && (
-//               <Tooltip title="Login as User">
-//                 <span>
-//                   <IconButton
-//                     size="small"
-//                     onClick={() => onImpersonate(user)}
-//                     sx={{
-//                       color: theme.palette.secondary.main,
-//                       '&:hover': { bgcolor: alpha(theme.palette.secondary.main, 0.1) },
-//                       width: 28,
-//                       height: 28,
-//                     }}
-//                   >
-//                     <LoginIcon sx={{ fontSize: 16 }} />
-//                   </IconButton>
-//                 </span>
-//               </Tooltip>
-//             )}
-//             <Tooltip title="Edit">
-//               <span>
-//                 <IconButton
-//                   size="small"
-//                   onClick={() => onEdit(user)}
-//                   disabled={role_id === 1 && isSubscriptionExpired === true}
-//                   sx={{
-//                     color: theme.palette.primary.main,
-//                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
-//                     width: 28,
-//                     height: 28,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                   }}
-//                 >
-//                   <EditIcon sx={{ fontSize: 16 }} />
-//                 </IconButton>
-//               </span>
-//             </Tooltip>
-//             <Tooltip title="Delete">
-//               <span>
-//                 <IconButton
-//                   size="small"
-//                   onClick={() => onDelete(user)}
-//                   disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
-//                   sx={{
-//                     color: '#ef4444',
-//                     '&:hover': { bgcolor: alpha('#ef4444', 0.1) },
-//                     width: 28,
-//                     height: 28,
-//                     opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                   }}
-//                 >
-//                   {isDeleting ? <CircularProgress size={12} /> : <DeleteIcon sx={{ fontSize: 16 }} />}
-//                 </IconButton>
-//               </span>
-//             </Tooltip>
-//           </Box>
-//         </CardContent>
-//       </Card>
-//     </motion.div>
-//   );
-// };
 
 const UserCard = ({
   user,
@@ -877,6 +607,7 @@ const UserCard = ({
   );
 };
 
+
 // const ResponsiveTable = ({
 //   users,
 //   isBulkMode,
@@ -904,6 +635,18 @@ const UserCard = ({
 //   const theme = useTheme();
 //   const isSuperAdmin = role_id === 2;
 //   const isLoggedInAdmin = role_id === 1;
+
+//   // Handle row click with proper event propagation
+//   const handleRowClick = (user, event) => {
+//     // Check if the click target or its parent is an interactive element
+//     const target = event.target;
+//     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
+    
+//     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
+//     if (!isInteractive) {
+//       handleView(user);
+//     }
+//   };
 
 //   if (loading) {
 //     return (
@@ -981,7 +724,7 @@ const UserCard = ({
 //           <AnimatePresence>
 //             {(users || []).map((user) => {
 //               const isSubAdmin = user.role_id === 3;
-//               const showSBBadge = isSubAdmin; // Show SB badge for ALL users with role_id 3
+//               const showSBBadge = isSubAdmin;
 
 //               return (
 //                 <motion.tr
@@ -991,7 +734,7 @@ const UserCard = ({
 //                   exit={{ opacity: 0 }}
 //                   transition={{ duration: 0.2 }}
 //                   style={{ cursor: 'pointer' }}
-
+//                   onClick={(event) => handleRowClick(user, event)}
 //                   onMouseEnter={(e) => {
 //                     if (!isMobile) {
 //                       e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
@@ -1010,17 +753,12 @@ const UserCard = ({
 //                         onChange={() => handleSelectUser(user._id || user.id)}
 //                         size="small"
 //                         sx={{ color: theme.palette.primary.main }}
+//                         onClick={(e) => e.stopPropagation()} // Prevent row click when clicking checkbox
 //                       />
 //                     </TableCell>
 //                   )}
-//                   <TableCell
-//                     onClick={() => handleView(user)}
-
-//                   >
-//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}
-//                     // onClick={() => handleView(user)}
-//                     >
-
+//                   <TableCell>
+//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
 //                       <Avatar
 //                         src={user.avtar || user.profileImage}
 //                         sx={{
@@ -1036,7 +774,6 @@ const UserCard = ({
 //                         <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
 //                           {user.name || user.name}
 //                         </Typography>
-//                         {/* SB Badge - Show for ALL users with role_id 3 */}
 //                         {showSBBadge && (
 //                           <Chip
 //                             label="SB"
@@ -1073,7 +810,10 @@ const UserCard = ({
 //                         <span>
 //                           <IconButton
 //                             size="small"
-//                             onClick={() => handleView(user)}
+//                             onClick={(e) => {
+//                               e.stopPropagation(); // Prevent row click
+//                               handleView(user);
+//                             }}
 //                             disabled={role_id === 1 && isSubscriptionExpired === true}
 //                             sx={{
 //                               color: theme.palette.primary.main,
@@ -1092,7 +832,10 @@ const UserCard = ({
 //                         <Tooltip title="Login as User">
 //                           <IconButton
 //                             size="small"
-//                             onClick={() => handleImpersonate(user)}
+//                             onClick={(e) => {
+//                               e.stopPropagation(); // Prevent row click
+//                               handleImpersonate(user);
+//                             }}
 //                             sx={{
 //                               color: theme.palette.secondary.main,
 //                               width: 26,
@@ -1111,7 +854,10 @@ const UserCard = ({
 //                         <span>
 //                           <IconButton
 //                             size="small"
-//                             onClick={() => handleEdit(user)}
+//                             onClick={(e) => {
+//                               e.stopPropagation(); // Prevent row click
+//                               handleEdit(user);
+//                             }}
 //                             disabled={role_id === 1 && isSubscriptionExpired === true}
 //                             sx={{
 //                               color: theme.palette.primary.main,
@@ -1129,7 +875,10 @@ const UserCard = ({
 //                         <span>
 //                           <IconButton
 //                             size="small"
-//                             onClick={() => handleDeleteClick(user)}
+//                             onClick={(e) => {
+//                               e.stopPropagation(); // Prevent row click
+//                               handleDeleteClick(user);
+//                             }}
 //                             disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
 //                             sx={{
 //                               color: '#ef4444',
@@ -1225,6 +974,117 @@ const ResponsiveTable = ({
                 role_id={role_id}
               />
             ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  }
+
+  // Check if no users available
+  if (!users || users.length === 0) {
+    return (
+      <TableContainer sx={{
+        overflowX: 'auto',
+        '&::-webkit-scrollbar': { height: '6px' },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+          borderRadius: '3px',
+        },
+      }}>
+        <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
+          <TableHead>
+            <TableRow>
+              {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                Name
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                Email
+              </TableCell>
+              {isSuperAdmin && (
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                  Mobile No
+                </TableCell>
+              )}
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+                  Joined Date
+                  {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+                </Box>
+              </TableCell>
+              <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                Actions
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell 
+                colSpan={isSuperAdmin ? 5 : 4} 
+                align="center"
+                sx={{
+                  py: 8,
+                  backgroundColor: alpha(theme.palette.primary.main, 0.02),
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+                        fill={theme.palette.primary.main}
+                        opacity="0.6"
+                      />
+                    </svg>
+                  </Box>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: theme.palette.text.primary,
+                      fontWeight: 500,
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                    }}
+                  >
+                    You have 0 users
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      maxWidth: '300px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    No users found. Users will appear here once they are added.
+                  </Typography>
+                </Box>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>

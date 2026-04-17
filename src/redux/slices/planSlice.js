@@ -811,7 +811,7 @@ export const getPriceHistory = createAsyncThunk(
     } catch (error) {
       console.error("Error fetching price history:", error);
       const errorMessage = error.response?.data?.message || "Failed to fetch price history";
-      toast.error(errorMessage);
+      // toast.error(errorMessage);
       return rejectWithValue(error.response?.data || errorMessage);
     }
   }

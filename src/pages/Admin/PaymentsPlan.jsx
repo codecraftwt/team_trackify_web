@@ -69,6 +69,7 @@
 //   getUserCustomPlan,
 //   updateCustomPlan,
 //   cancelSubscription,
+//   getPriceHistory
 // } from "../../redux/slices/planSlice";
 // import {
 //   createPaymentOrder,
@@ -167,11 +168,30 @@
 //   );
 // };
 
-// // Custom Plan Popup Component
+// // Custom Plan Popup Component (Updated with dynamic base price)
 // const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, errors, isCreating, isEditing }) => {
 //   const theme = useTheme();
+//   const dispatch = useDispatch();
 
-//   const durationUnits = ['days', 'weeks', 'months', 'years'];
+//   // Get base price from Redux state
+//   const { basePrice, priceHistoryLoading } = useSelector((state) => state.plan || {});
+
+//   // Only months and years for duration units
+//   const durationUnits = ['months', 'years'];
+
+//   // Fetch price history when popup opens
+//   useEffect(() => {
+//     if (open && !basePrice) {
+//       dispatch(getPriceHistory());
+//     }
+//   }, [open, dispatch, basePrice]);
+
+//   // Set default minUsers to 1 when popup opens in create mode
+//   useEffect(() => {
+//     if (open && !isEditing && !planData.minUsers) {
+//       setPlanData(prev => ({ ...prev, minUsers: '1' }));
+//     }
+//   }, [open, isEditing, planData.minUsers, setPlanData]);
 
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
@@ -179,26 +199,20 @@
 //   };
 
 //   const calculatePricePreview = () => {
-//     const BASE_PRICE_PER_USER_PER_MONTH = 100;
 //     const minUsers = parseInt(planData.minUsers) || 0;
 //     const maxUsers = parseInt(planData.maxUsers) || 0;
 //     const durationValue = parseInt(planData.durationValue) || 0;
 //     const durationUnit = planData.durationUnit;
 
-//     if (!minUsers || !maxUsers || !durationValue) return 0;
+//     if (!minUsers || !maxUsers || !durationValue || !durationUnit) return 0;
 
 //     const userCount = maxUsers || minUsers || 1;
 
+//     // Use dynamic base price from Redux, fallback to 100
+//     const currentBasePrice = basePrice || 100;
+
 //     let totalMonths = 0;
 //     switch (durationUnit?.toLowerCase()) {
-//       case 'day':
-//       case 'days':
-//         totalMonths = durationValue / 30;
-//         break;
-//       case 'week':
-//       case 'weeks':
-//         totalMonths = durationValue / 4;
-//         break;
 //       case 'month':
 //       case 'months':
 //         totalMonths = durationValue;
@@ -211,10 +225,11 @@
 //         totalMonths = durationValue;
 //     }
 
-//     return Math.round(userCount * BASE_PRICE_PER_USER_PER_MONTH * totalMonths);
+//     return Math.round(userCount * currentBasePrice * totalMonths);
 //   };
 
 //   const estimatedPrice = calculatePricePreview();
+//   const currentBasePrice = basePrice || 100;
 
 //   return (
 //     <Dialog
@@ -322,12 +337,18 @@
 //                   <Typography variant="body2" color="text.secondary" gutterBottom>
 //                     Estimated Price:
 //                   </Typography>
-//                   <Typography variant="h5" fontWeight={700} color="primary.main">
-//                     ₹{estimatedPrice.toLocaleString()}
-//                   </Typography>
-//                   <Typography variant="caption" color="text.secondary">
-//                     Based on {planData.maxUsers} users × ₹100 × {planData.durationValue} {planData.durationUnit}
-//                   </Typography>
+//                   {priceHistoryLoading ? (
+//                     <CircularProgress size={20} />
+//                   ) : (
+//                     <>
+//                       <Typography variant="h5" fontWeight={700} color="primary.main">
+//                         ₹{estimatedPrice.toLocaleString()}
+//                       </Typography>
+//                       <Typography variant="caption" color="text.secondary">
+//                         Based on {planData.maxUsers} users × ₹{currentBasePrice} (base price) × {planData.durationValue} {planData.durationUnit}
+//                       </Typography>
+//                     </>
+//                   )}
 //                 </Paper>
 //               </Grid>
 //             )}
@@ -360,7 +381,6 @@
 //     </Dialog>
 //   );
 // };
-
 // const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
 //   const theme = useTheme();
 //   const limitedPaymentHistory = paymentHistory?.slice(0, 10) || [];
@@ -843,10 +863,10 @@
 
 //       if (isEditingCustomPlan && editingPlanId) {
 //         const result = await dispatch(updateCustomPlan({ planId: editingPlanId, data: payload })).unwrap();
-//         toast.success(result.message || 'Custom plan updated successfully!');
+//         // toast.success(result.message || 'Custom plan updated successfully!');
 //       } else {
 //         const result = await dispatch(createCustomPlan(payload)).unwrap();
-//         toast.success(result.message || 'Custom plan created successfully!');
+//         // toast.success(result.message || 'Custom plan created successfully!');
 //       }
 
 //       setCustomPlanPopupOpen(false);
@@ -1037,152 +1057,152 @@
 //   //     dispatch(setPaymentStatus('failed'));
 //   //   }
 //   // };
-// const handleSubscriptionPayment = async (planId, couponCode = null) => {
-//   setProcessingPlanId(planId);
+//   const handleSubscriptionPayment = async (planId, couponCode = null) => {
+//     setProcessingPlanId(planId);
 
-//   if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
-//     toast.warning("You already have an active subscription. You can only purchase add-on plans.");
-//     setProcessingPlanId(null);
-//     return;
-//   }
-
-//   try {
-//     dispatch(clearPaymentState());
-//     setPaymentSuccess(null);
-
-//     if (!isAuthenticated || !authUser) {
-//       toast.error("User not authenticated. Please login again.");
+//     if (hasActiveSubscription && subscriptionExpiry && moment(subscriptionExpiry).isAfter(moment())) {
+//       toast.warning("You already have an active subscription. You can only purchase add-on plans.");
 //       setProcessingPlanId(null);
 //       return;
 //     }
 
-//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+//     try {
+//       dispatch(clearPaymentState());
+//       setPaymentSuccess(null);
 
-//     if (!adminId) {
-//       toast.error("User ID not found. Please login again.");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//       if (!isAuthenticated || !authUser) {
+//         toast.error("User not authenticated. Please login again.");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     if (!window.Razorpay) {
-//       toast.error("Payment gateway not loaded. Please refresh the page and try again.");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//       const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
-//     const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
+//       if (!adminId) {
+//         toast.error("User ID not found. Please login again.");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     if (createPaymentOrder.rejected.match(orderResult)) {
-//       toast.error(orderResult.payload?.message || "Failed to create order");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//       if (!window.Razorpay) {
+//         toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     const orderData = orderResult.payload?.data;
+//       const orderResult = await dispatch(createPaymentOrder({ adminId, planId, couponCode }));
 
-//     if (!couponCode) {
-//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
-//     } else if (orderData.discountApplied) {
-//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
-//     }
+//       if (createPaymentOrder.rejected.match(orderResult)) {
+//         toast.error(orderResult.payload?.message || "Failed to create order");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     const options = {
-//       key: RAZORPAY_KEY_ID,
-//       amount: orderData.amount,
-//       currency: orderData.currency,
-//       name: "Team Trackify",
-//       description: couponCode
-//         ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
-//         : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
-//       order_id: orderData.orderId,
-//       handler: async function (response) {
+//       const orderData = orderResult.payload?.data;
+
+//       if (!couponCode) {
+//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount || selectedPlanForCoupon?.price || 0}`);
+//       } else if (orderData.discountApplied) {
+//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount}`);
+//       }
+
+//       const options = {
+//         key: RAZORPAY_KEY_ID,
+//         amount: orderData.amount,
+//         currency: orderData.currency,
+//         name: "Team Trackify",
+//         description: couponCode
+//           ? `Payment for ${selectedPlanForCoupon?.name || "Subscription"} (Saved: ₹${orderData.discountAmount})`
+//           : `Payment for ${selectedPlanForCoupon?.name || "Subscription"}`,
+//         order_id: orderData.orderId,
+//         handler: async function (response) {
+//           try {
+//             await dispatch(
+//               verifyPayment({
+//                 razorpayOrderId: response.razorpay_order_id,
+//                 razorpayPaymentId: response.razorpay_payment_id,
+//                 razorpaySignature: response.razorpay_signature,
+//                 paymentId: orderData.paymentId,
+//               })
+//             );
+//           } catch (verifyError) {
+//             console.error("Payment verification error:", verifyError);
+//             toast.error("Payment verification failed. Please contact support.");
+//           } finally {
+//             setProcessingPlanId(null);
+//           }
+//         },
+//         prefill: {
+//           name: authUser.name || userData?.name || "",
+//           email: authUser.email || userData?.email || "",
+//           contact: authUser.phone || userData?.phone || "",
+//         },
+//         theme: { color: theme.palette.primary.main },
+//         modal: {
+//           ondismiss: async function () {
+//             // User closed the modal - update status to cancelled
+//             setProcessingPlanId(null);
+//             dispatch(setPaymentStatus('idle'));
+
+//             try {
+//               await dispatch(updatePaymentStatus({
+//                 razorpayOrderId: orderData.orderId,
+//                 status: "cancelled",
+//                 failureReason: "User closed the payment window"
+//               })).unwrap();
+
+//               toast.info("Payment cancelled");
+
+//               // Refresh payment history
+//               if (effectiveAdminId) {
+//                 dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//               }
+//             } catch (error) {
+//               console.error("Failed to update payment status:", error);
+//             }
+
+//             dispatch(clearOrderData());
+//           },
+//         },
+//       };
+
+//       const rzp = new window.Razorpay(options);
+
+//       // Add payment failed handler
+//       rzp.on('payment.failed', async function (response) {
+//         console.error("Payment failed:", response.error);
+
 //         try {
-//           await dispatch(
-//             verifyPayment({
-//               razorpayOrderId: response.razorpay_order_id,
-//               razorpayPaymentId: response.razorpay_payment_id,
-//               razorpaySignature: response.razorpay_signature,
-//               paymentId: orderData.paymentId,
-//             })
-//           );
-//         } catch (verifyError) {
-//           console.error("Payment verification error:", verifyError);
-//           toast.error("Payment verification failed. Please contact support.");
+//           await dispatch(updatePaymentStatus({
+//             razorpayOrderId: orderData.orderId,
+//             status: "failed",
+//             failureReason: response.error?.description || "Payment failed"
+//           })).unwrap();
+
+//           toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//           // Refresh payment history
+//           if (effectiveAdminId) {
+//             dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//           }
+//         } catch (error) {
+//           console.error("Failed to update payment status:", error);
+//           toast.error("Payment failed. Please try again.");
 //         } finally {
 //           setProcessingPlanId(null);
-//         }
-//       },
-//       prefill: {
-//         name: authUser.name || userData?.name || "",
-//         email: authUser.email || userData?.email || "",
-//         contact: authUser.phone || userData?.phone || "",
-//       },
-//       theme: { color: theme.palette.primary.main },
-//       modal: {
-//         ondismiss: async function () {
-//           // User closed the modal - update status to cancelled
-//           setProcessingPlanId(null);
-//           dispatch(setPaymentStatus('idle'));
-
-//           try {
-//             await dispatch(updatePaymentStatus({
-//               razorpayOrderId: orderData.orderId,
-//               status: "cancelled",
-//               failureReason: "User closed the payment window"
-//             })).unwrap();
-
-//             toast.info("Payment cancelled");
-
-//             // Refresh payment history
-//             if (effectiveAdminId) {
-//               dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
-//             }
-//           } catch (error) {
-//             console.error("Failed to update payment status:", error);
-//           }
-
+//           dispatch(setPaymentStatus('failed'));
 //           dispatch(clearOrderData());
-//         },
-//       },
-//     };
-
-//     const rzp = new window.Razorpay(options);
-
-//     // Add payment failed handler
-//     rzp.on('payment.failed', async function (response) {
-//       console.error("Payment failed:", response.error);
-
-//       try {
-//         await dispatch(updatePaymentStatus({
-//           razorpayOrderId: orderData.orderId,
-//           status: "failed",
-//           failureReason: response.error?.description || "Payment failed"
-//         })).unwrap();
-
-//         toast.error(response.error?.description || "Payment failed. Please try again.");
-
-//         // Refresh payment history
-//         if (effectiveAdminId) {
-//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
 //         }
-//       } catch (error) {
-//         console.error("Failed to update payment status:", error);
-//         toast.error("Payment failed. Please try again.");
-//       } finally {
-//         setProcessingPlanId(null);
-//         dispatch(setPaymentStatus('failed'));
-//         dispatch(clearOrderData());
-//       }
-//     });
+//       });
 
-//     rzp.open();
-//   } catch (error) {
-//     console.error("Payment error:", error);
-//     toast.error("Payment failed: " + error.message);
-//     setProcessingPlanId(null);
-//     dispatch(setPaymentStatus('failed'));
-//   }
-// };
+//       rzp.open();
+//     } catch (error) {
+//       console.error("Payment error:", error);
+//       toast.error("Payment failed: " + error.message);
+//       setProcessingPlanId(null);
+//       dispatch(setPaymentStatus('failed'));
+//     }
+//   };
 //   // const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
 //   //   setProcessingPlanId(addOnPlanId);
 
@@ -1277,150 +1297,150 @@
 //   //     dispatch(setPaymentStatus('failed'));
 //   //   }
 //   // };
-// const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
-//   setProcessingPlanId(addOnPlanId);
+//   const handleUpgradePlan = async (addOnPlanId, couponCode = null) => {
+//     setProcessingPlanId(addOnPlanId);
 
-//   try {
-//     if (!authUser) {
-//       toast.error("User not authenticated. Please login.");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//     try {
+//       if (!authUser) {
+//         toast.error("User not authenticated. Please login.");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     if (!hasActiveSubscription || !currentPlanDetails) {
-//       toast.warning("You need an active subscription to purchase add-on plans.");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//       if (!hasActiveSubscription || !currentPlanDetails) {
+//         toast.warning("You need an active subscription to purchase add-on plans.");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
+//       const adminId = effectiveAdminId || authUser._id || authUser.id || userData?._id;
 
-//     dispatch(clearPaymentState());
-//     setPaymentSuccess(null);
+//       dispatch(clearPaymentState());
+//       setPaymentSuccess(null);
 
-//     const orderResult = await dispatch(
-//       createAddOnOrder({
-//         adminId,
-//         addOnPlanId,
-//         paymentId: currentPlanDetails._id,
-//         couponCode
-//       })
-//     );
+//       const orderResult = await dispatch(
+//         createAddOnOrder({
+//           adminId,
+//           addOnPlanId,
+//           paymentId: currentPlanDetails._id,
+//           couponCode
+//         })
+//       );
 
-//     if (createAddOnOrder.rejected.match(orderResult)) {
-//       toast.error(orderResult.payload?.message || "Failed to create order");
-//       setProcessingPlanId(null);
-//       return;
-//     }
+//       if (createAddOnOrder.rejected.match(orderResult)) {
+//         toast.error(orderResult.payload?.message || "Failed to create order");
+//         setProcessingPlanId(null);
+//         return;
+//       }
 
-//     const orderData = orderResult.payload?.data;
+//       const orderData = orderResult.payload?.data;
 
-//     if (!couponCode) {
-//       toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
-//     } else if (orderData.discountApplied) {
-//       toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
-//     }
+//       if (!couponCode) {
+//         toast.info(`Proceeding with amount: ₹${orderData.originalAmount / 100 || selectedPlanForCoupon?.price || 0}`);
+//       } else if (orderData.discountApplied) {
+//         toast.success(`Coupon applied! You saved ₹${orderData.discountAmount / 100}`);
+//       }
 
-//     let paymentCompleted = false;
+//       let paymentCompleted = false;
 
-//     const razorpayOptions = {
-//       key: RAZORPAY_KEY_ID,
-//       amount: orderData.amount,
-//       currency: orderData.currency,
-//       name: "Team Trackify",
-//       description: couponCode
-//         ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
-//         : `Payment for Add-on Plan`,
-//       order_id: orderData.orderId,
-//       handler: async (response) => {
-//         paymentCompleted = true;
-//         try {
-//           await dispatch(
-//             verifyAddOnPayment({
-//               razorpayOrderId: response.razorpay_order_id,
-//               razorpayPaymentId: response.razorpay_payment_id,
-//               razorpaySignature: response.razorpay_signature,
-//               paymentId: orderData.paymentId,
-//             })
-//           );
-//         } catch (error) {
-//           console.error("Add-on verification error:", error);
-//           toast.error("Payment verification failed");
-//         } finally {
-//           setProcessingPlanId(null);
-//         }
-//       },
-//       prefill: {
-//         name: authUser.name || userData?.name || "",
-//         email: authUser.email || userData?.email || "",
-//         contact: authUser.phone || userData?.phone || "",
-//       },
-//       theme: { color: theme.palette.primary.main },
-//       modal: {
-//         ondismiss: async function () {
-//           if (!paymentCompleted) {
+//       const razorpayOptions = {
+//         key: RAZORPAY_KEY_ID,
+//         amount: orderData.amount,
+//         currency: orderData.currency,
+//         name: "Team Trackify",
+//         description: couponCode
+//           ? `Payment for Add-on Plan (Saved: ₹${orderData.discountAmount / 100})`
+//           : `Payment for Add-on Plan`,
+//         order_id: orderData.orderId,
+//         handler: async (response) => {
+//           paymentCompleted = true;
+//           try {
+//             await dispatch(
+//               verifyAddOnPayment({
+//                 razorpayOrderId: response.razorpay_order_id,
+//                 razorpayPaymentId: response.razorpay_payment_id,
+//                 razorpaySignature: response.razorpay_signature,
+//                 paymentId: orderData.paymentId,
+//               })
+//             );
+//           } catch (error) {
+//             console.error("Add-on verification error:", error);
+//             toast.error("Payment verification failed");
+//           } finally {
 //             setProcessingPlanId(null);
-//             dispatch(setPaymentStatus('idle'));
-
-//             try {
-//               await dispatch(updatePaymentStatus({
-//                 razorpayOrderId: orderData.orderId,
-//                 status: "cancelled",
-//                 failureReason: "User closed the payment window"
-//               })).unwrap();
-
-//               toast.info("Payment cancelled");
-
-//               if (effectiveAdminId) {
-//                 dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
-//               }
-//             } catch (error) {
-//               console.error("Failed to update payment status:", error);
-//             }
-
-//             dispatch(clearOrderData());
 //           }
 //         },
-//       },
-//     };
+//         prefill: {
+//           name: authUser.name || userData?.name || "",
+//           email: authUser.email || userData?.email || "",
+//           contact: authUser.phone || userData?.phone || "",
+//         },
+//         theme: { color: theme.palette.primary.main },
+//         modal: {
+//           ondismiss: async function () {
+//             if (!paymentCompleted) {
+//               setProcessingPlanId(null);
+//               dispatch(setPaymentStatus('idle'));
 
-//     const razorpayInstance = new window.Razorpay(razorpayOptions);
+//               try {
+//                 await dispatch(updatePaymentStatus({
+//                   razorpayOrderId: orderData.orderId,
+//                   status: "cancelled",
+//                   failureReason: "User closed the payment window"
+//                 })).unwrap();
 
-//     // Add payment failed handler
-//     razorpayInstance.on('payment.failed', async function (response) {
-//       paymentCompleted = false;
-//       console.error("Add-on payment failed:", response.error);
+//                 toast.info("Payment cancelled");
 
-//       try {
-//         await dispatch(updatePaymentStatus({
-//           razorpayOrderId: orderData.orderId,
-//           status: "failed",
-//           failureReason: response.error?.description || "Payment failed"
-//         })).unwrap();
+//                 if (effectiveAdminId) {
+//                   dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//                 }
+//               } catch (error) {
+//                 console.error("Failed to update payment status:", error);
+//               }
 
-//         toast.error(response.error?.description || "Payment failed. Please try again.");
+//               dispatch(clearOrderData());
+//             }
+//           },
+//         },
+//       };
 
-//         if (effectiveAdminId) {
-//           dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//       const razorpayInstance = new window.Razorpay(razorpayOptions);
+
+//       // Add payment failed handler
+//       razorpayInstance.on('payment.failed', async function (response) {
+//         paymentCompleted = false;
+//         console.error("Add-on payment failed:", response.error);
+
+//         try {
+//           await dispatch(updatePaymentStatus({
+//             razorpayOrderId: orderData.orderId,
+//             status: "failed",
+//             failureReason: response.error?.description || "Payment failed"
+//           })).unwrap();
+
+//           toast.error(response.error?.description || "Payment failed. Please try again.");
+
+//           if (effectiveAdminId) {
+//             dispatch(getPaymentHistory({ adminId: effectiveAdminId }));
+//           }
+//         } catch (error) {
+//           console.error("Failed to update payment status:", error);
+//           toast.error("Payment failed. Please try again.");
+//         } finally {
+//           setProcessingPlanId(null);
+//           dispatch(setPaymentStatus('failed'));
+//           dispatch(clearOrderData());
 //         }
-//       } catch (error) {
-//         console.error("Failed to update payment status:", error);
-//         toast.error("Payment failed. Please try again.");
-//       } finally {
-//         setProcessingPlanId(null);
-//         dispatch(setPaymentStatus('failed'));
-//         dispatch(clearOrderData());
-//       }
-//     });
+//       });
 
-//     razorpayInstance.open();
-//   } catch (error) {
-//     console.error("Error in upgrading plan:", error);
-//     toast.error("An error occurred while upgrading your plan.");
-//     setProcessingPlanId(null);
-//     dispatch(setPaymentStatus('failed'));
-//   }
-// };
+//       razorpayInstance.open();
+//     } catch (error) {
+//       console.error("Error in upgrading plan:", error);
+//       toast.error("An error occurred while upgrading your plan.");
+//       setProcessingPlanId(null);
+//       dispatch(setPaymentStatus('failed'));
+//     }
+//   };
 //   const handleApplyCoupon = (couponData) => {
 //     if (couponData === null) {
 //       if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
@@ -2351,6 +2371,12 @@
 
 
 
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -2562,7 +2588,7 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
     const userCount = maxUsers || minUsers || 1;
 
     // Use dynamic base price from Redux, fallback to 100
-    const currentBasePrice = basePrice || 100;
+    const currentBasePrice = basePrice ;
 
     let totalMonths = 0;
     switch (durationUnit?.toLowerCase()) {
@@ -2924,7 +2950,7 @@ const PaymentPlans = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { plansList, loading: plansLoading, userCustomPlan, isCancelling } = useSelector((state) => state.plan || {});
+  const { plansList, loading: plansLoading, userCustomPlan, isCancelling, basePrice } = useSelector((state) => state.plan || {});
 
   const {
     orderLoading,
@@ -2987,6 +3013,8 @@ const PaymentPlans = () => {
   const [isEditingCustomPlan, setIsEditingCustomPlan] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState(null);
   const [fetchingCustomPlan, setFetchingCustomPlan] = useState(false);
+  const [basePriceWarningOpen, setBasePriceWarningOpen] = useState(false);
+  const [basePriceWarningMessage, setBasePriceWarningMessage] = useState("");
 
   // ✅ NEW: Cancel subscription dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -3237,12 +3265,41 @@ const PaymentPlans = () => {
     }
   };
 
-  const handleOpenCreateCustomPlan = () => {
-    setEditingPlanId(null);
-    setIsEditingCustomPlan(false);
-    resetCustomPlanForm();
-    setCustomPlanPopupOpen(true);
-    setCustomPlanErrors({});
+  const handleOpenCreateCustomPlan = async () => {
+    try {
+      let currentBasePrice = basePrice;
+
+      if (currentBasePrice === null || currentBasePrice === undefined) {
+        const priceData = await dispatch(getPriceHistory()).unwrap();
+        currentBasePrice = priceData?.currentPrice;
+      }
+
+      if (currentBasePrice === null || currentBasePrice === undefined) {
+        setBasePriceWarningMessage(
+          "Super admin has not created the base plan yet. Please create it first or contact the admin."
+        );
+        setBasePriceWarningOpen(true);
+        return;
+      }
+
+      setEditingPlanId(null);
+      setIsEditingCustomPlan(false);
+      resetCustomPlanForm();
+      setCustomPlanPopupOpen(true);
+      setCustomPlanErrors({});
+    } catch (error) {
+      const apiMessage =
+        error?.message ||
+        error?.data?.message ||
+        "Super admin has not created the base plan yet. Please create it first or contact the admin.";
+
+      const warningMessage = apiMessage.toLowerCase().includes("no price configuration found")
+        ? "Super admin has not created the base plan yet. Please create it first or contact the admin."
+        : apiMessage;
+
+      setBasePriceWarningMessage(warningMessage);
+      setBasePriceWarningOpen(true);
+    }
   };
 
   const handleOpenEditCustomPlan = () => {
@@ -4694,6 +4751,35 @@ const PaymentPlans = () => {
           isCreating={isCreatingCustomPlan}
           isEditing={isEditingCustomPlan}
         />
+
+        <Dialog
+          open={basePriceWarningOpen}
+          onClose={() => setBasePriceWarningOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 2.5 } }}
+        >
+          <DialogTitle
+            sx={{
+              bgcolor: alpha(theme.palette.warning.main, 0.12),
+              color: theme.palette.warning.dark,
+              fontSize: "1rem",
+              fontWeight: 600,
+            }}
+          >
+            Base Plan Not Found
+          </DialogTitle>
+          <DialogContent  sx={{ pt: 2 }}>
+            <Typography className="mt-4" variant="body2" color="text.secondary">
+              {basePriceWarningMessage}
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button variant="contained" onClick={() => setBasePriceWarningOpen(false)}>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Payment History Dialog */}
         <PaymentHistoryDialog
