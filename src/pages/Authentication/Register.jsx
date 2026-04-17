@@ -445,7 +445,7 @@ const Register = () => {
     return stored ? JSON.parse(stored) : null;
   })();
 
-  // console.log("✅ Final selectedPlan in Register:", selectedPlan);
+  console.log("✅ Final selectedPlan in Register:", selectedPlan);
 
   // Clear session storage after reading to avoid persistence issues
   if (selectedPlan && !location.state?.selectedPlan) {
@@ -498,14 +498,7 @@ const Register = () => {
   }, [timer, canResend, activeStep]);
 
   const onSubmit = async (data) => {
-    // console.log("=========================================");
-    // console.log("📝 REGISTRATION FORM SUBMITTED");
-    // console.log("Form Data:", data);
-    // console.log("Selected Plan during registration:", selectedPlan);
-    // console.log("=========================================");
-    // console.log("📝 REGISTRATION FORM SUBMITTED");
-    // console.log("Form Data:", data);
-    // console.log("Selected Plan during registration:", selectedPlan);
+  
 
     setError('');
     setLoading(true);
