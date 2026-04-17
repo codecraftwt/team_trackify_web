@@ -4692,12 +4692,12 @@ const AdminDashboard = () => {
       icon: <FaUserTimes size={20} />,
       bgColor: alpha(theme.palette.text.secondary, 0.1),
       iconColor: theme.palette.text.secondary,
-    //   onClick: () => navigate("/user?filter=inactive"),
+      //   onClick: () => navigate("/user?filter=inactive"),
       onClick: () => {
-    if (totalInActiveUsers > 0) {
-      navigate("/user?filter=inactive");
-    }
-  }, 
+        if (totalInActiveUsers > 0) {
+          navigate("/user?filter=inactive");
+        }
+      },
     },
     {
       key: "checkedInUsers",
