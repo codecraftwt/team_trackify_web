@@ -1415,7 +1415,7 @@
 //   const [tabValue, setTabValue] = useState(0);
 //   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 //   const [showSecretKeys, setShowSecretKeys] = useState({});
-  
+
 //   // Get role_id from multiple sources to ensure we have it
 //   const userRoleId = userData?.role_id || authState?.role_id;
 //   const isSuperAdmin = userRoleId === 2;
@@ -1439,7 +1439,7 @@
 //       try {
 //         // Get token from localStorage or Redux state
 //         const token = localStorage.getItem('token') || authState?.token;
-        
+
 //         if (!token) {
 //           navigate('/login');
 //           return;
@@ -1449,7 +1449,7 @@
 //         const decoded = jwtDecode(token);
 //         // Get the correct user ID (id field works for all roles)
 //         const userId = decoded.id;
-        
+
 //         if (!userId) {
 //           console.error('No user ID found in token');
 //           toast.error('Authentication error. Please login again.');
@@ -1516,22 +1516,22 @@
 //         address: userData.address || "", 
 //         avtar: null 
 //       });
-      
+
 //       // Handle avatar properly - ensure we're using the correct avatar URL
 //       if (userData.avtar) {
 //         // Check if the avatar URL is complete or needs base URL
 //         let avatarUrl = userData.avtar;
-        
+
 //         // If it's a relative path, add the base URL
 //         if (!avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:')) {
 //           // Remove any leading slash to avoid double slashes
 //           const cleanPath = avatarUrl.startsWith('/') ? avatarUrl.slice(1) : avatarUrl;
 //           avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${cleanPath}`;
 //         }
-        
+
 //         // Add timestamp to prevent caching issues
 //         avatarUrl = `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-        
+
 //         console.log('Setting avatar URL for user:', userData._id, avatarUrl);
 //         setPreviewImage(avatarUrl);
 //       } else {
@@ -1588,7 +1588,7 @@
 
 //   const handleSave = async () => {
 //     if (!validateForm()) return;
-    
+
 //     const payload = new FormData();
 //     payload.append("name", formData.fullName);
 //     payload.append("email", formData.email);
@@ -1599,7 +1599,7 @@
 //     payload.append("isActive", userData.isActive);
 //     if (formData.avtar) payload.append("avtar", formData.avtar);
 //     if (imageRemoved) payload.append("removeAvtar", "true");
-    
+
 //     try {
 //       await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
 //       await dispatch(getUserById(userData._id));
@@ -1627,7 +1627,7 @@
 //       address: userData.address || "", 
 //       avtar: null 
 //     });
-    
+
 //     // Reset avatar to current user's avatar
 //     if (userData.avtar) {
 //       let avatarUrl = userData.avtar;
@@ -1639,7 +1639,7 @@
 //     } else {
 //       setPreviewImage(null);
 //     }
-    
+
 //     setImageRemoved(false);
 //     setErrors({});
 //     setTouched({});
@@ -3795,6 +3795,7 @@ import {
   CheckCircle as CheckCircleIcon,
   ErrorOutline as ErrorOutlineIcon,
   SupervisorAccount as SubAdminIcon,
+  // Cancel as CancelIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -3878,25 +3879,111 @@ const InfoBlock = ({ icon, label, value }) => {
 };
 
 // ── ConfigField ───────────────────────────────────────────────────────────────
+// const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editValue, onChange, showSecretKeys, onToggleSecret }) => {
+//   const theme = useTheme();
+//   const isVisible = showSecretKeys[fieldName];
+//   const displayValue = isEditing ? editValue : (value || "");
+//   const isEmpty = !value && !isEditing;
+//   const hasValue = Boolean(value);
+
+//   return (
+//     <TextField fullWidth name={fieldName} label={label}
+//       value={isEmpty ? "Not configured" : (isSecret && !isVisible ? "•".repeat(Math.min(displayValue.length || 8, 14)) : displayValue)}
+//       onChange={isEditing ? onChange : undefined}
+//       disabled={!isEditing} size="small"
+//       helperText={isEditing && isSecret ? "Leave empty to keep current" : ""}
+//       sx={{
+//         "& .MuiInputLabel-root": { fontSize: "0.68rem" },
+//         "& .MuiInputBase-input": {
+//           fontSize: "0.7rem", py: "5px",
+//           fontFamily: isSecret && !isVisible && hasValue ? "monospace" : "inherit",
+//           letterSpacing: isSecret && !isVisible && hasValue ? "0.14em" : "normal",
+//         },
+//         "& .MuiFormHelperText-root": { fontSize: "0.58rem", mt: 0.2 },
+//         "& .MuiOutlinedInput-root": {
+//           borderRadius: 1.2,
+//           bgcolor: !isEditing ? alpha(theme.palette.primary.main, 0.015) : "transparent",
+//           "&:hover .MuiOutlinedInput-notchedOutline": {
+//             borderColor: isEditing ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.22),
+//           },
+//           "&.Mui-focused": { boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.12)}` },
+//         },
+//         "& .Mui-disabled": {
+//           WebkitTextFillColor: isEmpty
+//             ? `${theme.palette.text.disabled} !important`
+//             : `${theme.palette.text.primary} !important`,
+//         },
+//       }}
+//       InputProps={{
+//         startAdornment: (
+//           <InputAdornment position="start">
+//             {React.cloneElement(icon, { sx: { color: isEmpty ? theme.palette.text.disabled : theme.palette.primary.main, fontSize: 14 } })}
+//           </InputAdornment>
+//         ),
+//         endAdornment: isSecret && hasValue && (
+//           <InputAdornment position="end">
+//             <IconButton onClick={() => onToggleSecret(fieldName)} edge="end" size="small"
+//               sx={{ color: theme.palette.primary.main, opacity: 0.6, p: 0.3, "&:hover": { opacity: 1 } }}>
+//               {isVisible ? <VisibilityOffIcon sx={{ fontSize: 14 }} /> : <VisibilityIcon sx={{ fontSize: 14 }} />}
+//             </IconButton>
+//           </InputAdornment>
+//         ),
+//       }}
+//     />
+//   );
+// };
+// ── ConfigField ───────────────────────────────────────────────────────────────
 const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editValue, onChange, showSecretKeys, onToggleSecret }) => {
   const theme = useTheme();
   const isVisible = showSecretKeys[fieldName];
-  const displayValue = isEditing ? editValue : (value || "");
-  const isEmpty = !value && !isEditing;
+  const [localValue, setLocalValue] = useState(editValue || "");
+
+  // Update local value when editValue changes from parent
+  useEffect(() => {
+    setLocalValue(editValue || "");
+  }, [editValue]);
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    onChange(e); // Pass the event to parent
+  };
+
+  const handleClear = () => {
+    setLocalValue("");
+    onChange({ target: { name: fieldName, value: "" } });
+  };
+
+  // For display mode
+  const getDisplayValue = () => {
+    if (!value) return "Not configured";
+    if (isSecret && !isVisible) {
+      // Show dots but don't limit the length
+      return "•".repeat(value.length);
+    }
+    return value;
+  };
+
+  const isEmpty = !value;
   const hasValue = Boolean(value);
 
   return (
-    <TextField fullWidth name={fieldName} label={label}
-      value={isEmpty ? "Not configured" : (isSecret && !isVisible ? "•".repeat(Math.min(displayValue.length || 8, 14)) : displayValue)}
-      onChange={isEditing ? onChange : undefined}
-      disabled={!isEditing} size="small"
+    <TextField
+      fullWidth
+      name={fieldName}
+      label={label}
+      value={isEditing ? localValue : getDisplayValue()}
+      onChange={isEditing ? handleChange : undefined}
+      disabled={!isEditing}
+      size="small"
       helperText={isEditing && isSecret ? "Leave empty to keep current" : ""}
       sx={{
         "& .MuiInputLabel-root": { fontSize: "0.68rem" },
         "& .MuiInputBase-input": {
-          fontSize: "0.7rem", py: "5px",
+          fontSize: "0.7rem",
+          py: "5px",
           fontFamily: isSecret && !isVisible && hasValue ? "monospace" : "inherit",
-          letterSpacing: isSecret && !isVisible && hasValue ? "0.14em" : "normal",
+          letterSpacing: isSecret && !isVisible && hasValue ? "0.1em" : "normal",
         },
         "& .MuiFormHelperText-root": { fontSize: "0.58rem", mt: 0.2 },
         "& .MuiOutlinedInput-root": {
@@ -3908,7 +3995,7 @@ const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editV
           "&.Mui-focused": { boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.12)}` },
         },
         "& .Mui-disabled": {
-          WebkitTextFillColor: isEmpty
+          WebkitTextFillColor: isEmpty && !isEditing
             ? `${theme.palette.text.disabled} !important`
             : `${theme.palette.text.primary} !important`,
         },
@@ -3916,22 +4003,52 @@ const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editV
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            {React.cloneElement(icon, { sx: { color: isEmpty ? theme.palette.text.disabled : theme.palette.primary.main, fontSize: 14 } })}
+            {React.cloneElement(icon, {
+              sx: {
+                color: isEmpty && !isEditing ? theme.palette.text.disabled : theme.palette.primary.main,
+                fontSize: 14
+              }
+            })}
           </InputAdornment>
         ),
-        endAdornment: isSecret && hasValue && (
+        endAdornment: (
           <InputAdornment position="end">
-            <IconButton onClick={() => onToggleSecret(fieldName)} edge="end" size="small"
-              sx={{ color: theme.palette.primary.main, opacity: 0.6, p: 0.3, "&:hover": { opacity: 1 } }}>
-              {isVisible ? <VisibilityOffIcon sx={{ fontSize: 14 }} /> : <VisibilityIcon sx={{ fontSize: 14 }} />}
-            </IconButton>
+            {isEditing && localValue && (
+              <IconButton
+                onClick={handleClear}
+                edge="end"
+                size="small"
+                sx={{
+                  p: 0.3,
+                  mr: 0.5,
+                  color: theme.palette.text.secondary,
+                  "&:hover": { color: theme.palette.error.main }
+                }}
+              >
+                <CancelIcon sx={{ fontSize: 14 }} />
+              </IconButton>
+            )}
+            {isSecret && hasValue && !isEditing && (
+              <IconButton
+                onClick={() => onToggleSecret(fieldName)}
+                edge="end"
+                size="small"
+                sx={{
+                  color: theme.palette.primary.main,
+                  opacity: 0.6,
+                  p: 0.3,
+                  "&:hover": { opacity: 1 }
+                }}
+              >
+                {isVisible ? <VisibilityOffIcon sx={{ fontSize: 14 }} /> : <VisibilityIcon sx={{ fontSize: 14 }} />}
+              </IconButton>
+            )}
           </InputAdornment>
         ),
       }}
     />
   );
 };
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 const Profile = () => {
   const navigate = useNavigate();
@@ -4085,7 +4202,7 @@ const Profile = () => {
   useEffect(() => {
     // Use effectiveUser for display data
     const displayUser = effectiveUser || userData;
-    
+
     if (displayUser?._id) {
       setFormData({
         fullName: displayUser.name || "",
@@ -4216,18 +4333,48 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  // const handleConfigChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setConfigFormData({ ...configFormData, [name]: value });
+  // };
   const handleConfigChange = (e) => {
     const { name, value } = e.target;
-    setConfigFormData({ ...configFormData, [name]: value });
+    setConfigFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
-
+  // const handleSaveConfig = async () => {
+  //   const payload = {};
+  //   Object.entries(configFormData).forEach(([k, v]) => { if (v) payload[k] = v; });
+  //   if (!Object.keys(payload).length) {
+  //     toast.error("Fill at least one field");
+  //     return;
+  //   }
+  //   try {
+  //     await dispatch(createOrUpdateConfig(payload)).unwrap();
+  //     await dispatch(getConfig());
+  //     setIsConfigEditing(false);
+  //     setShowSecretKeys({});
+  //     toast.success("Configuration saved!");
+  //   } catch (e) {
+  //     console.error(e);
+  //     toast.error("Failed to save configuration");
+  //   }
+  // };
   const handleSaveConfig = async () => {
     const payload = {};
-    Object.entries(configFormData).forEach(([k, v]) => { if (v) payload[k] = v; });
-    if (!Object.keys(payload).length) {
-      toast.error("Fill at least one field");
-      return;
-    }
+    // Include ALL fields, even empty ones, to allow clearing
+    Object.entries(configFormData).forEach(([k, v]) => {
+      payload[k] = v || ""; // Send empty string if value is falsy
+    });
+
+    // Remove this check if you want to allow clearing all fields
+    // if (!Object.keys(payload).length) {
+    //   toast.error("Fill at least one field");
+    //   return;
+    // }
+
     try {
       await dispatch(createOrUpdateConfig(payload)).unwrap();
       await dispatch(getConfig());
@@ -4239,7 +4386,6 @@ const Profile = () => {
       toast.error("Failed to save configuration");
     }
   };
-
   const handleDeleteConfig = async () => {
     try {
       await dispatch(deleteConfig()).unwrap();

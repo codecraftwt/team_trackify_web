@@ -344,7 +344,7 @@
 //     // Check if the click target or its parent is an interactive element
 //     const target = event.target;
 //     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root, .MuiCheckbox-root');
-    
+
 //     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
 //     if (!isInteractive) {
 //       onView(user);
@@ -639,7 +639,7 @@
 // //     // Check if the click target or its parent is an interactive element
 // //     const target = event.target;
 // //     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
-    
+
 // //     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
 // //     if (!isInteractive) {
 // //       handleView(user);
@@ -934,7 +934,7 @@
 //     // Check if the click target or its parent is an interactive element
 //     const target = event.target;
 //     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
-    
+
 //     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
 //     if (!isInteractive) {
 //       handleView(user);
@@ -1463,7 +1463,7 @@
 //   }, [dispatch, getUserData, currentUser?._id, userData?._id]);
 
 
-  
+
 //   // Read filter from URL
 //   useEffect(() => {
 //     const params = new URLSearchParams(location.search);
@@ -3425,7 +3425,7 @@ const UserCard = ({
     // Check if the click target or its parent is an interactive element
     const target = event.target;
     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root, .MuiCheckbox-root');
-    
+
     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
     if (!isInteractive) {
       onView(user);
@@ -3686,302 +3686,6 @@ const UserCard = ({
   );
 };
 
-
-// const ResponsiveTable = ({
-//   users,
-//   isBulkMode,
-//   selectedUsers,
-//   handleSelectUser,
-//   handleSelectAll,
-//   handleView,
-//   handleEdit,
-//   handleDeleteClick,
-//   handleImpersonate,
-//   sortOrder,
-//   onSort,
-//   page,
-//   rowsPerPage,
-//   onPageChange,
-//   onRowsPerPageChange,
-//   totalCount,
-//   isMobile,
-//   isTablet,
-//   loading,
-//   role_id,
-//   isSubscriptionExpired,
-//   isDeleting,
-// }) => {
-//   const theme = useTheme();
-//   const isSuperAdmin = role_id === 2;
-//   const isLoggedInAdmin = role_id === 1;
-
-//   // Handle row click with proper event propagation
-//   const handleRowClick = (user, event) => {
-//     // Check if the click target or its parent is an interactive element
-//     const target = event.target;
-//     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
-    
-//     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
-//     if (!isInteractive) {
-//       handleView(user);
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <TableContainer sx={{
-//         overflowX: 'auto',
-//         '&::-webkit-scrollbar': { height: '6px' },
-//         '&::-webkit-scrollbar-thumb': {
-//           backgroundColor: alpha(theme.palette.primary.main, 0.3),
-//           borderRadius: '3px',
-//         },
-//       }}>
-//         <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
-//           <TableHead>
-//             <TableRow>
-//               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
-//               <TableCell>Name</TableCell>
-//               <TableCell>Email</TableCell>
-//               {isSuperAdmin && <TableCell>Mobile No</TableCell>}
-//               <TableCell>Joined Date</TableCell>
-//               <TableCell align="right">Actions</TableCell>
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {[1, 2, 3, 4, 5].map((item) => (
-//               <TableRowSkeleton
-//                 key={item}
-//                 isBulkMode={isBulkMode}
-//                 isMobile={isMobile}
-//                 isTablet={isTablet}
-//                 role_id={role_id}
-//               />
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </TableContainer>
-//     );
-//   }
-
-//   return (
-//     <TableContainer sx={{
-//       overflowX: 'auto',
-//       '&::-webkit-scrollbar': { height: '6px' },
-//       '&::-webkit-scrollbar-thumb': {
-//         backgroundColor: alpha(theme.palette.primary.main, 0.3),
-//         borderRadius: '3px',
-//       },
-//     }}>
-//       <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
-//         <TableHead>
-//           <TableRow>
-//             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
-//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//               Name
-//             </TableCell>
-//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//               Email
-//             </TableCell>
-//             {isSuperAdmin && (
-//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//                 Mobile No
-//               </TableCell>
-//             )}
-//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
-//                 Joined Date
-//                 {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
-//               </Box>
-//             </TableCell>
-//             <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//               Actions
-//             </TableCell>
-//           </TableRow>
-//         </TableHead>
-//         <TableBody>
-//           <AnimatePresence>
-//             {(users || []).map((user) => {
-//               const isSubAdmin = user.role_id === 3;
-//               const showSBBadge = isSubAdmin;
-
-//               return (
-//                 <motion.tr
-//                   key={user._id || user.id}
-//                   initial={{ opacity: 0 }}
-//                   animate={{ opacity: 1 }}
-//                   exit={{ opacity: 0 }}
-//                   transition={{ duration: 0.2 }}
-//                   style={{ cursor: 'pointer' }}
-//                   onClick={(event) => handleRowClick(user, event)}
-//                   onMouseEnter={(e) => {
-//                     if (!isMobile) {
-//                       e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
-//                     }
-//                   }}
-//                   onMouseLeave={(e) => {
-//                     if (!isMobile) {
-//                       e.currentTarget.style.backgroundColor = 'transparent';
-//                     }
-//                   }}
-//                 >
-//                   {isBulkMode && (
-//                     <TableCell padding="checkbox" sx={{ pl: 2 }}>
-//                       <Checkbox
-//                         checked={selectedUsers.includes(user._id || user.id)}
-//                         onChange={() => handleSelectUser(user._id || user.id)}
-//                         size="small"
-//                         sx={{ color: theme.palette.primary.main }}
-//                         onClick={(e) => e.stopPropagation()} // Prevent row click when clicking checkbox
-//                       />
-//                     </TableCell>
-//                   )}
-//                   <TableCell>
-//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-//                       <Avatar
-//                         src={user.avtar || user.profileImage}
-//                         sx={{
-//                           width: { xs: 28, sm: 32 },
-//                           height: { xs: 28, sm: 32 },
-//                           bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                           color: theme.palette.primary.main,
-//                         }}
-//                       >
-//                         {(user.name || user.name)?.charAt(0)}
-//                       </Avatar>
-//                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-//                         <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.85rem' }, color: 'text.primary' }}>
-//                           {user.name || user.name}
-//                         </Typography>
-//                         {showSBBadge && (
-//                           <Chip
-//                             label="SB"
-//                             size="small"
-//                             sx={{
-//                               bgcolor: alpha('#22c55e', 0.15),
-//                               color: '#22c55e',
-//                               fontWeight: 700,
-//                               fontSize: '0.55rem',
-//                               height: 16,
-//                               '& .MuiChip-label': {
-//                                 px: 0.5,
-//                               },
-//                             }}
-//                           />
-//                         )}
-//                       </Box>
-//                     </Box>
-//                   </TableCell>
-//                   <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
-//                     {user.email}
-//                   </TableCell>
-//                   {isSuperAdmin && (
-//                     <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
-//                       {user.mobile_no}
-//                     </TableCell>
-//                   )}
-//                   <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
-//                     {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
-//                   </TableCell>
-//                   <TableCell align="right">
-//                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-//                       <Tooltip title="View">
-//                         <span>
-//                           <IconButton
-//                             size="small"
-//                             onClick={(e) => {
-//                               e.stopPropagation(); // Prevent row click
-//                               handleView(user);
-//                             }}
-//                             disabled={role_id === 1 && isSubscriptionExpired === true}
-//                             sx={{
-//                               color: theme.palette.primary.main,
-//                               width: 26,
-//                               height: 26,
-//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                             }}
-//                           >
-//                             <VisibilityIcon sx={{ fontSize: 14 }} />
-//                           </IconButton>
-//                         </span>
-//                       </Tooltip>
-
-//                       {/* Impersonate button - only for super admin */}
-//                       {isSuperAdmin && (
-//                         <Tooltip title="Login as User">
-//                           <IconButton
-//                             size="small"
-//                             onClick={(e) => {
-//                               e.stopPropagation(); // Prevent row click
-//                               handleImpersonate(user);
-//                             }}
-//                             sx={{
-//                               color: theme.palette.secondary.main,
-//                               width: 26,
-//                               height: 26,
-//                               '&:hover': {
-//                                 bgcolor: alpha(theme.palette.secondary.main, 0.1)
-//                               }
-//                             }}
-//                           >
-//                             <LoginIcon sx={{ fontSize: 14 }} />
-//                           </IconButton>
-//                         </Tooltip>
-//                       )}
-
-//                       <Tooltip title="Edit">
-//                         <span>
-//                           <IconButton
-//                             size="small"
-//                             onClick={(e) => {
-//                               e.stopPropagation(); // Prevent row click
-//                               handleEdit(user);
-//                             }}
-//                             disabled={role_id === 1 && isSubscriptionExpired === true}
-//                             sx={{
-//                               color: theme.palette.primary.main,
-//                               width: 26,
-//                               height: 26,
-//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                             }}
-//                           >
-//                             <EditIcon sx={{ fontSize: 14 }} />
-//                           </IconButton>
-//                         </span>
-//                       </Tooltip>
-
-//                       <Tooltip title="Delete">
-//                         <span>
-//                           <IconButton
-//                             size="small"
-//                             onClick={(e) => {
-//                               e.stopPropagation(); // Prevent row click
-//                               handleDeleteClick(user);
-//                             }}
-//                             disabled={isDeleting || (role_id === 1 && isSubscriptionExpired === true)}
-//                             sx={{
-//                               color: '#ef4444',
-//                               width: 26,
-//                               height: 26,
-//                               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
-//                             }}
-//                           >
-//                             <DeleteIcon sx={{ fontSize: 14 }} />
-//                           </IconButton>
-//                         </span>
-//                       </Tooltip>
-//                     </Box>
-//                   </TableCell>
-//                 </motion.tr>
-//               );
-//             })}
-//           </AnimatePresence>
-//         </TableBody>
-//       </Table>
-//     </TableContainer>
-//   );
-// };
-
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -4015,7 +3719,7 @@ const ResponsiveTable = ({
     // Check if the click target or its parent is an interactive element
     const target = event.target;
     const isInteractive = target.closest('button, a, input, [role="button"], .MuiIconButton-root, .MuiButtonBase-root');
-    
+
     // Don't trigger view if clicking on action buttons, checkbox, or other interactive elements
     if (!isInteractive) {
       handleView(user);
@@ -4075,6 +3779,9 @@ const ResponsiveTable = ({
             <TableRow>
               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                Profile
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                 Name
               </TableCell>
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
@@ -4098,8 +3805,8 @@ const ResponsiveTable = ({
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell 
-                colSpan={isSuperAdmin ? 5 : 4} 
+              <TableCell
+                colSpan={isSuperAdmin ? 5 : 4}
                 align="center"
                 sx={{
                   py: 8,
@@ -4183,9 +3890,14 @@ const ResponsiveTable = ({
         <TableHead>
           <TableRow>
             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
-            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+            {/* <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Name
+            </TableCell> */}
+
+            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+              Profile &nbsp; &nbsp;  Name
             </TableCell>
+
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Email
             </TableCell>
@@ -4387,6 +4099,7 @@ const ResponsiveTable = ({
     </TableContainer>
   );
 };
+
 const UserManagement = () => {
   const theme = useTheme();
   const location = useLocation();
@@ -4518,7 +4231,7 @@ const UserManagement = () => {
       const paymentId = targetUser?.currentPaymentId;
 
       if (paymentId && typeof paymentId === 'string') {
-        setIsLoadingPayment(true);  
+        setIsLoadingPayment(true);
         try {
           const result = await dispatch(getPaymentById(paymentId)).unwrap();
           const maxUserValue = result?.data?.maxUser || result?.maxUser;
