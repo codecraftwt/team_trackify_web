@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 env:
-  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-  STAGING_PATH: ${{ secrets.DEPLOY_PATH }}-staging-${{ github.run_id }}-${{ github.run_attempt }}
+  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}/live
+  STAGING_PATH: ${{ secrets.DEPLOY_PATH }}/staging-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
   build-and-deploy:
@@ -53,66 +53,56 @@ jobs:
             exit 1
           fi
 
-      # 7. Create staging directory on server
+      # 7. Create TAR
+      - name: Create archive
+        run: tar -czf build.tar.gz dist
+
+      # 8. Create staging dir
       - name: Create staging directory
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.NEW_SERVER_CI_CD_SECRET_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             mkdir -p "${{ env.STAGING_PATH }}"
 
-      # 8. Upload build files
-      - name: Upload dist folder
-        uses: appleboy/scp-action@v0.1.4
+      # 9. Upload archive
+      - name: Upload build archive
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.NEW_SERVER_CI_CD_SECRET_KEY }}
-          source: "dist/*"
-          target: ${{ env.STAGING_PATH }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "build.tar.gz"
+          target: "${{ env.STAGING_PATH }}/"
 
-      # 9. Debug staging (optional but useful)
-      - name: Debug staging contents
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.NEW_SERVER_CI_CD_SECRET_KEY }}
-          script: |
-            echo "Staging contents:"
-            ls -lah "${{ env.STAGING_PATH }}"
-
-
-
-      # 10. Sync to production
+      # 10. Deploy
       - name: Deploy to production
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.NEW_SERVER_CI_CD_SECRET_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             set -eux
 
-            # Ensure rsync exists
-            command -v rsync >/dev/null 2>&1 || {
-              echo "rsync is required on server"
-              exit 1
-            }
+            cd "${{ env.STAGING_PATH }}"
 
-            # Validate build
-            test -f "${{ env.STAGING_PATH }}/index.html" || {
-              echo "Build invalid: index.html missing"
-              exit 1
-            }
+            tar -xzf build.tar.gz
+            rm build.tar.gz
+
+            test -s dist/index.html
 
             mkdir -p "${{ env.DEPLOY_PATH }}"
 
-            rsync -a --delete \
-              --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
-              "${{ env.STAGING_PATH }}/" "${{ env.DEPLOY_PATH }}/"
+            # Atomic replace
+            rm -rf "${{ env.DEPLOY_PATH }}"
+            mv dist "${{ env.DEPLOY_PATH }}"
 
             # Cleanup
-            rm -rf "${{ env.STAGING_PATH }}"
+            cd "$(dirname "${{ env.DEPLOY_PATH }}")"
+            rm -rf staging-*
+
+            # Reload nginx
+            sudo systemctl reload nginx
