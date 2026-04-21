@@ -110,12 +110,33 @@ export const verifyPayment = createAsyncThunk(
   }
 );
 
+// export const getPaymentHistory = createAsyncThunk(
+//   "payment/getHistory",
+//   async ({ adminId, page = 1, limit = 10 }, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(
+//         `/payments/history/${adminId}?page=${page}&limit=${limit}`
+//       );
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );
 export const getPaymentHistory = createAsyncThunk(
   "payment/getHistory",
-  async ({ adminId, page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ adminId, page = 1, limit = 10, search, startDate, endDate, status }, { rejectWithValue }) => {
     try {
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('limit', limit);
+      if (search) params.append('search', search);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (status && status !== 'all') params.append('status', status);
+      
       const response = await api.get(
-        `/payments/history/${adminId}?page=${page}&limit=${limit}`
+        `/payments/history/${adminId}?${params.toString()}`
       );
       return response.data;
     } catch (error) {
@@ -123,7 +144,6 @@ export const getPaymentHistory = createAsyncThunk(
     }
   }
 );
-
 
 export const getAllPaymentHistory = createAsyncThunk(
   "payment/getAllPaymentHistory",
@@ -279,6 +299,17 @@ const initialState = {
   totalCompletedAmount: 0,
   numberOfPaidUsers: 0,
   averageRevenue: 0,
+  totalDiscountGiven: 0,
+
+  totalPlanCount: 0,
+  totalAddOnCount: 0,
+  totalPlanAmount: 0,
+  totalAddOnAmount: 0,
+  totalWithAll: 0,
+
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
 
   currentPage: 1,
   totalPages: 1,
@@ -386,30 +417,90 @@ const paymentSlice = createSlice({
 
     // Get Payment History
     builder
-      .addCase(getPaymentHistory.pending, (state) => {
-        state.historyLoading = true;
-        state.historyError = null;
-      })
-      .addCase(getPaymentHistory.fulfilled, (state, action) => {
-        state.historyLoading = false;
-        const { data, pagination, paymentStats } = action.payload;
-        state.paymentHistory = data || [];
-        state.currentPage = pagination?.page || 1;
-        state.totalPages = pagination?.totalPages || 1;
-        state.totalItems = pagination?.totalItems || 0;
-        state.paymentStats = paymentStats || {
-          totalPayments: 0,
-          totalAmount: 0,
-          pendingCount: 0,
-          completedCount: 0,
-        };
-      })
-      .addCase(getPaymentHistory.rejected, (state, action) => {
-        state.historyLoading = false;
-        state.historyError = action.payload;
-      });
+      // .addCase(getPaymentHistory.pending, (state) => {
+      //   state.historyLoading = true;
+      //   state.historyError = null;
+      // })
+      // .addCase(getPaymentHistory.fulfilled, (state, action) => {
+      //   state.historyLoading = false;
+      //   const { data, pagination, paymentStats } = action.payload;
+      //   state.paymentHistory = data || [];
+      //   state.currentPage = pagination?.page || 1;
+      //   state.totalPages = pagination?.totalPages || 1;
+      //   state.totalItems = pagination?.totalItems || 0;
+      //   state.paymentStats = paymentStats || {
+      //     totalPayments: 0,
+      //     totalAmount: 0,
+      //     pendingCount: 0,
+      //     completedCount: 0,
+      //   };
+      // })
+      // .addCase(getPaymentHistory.rejected, (state, action) => {
+      //   state.historyLoading = false;
+      //   state.historyError = action.payload;
+      // });
 
-    // Get All Payment History (Admin + Plans Overview)
+    
+    // Get Payment History - UPDATED for new response structure
+builder
+  .addCase(getPaymentHistory.pending, (state) => {
+    state.historyLoading = true;
+    state.historyError = null;
+  })
+  .addCase(getPaymentHistory.fulfilled, (state, action) => {
+    state.historyLoading = false;
+    const payload = action.payload;
+    
+    // Check if it's the new response structure
+    if (payload.statusCounts) {
+      // New response structure
+      state.paymentHistory = payload.data || [];
+      state.currentPage = payload.pagination?.page || 1;
+      state.totalPages = payload.pagination?.totalPages || 1;
+      state.totalItems = payload.pagination?.totalItems || 0;
+      
+      // Store all new statistics
+      state.totalCompletedAmount = payload.totalCompletedAmount || 0;
+      state.totalPendingAmount = payload.totalPendingAmount || 0;
+      state.totalCancelledAmount = payload.totalCancelledAmount || 0;
+      state.totalFailedAmount = payload.totalFailedAmount || 0;
+      state.totalDiscountGiven = payload.totalDiscountGiven || 0;
+      state.totalPlanCount = payload.totalPlanCount || 0;
+      state.totalAddOnCount = payload.totalAddOnCount || 0;
+      state.totalPlanAmount = payload.totalPlanAmount || 0;
+      state.totalAddOnAmount = payload.totalAddOnAmount || 0;
+      state.totalWithAll = payload.totalWithAll || 0;
+      
+      // Update paymentStats for backward compatibility
+      state.paymentStats = {
+        totalPayments: payload.statusCounts?.all || 0,
+        totalAmount: payload.totalCompletedAmount || 0,
+        pendingCount: payload.statusCounts?.pending || 0,
+        completedCount: payload.statusCounts?.completed || 0,
+      };
+      
+      // Store status counts
+      state.statusCounts = payload.statusCounts || {};
+    } else {
+      // Old response structure (fallback)
+      const { data, pagination, paymentStats } = payload;
+      state.paymentHistory = data || [];
+      state.currentPage = pagination?.page || 1;
+      state.totalPages = pagination?.totalPages || 1;
+      state.totalItems = pagination?.totalItems || 0;
+      state.paymentStats = paymentStats || {
+        totalPayments: 0,
+        totalAmount: 0,
+        pendingCount: 0,
+        completedCount: 0,
+      };
+    }
+  })
+  .addCase(getPaymentHistory.rejected, (state, action) => {
+    state.historyLoading = false;
+    state.historyError = action.payload;
+  });
+      // Get All Payment History (Admin + Plans Overview)
     builder
       .addCase(getAllPaymentHistory.pending, (state) => {
         state.allPaymentHistoryLoading = true;
@@ -438,6 +529,27 @@ const paymentSlice = createSlice({
       //   state.allPaymentHistoryLoading = false;
       //   state.allPaymentHistoryError = action.payload;
       // });
+      // .addCase(getAllPaymentHistory.fulfilled, (state, action) => {
+      //   state.allPaymentHistoryLoading = false;
+      //   const {
+      //     data,
+      //     totalCompletedAmount,
+      //     numberOfPaidUsers,
+      //     averageRevenue,
+      //     totalDiscountGiven,
+      //     pagination,
+      //   } = action.payload;
+
+      //   state.allPaymentHistory = data || [];
+      //   state.totalCompletedAmount = totalCompletedAmount || 0;
+      //   state.numberOfPaidUsers = numberOfPaidUsers || 0;
+      //   state.averageRevenue = averageRevenue || 0;
+      //   state.totalDiscountGiven = totalDiscountGiven || 0;
+
+      //   state.currentPage = pagination?.page || 1;
+      //   state.totalPages = pagination?.totalPages || 1;
+      //   state.totalItems = pagination?.totalItems || 0;
+      // })
       .addCase(getAllPaymentHistory.fulfilled, (state, action) => {
         state.allPaymentHistoryLoading = false;
         const {
@@ -446,6 +558,11 @@ const paymentSlice = createSlice({
           numberOfPaidUsers,
           averageRevenue,
           totalDiscountGiven,
+          totalPlanCount,      // ← ADD THIS
+          totalAddOnCount,     // ← ADD THIS
+          totalPlanAmount,     // ← ADD THIS
+          totalAddOnAmount,    // ← ADD THIS
+          totalWithAll,        // ← ADD THIS
           pagination,
         } = action.payload;
 
@@ -454,6 +571,13 @@ const paymentSlice = createSlice({
         state.numberOfPaidUsers = numberOfPaidUsers || 0;
         state.averageRevenue = averageRevenue || 0;
         state.totalDiscountGiven = totalDiscountGiven || 0;
+
+        // ← ADD THESE NEW STATE PROPERTIES
+        state.totalPlanCount = totalPlanCount || 0;
+        state.totalAddOnCount = totalAddOnCount || 0;
+        state.totalPlanAmount = totalPlanAmount || 0;
+        state.totalAddOnAmount = totalAddOnAmount || 0;
+        state.totalWithAll = totalWithAll || 0;
 
         state.currentPage = pagination?.page || 1;
         state.totalPages = pagination?.totalPages || 1;
