@@ -1753,6 +1753,7 @@ const handleSubmit = async (e) => {
     // Sub Admin can only update these fields
     payload.append("name", formData.fullName);
     payload.append("mobile_no", formData.mobile);
+    payload.append("email", formData.email);
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active");
     

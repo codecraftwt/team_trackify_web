@@ -1,4 +1,4 @@
-// ///////////   With Updated Title
+// // Free Map API Key
 
 // import React, { useEffect, useState, useRef, useCallback } from "react";
 // import { useLocation } from "react-router-dom";
@@ -376,8 +376,6 @@
 //     };
 //   }, []);
 
-//   console.log(selectedSession);
-  
 //   const buildSessionPhotos = useCallback((session) => {
 //     if (!session) return [];
 //     const { startPoint: sp, endPoint: ep } = getStartEndFromPhotos(session);
@@ -861,345 +859,113 @@
 //     );
 //   };
 
-// // const renderSessionList = () => (
-// //   <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
-// //     <Box sx={{ p: 0.75 }}>
-// //       {/* Stylish Header */}
-// //       <Box sx={{ 
-// //         display: "flex", 
-// //         alignItems: "center", 
-// //         justifyContent: "space-between",
-// //         mb: 1.5,
-// //         pb: 0.75,
-// //         borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
-// //       }}>
-// //         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-// //           <Box sx={{ 
-// //             width: 28, 
-// //             height: 28, 
-// //             borderRadius: "50%", 
-// //             background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-// //             display: "flex", 
-// //             alignItems: "center", 
-// //             justifyContent: "center",
-// //             boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
-// //           }}>
-// //             <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
-// //           </Box>
-// //           <Typography variant="subtitle2" fontWeight={700} sx={{ 
-// //             fontSize: "0.7rem", 
-// //             background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-// //             backgroundClip: "text",
-// //             WebkitBackgroundClip: "text",
-// //             color: "transparent",
-// //             letterSpacing: "0.5px"
-// //           }}>
-// //             SESSIONS
-// //           </Typography>
-// //           <Chip 
-// //             label={allSessions.length} 
-// //             size="small" 
-// //             sx={{ 
-// //               height: 18, 
-// //               fontSize: "0.55rem", 
-// //               fontWeight: 700,
-// //               bgcolor: alpha("#2196F3", 0.15),
-// //               color: "#2196F3",
-// //               borderRadius: "8px"
-// //             }} 
-// //           />
-// //         </Box>
-// //         {(selectedDate || metadata?.selectedDate) && (
-// //           <Chip 
-// //             label={selectedDate || metadata?.selectedDate} 
-// //             size="small" 
-// //             sx={{ 
-// //               height: 20, 
-// //               fontSize: "0.5rem", 
-// //               fontWeight: 500,
-// //               bgcolor: alpha("#2196F3", 0.1), 
-// //               color: "#2196F3",
-// //               borderRadius: "6px",
-// //               border: `1px solid ${alpha("#2196F3", 0.2)}`
-// //             }} 
-// //           />
-// //         )}
-// //       </Box>
+//   // ── Session List with smaller card size ──────────────────────────────────────────
+//   // const renderSessionList = () => (
+//   //   <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
+//   //     <Box sx={{ p: 1 }}>
+//   //       <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.7rem", mb: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
+//   //         <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+//   //         Sessions ({allSessions.length})
+//   //         {(selectedDate || metadata?.selectedDate) && (
+//   //           <Chip label={selectedDate || metadata?.selectedDate} size="small" sx={{ ml: "auto", height: 18, fontSize: "0.5rem", bgcolor: alpha("#2196F3", 0.1), color: "#2196F3" }} />
+//   //         )}
+//   //       </Typography>
 
-// //       <Stack spacing={1}>
-// //         {allSessions.map((session, index) => {
-// //           const sessionId = String(session.sessionId || session._id);
-// //           const isSelected = String(selectedSessionId) === sessionId;
-// //           const isLoading = isSelected && isLoadingSession;
-// //           const photoCount = getPhotoCount(session);
-// //           const stats = sessionStatsMap.get(sessionId) || getSessionStats(session);
+//   //       <Stack spacing={1}>
+//   //         {allSessions.map((session, index) => {
+//   //           const sessionId = String(session.sessionId || session._id);
+//   //           const isSelected = String(selectedSessionId) === sessionId;
+//   //           const isLoading = isSelected && isLoadingSession;
+//   //           const photoCount = getPhotoCount(session);
+//   //           const stats = sessionStatsMap.get(sessionId) || getSessionStats(session);
 
-// //           const cachedSession = sessionDataCache.current.get(sessionId);
-// //           const displayRemark = session.remark || cachedSession?.remark || null;
+//   //           const cachedSession = sessionDataCache.current.get(sessionId);
+//   //           const displayRemark = session.remark || cachedSession?.remark || null;
 
-// //           return (
-// //             <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
-// //               <Card
-// //                 onClick={() => handleSessionSelect(sessionId)}
-// //                 sx={{
-// //                   cursor: "pointer",
-// //                   position: "relative",
-// //                   overflow: "visible",
-// //                   background: isSelected 
-// //                     ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
-// //                     : "rgba(255, 255, 255, 0.6)",
-// //                   backdropFilter: "blur(10px)",
-// //                   border: isSelected 
-// //                     ? `1.5px solid ${alpha("#2196F3", 0.5)}`
-// //                     : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
-// //                   borderRadius: "12px",
-// //                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-// //                   "&:hover": { 
-// //                     borderColor: alpha("#2196F3", 0.6),
-// //                     background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
-// //                     transform: "translateY(-2px) translateX(2px)",
-// //                     boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
-// //                   },
-// //                   ...(isSelected && {
-// //                     "&::before": {
-// //                       content: '""',
-// //                       position: "absolute",
-// //                       left: 0,
-// //                       top: "20%",
-// //                       height: "60%",
-// //                       width: "3px",
-// //                       background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-// //                       borderRadius: "0 4px 4px 0",
-// //                     }
-// //                   })
-// //                 }}
-// //               >
-// //                 <CardContent sx={{ p: 0.85, '&:last-child': { pb: 0.85 } }}>
-// //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-// //                     {/* Stylish Number Badge */}
-// //                     <Box sx={{ 
-// //                       width: 26, 
-// //                       height: 26, 
-// //                       borderRadius: "10px",
-// //                       background: isSelected 
-// //                         ? `linear-gradient(135deg, #2196F3, #1976D2)`
-// //                         : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
-// //                       display: "flex", 
-// //                       alignItems: "center", 
-// //                       justifyContent: "center",
-// //                       boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
-// //                       transition: "all 0.2s ease"
-// //                     }}>
-// //                       {isLoading ? (
-// //                         <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
-// //                       ) : (
-// //                         <Typography fontWeight={700} sx={{ 
-// //                           fontSize: "0.65rem", 
-// //                           color: isSelected ? "white" : "#2196F3",
-// //                           textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
-// //                         }}>
-// //                           {index + 1}
-// //                         </Typography>
-// //                       )}
-// //                     </Box>
-                    
-// //                     <Box sx={{ flex: 1 }}>
-// //                       <Typography fontWeight={700} sx={{ 
-// //                         fontSize: "0.7rem", 
-// //                         color: isSelected ? "#2196F3" : "text.primary",
-// //                         letterSpacing: "0.3px",
-// //                         mb: 0.25
-// //                       }}>
-// //                         {displayRemark || `Session #${index + 1}`}
-// //                       </Typography>
-// //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-// //                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#2196F3", 0.6) }} />
-// //                         <Typography variant="caption" sx={{ 
-// //                           fontSize: "0.5rem", 
-// //                           color: "text.secondary",
-// //                           fontWeight: 500
-// //                         }}>
-// //                           {fmtDateTime(session.startTime || session.stats?.startTime)}
-// //                         </Typography>
-// //                       </Box>
-// //                     </Box>
-                    
-// //                     {photoCount > 0 && (
-// //                       <Box sx={{ 
-// //                         display: "flex", 
-// //                         alignItems: "center", 
-// //                         gap: 0.25,
-// //                         bgcolor: alpha("#FF9800", 0.1),
-// //                         borderRadius: "12px",
-// //                         px: 0.65,
-// //                         py: 0.3,
-// //                         border: `1px solid ${alpha("#FF9800", 0.2)}`
-// //                       }}>
-// //                         <PhotoIcon sx={{ fontSize: 10, color: "#FF9800" }} />
-// //                         <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#FF9800" }}>
-// //                           {photoCount}
-// //                         </Typography>
-// //                       </Box>
-// //                     )}
-// //                   </Box>
+//   //           return (
+//   //             <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
+//   //               <Card
+//   //                 onClick={() => handleSessionSelect(sessionId)}
+//   //                 sx={{
+//   //                   cursor: "pointer",
+//   //                   border: isSelected ? `1.5px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+//   //                   bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
+//   //                   transition: "all 0.2s ease",
+//   //                   "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02), transform: "translateY(-1px)", boxShadow: 1 },
+//   //                 }}
+//   //               >
+//   //                 <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
+//   //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.75 }}>
+//   //                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: isSelected ? "#2196F3" : alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "white" : "#2196F3", fontSize: "0.7rem", fontWeight: "bold" }}>
+//   //                       {isLoading ? <CircularProgress size={16} /> : index + 1}
+//   //                     </Box>
+//   //                     <Box sx={{ flex: 1 }}>
+//   //                       <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.7rem" }}>
+//   //                         {displayRemark || `Session #${index + 1}`}
+//   //                       </Typography>
+//   //                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem", display: "flex", alignItems: "center", gap: 0.5 }}>
+//   //                         <ScheduleIcon sx={{ fontSize: 9 }} />
+//   //                         {fmtDateTime(session.startTime || session.stats?.startTime)}
+//   //                       </Typography>
+//   //                     </Box>
+//   //                     {photoCount > 0 && (
+//   //                       <Chip icon={<PhotoIcon sx={{ fontSize: 11 }} />} label={photoCount} size="small" sx={{ height: 20, fontSize: "0.55rem", bgcolor: alpha("#FF9800", 0.1), color: "#FF9800" }} />
+//   //                     )}
+//   //                   </Box>
 
-// //                   {/* Stats Cards */}
-// //                   <Grid container spacing={0.6} sx={{ mb: 0.6 }}>
-// //                     <Grid item xs={6}>
-// //                       <Box sx={{ 
-// //                         display: "flex", 
-// //                         alignItems: "center", 
-// //                         gap: 0.6, 
-// //                         p: 0.5, 
-// //                         bgcolor: alpha("#FF9800", 0.04), 
-// //                         borderRadius: "8px",
-// //                         border: `1px solid ${alpha("#FF9800", 0.08)}`,
-// //                         transition: "all 0.2s ease",
-// //                         "&:hover": {
-// //                           bgcolor: alpha("#FF9800", 0.08),
-// //                           borderColor: alpha("#FF9800", 0.15)
-// //                         }
-// //                       }}>
-// //                         <Box sx={{ 
-// //                           width: 24, 
-// //                           height: 24, 
-// //                           borderRadius: "6px", 
-// //                           bgcolor: alpha("#FF9800", 0.1),
-// //                           display: "flex",
-// //                           alignItems: "center",
-// //                           justifyContent: "center"
-// //                         }}>
-// //                           <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-// //                         </Box>
-// //                         <Box>
-// //                           <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-// //                             Duration
-// //                           </Typography>
-// //                           <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#FF9800" }}>
-// //                             {fmtDuration(stats.duration)}
-// //                           </Typography>
-// //                         </Box>
-// //                       </Box>
-// //                     </Grid>
-// //                     <Grid item xs={6}>
-// //                       <Box sx={{ 
-// //                         display: "flex", 
-// //                         alignItems: "center", 
-// //                         gap: 0.6, 
-// //                         p: 0.5, 
-// //                         bgcolor: alpha("#2196F3", 0.04), 
-// //                         borderRadius: "8px",
-// //                         border: `1px solid ${alpha("#2196F3", 0.08)}`,
-// //                         transition: "all 0.2s ease",
-// //                         "&:hover": {
-// //                           bgcolor: alpha("#2196F3", 0.08),
-// //                           borderColor: alpha("#2196F3", 0.15)
-// //                         }
-// //                       }}>
-// //                         <Box sx={{ 
-// //                           width: 24, 
-// //                           height: 24, 
-// //                           borderRadius: "6px", 
-// //                           bgcolor: alpha("#2196F3", 0.1),
-// //                           display: "flex",
-// //                           alignItems: "center",
-// //                           justifyContent: "center"
-// //                         }}>
-// //                           <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
-// //                         </Box>
-// //                         <Box>
-// //                           <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-// //                             Distance
-// //                           </Typography>
-// //                           <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
-// //                             {fmtDist(stats.distance)}
-// //                           </Typography>
-// //                         </Box>
-// //                       </Box>
-// //                     </Grid>
-// //                   </Grid>
+//   //                   <Grid container spacing={0.75} sx={{ mb: 0.75 }}>
+//   //                     <Grid item xs={6}>
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#FF9800", 0.03), borderRadius: 1 }}>
+//   //                         <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+//   //                         <Box>
+//   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>Duration</Typography>
+//   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem", display: "block" }}>{fmtDuration(stats.duration)}</Typography>
+//   //                         </Box>
+//   //                       </Box>
+//   //                     </Grid>
+//   //                     <Grid item xs={6}>
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#2196F3", 0.03), borderRadius: 1 }}>
+//   //                         <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//   //                         <Box>
+//   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>Distance</Typography>
+//   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem", display: "block" }}>{fmtDist(stats.distance)}</Typography>
+//   //                         </Box>
+//   //                       </Box>
+//   //                     </Grid>
+//   //                   </Grid>
 
-// //                   <Divider sx={{ 
-// //                     my: 0.6, 
-// //                     borderColor: alpha(theme.palette.divider, 0.3),
-// //                     background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
-// //                   }} />
+//   //                   <Divider sx={{ my: 0.75 }} />
 
-// //                   {/* Start/End Points */}
-// //                   <Grid container spacing={0.6}>
-// //                     <Grid item xs={6}>
-// //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-// //                         <Box sx={{ 
-// //                           width: 20, 
-// //                           height: 20, 
-// //                           borderRadius: "6px", 
-// //                           bgcolor: alpha("#22c55e", 0.1),
-// //                           display: "flex",
-// //                           alignItems: "center",
-// //                           justifyContent: "center"
-// //                         }}>
-// //                           <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
-// //                         </Box>
-// //                         <Box>
-// //                           <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-// //                             START
-// //                           </Typography>
-// //                           <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#22c55e" }}>
-// //                             {fmtTime(stats.startTime)}
-// //                           </Typography>
-// //                         </Box>
-// //                       </Box>
-// //                     </Grid>
-// //                     <Grid item xs={6}>
-// //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-// //                         <Box sx={{ 
-// //                           width: 20, 
-// //                           height: 20, 
-// //                           borderRadius: "6px", 
-// //                           bgcolor: alpha("#ef4444", 0.1),
-// //                           display: "flex",
-// //                           alignItems: "center",
-// //                           justifyContent: "center"
-// //                         }}>
-// //                           <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
-// //                         </Box>
-// //                         <Box>
-// //                           <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-// //                             END
-// //                           </Typography>
-// //                           <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#ef4444" }}>
-// //                             {fmtTime(stats.endTime)}
-// //                           </Typography>
-// //                         </Box>
-// //                       </Box>
-// //                     </Grid>
-// //                   </Grid>
-
-// //                   {/* Selected Session Indicator */}
-// //                   {isSelected && (
-// //                     <Box sx={{ 
-// //                       position: "absolute", 
-// //                       bottom: 8, 
-// //                       right: 8,
-// //                       width: 6,
-// //                       height: 6,
-// //                       borderRadius: "50%",
-// //                       bgcolor: "#2196F3",
-// //                       boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
-// //                     }} />
-// //                   )}
-// //                 </CardContent>
-// //               </Card>
-// //             </Zoom>
-// //           );
-// //         })}
-// //       </Stack>
-// //     </Box>
-// //   </Paper>
-// // );
-//   // ─── Render ───────────────────────────────────────────────────────────────
-  
-//   const renderSessionList = () => (
+//   //                   <Grid container spacing={0.75}>
+//   //                     <Grid item xs={6}>
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+//   //                         <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
+//   //                         <Box>
+//   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>Start</Typography>
+//   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.55rem", display: "block" }}>{fmtTime(stats.startTime)}</Typography>
+//   //                         </Box>
+//   //                       </Box>
+//   //                     </Grid>
+//   //                     <Grid item xs={6}>
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+//   //                         <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
+//   //                         <Box>
+//   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>End</Typography>
+//   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.55rem", display: "block" }}>{fmtTime(stats.endTime)}</Typography>
+//   //                         </Box>
+//   //                       </Box>
+//   //                     </Grid>
+//   //                   </Grid>
+//   //                 </CardContent>
+//   //               </Card>
+//   //             </Zoom>
+//   //           );
+//   //         })}
+//   //       </Stack>
+//   //     </Box>
+//   //   </Paper>
+//   // );
+// const renderSessionList = () => (
 //   <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
 //     <Box sx={{ p: 0.75 }}>
 //       {/* Stylish Header */}
@@ -1275,9 +1041,6 @@
 //           const cachedSession = sessionDataCache.current.get(sessionId);
 //           const displayRemark = session.remark || cachedSession?.remark || null;
 
-//           // Calculate original index for display (latest first)
-//           const originalIndex = allSessions.length - 1 - index;
-
 //           return (
 //             <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
 //               <Card
@@ -1317,7 +1080,7 @@
 //               >
 //                 <CardContent sx={{ p: 0.85, '&:last-child': { pb: 0.85 } }}>
 //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-//                     {/* Stylish Number Badge - Show original index + 1 */}
+//                     {/* Stylish Number Badge */}
 //                     <Box sx={{ 
 //                       width: 26, 
 //                       height: 26, 
@@ -1339,7 +1102,7 @@
 //                           color: isSelected ? "white" : "#2196F3",
 //                           textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
 //                         }}>
-//                           {originalIndex + 1}
+//                           {index + 1}
 //                         </Typography>
 //                       )}
 //                     </Box>
@@ -1351,9 +1114,9 @@
 //                         letterSpacing: "0.3px",
 //                         mb: 0.25
 //                       }}>
-//                         {displayRemark || `Session #${originalIndex + 1}`}
+//                         {displayRemark || `Session #${index + 1}`}
 //                       </Typography>
-//                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+//                       {/* <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
 //                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#2196F3", 0.6) }} />
 //                         <Typography variant="caption" sx={{ 
 //                           fontSize: "0.5rem", 
@@ -1362,7 +1125,7 @@
 //                         }}>
 //                           {fmtDateTime(session.startTime || session.stats?.startTime)}
 //                         </Typography>
-//                       </Box>
+//                       </Box> */}
 //                     </Box>
                     
 //                     {photoCount > 0 && (
@@ -1538,6 +1301,18 @@
 //     </Box>
 //   </Paper>
 // );
+//   const selectedSessionListItem = allSessions.find(
+//     (session) => String(session.sessionId || session._id) === String(selectedSessionId)
+//   );
+//   const selectedSessionCachedData = selectedSessionId
+//     ? sessionDataCache.current.get(String(selectedSessionId))
+//     : null;
+//   const selectedSessionRemark =
+//     selectedSession?.remark ||
+//     selectedSessionListItem?.remark ||
+//     selectedSessionCachedData?.remark ||
+//     null;
+//   // ─── Render ───────────────────────────────────────────────────────────────
 //   return (
 //     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper", overflow: "hidden" }}>
 //       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
@@ -1571,10 +1346,10 @@
 
 //             {selectedSession && hasLocations && (
 //               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)",  bgcolor: "rgba(255, 255, 255, 0.3)"  }}>
-//                 {/* <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
 //                   <PinDropIcon sx={{ fontSize: 12 }} />
-//                   {selectedSession.remark || "No remark added"}
-//                 </Typography> */}
+//                   {selectedSessionRemark || "No remark added"}
+//                 </Typography>
 //                 <Box sx={{ display: "flex", gap: 0.75, mb: 0.5 }}>
 //                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#FF9800", 0.05), p: 0.5, borderRadius: 1 }}>
 //                     <TimerIcon sx={{ fontSize: 10, color: "#FF9800" }} />
@@ -1642,6 +1417,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Google API Keys Map
+
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -1673,6 +1470,8 @@ import {
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
   Close as CloseIcon,
   Menu as MenuIcon,
   Photo as PhotoIcon,
@@ -1962,6 +1761,7 @@ const Locations = () => {
   const [endPoint, setEndPoint] = useState(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // ── Refs ───────────────────────────────────────────────────────────────────
   const mapRef = useRef(null);
@@ -2346,10 +2146,39 @@ const Locations = () => {
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap",
+
+    // const apiKey = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
+    const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
+    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, {
+      attribution: "&copy; Google Maps",
       maxZoom: 19,
-    }).addTo(map);
+    });
+
+    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, {
+      attribution: "&copy; Google Satellite",
+      maxZoom: 19,
+    });
+
+    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, {
+      attribution: "&copy; Google Hybrid",
+      maxZoom: 19,
+    });
+
+    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, {
+      attribution: "&copy; Google Terrain",
+      maxZoom: 19,
+    });
+
+    const baseMaps = {
+      "Roadmap": googleRoadmap,
+      "Satellite": googleSatellite,
+      "Hybrid": googleHybrid,
+      "Terrain": googleTerrain
+    };
+
+    googleRoadmap.addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
     mapInstance.current = map;
     setIsMapInitialized(true);
     if (selectedSession) {
@@ -2379,6 +2208,14 @@ const Locations = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const tilePane = document.querySelector('.leaflet-tile-pane');
+    if (tilePane) {
+      tilePane.style.filter = isDarkMode ? "invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%)" : "none";
+      tilePane.style.transition = "filter 0.3s ease";
+    }
+  }, [isDarkMode, isMapInitialized]);
 
   const getPhotoCount = (session) => {
     if (!session) return 0;
@@ -2607,158 +2444,158 @@ const Locations = () => {
   //     </Box>
   //   </Paper>
   // );
-const renderSessionList = () => (
-  <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
-    <Box sx={{ p: 0.75 }}>
-      {/* Stylish Header */}
-      <Box sx={{ 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "space-between",
-        mb: 1.5,
-        pb: 0.75,
-        borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
-      }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-          <Box sx={{ 
-            width: 28, 
-            height: 28, 
-            borderRadius: "50%", 
-            background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center",
-            boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
-          }}>
-            <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
+  const renderSessionList = () => (
+    <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
+      <Box sx={{ p: 0.75 }}>
+        {/* Stylish Header */}
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1.5,
+          pb: 0.75,
+          borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
+        }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+            <Box sx={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
+            }}>
+              <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
+            </Box>
+            <Typography variant="subtitle2" fontWeight={700} sx={{
+              fontSize: "0.7rem",
+              background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              color: "transparent",
+              letterSpacing: "0.5px"
+            }}>
+              SESSIONS
+            </Typography>
+            <Chip
+              label={allSessions.length}
+              size="small"
+              sx={{
+                height: 18,
+                fontSize: "0.55rem",
+                fontWeight: 700,
+                bgcolor: alpha("#2196F3", 0.15),
+                color: "#2196F3",
+                borderRadius: "8px"
+              }}
+            />
           </Box>
-          <Typography variant="subtitle2" fontWeight={700} sx={{ 
-            fontSize: "0.7rem", 
-            background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            color: "transparent",
-            letterSpacing: "0.5px"
-          }}>
-            SESSIONS
-          </Typography>
-          <Chip 
-            label={allSessions.length} 
-            size="small" 
-            sx={{ 
-              height: 18, 
-              fontSize: "0.55rem", 
-              fontWeight: 700,
-              bgcolor: alpha("#2196F3", 0.15),
-              color: "#2196F3",
-              borderRadius: "8px"
-            }} 
-          />
+          {(selectedDate || metadata?.selectedDate) && (
+            <Chip
+              label={selectedDate || metadata?.selectedDate}
+              size="small"
+              sx={{
+                height: 20,
+                fontSize: "0.5rem",
+                fontWeight: 500,
+                bgcolor: alpha("#2196F3", 0.1),
+                color: "#2196F3",
+                borderRadius: "6px",
+                border: `1px solid ${alpha("#2196F3", 0.2)}`
+              }}
+            />
+          )}
         </Box>
-        {(selectedDate || metadata?.selectedDate) && (
-          <Chip 
-            label={selectedDate || metadata?.selectedDate} 
-            size="small" 
-            sx={{ 
-              height: 20, 
-              fontSize: "0.5rem", 
-              fontWeight: 500,
-              bgcolor: alpha("#2196F3", 0.1), 
-              color: "#2196F3",
-              borderRadius: "6px",
-              border: `1px solid ${alpha("#2196F3", 0.2)}`
-            }} 
-          />
-        )}
-      </Box>
 
-      <Stack spacing={1}>
-        {[...allSessions].reverse().map((session, index) => {
-          const sessionId = String(session.sessionId || session._id);
-          const isSelected = String(selectedSessionId) === sessionId;
-          const isLoading = isSelected && isLoadingSession;
-          const photoCount = getPhotoCount(session);
-          const stats = sessionStatsMap.get(sessionId) || getSessionStats(session);
+        <Stack spacing={1}>
+          {[...allSessions].reverse().map((session, index) => {
+            const sessionId = String(session.sessionId || session._id);
+            const isSelected = String(selectedSessionId) === sessionId;
+            const isLoading = isSelected && isLoadingSession;
+            const photoCount = getPhotoCount(session);
+            const stats = sessionStatsMap.get(sessionId) || getSessionStats(session);
 
-          const cachedSession = sessionDataCache.current.get(sessionId);
-          const displayRemark = session.remark || cachedSession?.remark || null;
+            const cachedSession = sessionDataCache.current.get(sessionId);
+            const displayRemark = session.remark || cachedSession?.remark || null;
 
-          return (
-            <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
-              <Card
-                onClick={() => handleSessionSelect(sessionId)}
-                sx={{
-                  cursor: "pointer",
-                  position: "relative",
-                  overflow: "visible",
-                  background: isSelected 
-                    ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
-                    : "rgba(255, 255, 255, 0.6)",
-                  backdropFilter: "blur(10px)",
-                  border: isSelected 
-                    ? `1.5px solid ${alpha("#2196F3", 0.5)}`
-                    : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
-                  borderRadius: "12px",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  "&:hover": { 
-                    borderColor: alpha("#2196F3", 0.6),
-                    background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
-                    transform: "translateY(-2px) translateX(2px)",
-                    boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
-                  },
-                  ...(isSelected && {
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      left: 0,
-                      top: "20%",
-                      height: "60%",
-                      width: "3px",
-                      background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-                      borderRadius: "0 4px 4px 0",
-                    }
-                  })
-                }}
-              >
-                <CardContent sx={{ p: 0.85, '&:last-child': { pb: 0.85 } }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-                    {/* Stylish Number Badge */}
-                    <Box sx={{ 
-                      width: 26, 
-                      height: 26, 
-                      borderRadius: "10px",
-                      background: isSelected 
-                        ? `linear-gradient(135deg, #2196F3, #1976D2)`
-                        : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
-                      transition: "all 0.2s ease"
-                    }}>
-                      {isLoading ? (
-                        <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
-                      ) : (
-                        <Typography fontWeight={700} sx={{ 
-                          fontSize: "0.65rem", 
-                          color: isSelected ? "white" : "#2196F3",
-                          textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
-                        }}>
-                          {index + 1}
-                        </Typography>
-                      )}
-                    </Box>
-                    
-                    <Box sx={{ flex: 1 }}>
-                      <Typography fontWeight={700} sx={{ 
-                        fontSize: "0.7rem", 
-                        color: isSelected ? "#2196F3" : "text.primary",
-                        letterSpacing: "0.3px",
-                        mb: 0.25
+            return (
+              <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
+                <Card
+                  onClick={() => handleSessionSelect(sessionId)}
+                  sx={{
+                    cursor: "pointer",
+                    position: "relative",
+                    overflow: "visible",
+                    background: isSelected
+                      ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
+                      : "rgba(255, 255, 255, 0.6)",
+                    backdropFilter: "blur(10px)",
+                    border: isSelected
+                      ? `1.5px solid ${alpha("#2196F3", 0.5)}`
+                      : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                    borderRadius: "12px",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&:hover": {
+                      borderColor: alpha("#2196F3", 0.6),
+                      background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
+                      transform: "translateY(-2px) translateX(2px)",
+                      boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
+                    },
+                    ...(isSelected && {
+                      "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        left: 0,
+                        top: "20%",
+                        height: "60%",
+                        width: "3px",
+                        background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+                        borderRadius: "0 4px 4px 0",
+                      }
+                    })
+                  }}
+                >
+                  <CardContent sx={{ p: 0.85, '&:last-child': { pb: 0.85 } }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
+                      {/* Stylish Number Badge */}
+                      <Box sx={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: "10px",
+                        background: isSelected
+                          ? `linear-gradient(135deg, #2196F3, #1976D2)`
+                          : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
+                        transition: "all 0.2s ease"
                       }}>
-                        {displayRemark || `Session #${index + 1}`}
-                      </Typography>
-                      {/* <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        {isLoading ? (
+                          <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
+                        ) : (
+                          <Typography fontWeight={700} sx={{
+                            fontSize: "0.65rem",
+                            color: isSelected ? "white" : "#2196F3",
+                            textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
+                          }}>
+                            {index + 1}
+                          </Typography>
+                        )}
+                      </Box>
+
+                      <Box sx={{ flex: 1 }}>
+                        <Typography fontWeight={700} sx={{
+                          fontSize: "0.7rem",
+                          color: isSelected ? "#2196F3" : "text.primary",
+                          letterSpacing: "0.3px",
+                          mb: 0.25
+                        }}>
+                          {displayRemark || `Session #${index + 1}`}
+                        </Typography>
+                        {/* <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#2196F3", 0.6) }} />
                         <Typography variant="caption" sx={{ 
                           fontSize: "0.5rem", 
@@ -2768,181 +2605,181 @@ const renderSessionList = () => (
                           {fmtDateTime(session.startTime || session.stats?.startTime)}
                         </Typography>
                       </Box> */}
-                    </Box>
-                    
-                    {photoCount > 0 && (
-                      <Box sx={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        gap: 0.25,
-                        bgcolor: alpha("#FF9800", 0.1),
-                        borderRadius: "12px",
-                        px: 0.65,
-                        py: 0.3,
-                        border: `1px solid ${alpha("#FF9800", 0.2)}`
-                      }}>
-                        <PhotoIcon sx={{ fontSize: 10, color: "#FF9800" }} />
-                        <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#FF9800" }}>
-                          {photoCount}
-                        </Typography>
                       </Box>
-                    )}
-                  </Box>
 
-                  {/* Stats Cards */}
-                  <Grid container spacing={0.6} sx={{ mb: 0.6 }}>
-                    <Grid item xs={6}>
-                      <Box sx={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        gap: 0.6, 
-                        p: 0.5, 
-                        bgcolor: alpha("#FF9800", 0.04), 
-                        borderRadius: "8px",
-                        border: `1px solid ${alpha("#FF9800", 0.08)}`,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          bgcolor: alpha("#FF9800", 0.08),
-                          borderColor: alpha("#FF9800", 0.15)
-                        }
-                      }}>
-                        <Box sx={{ 
-                          width: 24, 
-                          height: 24, 
-                          borderRadius: "6px", 
+                      {photoCount > 0 && (
+                        <Box sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.25,
                           bgcolor: alpha("#FF9800", 0.1),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center"
+                          borderRadius: "12px",
+                          px: 0.65,
+                          py: 0.3,
+                          border: `1px solid ${alpha("#FF9800", 0.2)}`
                         }}>
-                          <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                            Duration
-                          </Typography>
-                          <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#FF9800" }}>
-                            {fmtDuration(stats.duration)}
+                          <PhotoIcon sx={{ fontSize: 10, color: "#FF9800" }} />
+                          <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#FF9800" }}>
+                            {photoCount}
                           </Typography>
                         </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        gap: 0.6, 
-                        p: 0.5, 
-                        bgcolor: alpha("#2196F3", 0.04), 
-                        borderRadius: "8px",
-                        border: `1px solid ${alpha("#2196F3", 0.08)}`,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          bgcolor: alpha("#2196F3", 0.08),
-                          borderColor: alpha("#2196F3", 0.15)
-                        }
-                      }}>
-                        <Box sx={{ 
-                          width: 24, 
-                          height: 24, 
-                          borderRadius: "6px", 
-                          bgcolor: alpha("#2196F3", 0.1),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center"
-                        }}>
-                          <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                            Distance
-                          </Typography>
-                          <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
-                            {fmtDist(stats.distance)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  </Grid>
+                      )}
+                    </Box>
 
-                  <Divider sx={{ 
-                    my: 0.6, 
-                    borderColor: alpha(theme.palette.divider, 0.3),
-                    background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
-                  }} />
-
-                  {/* Start/End Points */}
-                  <Grid container spacing={0.6}>
-                    <Grid item xs={6}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                        <Box sx={{ 
-                          width: 20, 
-                          height: 20, 
-                          borderRadius: "6px", 
-                          bgcolor: alpha("#22c55e", 0.1),
+                    {/* Stats Cards */}
+                    <Grid container spacing={0.6} sx={{ mb: 0.6 }}>
+                      <Grid item xs={6}>
+                        <Box sx={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center"
+                          gap: 0.6,
+                          p: 0.5,
+                          bgcolor: alpha("#FF9800", 0.04),
+                          borderRadius: "8px",
+                          border: `1px solid ${alpha("#FF9800", 0.08)}`,
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            bgcolor: alpha("#FF9800", 0.08),
+                            borderColor: alpha("#FF9800", 0.15)
+                          }
                         }}>
-                          <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
+                          <Box sx={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: "6px",
+                            bgcolor: alpha("#FF9800", 0.1),
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}>
+                            <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                              Duration
+                            </Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#FF9800" }}>
+                              {fmtDuration(stats.duration)}
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-                            START
-                          </Typography>
-                          <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#22c55e" }}>
-                            {fmtTime(stats.startTime)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                        <Box sx={{ 
-                          width: 20, 
-                          height: 20, 
-                          borderRadius: "6px", 
-                          bgcolor: alpha("#ef4444", 0.1),
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box sx={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center"
+                          gap: 0.6,
+                          p: 0.5,
+                          bgcolor: alpha("#2196F3", 0.04),
+                          borderRadius: "8px",
+                          border: `1px solid ${alpha("#2196F3", 0.08)}`,
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            bgcolor: alpha("#2196F3", 0.08),
+                            borderColor: alpha("#2196F3", 0.15)
+                          }
                         }}>
-                          <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
+                          <Box sx={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: "6px",
+                            bgcolor: alpha("#2196F3", 0.1),
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}>
+                            <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                              Distance
+                            </Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
+                              {fmtDist(stats.distance)}
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-                            END
-                          </Typography>
-                          <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#ef4444" }}>
-                            {fmtTime(stats.endTime)}
-                          </Typography>
-                        </Box>
-                      </Box>
+                      </Grid>
                     </Grid>
-                  </Grid>
 
-                  {/* Selected Session Indicator */}
-                  {isSelected && (
-                    <Box sx={{ 
-                      position: "absolute", 
-                      bottom: 8, 
-                      right: 8,
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      bgcolor: "#2196F3",
-                      boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
+                    <Divider sx={{
+                      my: 0.6,
+                      borderColor: alpha(theme.palette.divider, 0.3),
+                      background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
                     }} />
-                  )}
-                </CardContent>
-              </Card>
-            </Zoom>
-          );
-        })}
-      </Stack>
-    </Box>
-  </Paper>
-);
+
+                    {/* Start/End Points */}
+                    <Grid container spacing={0.6}>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+                          <Box sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: "6px",
+                            bgcolor: alpha("#22c55e", 0.1),
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}>
+                            <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
+                              START
+                            </Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#22c55e" }}>
+                              {fmtTime(stats.startTime)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+                          <Box sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: "6px",
+                            bgcolor: alpha("#ef4444", 0.1),
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}>
+                            <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
+                              END
+                            </Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#ef4444" }}>
+                              {fmtTime(stats.endTime)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    </Grid>
+
+                    {/* Selected Session Indicator */}
+                    {isSelected && (
+                      <Box sx={{
+                        position: "absolute",
+                        bottom: 8,
+                        right: 8,
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        bgcolor: "#2196F3",
+                        boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
+                      }} />
+                    )}
+                  </CardContent>
+                </Card>
+              </Zoom>
+            );
+          })}
+        </Stack>
+      </Box>
+    </Paper>
+  );
   const selectedSessionListItem = allSessions.find(
     (session) => String(session.sessionId || session._id) === String(selectedSessionId)
   );
@@ -2967,6 +2804,9 @@ const renderSessionList = () => (
               {summary.formattedDate || "Route Tracking"}
             </Typography>
           </Box>
+          <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.1) }}>
+            {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
+          </IconButton>
           {isMobile && (
             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
               {allSessions.length}
@@ -2987,7 +2827,7 @@ const renderSessionList = () => (
             )}
 
             {selectedSession && hasLocations && (
-              <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)",  bgcolor: "rgba(255, 255, 255, 0.3)"  }}>
+              <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)", bgcolor: "rgba(255, 255, 255, 0.3)" }}>
                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
                   <PinDropIcon sx={{ fontSize: 12 }} />
                   {selectedSessionRemark || "No remark added"}
