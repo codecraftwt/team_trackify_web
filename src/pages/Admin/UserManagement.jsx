@@ -3077,6 +3077,12 @@
 
 
 
+
+
+
+
+
+
 // Above Code issue is not getting user limit after refresh or logout and login
 // User Limit Check 
 import React, { useEffect, useState, useCallback } from "react";
@@ -3408,7 +3414,7 @@ const UserCard = ({
   isSubscriptionExpired,
 }) => {
   const theme = useTheme();
-  const isSuperAdmin = role_id === 2;
+  const isSuperAdmin = role_id === 2 ;
   const isLoggedInAdmin = role_id === 1;
   const isSubAdmin = user.role_id === 3;
   const showSBBadge = isSubAdmin;
@@ -3542,7 +3548,7 @@ const UserCard = ({
               >
                 {userEmail}
               </Typography>
-              {isSuperAdmin && userMobile && (
+              {(isSuperAdmin || role_id === 1 || role_id === 3) && userMobile && (
                 <Typography
                   variant="caption"
                   color="text.secondary"
@@ -3686,6 +3692,7 @@ const UserCard = ({
   );
 };
 
+
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -3711,7 +3718,7 @@ const ResponsiveTable = ({
   isDeleting,
 }) => {
   const theme = useTheme();
-  const isSuperAdmin = role_id === 2;
+const isSuperAdmin = role_id === 2 ;
   const isLoggedInAdmin = role_id === 1;
 
   // Handle row click with proper event propagation
@@ -3742,7 +3749,7 @@ const ResponsiveTable = ({
               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
-              {isSuperAdmin && <TableCell>Mobile No</TableCell>}
+              {(isSuperAdmin || role_id === 1 || role_id === 3) && <TableCell>Mobile No</TableCell>}
               <TableCell>Joined Date</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -3787,7 +3794,7 @@ const ResponsiveTable = ({
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                 Email
               </TableCell>
-              {isSuperAdmin && (
+              {(isSuperAdmin || role_id === 1 || role_id === 3) && (
                 <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                   Mobile No
                 </TableCell>
@@ -3901,7 +3908,7 @@ const ResponsiveTable = ({
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Email
             </TableCell>
-            {isSuperAdmin && (
+            {(isSuperAdmin || role_id === 1 || role_id === 3) && (
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                 Mobile No
               </TableCell>
@@ -3993,7 +4000,7 @@ const ResponsiveTable = ({
                   <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                     {user.email}
                   </TableCell>
-                  {isSuperAdmin && (
+                  {(isSuperAdmin || role_id === 1 || role_id === 3) && (
                     <TableCell sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.80rem' }, color: 'text.secondary' }}>
                       {user.mobile_no}
                     </TableCell>

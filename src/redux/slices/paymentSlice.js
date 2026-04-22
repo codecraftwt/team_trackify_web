@@ -134,11 +134,13 @@ export const getPaymentHistory = createAsyncThunk(
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
       if (status && status !== 'all') params.append('status', status);
-      
+
       const response = await api.get(
         `/payments/history/${adminId}?${params.toString()}`
       );
-      return response.data;
+
+      // ─── Attach the active status filter to payload so reducer knows context ───
+      return { ...response.data, _requestedStatus: status || "all" };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -315,6 +317,9 @@ const initialState = {
   totalPages: 1,
   totalItems: 0,
 
+  statusCounts: {},
+  filteredTotalItems: 0,
+
   statusUpdateLoading: false,
   statusUpdateError: null,
 
@@ -416,91 +421,160 @@ const paymentSlice = createSlice({
       });
 
     // Get Payment History
-    builder
-      // .addCase(getPaymentHistory.pending, (state) => {
-      //   state.historyLoading = true;
-      //   state.historyError = null;
-      // })
-      // .addCase(getPaymentHistory.fulfilled, (state, action) => {
-      //   state.historyLoading = false;
-      //   const { data, pagination, paymentStats } = action.payload;
-      //   state.paymentHistory = data || [];
-      //   state.currentPage = pagination?.page || 1;
-      //   state.totalPages = pagination?.totalPages || 1;
-      //   state.totalItems = pagination?.totalItems || 0;
-      //   state.paymentStats = paymentStats || {
-      //     totalPayments: 0,
-      //     totalAmount: 0,
-      //     pendingCount: 0,
-      //     completedCount: 0,
-      //   };
-      // })
-      // .addCase(getPaymentHistory.rejected, (state, action) => {
-      //   state.historyLoading = false;
-      //   state.historyError = action.payload;
-      // });
+    // builder
+    // .addCase(getPaymentHistory.pending, (state) => {
+    //   state.historyLoading = true;
+    //   state.historyError = null;
+    // })
+    // .addCase(getPaymentHistory.fulfilled, (state, action) => {
+    //   state.historyLoading = false;
+    //   const { data, pagination, paymentStats } = action.payload;
+    //   state.paymentHistory = data || [];
+    //   state.currentPage = pagination?.page || 1;
+    //   state.totalPages = pagination?.totalPages || 1;
+    //   state.totalItems = pagination?.totalItems || 0;
+    //   state.paymentStats = paymentStats || {
+    //     totalPayments: 0,
+    //     totalAmount: 0,
+    //     pendingCount: 0,
+    //     completedCount: 0,
+    //   };
+    // })
+    // .addCase(getPaymentHistory.rejected, (state, action) => {
+    //   state.historyLoading = false;
+    //   state.historyError = action.payload;
+    // });
 
-    
+
     // Get Payment History - UPDATED for new response structure
-builder
-  .addCase(getPaymentHistory.pending, (state) => {
-    state.historyLoading = true;
-    state.historyError = null;
-  })
-  .addCase(getPaymentHistory.fulfilled, (state, action) => {
-    state.historyLoading = false;
-    const payload = action.payload;
-    
-    // Check if it's the new response structure
-    if (payload.statusCounts) {
-      // New response structure
-      state.paymentHistory = payload.data || [];
-      state.currentPage = payload.pagination?.page || 1;
-      state.totalPages = payload.pagination?.totalPages || 1;
-      state.totalItems = payload.pagination?.totalItems || 0;
-      
-      // Store all new statistics
-      state.totalCompletedAmount = payload.totalCompletedAmount || 0;
-      state.totalPendingAmount = payload.totalPendingAmount || 0;
-      state.totalCancelledAmount = payload.totalCancelledAmount || 0;
-      state.totalFailedAmount = payload.totalFailedAmount || 0;
-      state.totalDiscountGiven = payload.totalDiscountGiven || 0;
-      state.totalPlanCount = payload.totalPlanCount || 0;
-      state.totalAddOnCount = payload.totalAddOnCount || 0;
-      state.totalPlanAmount = payload.totalPlanAmount || 0;
-      state.totalAddOnAmount = payload.totalAddOnAmount || 0;
-      state.totalWithAll = payload.totalWithAll || 0;
-      
-      // Update paymentStats for backward compatibility
-      state.paymentStats = {
-        totalPayments: payload.statusCounts?.all || 0,
-        totalAmount: payload.totalCompletedAmount || 0,
-        pendingCount: payload.statusCounts?.pending || 0,
-        completedCount: payload.statusCounts?.completed || 0,
-      };
-      
-      // Store status counts
-      state.statusCounts = payload.statusCounts || {};
-    } else {
-      // Old response structure (fallback)
-      const { data, pagination, paymentStats } = payload;
-      state.paymentHistory = data || [];
-      state.currentPage = pagination?.page || 1;
-      state.totalPages = pagination?.totalPages || 1;
-      state.totalItems = pagination?.totalItems || 0;
-      state.paymentStats = paymentStats || {
-        totalPayments: 0,
-        totalAmount: 0,
-        pendingCount: 0,
-        completedCount: 0,
-      };
-    }
-  })
-  .addCase(getPaymentHistory.rejected, (state, action) => {
-    state.historyLoading = false;
-    state.historyError = action.payload;
-  });
-      // Get All Payment History (Admin + Plans Overview)
+    // builder
+    //   .addCase(getPaymentHistory.pending, (state) => {
+    //     state.historyLoading = true;
+    //     state.historyError = null;
+    //   })
+    //   .addCase(getPaymentHistory.fulfilled, (state, action) => {
+    //     state.historyLoading = false;
+    //     const payload = action.payload;
+
+    //     // Check if it's the new response structure
+    //     if (payload.statusCounts) {
+    //       // New response structure
+    //       state.paymentHistory = payload.data || [];
+    //       state.currentPage = payload.pagination?.page || 1;
+    //       state.totalPages = payload.pagination?.totalPages || 1;
+    //       state.totalItems = payload.pagination?.totalItems || 0;
+
+    //       // Store all new statistics
+    //       state.totalCompletedAmount = payload.totalCompletedAmount || 0;
+    //       state.totalPendingAmount = payload.totalPendingAmount || 0;
+    //       state.totalCancelledAmount = payload.totalCancelledAmount || 0;
+    //       state.totalFailedAmount = payload.totalFailedAmount || 0;
+    //       state.totalDiscountGiven = payload.totalDiscountGiven || 0;
+    //       state.totalPlanCount = payload.totalPlanCount || 0;
+    //       state.totalAddOnCount = payload.totalAddOnCount || 0;
+    //       state.totalPlanAmount = payload.totalPlanAmount || 0;
+    //       state.totalAddOnAmount = payload.totalAddOnAmount || 0;
+    //       state.totalWithAll = payload.totalWithAll || 0;
+
+    //       // Update paymentStats for backward compatibility
+    //       state.paymentStats = {
+    //         totalPayments: payload.statusCounts?.all || 0,
+    //         totalAmount: payload.totalCompletedAmount || 0,
+    //         pendingCount: payload.statusCounts?.pending || 0,
+    //         completedCount: payload.statusCounts?.completed || 0,
+    //       };
+
+    //       // Store status counts
+    //       state.statusCounts = payload.statusCounts || {};
+    //     } else {
+    //       // Old response structure (fallback)
+    //       const { data, pagination, paymentStats } = payload;
+    //       state.paymentHistory = data || [];
+    //       state.currentPage = pagination?.page || 1;
+    //       state.totalPages = pagination?.totalPages || 1;
+    //       state.totalItems = pagination?.totalItems || 0;
+    //       state.paymentStats = paymentStats || {
+    //         totalPayments: 0,
+    //         totalAmount: 0,
+    //         pendingCount: 0,
+    //         completedCount: 0,
+    //       };
+    //     }
+    //   })
+    //   .addCase(getPaymentHistory.rejected, (state, action) => {
+    //     state.historyLoading = false;
+    //     state.historyError = action.payload;
+    //   });
+
+    // Get Payment History
+    builder
+      .addCase(getPaymentHistory.pending, (state) => {
+        state.historyLoading = true;
+        state.historyError = null;
+      })
+      .addCase(getPaymentHistory.fulfilled, (state, action) => {
+        state.historyLoading = false;
+        const payload = action.payload;
+        const requestedStatus = payload._requestedStatus || "all";
+
+        if (payload.statusCounts) {
+          // New response structure
+          state.paymentHistory = payload.data || [];
+          state.currentPage = payload.pagination?.page || 1;
+          state.totalPages = payload.pagination?.totalPages || 1;
+
+          // ─── KEY FIX ────────────────────────────────────────────────────────
+          // totalItems = actual count matching current filter (status + search + date)
+          // This is what pagination and the ACTIVE status badge should use.
+          state.totalItems = payload.pagination?.totalItems || 0;
+
+          // filteredTotalItems mirrors totalItems — used in the component for
+          // the active-status pill count so it shows filtered rows, not global total.
+          state.filteredTotalItems = payload.pagination?.totalItems || 0;
+
+          // statusCounts = global counts per status (unaffected by current filter)
+          // These are shown on the non-active status pills so user can see totals.
+          state.statusCounts = payload.statusCounts || {};
+          // ────────────────────────────────────────────────────────────────────
+
+          state.totalCompletedAmount = payload.totalCompletedAmount || 0;
+          state.totalPendingAmount = payload.totalPendingAmount || 0;
+          state.totalCancelledAmount = payload.totalCancelledAmount || 0;
+          state.totalFailedAmount = payload.totalFailedAmount || 0;
+          state.totalDiscountGiven = payload.totalDiscountGiven || 0;
+          state.totalPlanCount = payload.totalPlanCount || 0;
+          state.totalAddOnCount = payload.totalAddOnCount || 0;
+          state.totalPlanAmount = payload.totalPlanAmount || 0;
+          state.totalAddOnAmount = payload.totalAddOnAmount || 0;
+          state.totalWithAll = payload.totalWithAll || 0;
+
+          state.paymentStats = {
+            totalPayments: payload.statusCounts?.all || 0,
+            totalAmount: payload.totalCompletedAmount || 0,
+            pendingCount: payload.statusCounts?.pending || 0,
+            completedCount: payload.statusCounts?.completed || 0,
+          };
+        } else {
+          // Old response structure (fallback)
+          const { data, pagination, paymentStats } = payload;
+          state.paymentHistory = data || [];
+          state.currentPage = pagination?.page || 1;
+          state.totalPages = pagination?.totalPages || 1;
+          state.totalItems = pagination?.totalItems || 0;
+          state.filteredTotalItems = pagination?.totalItems || 0;
+          state.paymentStats = paymentStats || {
+            totalPayments: 0,
+            totalAmount: 0,
+            pendingCount: 0,
+            completedCount: 0,
+          };
+        }
+      })
+      .addCase(getPaymentHistory.rejected, (state, action) => {
+        state.historyLoading = false;
+        state.historyError = action.payload;
+      });
+    // Get All Payment History (Admin + Plans Overview)
     builder
       .addCase(getAllPaymentHistory.pending, (state) => {
         state.allPaymentHistoryLoading = true;

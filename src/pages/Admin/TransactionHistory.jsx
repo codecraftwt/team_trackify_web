@@ -1336,8 +1336,6 @@
 
 
 
-
-// Add on History
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -1491,8 +1489,8 @@ const HeaderButtonsSkeleton = ({ isMobile }) => {
   return (
     <Box sx={{ display: "flex", gap: 0.8, flexWrap: "wrap", width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-start", sm: "flex-end" } }}>
       {[1, 2, 3, 4].map((i) => (
-        <Skeleton key={i} variant={i <= 2 ? "circular" : "rounded"} 
-          width={i <= 2 ? (isMobile ? 32 : 36) : (isMobile ? 85 : 100)} 
+        <Skeleton key={i} variant={i <= 2 ? "circular" : "rounded"}
+          width={i <= 2 ? (isMobile ? 32 : 36) : (isMobile ? 85 : 100)}
           height={isMobile ? 32 : 36}
           sx={{ borderRadius: i > 2 ? 1.5 : "50%", bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
       ))}
@@ -1564,36 +1562,32 @@ const TransactionHistory = () => {
   const getEffectiveAdminId = () => {
     const isSubAdmin = Number(authUser?.role_id) === 3;
     if (isSubAdmin) {
-      return typeof authUser?.adminId === "object" 
-        ? authUser?.adminId?._id || authUser?.adminId?.id 
+      return typeof authUser?.adminId === "object"
+        ? authUser?.adminId?._id || authUser?.adminId?.id
         : authUser?.adminId;
     }
     return authUser._id || authUser.id || userData?._id;
   };
 
-  // Fetch data with server-side pagination
+  // Fetch data with full set for robust client filtering
   useEffect(() => {
     if (isAuthenticated) {
       const adminId = getEffectiveAdminId();
       if (adminId) {
-        dispatch(getPaymentHistory({ 
-          adminId, 
-          page: page + 1,
-          limit: rowsPerPage,
-          search: searchQuery || undefined,
-          startDate: appliedStart || undefined,
-          endDate: appliedEnd || undefined,
-          status: activeStatus !== "all" ? activeStatus : undefined
+        dispatch(getPaymentHistory({
+          adminId,
+          page: 1,
+          limit: 10000,
         }));
       }
     }
     const timer = setTimeout(() => setShowFirstRenderLoader(false), 1000);
     return () => clearTimeout(timer);
-  }, [dispatch, isAuthenticated, page, rowsPerPage, searchQuery, activeStatus, appliedStart, appliedEnd]);
+  }, [dispatch, isAuthenticated]);
 
   // Reset page when filters change
-  useEffect(() => { 
-    setPage(0); 
+  useEffect(() => {
+    setPage(0);
   }, [searchQuery, activeStatus, appliedStart, appliedEnd, activeTypeTab]);
 
   const handleChangePage = (event, newPage) => {
@@ -1611,23 +1605,19 @@ const TransactionHistory = () => {
     if (isAuthenticated) {
       const adminId = getEffectiveAdminId();
       if (adminId) {
-        dispatch(getPaymentHistory({ 
-          adminId, 
-          page: page + 1, 
-          limit: rowsPerPage,
-          search: searchQuery || undefined,
-          startDate: appliedStart || undefined,
-          endDate: appliedEnd || undefined,
-          status: activeStatus !== "all" ? activeStatus : undefined
+        dispatch(getPaymentHistory({
+          adminId,
+          page: 1,
+          limit: 10000,
         }));
         toast.success("Data refreshed successfully");
       }
     }
   };
 
-  const handleSortClose = (value) => { 
-    if (value) setSortBy(value); 
-    setSortAnchorEl(null); 
+  const handleSortClose = (value) => {
+    if (value) setSortBy(value);
+    setSortAnchorEl(null);
   };
 
   const applyDateFilter = () => {
@@ -1666,13 +1656,35 @@ const TransactionHistory = () => {
     return "#ef4444";
   };
 
-  // Filter by type (client-side only for type tab, since server doesn't have type filter)
-  const displayedTransactions = activeTypeTab === "all" 
-    ? paymentHistory 
-    : paymentHistory.filter(t => t.type === activeTypeTab);
+  // 1. Comprehensive Client-Side Filtering
+  const fullyFilteredTransactions = paymentHistory?.filter((t) => {
+    // Type filter
+    if (activeTypeTab !== "all" && t.type !== activeTypeTab) return false;
 
-  // Client-side sorting
-  const sortedTransactions = [...displayedTransactions].sort((a, b) => {
+    // Status filter
+    if (activeStatus !== "all" && t.status !== activeStatus) return false;
+
+    // Date filter
+    if (appliedStart || appliedEnd) {
+      const tDate = moment(t.createdAt);
+      if (appliedStart && tDate.isBefore(moment(appliedStart).startOf('day'))) return false;
+      if (appliedEnd && tDate.isAfter(moment(appliedEnd).endOf('day'))) return false;
+    }
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchDesc = t.description?.toLowerCase().includes(query) || false;
+      const matchPlan = t.planId?.name?.toLowerCase().includes(query) || false;
+      const matchCoupon = t.couponCode?.toLowerCase().includes(query) || false;
+      if (!matchDesc && !matchPlan && !matchCoupon) return false;
+    }
+
+    return true;
+  }) || [];
+
+  // 2. Client-side sorting
+  const fullSortedTransactions = [...fullyFilteredTransactions].sort((a, b) => {
     if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
     if (sortBy === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
     if (sortBy === "highest") return b.amount - a.amount;
@@ -1680,11 +1692,62 @@ const TransactionHistory = () => {
     return 0;
   });
 
-  // Counts for badges
+  // 3. Client-side pagination
+  const sortedTransactions = fullSortedTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  // ── Badge counts ────────────────────────────────────────────────────────────
+  // Build a "pre-type" filtered set (status + date + search only) so that the
+  // type-tab badges reflect the other active filters, not the raw total.
+  const preTypFiltered = paymentHistory?.filter((t) => {
+    if (activeStatus !== "all" && t.status !== activeStatus) return false;
+    if (appliedStart || appliedEnd) {
+      const tDate = moment(t.createdAt);
+      if (appliedStart && tDate.isBefore(moment(appliedStart).startOf("day"))) return false;
+      if (appliedEnd && tDate.isAfter(moment(appliedEnd).endOf("day"))) return false;
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (
+        !t.description?.toLowerCase().includes(q) &&
+        !t.planId?.name?.toLowerCase().includes(q) &&
+        !t.couponCode?.toLowerCase().includes(q)
+      ) return false;
+    }
+    return true;
+  }) || [];
+
   const typeCounts = {
-    all: paymentHistory.length,
-    plan: paymentHistory.filter((t) => t.type === "plan").length,
-    addon: paymentHistory.filter((t) => t.type === "addon").length,
+    all: preTypFiltered.length,
+    plan: preTypFiltered.filter((t) => t.type === "plan").length,
+    addon: preTypFiltered.filter((t) => t.type === "addon").length,
+  };
+
+  // Build a "pre-status" filtered set (type + date + search only) so the
+  // status-pill badges reflect the other active filters.
+  const preStatusFiltered = paymentHistory?.filter((t) => {
+    if (activeTypeTab !== "all" && t.type !== activeTypeTab) return false;
+    if (appliedStart || appliedEnd) {
+      const tDate = moment(t.createdAt);
+      if (appliedStart && tDate.isBefore(moment(appliedStart).startOf("day"))) return false;
+      if (appliedEnd && tDate.isAfter(moment(appliedEnd).endOf("day"))) return false;
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (
+        !t.description?.toLowerCase().includes(q) &&
+        !t.planId?.name?.toLowerCase().includes(q) &&
+        !t.couponCode?.toLowerCase().includes(q)
+      ) return false;
+    }
+    return true;
+  }) || [];
+
+  const derivedStatusCounts = {
+    all: preStatusFiltered.length,
+    completed: preStatusFiltered.filter((t) => t.status === "completed").length,
+    pending: preStatusFiltered.filter((t) => t.status === "pending").length,
+    cancelled: preStatusFiltered.filter((t) => t.status === "cancelled").length,
+    failed: preStatusFiltered.filter((t) => t.status === "failed").length,
   };
 
   // Stats cards - ONLY 3 CARDS
@@ -1747,7 +1810,7 @@ const TransactionHistory = () => {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
       {/* Header */}
-      <Paper elevation={0} sx={{ py: { xs: 1.5, sm: 2, md: 2.5 }, px: { xs: 1.5, sm: 2, md: 2.5 }, borderBottom: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), borderRadius: 0 }}>
+      <Paper elevation={0} sx={{ py: { xs: 0.8, sm: 1, md: 1.2 }, px: { xs: 1.5, sm: 2, md: 2.5 }, borderRadius: 0, bgcolor: "transparent" }}>
         <Container maxWidth="xl" disableGutters={isMobile}>
           <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 1.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -1756,7 +1819,7 @@ const TransactionHistory = () => {
               </Avatar>
               <Box>
                 <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom
-                  sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
+                  sx={{ marginTop: 2, background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
                   Transaction History
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>
@@ -1779,8 +1842,10 @@ const TransactionHistory = () => {
               </Tooltip>
               <Button variant="outlined" onClick={(e) => setSortAnchorEl(e.currentTarget)}
                 startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} size="small"
-                sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: "text.secondary", fontSize: { xs: "0.6rem", sm: "0.65rem" }, height: 32,
-                  "&:hover": { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
+                sx={{
+                  borderColor: alpha(theme.palette.divider, 0.5), color: "text.secondary", fontSize: { xs: "0.6rem", sm: "0.65rem" }, height: 32,
+                  "&:hover": { borderColor: theme.palette.primary.main, color: theme.palette.primary.main }
+                }}>
                 {sortBy === "newest" ? "Newest" : sortBy === "oldest" ? "Oldest" : sortBy === "highest" ? "Highest" : "Lowest"}
               </Button>
               <Menu anchorEl={sortAnchorEl} open={Boolean(sortAnchorEl)} onClose={() => handleSortClose()}
@@ -1826,7 +1891,7 @@ const TransactionHistory = () => {
       </Container> */}
 
       {/* Type Tabs + Status Filters + Search */}
-      <Container maxWidth="xl" sx={{ mt:2,pb: 1.5, px: { xs: 1, sm: 1.5, md: 2 } }}>
+      <Container maxWidth="xl" sx={{ mt: 2, pb: 1.5, px: { xs: 1, sm: 1.5, md: 2 } }}>
         {/* Type Tabs */}
         <Paper elevation={0} sx={{ p: 0.7, borderRadius: 2.5, border: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), mb: 1.2, display: "flex", gap: 0.5 }}>
           {TYPE_TABS.map(({ key, label }) => (
@@ -1861,13 +1926,13 @@ const TransactionHistory = () => {
                 <Typography sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, fontWeight: 700, color: activeStatus === key ? color : "text.secondary" }}>{label}</Typography>
                 <Box sx={{ px: 0.6, py: 0.15, borderRadius: 10, bgcolor: activeStatus === key ? alpha(color, 0.2) : alpha("#000", 0.06) }}>
                   <Typography sx={{ fontSize: "0.56rem", fontWeight: 800, color: activeStatus === key ? color : "text.secondary" }}>
-                    {statusCounts[key] ?? 0}
+                    {derivedStatusCounts[key] ?? 0}
                   </Typography>
                 </Box>
               </Box>
             ))}
           </Box>
-          
+
           {/* Search and Date Range */}
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <TextField
@@ -2000,9 +2065,11 @@ const TransactionHistory = () => {
                             </TableCell>
                             <TableCell sx={{ py: 1.2 }}>
                               <Chip icon={getStatusIcon(transaction.status)} label={transaction.status} size="small"
-                                sx={{ bgcolor: alpha(getStatusColor(transaction.status), 0.1), color: getStatusColor(transaction.status), fontWeight: 600,
+                                sx={{
+                                  bgcolor: alpha(getStatusColor(transaction.status), 0.1), color: getStatusColor(transaction.status), fontWeight: 600,
                                   fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" }, height: { xs: 22, sm: 24 },
-                                  "& .MuiChip-icon": { fontSize: { xs: 12, sm: 13 } } }} />
+                                  "& .MuiChip-icon": { fontSize: { xs: 12, sm: 13 } }
+                                }} />
                             </TableCell>
                             <TableCell align="right" sx={{ py: 1.2 }}>
                               <Tooltip title="View Receipt">
@@ -2018,9 +2085,10 @@ const TransactionHistory = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <TablePagination 
-                  component="div" 
-                  count={totalItems}  // Use server total count
+                {/* Pagination for table view */}
+                <TablePagination
+                  component="div"
+                  count={fullyFilteredTransactions.length}
                   page={page}
                   onPageChange={handleChangePage}
                   rowsPerPage={rowsPerPage}
@@ -2031,7 +2099,7 @@ const TransactionHistory = () => {
                     ".MuiTablePagination-select": { borderRadius: 1.5, fontSize: { xs: "0.6rem", sm: "0.65rem" } },
                     ".MuiTablePagination-displayedRows": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
                     ".MuiTablePagination-selectLabel": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
-                  }} 
+                  }}
                 />
               </>
             ) : (
@@ -2125,8 +2193,26 @@ const TransactionHistory = () => {
                     ))}
                   </AnimatePresence>
                 </Stack>
+                {/* Pagination for card view */}
+                <TablePagination
+                  component="div"
+                  count={fullyFilteredTransactions.length}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  sx={{
+                    borderTop: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1),
+                    ".MuiTablePagination-select": { borderRadius: 1.5, fontSize: { xs: "0.6rem", sm: "0.65rem" } },
+                    ".MuiTablePagination-displayedRows": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+                    ".MuiTablePagination-selectLabel": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+                  }}
+                />
               </Box>
             )}
+
+
           </Paper>
         ) : (
           <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3, md: 4 }, borderRadius: { xs: 1.5, sm: 2, md: 2.5 }, textAlign: "center", border: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1) }}>
