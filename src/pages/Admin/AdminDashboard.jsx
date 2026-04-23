@@ -2075,6 +2075,166 @@ const EmptyRecentActivities = () => {
   );
 };
 
+// const StatsCards = ({ stats, loading }) => {
+//   const navigate = useNavigate();
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+//   const getAvatarSize = () => {
+//     if (isSmallMobile) return 28;
+//     if (isMobile) return 32;
+//     if (isTablet) return 36;
+//     return 40;
+//   };
+
+//   const getFontSize = () => {
+//     if (isSmallMobile) return '1rem';
+//     if (isMobile) return '1.1rem';
+//     if (isTablet) return '1.2rem';
+//     return '1.3rem';
+//   };
+
+//   // Show skeletons when loading
+//   if (loading) {
+//     return (
+//       <Grid container spacing={{ xs: 1.2, sm: 1.5, md: 2, lg: 2.5 }} sx={{ mb: { xs: 2.5, sm: 3 } }}>
+//         {[1, 2, 3, 4].map((_, index) => (
+//           <Grid item xs={12} sm={6} md={3} key={index}>
+//             <StatsCardSkeleton />
+//           </Grid>
+//         ))}
+//       </Grid>
+//     );
+//   }
+
+//   return (
+//     <Grid container spacing={{ xs: 1.2, sm: 1.5, md: 2, lg: 2.5 }} sx={{ mb: { xs: 2.5, sm: 3 } }}>
+//       {stats.map((stat, index) => (
+//         <Grid item xs={12} sm={6} md={3} key={stat.key || index}>
+//           <motion.div
+//             initial={{ opacity: 0, y: 20 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.5, delay: index * 0.1 }}
+//           >
+//             <Paper
+//               elevation={0}
+//               onClick={() => stat.onClick?.(navigate)}
+//               sx={{
+//                 p: { xs: 1.2, sm: 1.5, md: 1.8 },
+//                 borderRadius: { xs: 2, sm: 2.5, md: 3 },
+//                 background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+//                 border: "1px solid",
+//                 borderColor: alpha(stat.iconColor, 0.2),
+//                 cursor: stat.onClick ? "pointer" : "default",
+//                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+//                 position: "relative",
+//                 overflow: "hidden",
+//                 height: '100%',
+//                 minHeight: { xs: 80, sm: 85, md: 90, lg: 95 },
+//                 display: 'flex',
+//                 flexDirection: 'column',
+//                 justifyContent: 'center',
+//                 backdropFilter: "blur(10px)",
+//                 "&::before": {
+//                   content: '""',
+//                   position: "absolute",
+//                   top: 0,
+//                   left: 0,
+//                   right: 0,
+//                   height: "100%",
+//                   background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
+//                   zIndex: 0,
+//                 },
+//                 "&:hover": stat.onClick
+//                   ? {
+//                     transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
+//                     boxShadow: !isMobile ? `0 15px 25px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
+//                     borderColor: stat.iconColor,
+//                     "& .stat-icon": {
+//                       transform: !isMobile ? "scale(1.05) rotate(5deg)" : "none",
+//                     },
+//                     "& .stat-value": {
+//                       color: stat.iconColor,
+//                     },
+//                   }
+//                   : {},
+//               }}
+//             >
+//               <Box sx={{ position: "relative", zIndex: 1 }}>
+//                 <Box sx={{
+//                   display: "flex",
+//                   alignItems: "center",
+//                   justifyContent: "space-between",
+//                   flexDirection: isSmallMobile ? "column" : "row",
+//                   textAlign: isSmallMobile ? "center" : "left",
+//                   gap: isSmallMobile ? 0.5 : 0,
+//                 }}>
+//                   <Box>
+//                     <Typography
+//                       variant="h6"
+//                       fontWeight="700"
+//                       className="stat-value"
+//                       sx={{
+//                         mb: 0.25,
+//                         color: 'text.primary',
+//                         transition: "color 0.3s ease",
+//                         fontSize: getFontSize(),
+//                         lineHeight: 1.2,
+//                       }}
+//                     >
+//                       {stat.count !== undefined ? stat.count : 0}
+//                     </Typography>
+//                     <Typography
+//                       variant="caption"
+//                       color="text.secondary"
+//                       sx={{
+//                         fontWeight: 500,
+//                         fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem', lg: '0.7rem' },
+//                         whiteSpace: 'nowrap',
+//                       }}
+//                     >
+//                       {stat.label}
+//                     </Typography>
+//                   </Box>
+//                   <Avatar
+//                     className="stat-icon"
+//                     sx={{
+//                       bgcolor: alpha(stat.iconColor, 0.1),
+//                       color: stat.iconColor,
+//                       width: getAvatarSize(),
+//                       height: getAvatarSize(),
+//                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+//                       boxShadow: `0 6px 12px -4px ${alpha(stat.iconColor, 0.2)}`,
+//                       '& svg': {
+//                         fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.2rem' }
+//                       }
+//                     }}
+//                   >
+//                     {stat.icon}
+//                   </Avatar>
+//                 </Box>
+//               </Box>
+//               <Box
+//                 sx={{
+//                   position: "absolute",
+//                   bottom: 0,
+//                   left: 0,
+//                   width: "100%",
+//                   height: 2.5,
+//                   background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
+//                   opacity: 0.8,
+//                 }}
+//               />
+//             </Paper>
+//           </motion.div>
+//         </Grid>
+//       ))}
+//     </Grid>
+//   );
+// };
+
 const StatsCards = ({ stats, loading }) => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -2147,6 +2307,21 @@ const StatsCards = ({ stats, loading }) => {
                   background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
                   zIndex: 0,
                 },
+                // Add click indicator styles for clickable cards
+                ...(stat.onClick && {
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    backgroundColor: stat.iconColor,
+                    opacity: 0.6,
+                    boxShadow: `0 0 0 2px ${alpha(stat.iconColor, 0.2)}`,
+                  },
+                }),
                 "&:hover": stat.onClick
                   ? {
                     transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
@@ -2157,6 +2332,10 @@ const StatsCards = ({ stats, loading }) => {
                     },
                     "& .stat-value": {
                       color: stat.iconColor,
+                    },
+                    "& .click-indicator": {
+                      opacity: 1,
+                      transform: "translateX(0)",
                     },
                   }
                   : {},
@@ -2198,35 +2377,118 @@ const StatsCards = ({ stats, loading }) => {
                       {stat.label}
                     </Typography>
                   </Box>
-                  <Avatar
-                    className="stat-icon"
-                    sx={{
-                      bgcolor: alpha(stat.iconColor, 0.1),
-                      color: stat.iconColor,
-                      width: getAvatarSize(),
-                      height: getAvatarSize(),
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                      boxShadow: `0 6px 12px -4px ${alpha(stat.iconColor, 0.2)}`,
-                      '& svg': {
-                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.2rem' }
-                      }
-                    }}
-                  >
-                    {stat.icon}
-                  </Avatar>
+                  <Box sx={{ position: "relative" }}>
+                    <Avatar
+                      className="stat-icon"
+                      sx={{
+                        bgcolor: alpha(stat.iconColor, 0.1),
+                        color: stat.iconColor,
+                        width: getAvatarSize(),
+                        height: getAvatarSize(),
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        boxShadow: `0 6px 12px -4px ${alpha(stat.iconColor, 0.2)}`,
+                        '& svg': {
+                          fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem', lg: '1.2rem' }
+                        }
+                      }}
+                    >
+                      {stat.icon}
+                    </Avatar>
+                    
+                    {/* Click indicator icon for clickable cards */}
+                    {stat.onClick && (
+                      <Box
+                        className="click-indicator"
+                        sx={{
+                          position: "absolute",
+                          bottom: -2,
+                          right: -2,
+                          backgroundColor: stat.iconColor,
+                          borderRadius: "50%",
+                          width: 14,
+                          height: 14,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          opacity: 0.7,
+                          transition: "all 0.3s ease",
+                          transform: "translateX(2px)",
+                          boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+                          '& svg': {
+                            fontSize: 8,
+                            color: theme.palette.common.white,
+                          }
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
+              
+              {/* Bottom gradient bar - make it more prominent for clickable cards */}
               <Box
                 sx={{
                   position: "absolute",
                   bottom: 0,
                   left: 0,
                   width: "100%",
-                  height: 2.5,
+                  height: stat.onClick ? 3 : 2.5,
                   background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
-                  opacity: 0.8,
+                  opacity: stat.onClick ? 1 : 0.8,
                 }}
               />
+              
+              {/* Add "Click to view" tooltip-like text on hover for desktop */}
+              {stat.onClick && !isMobile && (
+                <Box
+                  className="hover-tip"
+                  sx={{
+                    position: "absolute",
+                    bottom: 8,
+                    right: 12,
+                    fontSize: "0.6rem",
+                    color: stat.iconColor,
+                    opacity: 0,
+                    transition: "opacity 0.3s ease",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: 500,
+                    pointerEvents: "none",
+                    zIndex: 2,
+                  }}
+                >
+                  Click →
+                </Box>
+              )}
+              
+              {/* Add subtle cursor icon effect on hover for clickable cards */}
+              {stat.onClick && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                    opacity: 0,
+                    transition: "opacity 0.3s ease",
+                    backgroundColor: alpha(stat.iconColor, 0.05),
+                    borderRadius: "inherit",
+                    "&:hover": {
+                      opacity: 1,
+                    },
+                  }}
+                />
+              )}
             </Paper>
           </motion.div>
         </Grid>
@@ -2234,7 +2496,6 @@ const StatsCards = ({ stats, loading }) => {
     </Grid>
   );
 };
-
 const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
