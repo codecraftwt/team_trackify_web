@@ -3414,7 +3414,7 @@ const UserCard = ({
   isSubscriptionExpired,
 }) => {
   const theme = useTheme();
-  const isSuperAdmin = role_id === 2 ;
+  const isSuperAdmin = role_id === 2;
   const isLoggedInAdmin = role_id === 1;
   const isSubAdmin = user.role_id === 3;
   const showSBBadge = isSubAdmin;
@@ -3718,7 +3718,7 @@ const ResponsiveTable = ({
   isDeleting,
 }) => {
   const theme = useTheme();
-const isSuperAdmin = role_id === 2 ;
+  const isSuperAdmin = role_id === 2;
   const isLoggedInAdmin = role_id === 1;
 
   // Handle row click with proper event propagation
@@ -3770,6 +3770,29 @@ const isSuperAdmin = role_id === 2 ;
     );
   }
 
+  const getColSpan = () => {
+    let cols = 0;
+
+    // Checkbox column
+    if (isBulkMode) cols += 2;
+
+    // Profile & Name column
+    cols += 2;
+
+    // Email column
+    cols += 2;
+
+    // Mobile No column
+    if (isSuperAdmin || role_id === 1 || role_id === 3) cols += 1;
+
+    // Joined Date column
+    cols += 2;
+
+    // Actions column
+    cols += 2;
+
+    return cols;
+  };
   // Check if no users available
   if (!users || users.length === 0) {
     return (
@@ -3813,11 +3836,12 @@ const isSuperAdmin = role_id === 2 ;
           <TableBody>
             <TableRow>
               <TableCell
-                colSpan={isSuperAdmin ? 5 : 4}
+                // colSpan={isSuperAdmin ? 5 : 4}
+                colSpan={getColSpan()}
                 align="center"
                 sx={{
                   py: 8,
-                  backgroundColor: alpha(theme.palette.primary.main, 0.02),
+                  // backgroundColor: alpha(theme.palette.primary.main, 0.02),
                 }}
               >
                 <Box
@@ -4524,14 +4548,6 @@ const UserManagement = () => {
       (role_id === 2 && user.mobile_no?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // console.log("Filtered users ---------->", filteredUsers)
-  // const activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
-  //   const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false") ;
-
-
-  // const activeUsers = (filteredUsers || []).filter((user) => user.isActive);
-  // const inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
-
   let activeUsers = [];
   let inactiveUsers = [];
 
@@ -4589,7 +4605,7 @@ const UserManagement = () => {
         refreshData();
       })
       .catch(() => {
-        toast.error("Failed to delete user");
+        // toast.error("Failed to delete user");
       })
       .finally(() => {
         setIsDeleting(false);
@@ -4601,14 +4617,14 @@ const UserManagement = () => {
     setIsDeleting(true);
     Promise.all(selectedUsers.map((userId) => dispatch(deleteUser(userId))))
       .then(() => {
-        toast.success(`${selectedUsers.length} user(s) deleted successfully!`);
+        // toast.success(`${selectedUsers.length} user(s) deleted successfully!`);
         setSelectedUsers([]);
         setIsBulkMode(false);
         setShowDeleteModal(false);
         refreshData();
       })
       .catch(() => {
-        toast.error("Failed to delete some users");
+        // toast.error("Failed to delete some users");
       })
       .finally(() => {
         setIsDeleting(false);
@@ -5014,23 +5030,6 @@ const UserManagement = () => {
               Bulk Delete
             </Button>
           )}
-
-          {/* <Button
-            variant="contained"
-            startIcon={<AddIcon sx={{ fontSize: 16 }} />}
-            onClick={handleAddUserClick}
-            size={isMobile ? "small" : "small"}
-            sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-              fontSize: { xs: '0.65rem', sm: '0.7rem' },
-              height: 34,
-              '&:hover': {
-                background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-              },
-            }}
-          >
-            {role_id === 1 ? 'Add User' : 'Add Organization'}
-          </Button> */}
 
           <Button
             variant="contained"
