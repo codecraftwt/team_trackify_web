@@ -2553,6 +2553,8 @@ import {
   FilterAlt as FilterAltIcon,
   Clear as ClearIcon,
   CalendarToday as CalendarIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -3332,135 +3334,240 @@ const SuperAdminDashboard = () => {
   });
 
   // Revenue Card Component - Memoized to prevent redundant renders
-  const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet }) => {
-    const theme = useTheme();
-    return (
-      <Paper
-        elevation={0}
-        sx={{
-          p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-          borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          height: '100%',
-          minHeight: isSmallMobile ? 120 : isMobile ? 130 : isTablet ? 140 : 150,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
-            height: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
-            background: `radial-gradient(circle, ${alpha("#ffffff", 0.2)} 0%, transparent 70%)`,
-            borderRadius: "50%",
-            transform: "translate(50%, -50%)",
-          },
-        }}
-      >
-        {/* Header Section */}
-        <Box sx={{
-          display: "flex",
-          flexDirection: (isMobile || isTablet) ? "column" : "row",
-          justifyContent: "space-between",
-          alignItems: (isMobile || isTablet) ? "flex-start" : "center",
-          mb: (isMobile || isTablet) ? 0.8 : 1.5,
-          gap: (isMobile || isTablet) ? 0.5 : 0,
-        }}>
-          <Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: alpha("#ffffff", 0.7),
-                mb: 0.5,
-                fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
-              }}
-            >
-              Total Revenue
-            </Typography>
-            <Typography
-              variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
-              fontWeight="700"
-              sx={{
-                fontSize: isSmallMobile ? '1rem' : isMobile ? '1.2rem' : isTablet ? '1.4rem' : '1.6rem',
-                lineHeight: 1.2,
-              }}
-            >
-              {revenueSummary?.totalRevenue > 0
-                ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
-                : "₹0"}
-            </Typography>
-          </Box>
-          <Box sx={{ textAlign: (isMobile || isTablet) ? "left" : "right" }}>
-            <Chip
-              label={`+${revenueSummary?.growthPercentage > 0
-                ? revenueSummary?.growthPercentage.toLocaleString()
-                : "0"}%`}
-              size="small"
-              icon={<FaArrowUp size={isSmallMobile ? 6 : 8} />}
-              sx={{
-                bgcolor: alpha("#22c55e", 0.2),
-                color: "#22c55e",
-                fontWeight: 600,
-                fontSize: isSmallMobile ? '0.5rem' : isMobile ? '0.55rem' : isTablet ? '0.6rem' : '0.65rem',
-                mb: 0.5,
-                height: isSmallMobile ? 16 : isMobile ? 18 : isTablet ? 20 : 20,
-              }}
-            />
-            <Typography
-              variant="caption"
-              sx={{
-                color: alpha("#ffffff", 0.7),
-                display: "block",
-                fontSize: isSmallMobile ? '0.45rem' : isMobile ? '0.5rem' : isTablet ? '0.55rem' : '0.55rem',
-              }}
-            >
-              This Month
-            </Typography>
-          </Box>
+  // const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet }) => {
+  //   const theme = useTheme();
+  //   return (
+  //     <Paper
+  //       elevation={0}
+  //       sx={{
+  //         p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+  //         borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
+  //         background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+  //         color: "white",
+  //         position: "relative",
+  //         overflow: "hidden",
+  //         height: '100%',
+  //         minHeight: isSmallMobile ? 120 : isMobile ? 130 : isTablet ? 140 : 150,
+  //         display: 'flex',
+  //         flexDirection: 'column',
+  //         justifyContent: 'space-between',
+  //         "&::before": {
+  //           content: '""',
+  //           position: "absolute",
+  //           top: 0,
+  //           right: 0,
+  //           width: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
+  //           height: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
+  //           background: `radial-gradient(circle, ${alpha("#ffffff", 0.2)} 0%, transparent 70%)`,
+  //           borderRadius: "50%",
+  //           transform: "translate(50%, -50%)",
+  //         },
+  //       }}
+  //     >
+  //       {/* Header Section */}
+  //       <Box sx={{
+  //         display: "flex",
+  //         flexDirection: (isMobile || isTablet) ? "column" : "row",
+  //         justifyContent: "space-between",
+  //         alignItems: (isMobile || isTablet) ? "flex-start" : "center",
+  //         mb: (isMobile || isTablet) ? 0.8 : 1.5,
+  //         gap: (isMobile || isTablet) ? 0.5 : 0,
+  //       }}>
+  //         <Box>
+  //           <Typography
+  //             variant="caption"
+  //             sx={{
+  //               color: alpha("#ffffff", 0.7),
+  //               mb: 0.5,
+  //               fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+  //             }}
+  //           >
+  //             Total Revenue
+  //           </Typography>
+  //           <Typography
+  //             variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
+  //             fontWeight="700"
+  //             sx={{
+  //               fontSize: isSmallMobile ? '1rem' : isMobile ? '1.2rem' : isTablet ? '1.4rem' : '1.6rem',
+  //               lineHeight: 1.2,
+  //             }}
+  //           >
+  //             {revenueSummary?.totalRevenue > 0
+  //               ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
+  //               : "₹0"}
+  //           </Typography>
+  //         </Box>
+       
+  //       </Box>
+
+  //       {/* Monthly Summary Section */}
+  //       <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
+  //         <Grid item xs={6}>
+  //           <Box
+  //             sx={{
+  //               p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+  //               borderRadius: isSmallMobile ? 0.8 : 1,
+  //               background: alpha("#ffffff", 0.05),
+  //               border: `1px solid ${alpha("#22c55e", 0.2)}`,
+  //             }}
+  //           >
+  //             <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Revenue</Typography>
+  //             <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+  //               ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
+  //             </Typography>
+  //           </Box>
+  //         </Grid>
+  //         <Grid item xs={6}>
+  //           <Box
+  //             sx={{
+  //               p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+  //               borderRadius: isSmallMobile ? 0.8 : 1,
+  //               background: alpha("#ffffff", 0.05),
+  //               border: `1px solid ${alpha("#F59E0B", 0.2)}`,
+  //             }}
+  //           >
+  //             <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Discount</Typography>
+  //             <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+  //               ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
+  //             </Typography>
+  //           </Box>
+  //         </Grid>
+  //       </Grid>
+  //     </Paper>
+  //   );
+  // });
+const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet }) => {
+  const theme = useTheme();
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
+        borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
+        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+        color: "white",
+        position: "relative",
+        overflow: "hidden",
+        height: '100%',
+        minHeight: isSmallMobile ? 120 : isMobile ? 130 : isTablet ? 140 : 150,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
+          height: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
+          background: `radial-gradient(circle, ${alpha("#ffffff", 0.2)} 0%, transparent 70%)`,
+          borderRadius: "50%",
+          transform: "translate(50%, -50%)",
+        },
+      }}
+    >
+      {/* Header Section */}
+      <Box sx={{
+        display: "flex",
+        flexDirection: (isMobile || isTablet) ? "column" : "row",
+        justifyContent: "space-between",
+        alignItems: (isMobile || isTablet) ? "flex-start" : "center",
+        mb: (isMobile || isTablet) ? 0.8 : 1.5,
+        gap: (isMobile || isTablet) ? 0.5 : 0,
+      }}>
+        <Box>
+          <Typography
+            variant="caption"
+            sx={{
+              color: alpha("#ffffff", 0.7),
+              mb: 0.5,
+              fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+            }}
+          >
+            Total Revenue
+          </Typography>
+          <Typography
+            variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
+            fontWeight="700"
+            sx={{
+              fontSize: isSmallMobile ? '1rem' : isMobile ? '1.2rem' : isTablet ? '1.4rem' : '1.6rem',
+              lineHeight: 1.2,
+            }}
+          >
+            {revenueSummary?.totalRevenue > 0
+              ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
+              : "₹0"}
+          </Typography>
+          <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', mt: 0.3, display: 'block' }}>
+            Discount: ₹{revenueSummary?.totalDiscount?.toLocaleString() || 0}
+          </Typography>
         </Box>
+        {/* <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 0.5,
+          bgcolor: alpha("#ffffff", 0.15),
+          px: 1,
+          py: 0.5,
+          borderRadius: 2,
+        }}>
+          {revenueSummary?.growthPercentage >= 0 ? (
+            <TrendingUpIcon sx={{ fontSize: 14, color: "#22c55e" }} />
+          ) : (
+            <TrendingDownIcon sx={{ fontSize: 14, color: "#ef4444" }} />
+          )}
+          <Typography variant="caption" fontWeight="600" sx={{ fontSize: '0.65rem' }}>
+            {revenueSummary?.growthPercentage >= 0 ? '+' : ''}{revenueSummary?.growthPercentage || 0}%
+          </Typography>
+        </Box> */}
+      </Box>
 
-        {/* Monthly Summary Section */}
-        <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
-          <Grid item xs={6}>
-            <Box
-              sx={{
-                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
-                borderRadius: isSmallMobile ? 0.8 : 1,
-                background: alpha("#ffffff", 0.05),
-                border: `1px solid ${alpha("#22c55e", 0.2)}`,
-              }}
-            >
-              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Revenue</Typography>
-              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
-                ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Box
-              sx={{
-                p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
-                borderRadius: isSmallMobile ? 0.8 : 1,
-                background: alpha("#ffffff", 0.05),
-                border: `1px solid ${alpha("#F59E0B", 0.2)}`,
-              }}
-            >
-              <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>Monthly Discount</Typography>
-              <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
-                ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
-              </Typography>
-            </Box>
-          </Grid>
+      {/* Monthly Summary Section */}
+      <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+              borderRadius: isSmallMobile ? 0.8 : 1,
+              background: alpha("#ffffff", 0.05),
+              border: `1px solid ${alpha("#22c55e", 0.2)}`,
+            }}
+          >
+            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>
+              Current Month
+            </Typography>
+            <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+              ₹{revenueSummary?.currentMonthRevenue?.toLocaleString() || 0}
+            </Typography>
+            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.5), fontSize: '0.5rem', display: 'block' }}>
+              Disc: ₹{revenueSummary?.currentMonthDiscount?.toLocaleString() || 0}
+            </Typography>
+          </Box>
         </Grid>
-      </Paper>
-    );
-  });
-
+        <Grid item xs={6}>
+          <Box
+            sx={{
+              p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
+              borderRadius: isSmallMobile ? 0.8 : 1,
+              background: alpha("#ffffff", 0.05),
+              border: `1px solid ${alpha("#F59E0B", 0.2)}`,
+            }}
+          >
+            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>
+              Last Month
+            </Typography>
+            <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+              ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
+            </Typography>
+            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.5), fontSize: '0.5rem', display: 'block' }}>
+              Disc: ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+});
   // If first render loader is active, show skeletons for everything except title and refresh button
   if (showFirstRenderLoader) {
     return (
