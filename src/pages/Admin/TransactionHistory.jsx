@@ -1760,132 +1760,49 @@ const TransactionHistory = () => {
   // ── First render skeleton ─────────────────────────────────────────────────
   if (showFirstRenderLoader) {
     return (
-      // <Box sx={{ minHeight: "100vh", bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-      //   <Paper elevation={0} sx={{ py: { xs: 1.5, sm: 2, md: 2.5 }, px: { xs: 1.5, sm: 2, md: 2.5 }, borderBottom: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), borderRadius: 0 }}>
-      //     <Container maxWidth="xl" disableGutters={isMobile}>
-      //       <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5 }}>
-      //         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-      //           <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
-      //             <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
-      //           </Avatar>
-      //           <Box>
-      //             <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
-      //               Transaction History
-      //             </Typography>
-      //             <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
-      //           </Box>
-      //         </Box>
-      //         <HeaderButtonsSkeleton isMobile={isMobile} />
-      //       </Box>
-      //     </Container>
-      //   </Paper>
-      //   {/* <Container maxWidth="xl" sx={{ py: { xs: 1.5, sm: 2, md: 2.5 } }}>
-      //     <Grid container spacing={{ xs: 1.2, sm: 1.5, md: 2 }}>
-      //       <StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton />
-      //     </Grid>
-      //   </Container> */}
-      //   <Container maxWidth="xl" sx={{ pb: 3, px: { xs: 1, sm: 1.5, md: 2 } }}>
-      //     <Skeleton variant="rounded" height={52} sx={{ borderRadius: 3, mb: 2, bgcolor: alpha(theme.palette.primary.main, 0.08) }} />
-      //     <Skeleton variant="rounded" height={48} sx={{ borderRadius: 3, mb: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.08) }} />
-      //     <Paper elevation={0} sx={{ borderRadius: { xs: 1.5, sm: 2, md: 2.5 }, border: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), overflow: "hidden" }}>
-      //       <TableContainer>
-      //         <Table sx={{ minWidth: isMobile ? 700 : 900 }}>
-      //           <TableHead>
-      //             <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
-      //               {["#", "Type", "Plan", "Description", "Date", "Amount", "Status", "Actions"].map((h) => (
-      //                 <TableCell key={h} sx={{ color: theme.palette.primary.main, fontWeight: 600, fontSize: "0.7rem", py: 1 }}>{h}</TableCell>
-      //               ))}
-      //             </TableRow>
-      //           </TableHead>
-      //           <TableBody>{[1, 2, 3, 4, 5].map((i) => <TableRowSkeleton key={i} />)}</TableBody>
-      //         </Table>
-      //       </TableContainer>
-      //     </Paper>
-      //   </Container>
-      // </Box>
-
-      <Box sx={{ minHeight: "100vh" }}>
-  <Paper elevation={0} sx={{ 
-    py: { xs: 1.5, sm: 2, md: 2.5 }, 
-    px: { xs: 1.5, sm: 2, md: 2.5 }, 
-    borderRadius: 0,
-    bgcolor: "transparent",
-    boxShadow: "none"
-  }}>
-    <Container maxWidth="xl" disableGutters={isMobile}>
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
-            <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
-          </Avatar>
-          <Box>
-            <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
-              Transaction History
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
-          </Box>
-        </Box>
-        <HeaderButtonsSkeleton isMobile={isMobile} />
+      <Box sx={{ minHeight: "100vh", bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+        <Paper elevation={0} sx={{ py: { xs: 1.5, sm: 2, md: 2.5 }, px: { xs: 1.5, sm: 2, md: 2.5 }, borderBottom: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), borderRadius: 0 }}>
+          <Container maxWidth="xl" disableGutters={isMobile}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
+                  <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+                </Avatar>
+                <Box>
+                  <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
+                    Transaction History
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
+                </Box>
+              </Box>
+              <HeaderButtonsSkeleton isMobile={isMobile} />
+            </Box>
+          </Container>
+        </Paper>
+        {/* <Container maxWidth="xl" sx={{ py: { xs: 1.5, sm: 2, md: 2.5 } }}>
+          <Grid container spacing={{ xs: 1.2, sm: 1.5, md: 2 }}>
+            <StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton />
+          </Grid>
+        </Container> */}
+        <Container maxWidth="xl" sx={{ pb: 3, px: { xs: 1, sm: 1.5, md: 2 } }}>
+          <Skeleton variant="rounded" height={52} sx={{ borderRadius: 3, mb: 2, bgcolor: alpha(theme.palette.primary.main, 0.08) }} />
+          <Skeleton variant="rounded" height={48} sx={{ borderRadius: 3, mb: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.08) }} />
+          <Paper elevation={0} sx={{ borderRadius: { xs: 1.5, sm: 2, md: 2.5 }, border: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1), overflow: "hidden" }}>
+            <TableContainer>
+              <Table sx={{ minWidth: isMobile ? 700 : 900 }}>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                    {["#", "Type", "Plan", "Description", "Date", "Amount", "Status", "Actions"].map((h) => (
+                      <TableCell key={h} sx={{ color: theme.palette.primary.main, fontWeight: 600, fontSize: "0.7rem", py: 1 }}>{h}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>{[1, 2, 3, 4, 5].map((i) => <TableRowSkeleton key={i} />)}</TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Container>
       </Box>
-    </Container>
-  </Paper>
-  
-  <Container maxWidth="xl" sx={{ pb: 3, px: { xs: 1, sm: 1.5, md: 2 } }}>
-    {/* Search/Filter Skeleton - No border, no background */}
-    <Skeleton 
-      variant="rounded" 
-      height={52} 
-      sx={{ 
-        borderRadius: 3, 
-        mb: 2, 
-        bgcolor: alpha(theme.palette.primary.main, 0.05)
-      }} 
-    />
-    
-    {/* Filter chips skeleton - No border, no background */}
-    <Skeleton 
-      variant="rounded" 
-      height={48} 
-      sx={{ 
-        borderRadius: 3, 
-        mb: 1.5, 
-        bgcolor: alpha(theme.palette.primary.main, 0.05)
-      }} 
-    />
-    
-    {/* Table Paper - No border, transparent */}
-    <Paper elevation={0} sx={{ 
-      borderRadius: { xs: 1.5, sm: 2, md: 2.5 }, 
-      overflow: "hidden",
-      bgcolor: "transparent",
-      boxShadow: "none"
-    }}>
-      <TableContainer>
-        <Table sx={{ minWidth: isMobile ? 700 : 900 }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "transparent" }}>
-              {["#", "Type", "Plan", "Description", "Date", "Amount", "Status", "Actions"].map((h) => (
-                <TableCell key={h} sx={{ 
-                  color: theme.palette.primary.main, 
-                  fontWeight: 600, 
-                  fontSize: "0.7rem", 
-                  py: 1, 
-                  bgcolor: "transparent",
-                  borderBottom: "none" // Remove border from header cells
-                }}>
-                  {h}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {[1, 2, 3, 4, 5].map((i) => <TableRowSkeleton key={i} />)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-  </Container>
-</Box>
     );
   }
 
