@@ -184,20 +184,20 @@
 //   // States
 //   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
 //   const [searchQuery, setSearchQuery] = useState("");
-  
+
 //   // Use debounce hook for search (500ms delay)
 //   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  
+
 //   // Date filter states
 //   const [startDate, setStartDate] = useState(null);
 //   const [endDate, setEndDate] = useState(null);
 //   const [appliedStart, setAppliedStart] = useState(null);
 //   const [appliedEnd, setAppliedEnd] = useState(null);
-  
+
 //   // Sort states (frontend sorting)
 //   const [sortBy, setSortBy] = useState("date");
 //   const [sortOrder, setSortOrder] = useState("desc");
-  
+
 //   const [page, setPage] = useState(1);
 //   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -239,11 +239,11 @@
 //       page,
 //       limit: 10,
 //     };
-    
+
 //     if (debouncedSearchQuery) {
 //       params.search = debouncedSearchQuery;
 //     }
-    
+
 //     if (appliedStart) {
 //       params.startDate = moment(appliedStart).format("YYYY-MM-DD");
 //     }
@@ -266,16 +266,16 @@
 //   // Refresh data
 //   const refreshData = async () => {
 //     setIsRefreshing(true);
-    
+
 //     const params = {
 //       page,
 //       limit: 10,
 //     };
-    
+
 //     if (debouncedSearchQuery) {
 //       params.search = debouncedSearchQuery;
 //     }
-    
+
 //     if (appliedStart) {
 //       params.startDate = moment(appliedStart).format("YYYY-MM-DD");
 //     }
@@ -294,10 +294,10 @@
 //       toast.error("End date cannot be before start date");
 //       return;
 //     }
-    
+
 //     setAppliedStart(startDate);
 //     setAppliedEnd(endDate);
-    
+
 //     const startStr = startDate ? moment(startDate).format("DD/MM/YYYY") : "any";
 //     const endStr = endDate ? moment(endDate).format("DD/MM/YYYY") : "any";
 //     toast.success(`Date range applied: ${startStr} to ${endStr}`);
@@ -333,12 +333,12 @@
 //       savingsAmount: payment.savingsAmount,
 //       totalWithAddOns: payment.totalWithAddOns,
 //     })) || [];
-    
+
 //     // Apply frontend sorting
 //     if (data.length > 0) {
 //       data.sort((a, b) => {
 //         let aVal, bVal;
-        
+
 //         switch (sortBy) {
 //           case "date":
 //             aVal = new Date(a.date);
@@ -360,7 +360,7 @@
 //             aVal = new Date(a.date);
 //             bVal = new Date(b.date);
 //         }
-        
+
 //         if (sortOrder === "asc") {
 //           return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
 //         } else {
@@ -368,7 +368,7 @@
 //         }
 //       });
 //     }
-    
+
 //     return data;
 //   }, [allPaymentHistory, sortBy, sortOrder]);
 
@@ -1281,7 +1281,9 @@ const RevenueManagement = () => {
                             {row.isCancelledByUser && (
                               <Tooltip title={row.cancellationReason || "Cancelled by user"}>
                                 <Typography sx={{ fontSize: "0.55rem", color: "text.disabled", mt: 0.3, cursor: "default" }}>
-                                  By user
+                                  {row.cancellationReason === "User closed the payment window"
+                                    ? "Payment Closed"
+                                    : "Plan Cancelled"}
                                 </Typography>
                               </Tooltip>
                             )}
