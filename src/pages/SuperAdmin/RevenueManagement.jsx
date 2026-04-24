@@ -769,6 +769,7 @@ const STATUS_FILTERS = [
   { key: "all", label: "All", color: "#6366f1" },
   { key: "completed", label: "Completed", color: "#10b981" },
   { key: "pending", label: "Pending", color: "#f59e0b" },
+  { key: "failed", label: "Failed", color: "#dc2626" },
   { key: "cancelled", label: "Cancelled", color: "#ef4444" },
 ];
 
@@ -779,18 +780,52 @@ const TYPE_TABS = [
 ];
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
+// const StatusBadge = ({ status }) => {
+//   const config = {
+//     completed: { color: "#10b981", bg: "#d1fae5", icon: CompletedIcon, label: "Completed" },
+//     cancelled: { color: "#ef4444", bg: "#fee2e2", icon: CancelledIcon, label: "Cancelled" },
+//     pending: { color: "#f59e0b", bg: "#fef3c7", icon: PendingIcon, label: "Pending" },
+//   };
+//   const c = config[status?.toLowerCase()] || config.pending;
+//   const Icon = c.icon;
+//   return (
+//     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, px: 1, py: 0.4, borderRadius: 10, bgcolor: c.bg, width: "fit-content" }}>
+//       <Icon sx={{ fontSize: 12, color: c.color }} />
+//       <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: c.color, letterSpacing: 0.3 }}>{c.label}</Typography>
+//     </Box>
+//   );
+// };
+
+// ─── Status Badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const config = {
     completed: { color: "#10b981", bg: "#d1fae5", icon: CompletedIcon, label: "Completed" },
     cancelled: { color: "#ef4444", bg: "#fee2e2", icon: CancelledIcon, label: "Cancelled" },
+    failed: { color: "#dc2626", bg: "#fee2e2", icon: CancelledIcon, label: "Failed" }, // ✅ Add failed status
     pending: { color: "#f59e0b", bg: "#fef3c7", icon: PendingIcon, label: "Pending" },
   };
   const c = config[status?.toLowerCase()] || config.pending;
   const Icon = c.icon;
+
+  // Special handling for failed with different styling
+  const isFailed = status?.toLowerCase() === "failed";
+
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, px: 1, py: 0.4, borderRadius: 10, bgcolor: c.bg, width: "fit-content" }}>
+    <Box sx={{
+      display: "flex",
+      alignItems: "center",
+      gap: 0.5,
+      px: 1,
+      py: 0.4,
+      borderRadius: 10,
+      bgcolor: c.bg,
+      width: "fit-content",
+      ...(isFailed && { border: "1px solid", borderColor: alpha("#dc2626", 0.3) }) // Optional: add border for failed
+    }}>
       <Icon sx={{ fontSize: 12, color: c.color }} />
-      <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: c.color, letterSpacing: 0.3 }}>{c.label}</Typography>
+      <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: c.color, letterSpacing: 0.3 }}>
+        {c.label}
+      </Typography>
     </Box>
   );
 };
@@ -974,6 +1009,7 @@ const RevenueManagement = () => {
       all: base.length,
       completed: base.filter((p) => p.status === "completed").length,
       pending: base.filter((p) => p.status === "pending").length,
+      failed: base.filter((p) => p.status === "failed").length,
       cancelled: base.filter((p) => p.status === "cancelled").length,
     };
   }, [allPayments, activeTab]);
