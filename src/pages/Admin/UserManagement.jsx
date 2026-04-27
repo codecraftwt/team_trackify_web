@@ -4630,7 +4630,62 @@ const UserManagement = () => {
     }
   };
 
+  // const handleDownloadPDF = async () => {
+  //   const doc = new jsPDF();
+  //   doc.setFontSize(18);
+  //   doc.setTextColor(theme.palette.primary.main);
+  //   doc.setFont(undefined, "bold");
+  //   doc.text("Team Trackify", 105, 15, { align: "center" });
+  //   doc.setFontSize(16);
+  //   doc.setTextColor(0, 0, 0);
+  //   doc.text("User List Report", 105, 30, { align: "center" });
+  //   doc.setFontSize(10);
+  //   doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 40, { align: "center" });
+
+  //   const tableColumn = role_id === 2
+  //     ? ["Name", "Email", "Mobile No", "Status", "Joined Date"]
+  //     : ["Name", "Email", "Status", "Joined Date"];
+
+  //   const tableRows = (usersList || []).map((user) => {
+  //     if (role_id === 2) {
+  //       return [
+  //         user.name || "N/A",
+  //         user.email || "N/A",
+  //         user.mobile_no || "N/A",
+  //         user.isActive ? "Active" : "Inactive",
+  //         user.createdAt ? moment(user.createdAt).format("MMM D, YYYY") : "N/A",
+  //       ];
+  //     } else {
+  //       return [
+  //         user.name || "N/A",
+  //         user.email || "N/A",
+  //         user.isActive ? "Active" : "Inactive",
+  //         user.registeredDate || user.createdAt ? moment(user.registeredDate || user.createdAt).format("MMM D, YYYY") : "N/A",
+  //       ];
+  //     }
+  //   });
+
+  //   autoTable(doc, {
+  //     head: [tableColumn],
+  //     body: tableRows,
+  //     startY: 50,
+  //     styles: { fontSize: 9, cellPadding: 3 },
+  //     headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+  //     alternateRowStyles: { fillColor: [240, 240, 240] },
+  //   });
+
+  //   doc.save(`users-${new Date().toISOString().split("T")[0]}.pdf`);
+  // };
   const handleDownloadPDF = async () => {
+    // Get the currently displayed users based on tab (Active/Inactive) and filters
+    const currentDisplayUsers = tabValue === 0 ? activeUsers : inactiveUsers;
+
+    // If no users to export, show warning
+    if (!currentDisplayUsers || currentDisplayUsers.length === 0) {
+      toast.warning("No users to export");
+      return;
+    }
+
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.setTextColor(theme.palette.primary.main);
@@ -4642,11 +4697,37 @@ const UserManagement = () => {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 40, { align: "center" });
 
+    // Add filter information to PDF header
+    let yOffset = 45;
+    if (searchQuery) {
+      doc.setFontSize(8);
+      doc.text(`Search Filter: "${searchQuery}"`, 105, yOffset, { align: "center" });
+      yOffset += 5;
+    }
+    if (startDate || endDate) {
+      doc.setFontSize(8);
+      let dateFilterText = "Date Filter: ";
+      if (startDate) dateFilterText += `From ${moment(startDate).format("MMM D, YYYY")} `;
+      if (endDate) dateFilterText += `To ${moment(endDate).format("MMM D, YYYY")}`;
+      doc.text(dateFilterText, 105, yOffset, { align: "center" });
+      yOffset += 5;
+    }
+    if (tabValue === 0) {
+      doc.setFontSize(8);
+      doc.text(`Status: Active Users Only`, 105, yOffset, { align: "center" });
+      yOffset += 5;
+    } else if (tabValue === 1) {
+      doc.setFontSize(8);
+      doc.text(`Status: Inactive Users Only`, 105, yOffset, { align: "center" });
+      yOffset += 5;
+    }
+
     const tableColumn = role_id === 2
       ? ["Name", "Email", "Mobile No", "Status", "Joined Date"]
       : ["Name", "Email", "Status", "Joined Date"];
 
-    const tableRows = (usersList || []).map((user) => {
+    // Use currentDisplayUsers instead of usersList
+    const tableRows = currentDisplayUsers.map((user) => {
       if (role_id === 2) {
         return [
           user.name || "N/A",
@@ -4668,15 +4749,23 @@ const UserManagement = () => {
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 50,
+      startY: yOffset + 5,
       styles: { fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [37, 99, 235], textColor: 255 },
       alternateRowStyles: { fillColor: [240, 240, 240] },
+      // Add footer with record count
+      foot: [["", "", ...Array(tableColumn.length - 2).fill(""), `Total: ${tableRows.length} records`]],
+      footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
     });
 
-    doc.save(`users-${new Date().toISOString().split("T")[0]}.pdf`);
-  };
+    // Create filename with filter info
+    let fileName = `users-${new Date().toISOString().split("T")[0]}`;
+    if (searchQuery) fileName += `-search-${searchQuery}`;
+    if (startDate || endDate) fileName += `-filtered`;
+    fileName += `.pdf`;
 
+    doc.save(fileName);
+  };
   const handleDateFilterClick = (event) => {
     setDateFilterAnchor(event.currentTarget);
   };
@@ -4714,6 +4803,30 @@ const UserManagement = () => {
     }
   };
 
+  // Add this function with your other functions (around line where other handlers are)
+  const handleClearAllFilters = () => {
+    // Clear search query
+    setSearchQuery("");
+
+    // Clear date filters
+    setStartDate(null);
+    setEndDate(null);
+
+    // Reset to Active tab (tabValue = 0)
+    setTabValue(0);
+
+    // Reset page to first page
+    setPage(0);
+
+    // Close date filter menu if open
+    setDateFilterAnchor(null);
+
+    // Update URL to remove filter params
+    navigate(location.pathname, { replace: true });
+
+    // Optional: Show toast notification
+    toast.info("All filters cleared");
+  };
   const canCreateUser = role_id === 2 ||
     ((role_id === 1 || role_id === 3) && maxUser && totalUsers < maxUser && (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
@@ -5054,7 +5167,7 @@ const UserManagement = () => {
       </Box>
 
       {/* Search and Filters */}
-      <Paper
+      {/* <Paper
         elevation={0}
         sx={{
           p: { xs: 1.5, sm: 1.5 },
@@ -5137,8 +5250,126 @@ const UserManagement = () => {
             </Box>
           </Grid>
         </Grid>
-      </Paper>
+      </Paper> */}
+      {/* Search and Filters */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 1.5, sm: 1.5 },
+          mb: { xs: 2, sm: 2.5 },
+          borderRadius: { xs: 2, sm: 2.5 },
+          border: '1px solid',
+          borderColor: alpha(theme.palette.primary.main, 0.1),
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              placeholder={`Search ${role_id === 1 ? 'users' : 'organizations'}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
+                  </InputAdornment>
+                ),
+                // Add clear button inside search field
+                endAdornment: searchQuery && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchQuery("")}
+                      sx={{ p: 0.5 }}
+                    >
+                      <CancelIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: { xs: 2, sm: 2.5 },
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                  height: 38,
+                },
+              }}
+            />
+          </Grid>
 
+          <Grid item xs={12} md={6}>
+            <Box sx={{
+              display: 'flex',
+              gap: 1,
+              justifyContent: { xs: 'flex-start', md: 'flex-end' },
+              flexWrap: 'wrap'
+            }}>
+                 {/* ADD THIS CLEAR ALL BUTTON */}
+              {(searchQuery || startDate || endDate || tabValue !== 0) && (
+                <Button
+                  variant="contained"
+                  startIcon={<CancelIcon sx={{ fontSize: 16 }} />}
+                  onClick={handleClearAllFilters}
+                  size="small"
+                  sx={{
+                    bgcolor: '#ef4444',
+                    '&:hover': {
+                      bgcolor: '#dc2626',
+                    },
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                    height: 34,
+                    px: 2,
+                  }}
+                >
+                  Clear All Filters
+                </Button>
+              )}
+              <Button
+                variant="outlined"
+                startIcon={<CalendarIcon sx={{ fontSize: 16 }} />}
+                onClick={handleDateFilterClick}
+                size="small"
+                sx={{
+                  borderColor: alpha(theme.palette.divider, 0.5),
+                  color: 'text.secondary',
+                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                  height: 34,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              >
+                Date Filter
+              </Button>
+
+              <Button
+                variant="outlined"
+                startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />}
+                onClick={handleSort}
+                size="small"
+                sx={{
+                  borderColor: alpha(theme.palette.divider, 0.5),
+                  color: 'text.secondary',
+                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                  height: 34,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              >
+                Joined Date
+              </Button>
+
+           
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
       {/* Date Filter Menu */}
       <Menu
         anchorEl={dateFilterAnchor}

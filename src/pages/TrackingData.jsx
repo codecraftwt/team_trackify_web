@@ -505,7 +505,7 @@
 //             {/* Session Cards - Responsive Grid Layout */}
 //             {!loading && !sessionsLoading && !availableDatesLoading && sessions?.length > 0 && (
 //               <>
-            
+
 
 //                 <div
 //                   style={{
@@ -524,13 +524,13 @@
 //                           grid-template-columns: repeat(2, 1fr) !important;
 //                         }
 //                       }
-                      
+
 //                       @media (min-width: 1024px) {
 //                         .sessions-responsive-grid {
 //                           grid-template-columns: repeat(3, 1fr) !important;
 //                         }
 //                       }
-                      
+
 //                       @media (min-width: 1440px) {
 //                         .sessions-responsive-grid {
 //                           grid-template-columns: repeat(4, 1fr) !important;
@@ -538,7 +538,7 @@
 //                       }
 //                     `}
 //                   </style>
-                  
+
 //                   {sessions.slice().reverse().map((item, index) => {
 //                     // Calculate duration from start and end time
 //                     const duration = item.startTime && item.endTime
@@ -841,7 +841,7 @@ const TrackingData = () => {
       totalDistance: session.totalDistance,
       isActive: session.isActive,
       totalUploadedPhotos: session.totalUploadedPhotos,
-      remark: session.remark, 
+      remark: session.remark,
       duration: session.startTime && session.endTime
         ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
         : 0,
@@ -978,7 +978,7 @@ const TrackingData = () => {
                   fontWeight: 500,
                 }}
               >
-                {sessions?.length || 0} Sessions •{" "}
+                {sessions?.length || 0}
                 {sessionsSummary?.totalLocations ||
                   sessions.reduce((sum, s) => sum + (s.locationCount || 0), 0)}{" "}
                 Locations
@@ -1183,7 +1183,7 @@ const TrackingData = () => {
             {/* Session Cards - Responsive Grid Layout */}
             {!loading && !sessionsLoading && !availableDatesLoading && sessions?.length > 0 && (
               <>
-            
+
 
                 <div
                   style={{
@@ -1216,7 +1216,7 @@ const TrackingData = () => {
                       }
                     `}
                   </style>
-                  
+
                   {sessions.slice().reverse().map((item, index) => {
                     // Calculate duration from start and end time
                     const duration = item.startTime && item.endTime
@@ -1308,7 +1308,7 @@ const TrackingData = () => {
                                 style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
                               />
                               <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-                                Distance:{" "}
+                                Travelled Distance:{" "}
                                 <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
                                   {item.totalDistance
                                     ? Math.floor((item.totalDistance / 1000) * 10) / 10
