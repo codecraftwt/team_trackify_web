@@ -513,6 +513,8 @@ const userSlice = createSlice({
     currentActiveLocationsSummary: null,
     currentActiveLocationsLoading: false,
     currentActiveLocationsError: null,
+
+    adminUsersListWithStartTime: [],
   },
   reducers: {
     logoutUser: (state) => {

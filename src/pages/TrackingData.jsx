@@ -1292,7 +1292,7 @@ const TrackingData = () => {
                               </div>
                             </div>
 
-                            {/* <div className="d-flex align-items-center mb-1">
+                            <div className="d-flex align-items-center mb-1">
                               <FaMapMarkerAlt
                                 className="me-1"
                                 style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
@@ -1300,7 +1300,7 @@ const TrackingData = () => {
                               <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
                                 {item?.totalUploadedPhotos || 0} photos
                               </small>
-                            </div> */}
+                            </div>
 
                             <div className="d-flex align-items-center mb-1">
                               <FaRoute
