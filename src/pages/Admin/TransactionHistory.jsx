@@ -1389,6 +1389,8 @@ import { getPaymentHistory } from "../../redux/slices/paymentSlice";
 import ReceiptModal from "../../components/models/ReceiptModal";
 import { toast } from "react-toastify";
 import moment from "moment";
+import PaymentDetailsPopup from "../../components/common/PaymentDetailsPopup";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 // ─── Type Tab Config ──────────────────────────────────────────────────────────
 const TYPE_TABS = [
@@ -1530,6 +1532,16 @@ const TransactionHistory = () => {
   const authUser = useSelector((state) => state.auth?.user || {});
   const userData = useSelector((state) => state.user?.userInfo || {});
 
+  // Add these state declarations with your other useState hooks
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const [paymentPopupOpen, setPaymentPopupOpen] = useState(false);
+
+  // Add this handler function
+  const handleViewPaymentDetails = (paymentId) => {
+    console.log("Opening payment details for ID:", paymentId);
+    setSelectedPaymentId(paymentId);
+    setPaymentPopupOpen(true);
+  };
   const {
     paymentHistory = [],
     historyLoading = false,
@@ -1805,87 +1817,87 @@ const TransactionHistory = () => {
       // </Box>
 
       <Box sx={{ minHeight: "100vh" }}>
-  <Paper elevation={0} sx={{ 
-    py: { xs: 1.5, sm: 2, md: 2.5 }, 
-    px: { xs: 1.5, sm: 2, md: 2.5 }, 
-    borderRadius: 0,
-    bgcolor: "transparent",
-    boxShadow: "none"
-  }}>
-    <Container maxWidth="xl" disableGutters={isMobile}>
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
-            <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
-          </Avatar>
-          <Box>
-            <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
-              Transaction History
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
-          </Box>
-        </Box>
-        <HeaderButtonsSkeleton isMobile={isMobile} />
+        <Paper elevation={0} sx={{
+          py: { xs: 1.5, sm: 2, md: 2.5 },
+          px: { xs: 1.5, sm: 2, md: 2.5 },
+          borderRadius: 0,
+          bgcolor: "transparent",
+          boxShadow: "none"
+        }}>
+          <Container maxWidth="xl" disableGutters={isMobile}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
+                  <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
+                </Avatar>
+                <Box>
+                  <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
+                    Transaction History
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
+                </Box>
+              </Box>
+              <HeaderButtonsSkeleton isMobile={isMobile} />
+            </Box>
+          </Container>
+        </Paper>
+
+        <Container maxWidth="xl" sx={{ pb: 3, px: { xs: 1, sm: 1.5, md: 2 } }}>
+          {/* Search/Filter Skeleton - No border, no background */}
+          <Skeleton
+            variant="rounded"
+            height={52}
+            sx={{
+              borderRadius: 3,
+              mb: 2,
+              bgcolor: alpha(theme.palette.primary.main, 0.05)
+            }}
+          />
+
+          {/* Filter chips skeleton - No border, no background */}
+          <Skeleton
+            variant="rounded"
+            height={48}
+            sx={{
+              borderRadius: 3,
+              mb: 1.5,
+              bgcolor: alpha(theme.palette.primary.main, 0.05)
+            }}
+          />
+
+          {/* Table Paper - No border, transparent */}
+          <Paper elevation={0} sx={{
+            borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
+            overflow: "hidden",
+            bgcolor: "transparent",
+            boxShadow: "none"
+          }}>
+            <TableContainer>
+              <Table sx={{ minWidth: isMobile ? 700 : 900 }}>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "transparent" }}>
+                    {["#", "Type", "Plan", "Description", "Date", "Amount", "Status", "Actions"].map((h) => (
+                      <TableCell key={h} sx={{
+                        color: theme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: "0.7rem",
+                        py: 1,
+                        bgcolor: "transparent",
+                        borderBottom: "none" // Remove border from header cells
+                      }}>
+                        {h}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {[1, 2, 3, 4, 5].map((i) => <TableRowSkeleton key={i} />)}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Container>
       </Box>
-    </Container>
-  </Paper>
-  
-  <Container maxWidth="xl" sx={{ pb: 3, px: { xs: 1, sm: 1.5, md: 2 } }}>
-    {/* Search/Filter Skeleton - No border, no background */}
-    <Skeleton 
-      variant="rounded" 
-      height={52} 
-      sx={{ 
-        borderRadius: 3, 
-        mb: 2, 
-        bgcolor: alpha(theme.palette.primary.main, 0.05)
-      }} 
-    />
-    
-    {/* Filter chips skeleton - No border, no background */}
-    <Skeleton 
-      variant="rounded" 
-      height={48} 
-      sx={{ 
-        borderRadius: 3, 
-        mb: 1.5, 
-        bgcolor: alpha(theme.palette.primary.main, 0.05)
-      }} 
-    />
-    
-    {/* Table Paper - No border, transparent */}
-    <Paper elevation={0} sx={{ 
-      borderRadius: { xs: 1.5, sm: 2, md: 2.5 }, 
-      overflow: "hidden",
-      bgcolor: "transparent",
-      boxShadow: "none"
-    }}>
-      <TableContainer>
-        <Table sx={{ minWidth: isMobile ? 700 : 900 }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: "transparent" }}>
-              {["#", "Type", "Plan", "Description", "Date", "Amount", "Status", "Actions"].map((h) => (
-                <TableCell key={h} sx={{ 
-                  color: theme.palette.primary.main, 
-                  fontWeight: 600, 
-                  fontSize: "0.7rem", 
-                  py: 1, 
-                  bgcolor: "transparent",
-                  borderBottom: "none" // Remove border from header cells
-                }}>
-                  {h}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {[1, 2, 3, 4, 5].map((i) => <TableRowSkeleton key={i} />)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-  </Container>
-</Box>
     );
   }
 
@@ -2155,6 +2167,23 @@ const TransactionHistory = () => {
                                 }} />
                             </TableCell>
                             <TableCell align="right" sx={{ py: 1.2 }}>
+                              <Tooltip title="View Details">
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewPaymentDetails(transaction._id);
+                                  }}
+                                  sx={{
+                                    color: theme.palette.primary.main,
+                                    width: 30,
+                                    height: 30,
+                                    "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+                                  }}
+                                >
+                                  <VisibilityIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Tooltip>
                               <Tooltip title="View Receipt">
                                 <IconButton size="small" onClick={() => { setSelectedTransaction(transaction); setShowReceipt(true); }}
                                   sx={{ color: theme.palette.primary.main, width: 30, height: 30 }}>
@@ -2187,112 +2216,266 @@ const TransactionHistory = () => {
               </>
             ) : (
               /* Card View */
+              // <Box sx={{ p: { xs: 1.2, sm: 1.5 } }}>
+              //   <Stack spacing={1.5}>
+              //     <AnimatePresence>
+              //       {sortedTransactions.map((transaction, index) => (
+              //         <motion.div key={transaction._id || index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+              //           <Paper elevation={0} sx={{
+              //             p: { xs: 1.5, sm: 2 }, borderRadius: { xs: 1.5, sm: 2 }, border: "1px solid",
+              //             borderColor: alpha(theme.palette.primary.main, 0.1), cursor: "pointer", transition: "all 0.2s ease",
+              //             "&:hover": { borderColor: theme.palette.primary.main, boxShadow: `0 6px 15px -6px ${alpha(theme.palette.primary.main, 0.3)}` },
+              //           }} onClick={() => { setSelectedTransaction(transaction); setShowReceipt(true); }}>
+              //             {/* Card content same as before */}
+              //             <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, mb: 1.5, gap: 0.8 }}>
+              //               <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+              //                 <Avatar sx={{
+              //                   bgcolor: transaction.type === "addon" ? alpha("#8b5cf6", 0.1) : alpha(theme.palette.primary.main, 0.1),
+              //                   color: transaction.type === "addon" ? "#8b5cf6" : theme.palette.primary.main,
+              //                   width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 },
+              //                 }}>
+              //                   {transaction.type === "addon" ? <AddonIcon sx={{ fontSize: 18 }} /> : <IncomeIcon sx={{ fontSize: 18 }} />}
+              //                 </Avatar>
+              //                 <Box sx={{ flex: 1 }}>
+              //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 0.3 }}>
+              //                     <TypeBadge type={transaction.type} />
+              //                   </Box>
+              //                   <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.8rem", sm: "0.85rem" }, wordBreak: "break-word", color: "text.primary" }}>
+              //                     {transaction.description?.substring(0, 40) || `Payment for ${transaction.planId?.name || "Plan"}`}
+              //                   </Typography>
+              //                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>
+              //                     <CalendarIcon sx={{ fontSize: 10, mr: 0.3, verticalAlign: "middle", color: theme.palette.primary.main }} />
+              //                     {formatDate(transaction.createdAt)}
+              //                   </Typography>
+              //                 </Box>
+              //               </Box>
+              //               <Box sx={{ textAlign: "right", width: { xs: "100%", sm: "auto" }, mt: { xs: 0.5, sm: 0 } }}>
+              //                 <Typography variant="body1" fontWeight={700} sx={{ color: transaction.status === "completed" ? "#22c55e" : theme.palette.primary.main, fontSize: { xs: "0.9rem", sm: "1rem" } }}>
+              //                   {formatAmount(transaction.amount)}
+              //                 </Typography>
+              //                 {transaction.discountAmount > 0 && (
+              //                   <Typography sx={{ fontSize: "0.58rem", color: "#ef4444", textDecoration: "line-through" }}>
+              //                     {formatAmount(transaction.originalAmount)}
+              //                   </Typography>
+              //                 )}
+              //                 <Chip icon={getStatusIcon(transaction.status)} label={transaction.status} size="small"
+              //                   sx={{ mt: 0.3, bgcolor: alpha(getStatusColor(transaction.status), 0.1), color: getStatusColor(transaction.status), fontWeight: 600, fontSize: { xs: "0.55rem", sm: "0.6rem" }, height: { xs: 20, sm: 22 } }} />
+              //               </Box>
+              //             </Box>
+              //             <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+              //             <Grid container spacing={1.5}>
+              //               {transaction.planId && (
+              //                 <Grid item xs={12} sm={6}>
+              //                   <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Plan</Typography>
+              //                   <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
+              //                     {transaction.planId.name} {(transaction.duration || transaction.planId.duration) ? `(${transaction.duration || transaction.planId.duration})` : ""}
+              //                   </Typography>
+              //                 </Grid>
+              //               )}
+              //               <Grid item xs={12} sm={6}>
+              //                 <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Payment Method</Typography>
+              //                 <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
+              //                   {transaction.paymentMethod || "—"}
+              //                 </Typography>
+              //               </Grid>
+              //               {transaction.hasCouponApplied && transaction.couponCode && (
+              //                 <Grid item xs={12} sm={6}>
+              //                   <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Coupon Applied</Typography>
+              //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              //                     <CouponIcon sx={{ fontSize: 12, color: "#f59e0b" }} />
+              //                     <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "#f59e0b" }}>
+              //                       {transaction.couponCode} · Saved {formatAmount(transaction.savingsAmount || 0)}
+              //                     </Typography>
+              //                   </Box>
+              //                 </Grid>
+              //               )}
+              //               {transaction.expiresAt && (
+              //                 <Grid item xs={12} sm={6}>
+              //                   <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>
+              //                     {transaction.isExpired ? "Expired" : `Expires · ${transaction.remainingDays}d left`}
+              //                   </Typography>
+              //                   <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: transaction.isExpired ? "#ef4444" : "text.primary" }}>
+              //                     {formatDate(transaction.expiresAt)}
+              //                   </Typography>
+              //                 </Grid>
+              //               )}
+              //             </Grid>
+              //           </Paper>
+              //         </motion.div>
+              //       ))}
+              //     </AnimatePresence>
+              //   </Stack>
+              //   {/* Pagination for card view */}
+              //   <TablePagination
+              //     component="div"
+              //     count={fullyFilteredTransactions.length}
+              //     page={page}
+              //     onPageChange={handleChangePage}
+              //     rowsPerPage={rowsPerPage}
+              //     onRowsPerPageChange={handleChangeRowsPerPage}
+              //     rowsPerPageOptions={[5, 10, 25, 50]}
+              //     sx={{
+              //       borderTop: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1),
+              //       ".MuiTablePagination-select": { borderRadius: 1.5, fontSize: { xs: "0.6rem", sm: "0.65rem" } },
+              //       ".MuiTablePagination-displayedRows": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+              //       ".MuiTablePagination-selectLabel": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+              //     }}
+              //   />
+              // </Box>
+            
               <Box sx={{ p: { xs: 1.2, sm: 1.5 } }}>
-                <Stack spacing={1.5}>
-                  <AnimatePresence>
-                    {sortedTransactions.map((transaction, index) => (
-                      <motion.div key={transaction._id || index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
-                        <Paper elevation={0} sx={{
-                          p: { xs: 1.5, sm: 2 }, borderRadius: { xs: 1.5, sm: 2 }, border: "1px solid",
-                          borderColor: alpha(theme.palette.primary.main, 0.1), cursor: "pointer", transition: "all 0.2s ease",
-                          "&:hover": { borderColor: theme.palette.primary.main, boxShadow: `0 6px 15px -6px ${alpha(theme.palette.primary.main, 0.3)}` },
-                        }} onClick={() => { setSelectedTransaction(transaction); setShowReceipt(true); }}>
-                          {/* Card content same as before */}
-                          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, mb: 1.5, gap: 0.8 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                              <Avatar sx={{
-                                bgcolor: transaction.type === "addon" ? alpha("#8b5cf6", 0.1) : alpha(theme.palette.primary.main, 0.1),
-                                color: transaction.type === "addon" ? "#8b5cf6" : theme.palette.primary.main,
-                                width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 },
-                              }}>
-                                {transaction.type === "addon" ? <AddonIcon sx={{ fontSize: 18 }} /> : <IncomeIcon sx={{ fontSize: 18 }} />}
-                              </Avatar>
-                              <Box sx={{ flex: 1 }}>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 0.3 }}>
-                                  <TypeBadge type={transaction.type} />
-                                </Box>
-                                <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.8rem", sm: "0.85rem" }, wordBreak: "break-word", color: "text.primary" }}>
-                                  {transaction.description?.substring(0, 40) || `Payment for ${transaction.planId?.name || "Plan"}`}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>
-                                  <CalendarIcon sx={{ fontSize: 10, mr: 0.3, verticalAlign: "middle", color: theme.palette.primary.main }} />
-                                  {formatDate(transaction.createdAt)}
-                                </Typography>
-                              </Box>
-                            </Box>
-                            <Box sx={{ textAlign: "right", width: { xs: "100%", sm: "auto" }, mt: { xs: 0.5, sm: 0 } }}>
-                              <Typography variant="body1" fontWeight={700} sx={{ color: transaction.status === "completed" ? "#22c55e" : theme.palette.primary.main, fontSize: { xs: "0.9rem", sm: "1rem" } }}>
-                                {formatAmount(transaction.amount)}
-                              </Typography>
-                              {transaction.discountAmount > 0 && (
-                                <Typography sx={{ fontSize: "0.58rem", color: "#ef4444", textDecoration: "line-through" }}>
-                                  {formatAmount(transaction.originalAmount)}
-                                </Typography>
-                              )}
-                              <Chip icon={getStatusIcon(transaction.status)} label={transaction.status} size="small"
-                                sx={{ mt: 0.3, bgcolor: alpha(getStatusColor(transaction.status), 0.1), color: getStatusColor(transaction.status), fontWeight: 600, fontSize: { xs: "0.55rem", sm: "0.6rem" }, height: { xs: 20, sm: 22 } }} />
-                            </Box>
-                          </Box>
-                          <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
-                          <Grid container spacing={1.5}>
-                            {transaction.planId && (
-                              <Grid item xs={12} sm={6}>
-                                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Plan</Typography>
-                                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
-                                  {transaction.planId.name} {(transaction.duration || transaction.planId.duration) ? `(${transaction.duration || transaction.planId.duration})` : ""}
-                                </Typography>
-                              </Grid>
-                            )}
-                            <Grid item xs={12} sm={6}>
-                              <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Payment Method</Typography>
-                              <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
-                                {transaction.paymentMethod || "—"}
-                              </Typography>
-                            </Grid>
-                            {transaction.hasCouponApplied && transaction.couponCode && (
-                              <Grid item xs={12} sm={6}>
-                                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Coupon Applied</Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                  <CouponIcon sx={{ fontSize: 12, color: "#f59e0b" }} />
-                                  <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "#f59e0b" }}>
-                                    {transaction.couponCode} · Saved {formatAmount(transaction.savingsAmount || 0)}
-                                  </Typography>
-                                </Box>
-                              </Grid>
-                            )}
-                            {transaction.expiresAt && (
-                              <Grid item xs={12} sm={6}>
-                                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>
-                                  {transaction.isExpired ? "Expired" : `Expires · ${transaction.remainingDays}d left`}
-                                </Typography>
-                                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: transaction.isExpired ? "#ef4444" : "text.primary" }}>
-                                  {formatDate(transaction.expiresAt)}
-                                </Typography>
-                              </Grid>
-                            )}
-                          </Grid>
-                        </Paper>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </Stack>
-                {/* Pagination for card view */}
-                <TablePagination
-                  component="div"
-                  count={fullyFilteredTransactions.length}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  sx={{
-                    borderTop: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1),
-                    ".MuiTablePagination-select": { borderRadius: 1.5, fontSize: { xs: "0.6rem", sm: "0.65rem" } },
-                    ".MuiTablePagination-displayedRows": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
-                    ".MuiTablePagination-selectLabel": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
-                  }}
-                />
+  <Stack spacing={1.5}>
+    <AnimatePresence>
+      {sortedTransactions.map((transaction, index) => (
+        <motion.div key={transaction._id || index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+          <Paper elevation={0} sx={{
+            p: { xs: 1.5, sm: 2 }, borderRadius: { xs: 1.5, sm: 2 }, border: "1px solid",
+            borderColor: alpha(theme.palette.primary.main, 0.1), transition: "all 0.2s ease",
+            "&:hover": { borderColor: theme.palette.primary.main, boxShadow: `0 6px 15px -6px ${alpha(theme.palette.primary.main, 0.3)}` },
+          }}>
+            {/* Card content */}
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, mb: 1.5, gap: 0.8 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                <Avatar sx={{
+                  bgcolor: transaction.type === "addon" ? alpha("#8b5cf6", 0.1) : alpha(theme.palette.primary.main, 0.1),
+                  color: transaction.type === "addon" ? "#8b5cf6" : theme.palette.primary.main,
+                  width: { xs: 36, sm: 40 }, height: { xs: 36, sm: 40 },
+                }}>
+                  {transaction.type === "addon" ? <AddonIcon sx={{ fontSize: 18 }} /> : <IncomeIcon sx={{ fontSize: 18 }} />}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 0.3, flexWrap: "wrap" }}>
+                    <TypeBadge type={transaction.type} />
+                  </Box>
+                  <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.8rem", sm: "0.85rem" }, wordBreak: "break-word", color: "text.primary" }}>
+                    {transaction.description?.substring(0, 40) || `Payment for ${transaction.planId?.name || "Plan"}`}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>
+                    <CalendarIcon sx={{ fontSize: 10, mr: 0.3, verticalAlign: "middle", color: theme.palette.primary.main }} />
+                    {formatDate(transaction.createdAt)}
+                  </Typography>
+                </Box>
               </Box>
+              <Box sx={{ textAlign: "right", width: { xs: "100%", sm: "auto" }, mt: { xs: 0.5, sm: 0 } }}>
+                <Typography variant="body1" fontWeight={700} sx={{ color: transaction.status === "completed" ? "#22c55e" : theme.palette.primary.main, fontSize: { xs: "0.9rem", sm: "1rem" } }}>
+                  {formatAmount(transaction.amount)}
+                </Typography>
+                {transaction.discountAmount > 0 && (
+                  <Typography sx={{ fontSize: "0.58rem", color: "#ef4444", textDecoration: "line-through" }}>
+                    {formatAmount(transaction.originalAmount)}
+                  </Typography>
+                )}
+                <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end", mt: 0.5, alignItems: "center" }}>
+                  <Chip icon={getStatusIcon(transaction.status)} label={transaction.status} size="small"
+                    sx={{ bgcolor: alpha(getStatusColor(transaction.status), 0.1), color: getStatusColor(transaction.status), fontWeight: 600, fontSize: { xs: "0.55rem", sm: "0.6rem" }, height: { xs: 20, sm: 22 } }} />
+                  
+                  {/* Action Buttons Container */}
+                  <Box sx={{ display: "flex", gap: 0.3, ml: 0.5 }}>
+                    {/* Eye Icon - View Details */}
+                    <Tooltip title="View Details">
+                      <IconButton 
+                        size="small" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewPaymentDetails(transaction._id);
+                        }}
+                        sx={{ 
+                          color: theme.palette.primary.main, 
+                          width: 26, 
+                          height: 26,
+                          p: 0,
+                          "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+                        }}
+                      >
+                        <VisibilityIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    {/* Receipt Icon - View Receipt */}
+                    <Tooltip title="View Receipt">
+                      <IconButton 
+                        size="small" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedTransaction(transaction); 
+                          setShowReceipt(true);
+                        }}
+                        sx={{ 
+                          color: theme.palette.primary.main, 
+                          width: 26, 
+                          height: 26,
+                          p: 0,
+                          "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+                        }}
+                      >
+                        <ReceiptIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+            <Divider sx={{ my: 1.5, borderColor: alpha(theme.palette.primary.main, 0.1) }} />
+            <Grid container spacing={1.5}>
+              {transaction.planId && (
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Plan</Typography>
+                  <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
+                    {transaction.planId.name} {(transaction.duration || transaction.planId.duration) ? `(${transaction.duration || transaction.planId.duration})` : ""}
+                  </Typography>
+                </Grid>
+              )}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Payment Method</Typography>
+                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "text.primary" }}>
+                  {transaction.paymentMethod || "—"}
+                </Typography>
+              </Grid>
+              {transaction.hasCouponApplied && transaction.couponCode && (
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>Coupon Applied</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <CouponIcon sx={{ fontSize: 12, color: "#f59e0b" }} />
+                    <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: "#f59e0b" }}>
+                      {transaction.couponCode} · Saved {formatAmount(transaction.savingsAmount || 0)}
+                    </Typography>
+                  </Box>
+                </Grid>
+              )}
+              {transaction.expiresAt && (
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>
+                    {transaction.isExpired ? "Expired" : `Expires · ${transaction.remainingDays}d left`}
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: transaction.isExpired ? "#ef4444" : "text.primary" }}>
+                    {formatDate(transaction.expiresAt)}
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
+          </Paper>
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  </Stack>
+  {/* Pagination for card view */}
+  <TablePagination
+    component="div"
+    count={fullyFilteredTransactions.length}
+    page={page}
+    onPageChange={handleChangePage}
+    rowsPerPage={rowsPerPage}
+    onRowsPerPageChange={handleChangeRowsPerPage}
+    rowsPerPageOptions={[5, 10, 25, 50]}
+    sx={{
+      borderTop: "1px solid", borderColor: alpha(theme.palette.primary.main, 0.1),
+      ".MuiTablePagination-select": { borderRadius: 1.5, fontSize: { xs: "0.6rem", sm: "0.65rem" } },
+      ".MuiTablePagination-displayedRows": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+      ".MuiTablePagination-selectLabel": { fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.65rem" } },
+    }}
+  />
+</Box>
+            
             )}
 
 
@@ -2313,7 +2496,12 @@ const TransactionHistory = () => {
       {selectedTransaction && (
         <ReceiptModal transaction={selectedTransaction} show={showReceipt} onHide={() => setShowReceipt(false)} />
       )}
-
+      {/* Payment Details Popup */}
+      <PaymentDetailsPopup
+        open={paymentPopupOpen}
+        onClose={() => setPaymentPopupOpen(false)}
+        paymentId={selectedPaymentId}
+      />
       <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
     </Box>
   );

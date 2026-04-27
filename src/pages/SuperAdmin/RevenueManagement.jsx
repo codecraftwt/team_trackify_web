@@ -751,6 +751,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPaymentHistory } from "../../redux/slices/paymentSlice";
+import PaymentDetailsPopup from "../../components/common/PaymentDetailsPopup";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import moment from "moment";
 import { toast } from "react-toastify";
 
@@ -911,6 +913,14 @@ const RevenueManagement = () => {
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  // Add this handler function
+  const handleViewDetails = (paymentId) => {
+    setSelectedPaymentId(paymentId);
+    setPopupOpen(true);
+  };
   // Redux
   const {
     allPaymentHistory = [],
@@ -1217,6 +1227,7 @@ const RevenueManagement = () => {
                         { label: "Date", sortKey: "date" },
                         { label: "Expires", width: 100 },
                         { label: "Status", sortKey: "status", width: 110 },
+                        { label: "Actions", width: 60, align: "center" },
                       ].map(({ label, sortKey, align, width }) => (
                         <TableCell key={label}
                           onClick={() => sortKey && handleSort(sortKey)}
@@ -1324,6 +1335,21 @@ const RevenueManagement = () => {
                               </Tooltip>
                             )}
                           </TableCell>
+
+                          <TableCell align="center" sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
+                            <Tooltip title="View Details">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleViewDetails(row.id)}
+                                sx={{
+                                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                  "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.15) },
+                                }}
+                              >
+                                <VisibilityIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
                         </motion.tr>
                       ))}
                     </AnimatePresence>
@@ -1371,7 +1397,12 @@ const RevenueManagement = () => {
           </Paper>
         </motion.div>
       </Container>
-
+      {/* Payment Details Popup */}
+      <PaymentDetailsPopup
+        open={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        paymentId={selectedPaymentId}
+      />
       <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
     </Box>
   );

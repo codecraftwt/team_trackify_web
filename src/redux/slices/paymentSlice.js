@@ -277,6 +277,19 @@ export const updatePaymentStatus = createAsyncThunk(
   }
 );
 
+// Get Payment Details by ID
+export const getPaymentDetails = createAsyncThunk(
+  "payment/getPaymentDetails",
+  async (paymentId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/payments/paymentdetails/${paymentId}`);
+      return response.data;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch payment details");
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 const initialState = {
   // Order creation
   orderLoading: false,
@@ -348,7 +361,9 @@ const initialState = {
   addOnVerificationError: null,
   addOnVerificationData: null,
 
-
+  paymentDetailsLoading: false,
+  paymentDetailsError: null,
+  paymentDetailsData: null,
 
   // Test API
   testLoading: false,
@@ -759,6 +774,20 @@ const paymentSlice = createSlice({
       .addCase(updatePaymentStatus.rejected, (state, action) => {
         state.statusUpdateLoading = false;
         state.statusUpdateError = action.payload;
+      })
+    // Get Payment Details (new)
+    builder
+      .addCase(getPaymentDetails.pending, (state) => {
+        state.paymentDetailsLoading = true;
+        state.paymentDetailsError = null;
+      })
+      .addCase(getPaymentDetails.fulfilled, (state, action) => {
+        state.paymentDetailsLoading = false;
+        state.paymentDetailsData = action.payload.data;
+      })
+      .addCase(getPaymentDetails.rejected, (state, action) => {
+        state.paymentDetailsLoading = false;
+        state.paymentDetailsError = action.payload;
       });
   },
 });
