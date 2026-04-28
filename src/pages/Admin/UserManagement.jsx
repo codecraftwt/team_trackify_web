@@ -3421,6 +3421,21 @@ const TabsSkeleton = ({ isMobile }) => {
 //   const userEmail = user.email;
 //   const userMobile = user.mobile_no;
 //   const userIsActive = user.isActive;
+  
+//   // Determine which date to show
+//   const getDisplayDate = () => {
+//     if (role_id === 2) {
+//       // Super Admin sees registered date
+//       return user.registeredDate || user.createdAt || user.createdAt;
+//     } else {
+//       // role_id 1 and 3 see lastStartTime (last check-in), fallback to registeredDate if null
+//       return user.lastStartTime || user.registeredDate || user.createdAt || user.createdAt;
+//     }
+//   };
+  
+//   const displayDate = getDisplayDate();
+//   const dateLabel = role_id === 2 ? "Joined" : "Last Check-in";
+  
 //   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
 //   const userAvatar = user.avtar || user.profileImage;
 
@@ -3563,7 +3578,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //               )}
 //             </Box>
 //           </Box>
-//           {/* Status and Joined Info */}
+//           {/* Status and Date Info */}
 //           <Box
 //             sx={{
 //               p: { xs: 1, sm: 1.25 },
@@ -3581,7 +3596,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //                   letterSpacing: 0.3,
 //                 }}
 //               >
-//                 Joined
+//                 {dateLabel}
 //               </Typography>
 //               <Typography
 //                 variant="caption"
@@ -3592,7 +3607,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //                   letterSpacing: 0.2,
 //                 }}
 //               >
-//                 {moment(userCreatedAt).format("MMM D, YYYY")}
+//                 {displayDate ? moment(displayDate).format("MMM D, YYYY") : "N/A"}
 //               </Typography>
 //             </Box>
 //           </Box>
@@ -3690,9 +3705,6 @@ const TabsSkeleton = ({ isMobile }) => {
 //   );
 // };
 
-
-//change the tilte and data for last tracking date and  join date 
-
 const UserCard = ({
   user,
   onView,
@@ -3718,14 +3730,14 @@ const UserCard = ({
   const userMobile = user.mobile_no;
   const userIsActive = user.isActive;
   
-  // Determine which date to show
+  // Determine which date to show - REMOVED registration date fallback
   const getDisplayDate = () => {
     if (role_id === 2) {
       // Super Admin sees registered date
-      return user.registeredDate || user.createdAt || user.createdAt;
+      return user.registeredDate || user.createdAt || null;
     } else {
-      // role_id 1 and 3 see lastStartTime (last check-in), fallback to registeredDate if null
-      return user.lastStartTime || user.registeredDate || user.createdAt || user.createdAt;
+      // role_id 1 and 3 see lastStartTime (last check-in) ONLY - no fallback to registeredDate
+      return user.lastStartTime || null;
     }
   };
   
@@ -3897,13 +3909,13 @@ const UserCard = ({
               <Typography
                 variant="caption"
                 fontWeight={600}
-                color="text.primary"
+                color={!displayDate ? "error.main" : "text.primary"}
                 sx={{
                   fontSize: { xs: '0.55rem', sm: '0.6rem' },
                   letterSpacing: 0.2,
                 }}
               >
-                {displayDate ? moment(displayDate).format("MMM D, YYYY") : "N/A"}
+                {displayDate ? moment(displayDate).format("MMM D, YYYY") : "--/--/--"}
               </Typography>
             </Box>
           </Box>
@@ -4000,6 +4012,7 @@ const UserCard = ({
     </motion.div>
   );
 };
+
 // const ResponsiveTable = ({
 //   users,
 //   isBulkMode,
@@ -4027,6 +4040,21 @@ const UserCard = ({
 //   const theme = useTheme();
 //   const isSuperAdmin = role_id === 2;
 //   const isLoggedInAdmin = role_id === 1;
+
+//   // Function to get display date based on role - REMOVED registration date fallback for non-super admins
+//   const getDisplayDate = (user) => {
+//     if (role_id === 2) {
+//       // Super Admin sees registered date
+//       return user.registeredDate || user.createdAt || null;
+//     } else {
+//       // role_id 1 and 3 see only lastStartTime (last check-in) - NO fallback to registeredDate
+//       return user.lastStartTime || null;
+//     }
+//   };
+
+//   const getDateLabel = () => {
+//     return role_id === 2 ? "Plan Start" : "Last Check-in";
+//   };
 
 //   // Handle row click with proper event propagation
 //   const handleRowClick = (user, event) => {
@@ -4057,7 +4085,7 @@ const UserCard = ({
 //               <TableCell>Name</TableCell>
 //               <TableCell>Email</TableCell>
 //               {(isSuperAdmin || role_id === 1 || role_id === 3) && <TableCell>Mobile No</TableCell>}
-//               <TableCell>Joined Date</TableCell>
+//               <TableCell>{getDateLabel()}</TableCell>
 //               <TableCell align="right">Actions</TableCell>
 //             </TableRow>
 //           </TableHead>
@@ -4092,7 +4120,7 @@ const UserCard = ({
 //     // Mobile No column
 //     if (isSuperAdmin || role_id === 1 || role_id === 3) cols += 1;
 
-//     // Joined Date column
+//     // Date column
 //     cols += 2;
 
 //     // Actions column
@@ -4100,6 +4128,7 @@ const UserCard = ({
 
 //     return cols;
 //   };
+  
 //   // Check if no users available
 //   if (!users || users.length === 0) {
 //     return (
@@ -4116,10 +4145,7 @@ const UserCard = ({
 //             <TableRow>
 //               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
 //               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//                 Profile
-//               </TableCell>
-//               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//                 Name
+//                 Profile &nbsp; &nbsp;  Name
 //               </TableCell>
 //               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
 //                 Email
@@ -4131,7 +4157,7 @@ const UserCard = ({
 //               )}
 //               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
 //                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
-//                   Joined Date
+//                   {getDateLabel()}
 //                   {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
 //                 </Box>
 //               </TableCell>
@@ -4143,12 +4169,10 @@ const UserCard = ({
 //           <TableBody>
 //             <TableRow>
 //               <TableCell
-//                 // colSpan={isSuperAdmin ? 5 : 4}
 //                 colSpan={getColSpan()}
 //                 align="center"
 //                 sx={{
 //                   py: 8,
-//                   // backgroundColor: alpha(theme.palette.primary.main, 0.02),
 //                 }}
 //               >
 //                 <Box
@@ -4228,14 +4252,9 @@ const UserCard = ({
 //         <TableHead>
 //           <TableRow>
 //             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
-//             {/* <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-//               Name
-//             </TableCell> */}
-
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
 //               Profile &nbsp; &nbsp;  Name
 //             </TableCell>
-
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
 //               Email
 //             </TableCell>
@@ -4246,7 +4265,7 @@ const UserCard = ({
 //             )}
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
 //               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
-//                 Joined Date
+//                 {getDateLabel()}
 //                 {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
 //               </Box>
 //             </TableCell>
@@ -4260,6 +4279,7 @@ const UserCard = ({
 //             {(users || []).map((user) => {
 //               const isSubAdmin = user.role_id === 3;
 //               const showSBBadge = isSubAdmin;
+//               const displayDate = getDisplayDate(user);
 
 //               return (
 //                 <motion.tr
@@ -4336,8 +4356,12 @@ const UserCard = ({
 //                       {user.mobile_no}
 //                     </TableCell>
 //                   )}
-//                   <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
-//                     {moment(user.createdAt || user.registeredDate || user.createdAt).format('MMM D, YYYY')}
+//                   <TableCell sx={{ 
+//                     fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+//                     color: !displayDate ? 'error.main' : 'text.secondary',
+//                     fontWeight: !displayDate ? 500 : 400
+//                   }}>
+//                     {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
 //                   </TableCell>
 //                   <TableCell align="right">
 //                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
@@ -4439,10 +4463,6 @@ const UserCard = ({
 // };
 
 
-
-/// change title and dat ajoin date and last chek i date 
-
-
 const ResponsiveTable = ({
   users,
   isBulkMode,
@@ -4474,16 +4494,24 @@ const ResponsiveTable = ({
   // Function to get display date based on role
   const getDisplayDate = (user) => {
     if (role_id === 2) {
-      // Super Admin sees registered date
-      return user.registeredDate || user.createdAt || user.createdAt;
+      // Super Admin sees Plan Start Date
+      return user.planStartDate || null;
     } else {
-      // role_id 1 and 3 see lastStartTime (last check-in), fallback to registeredDate if null
-      return user.lastStartTime || user.registeredDate || user.createdAt || user.createdAt;
+      // role_id 1 and 3 see only lastStartTime (last check-in) - NO fallback to registeredDate
+      return user.lastStartTime || null;
     }
   };
 
+  // Function to get Plan Expiry Date for Super Admin
+  const getPlanExpiryDate = (user) => {
+    if (role_id === 2) {
+      return user.planExpiryDate || null;
+    }
+    return null;
+  };
+
   const getDateLabel = () => {
-    return role_id === 2 ? "Joined Date" : "Last Check-in";
+    return role_id === 2 ? "Plan Start" : "Last Check-in";
   };
 
   // Handle row click with proper event propagation
@@ -4515,7 +4543,14 @@ const ResponsiveTable = ({
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               {(isSuperAdmin || role_id === 1 || role_id === 3) && <TableCell>Mobile No</TableCell>}
-              <TableCell>{getDateLabel()}</TableCell>
+              {isSuperAdmin ? (
+                <>
+                  <TableCell>Plan Start</TableCell>
+                  <TableCell>Plan Expiry</TableCell>
+                </>
+              ) : (
+                <TableCell>{getDateLabel()}</TableCell>
+              )}
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -4550,8 +4585,12 @@ const ResponsiveTable = ({
     // Mobile No column
     if (isSuperAdmin || role_id === 1 || role_id === 3) cols += 1;
 
-    // Date column
-    cols += 2;
+    // Date columns
+    if (isSuperAdmin) {
+      cols += 2; // Plan Start + Plan Expiry
+    } else {
+      cols += 2; // Last Check-in
+    }
 
     // Actions column
     cols += 2;
@@ -4575,10 +4614,7 @@ const ResponsiveTable = ({
             <TableRow>
               {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-                Profile
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-                Name
+                Profile &nbsp; &nbsp;  Name
               </TableCell>
               <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                 Email
@@ -4588,12 +4624,26 @@ const ResponsiveTable = ({
                   Mobile No
                 </TableCell>
               )}
-              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
-                  {getDateLabel()}
-                  {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
-                </Box>
-              </TableCell>
+              {isSuperAdmin ? (
+                <>
+                  <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+                      Plan Start
+                      {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+                    </Box>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                    Plan Expiry
+                  </TableCell>
+                </>
+              ) : (
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+                    {getDateLabel()}
+                    {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+                  </Box>
+                </TableCell>
+              )}
               <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
                 Actions
               </TableCell>
@@ -4696,12 +4746,26 @@ const ResponsiveTable = ({
                 Mobile No
               </TableCell>
             )}
-            <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
-                {getDateLabel()}
-                {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
-              </Box>
-            </TableCell>
+            {isSuperAdmin ? (
+              <>
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+                    Plan Start
+                    {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+                  </Box>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                  Plan Expiry
+                </TableCell>
+              </>
+            ) : (
+              <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }} onClick={onSort}>
+                  {getDateLabel()}
+                  {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} /> : <ArrowDownwardIcon fontSize="small" sx={{ color: theme.palette.primary.main, fontSize: 14 }} />}
+                </Box>
+              </TableCell>
+            )}
             <TableCell align="right" sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main }}>
               Actions
             </TableCell>
@@ -4713,6 +4777,7 @@ const ResponsiveTable = ({
               const isSubAdmin = user.role_id === 3;
               const showSBBadge = isSubAdmin;
               const displayDate = getDisplayDate(user);
+              const planExpiryDate = getPlanExpiryDate(user);
 
               return (
                 <motion.tr
@@ -4789,9 +4854,32 @@ const ResponsiveTable = ({
                       {user.mobile_no}
                     </TableCell>
                   )}
-                  <TableCell sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, color: 'text.secondary' }}>
-                    {displayDate ? moment(displayDate).format('MMM D, YYYY') : 'N/A'}
-                  </TableCell>
+                  {isSuperAdmin ? (
+                    <>
+                      <TableCell sx={{ 
+                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                        color: !displayDate ? 'error.main' : 'text.secondary',
+                        fontWeight: !displayDate ? 500 : 400
+                      }}>
+                        {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
+                      </TableCell>
+                      <TableCell sx={{ 
+                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                        color: !planExpiryDate ? 'error.main' : 'text.secondary',
+                        fontWeight: !planExpiryDate ? 500 : 400
+                      }}>
+                        {planExpiryDate ? moment(planExpiryDate).format('MMM D, YYYY') : "--/--/--"}
+                      </TableCell>
+                    </>
+                  ) : (
+                    <TableCell sx={{ 
+                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                      color: !displayDate ? 'error.main' : 'text.secondary',
+                      fontWeight: !displayDate ? 500 : 400
+                    }}>
+                      {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
+                    </TableCell>
+                  )}
                   <TableCell align="right">
                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
                       <Tooltip title="View">
