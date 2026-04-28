@@ -163,7 +163,7 @@
 //       totalDistance: session.totalDistance,
 //       isActive: session.isActive,
 //       totalUploadedPhotos: session.totalUploadedPhotos,
-//       remark: session.remark, 
+//       remark: session.remark,
 //       duration: session.startTime && session.endTime
 //         ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
 //         : 0,
@@ -300,10 +300,7 @@
 //                   fontWeight: 500,
 //                 }}
 //               >
-//                 {sessions?.length || 0} Sessions •{" "}
-//                 {sessionsSummary?.totalLocations ||
-//                   sessions.reduce((sum, s) => sum + (s.locationCount || 0), 0)}{" "}
-//                 Locations
+//                 Total Sessions: {sessions?.length || 0}
 //               </Badge>
 //             </div>
 
@@ -554,6 +551,20 @@
 //                         <Card.Body className="p-2">
 //                           <div className="d-flex flex-column">
 //                             <div className="d-flex align-items-center mb-2">
+//                               <div
+//                                 className="me-2 d-flex align-items-center justify-content-center"
+//                                 style={{
+//                                   minWidth: "24px",
+//                                   height: "24px",
+//                                   borderRadius: "50%",
+//                                   backgroundColor: alpha(theme.palette.primary.main, 0.12),
+//                                   color: theme.palette.primary.main,
+//                                   fontSize: "0.7rem",
+//                                   fontWeight: 700,
+//                                 }}
+//                               >
+//                                 {index + 1}
+//                               </div>
 //                               <div className="me-2">
 //                                 <FaRoute size={14} style={{ color: theme.palette.primary.main }} />
 //                               </div>
@@ -565,9 +576,9 @@
 //                                   {/* Session #{index + 1} */}
 //                                   {item.remark || "Session"}
 //                                 </h6>
-//                                 <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+//                                 {/* <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
 //                                   {formatTime(item?.startTime)}
-//                                 </small>
+//                                 </small> */}
 //                               </div>
 //                             </div>
 
@@ -616,7 +627,7 @@
 //                                 style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
 //                               />
 //                               <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-//                                 Distance:{" "}
+//                                 Travelled Distance:{" "}
 //                                 <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
 //                                   {item.totalDistance
 //                                     ? Math.floor((item.totalDistance / 1000) * 10) / 10
@@ -673,9 +684,6 @@
 
 
 
-////numbering the cards
-
-
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -696,7 +704,7 @@ import {
 import { Card, Badge, Button } from "react-bootstrap";
 import { useTheme, alpha } from "@mui/material";
 import { IconButton } from "@mui/material";
-import { ArrowBack as ArrowBackIcon, Timer as TimerIcon } from "@mui/icons-material";
+import { ArrowBack as ArrowBackIcon, Timer as TimerIcon, FiberManualRecord as LiveIcon } from "@mui/icons-material";
 
 const TrackingData = () => {
   const theme = useTheme();
@@ -779,11 +787,10 @@ const TrackingData = () => {
     return availableDates.includes(dateStr);
   };
 
-  // ✅ Send ALL sessions for the selected date to Locations
+  // Send ALL sessions for the selected date to Locations
   const handleViewAllLocations = () => {
     if (!sessionsData || sessionsData.length === 0) return;
 
-    // Format sessions data for Locations
     const formattedSessions = sessionsData.map((session) => ({
       _id: session._id,
       sessionId: session.sessionId,
@@ -792,11 +799,9 @@ const TrackingData = () => {
       totalDistance: session.totalDistance,
       isActive: session.isActive,
       totalUploadedPhotos: session.totalUploadedPhotos,
-      // Calculate duration from start and end time
       duration: session.startTime && session.endTime
         ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
         : 0,
-      // Basic info without full locations (will be fetched when clicked)
       hasFullData: false
     }));
 
@@ -829,7 +834,7 @@ const TrackingData = () => {
     });
   };
 
-  // ✅ View single session (same as view all, but with selected session ID)
+  // View single session
   const handleViewSingleSession = (clickedSession) => {
     if (!sessionsData || sessionsData.length === 0) return;
 
@@ -911,8 +916,18 @@ const TrackingData = () => {
 
   const sessions = sessionsData || [];
 
+  // Blinking animation for live dot
+  const blinkKeyframes = `
+    @keyframes blink {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  `;
+
   return (
     <div className="min-vh-100" style={{ background: alpha(theme.palette.background.default, 1) }}>
+      <style>{blinkKeyframes}</style>
       {/* Header */}
       <div
         style={{
@@ -969,19 +984,16 @@ const TrackingData = () => {
                 </div>
               </div>
               <Badge
-                bg="success"
                 className="px-2 py-1 rounded-pill"
                 style={{
                   fontSize: "0.65rem",
                   whiteSpace: "nowrap",
-                  backgroundColor: theme.palette.primary.main,
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                   fontWeight: 500,
+                  color: "#fff",
                 }}
               >
-                {sessions?.length || 0}
-                {sessionsSummary?.totalLocations ||
-                  sessions.reduce((sum, s) => sum + (s.locationCount || 0), 0)}{" "}
-                Locations
+                Total Sessions: {sessions?.length || 0}
               </Badge>
             </div>
 
@@ -1003,7 +1015,6 @@ const TrackingData = () => {
                       </span>
                       {!isToday && (
                         <Badge
-                          bg="warning"
                           className="px-2 py-0"
                           style={{
                             fontSize: "0.6rem",
@@ -1182,142 +1193,161 @@ const TrackingData = () => {
 
             {/* Session Cards - Responsive Grid Layout */}
             {!loading && !sessionsLoading && !availableDatesLoading && sessions?.length > 0 && (
-              <>
-
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(1, 1fr)",
-                    gap: "1rem",
-                    justifyContent: "center",
-                    alignItems: "start",
-                  }}
-                  className="sessions-responsive-grid"
-                >
-                  <style>
-                    {`
-                      @media (min-width: 768px) {
-                        .sessions-responsive-grid {
-                          grid-template-columns: repeat(2, 1fr) !important;
-                        }
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(1, 1fr)",
+                  gap: "1rem",
+                  justifyContent: "center",
+                  alignItems: "stretch",
+                }}
+                className="sessions-responsive-grid"
+              >
+                <style>
+                  {`
+                    @media (min-width: 768px) {
+                      .sessions-responsive-grid {
+                        grid-template-columns: repeat(2, 1fr) !important;
                       }
-                      
-                      @media (min-width: 1024px) {
-                        .sessions-responsive-grid {
-                          grid-template-columns: repeat(3, 1fr) !important;
-                        }
+                    }
+                    
+                    @media (min-width: 1024px) {
+                      .sessions-responsive-grid {
+                        grid-template-columns: repeat(3, 1fr) !important;
                       }
-                      
-                      @media (min-width: 1440px) {
-                        .sessions-responsive-grid {
-                          grid-template-columns: repeat(4, 1fr) !important;
-                        }
+                    }
+                    
+                    @media (min-width: 1440px) {
+                      .sessions-responsive-grid {
+                        grid-template-columns: repeat(4, 1fr) !important;
                       }
-                    `}
-                  </style>
+                    }
+                  `}
+                </style>
 
-                  {sessions.slice().reverse().map((item, index) => {
-                    // Calculate duration from start and end time
-                    const duration = item.startTime && item.endTime
-                      ? (new Date(item.endTime) - new Date(item.startTime)) / 1000
-                      : 0;
+                {sessions.slice().reverse().map((item, index) => {
+                  const duration = item.startTime && item.endTime
+                    ? (new Date(item.endTime) - new Date(item.startTime)) / 1000
+                    : 0;
 
-                    return (
-                      <Card
-                        key={item.sessionId || index}
-                        className="border-0 shadow-sm"
-                        style={{ borderRadius: "8px", width: "100%" }}
-                      >
-                        <Card.Body className="p-2">
-                          <div className="d-flex flex-column">
-                            <div className="d-flex align-items-center mb-2">
-                              <div
-                                className="me-2 d-flex align-items-center justify-content-center"
-                                style={{
-                                  minWidth: "24px",
-                                  height: "24px",
-                                  borderRadius: "50%",
-                                  backgroundColor: alpha(theme.palette.primary.main, 0.12),
-                                  color: theme.palette.primary.main,
-                                  fontSize: "0.7rem",
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {index + 1}
-                              </div>
-                              <div className="me-2">
-                                <FaRoute size={14} style={{ color: theme.palette.primary.main }} />
-                              </div>
-                              <div>
-                                <h6
-                                  className="fw-semibold mb-0"
-                                  style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
-                                >
-                                  {/* Session #{index + 1} */}
-                                  {item.remark || "Session"}
-                                </h6>
-                                {/* <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-                                  {formatTime(item?.startTime)}
-                                </small> */}
-                              </div>
+                  const isActive = item.isActive === true;
+
+                  return (
+                    <Card
+                      key={item.sessionId || index}
+                      className="border-0 shadow-sm h-100"
+                      style={{
+                        borderRadius: "8px",
+                        width: "100%",
+                        height: "100%",
+                        border: isActive ? `1px solid ${alpha(theme.palette.success.main, 0.5)}` : "none",
+                        boxShadow: isActive ? `0 4px 12px ${alpha(theme.palette.success.main, 0.15)}` : "0 1px 4px rgba(0,0,0,0.03)",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      <Card.Body className="p-2" style={{ height: "100%" }}>
+                        <div className="d-flex flex-column h-100">
+                          <div className="d-flex align-items-center mb-2">
+                            <div
+                              className="me-2 d-flex align-items-center justify-content-center"
+                              style={{
+                                minWidth: "24px",
+                                height: "24px",
+                                borderRadius: "50%",
+                                backgroundColor: isActive ? alpha(theme.palette.success.main, 0.15) : alpha(theme.palette.primary.main, 0.12),
+                                color: isActive ? theme.palette.success.main : theme.palette.primary.main,
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {index + 1}
                             </div>
+                            <div className="me-2">
+                              <FaRoute size={14} style={{ color: isActive ? theme.palette.success.main : theme.palette.primary.main }} />
+                            </div>
+                            <div>
+                              <h6
+                                className="fw-semibold mb-0"
+                                style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
+                              >
+                                {item.remark || "Session"}
+                              </h6>
+                            </div>
+                          </div>
 
-                            <div className="row g-1 mb-1">
-                              <div className="col-6">
-                                <div className="d-flex align-items-center">
-                                  <FaClock className="me-1" style={{ color: "#22C55E", fontSize: "0.7rem" }} />
-                                  <div>
-                                    <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
-                                      Check In
-                                    </small>
-                                    <span style={{ fontSize: "0.65rem", color: theme.palette.text.primary }}>
-                                      {formatTime(item?.startTime)}
-                                    </span>
-                                  </div>
+                          <div className="row g-1 mb-1">
+                            <div className="col-6">
+                              <div className="d-flex align-items-center">
+                                <FaClock className="me-1" style={{ color: "#22C55E", fontSize: "0.7rem" }} />
+                                <div>
+                                  <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
+                                    Check In
+                                  </small>
+                                  <span style={{ fontSize: "0.65rem", color: theme.palette.text.primary }}>
+                                    {formatTime(item?.startTime)}
+                                  </span>
                                 </div>
                               </div>
+                            </div>
+                            {!isActive && (
                               <div className="col-6">
                                 <div className="d-flex align-items-center">
-                                  <FaClock className="me-1" style={{ color: "#F59E0B", fontSize: "0.7rem" }} />
+                                  <FaClock className="me-1" style={{ color: "#EF4444", fontSize: "0.7rem" }} />
                                   <div>
                                     <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
                                       Check Out
                                     </small>
                                     <span style={{ fontSize: "0.65rem", color: theme.palette.text.primary }}>
-                                      {item.endTime ? formatTime(item.endTime) : "Active"}
+                                      {item.endTime ? formatTime(item.endTime) : "N/A"}
                                     </span>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+                            {isActive && (
+                              <div className="col-6">
+                                <div className="d-flex align-items-center">
+                                  <LiveIcon sx={{ color: "#2196f3", fontSize: "0.7rem", marginRight: "4px", animation: "blink 1.2s ease-in-out infinite" }} />
+                                  <div>
+                                    <small style={{ fontSize: "0.55rem", color: theme.palette.text.secondary, display: "block" }}>
+                                      Status
+                                    </small>
+                                    <span style={{ fontSize: "0.65rem", color: theme.palette.info.main, fontWeight: 500 }}>
+                                      Live Tracking
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-                            <div className="d-flex align-items-center mb-1">
-                              <FaMapMarkerAlt
-                                className="me-1"
-                                style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
-                              />
-                              <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-                                {item?.totalUploadedPhotos || 0} photos
-                              </small>
-                            </div>
+                          <div className="d-flex align-items-center mb-1">
+                            <FaMapMarkerAlt
+                              className="me-1"
+                              style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
+                            />
+                            <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                              {item?.totalUploadedPhotos || 0} photos
+                            </small>
+                          </div>
 
-                            <div className="d-flex align-items-center mb-1">
-                              <FaRoute
-                                className="me-1"
-                                style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
-                              />
-                              <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-                                Travelled Distance:{" "}
-                                <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
-                                  {item.totalDistance
-                                    ? Math.floor((item.totalDistance / 1000) * 10) / 10
-                                    : 0}{" "}
-                                  km
-                                </span>
-                              </small>
-                            </div>
+                          <div className="d-flex align-items-center mb-1">
+                            <FaRoute
+                              className="me-1"
+                              style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
+                            />
+                            <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                              Travelled Distance:{" "}
+                              <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
+                                {item.totalDistance
+                                  ? Math.floor((item.totalDistance / 1000) * 10) / 10
+                                  : 0}{" "}
+                                km
+                              </span>
+                            </small>
+                          </div>
 
+                          {!isActive && (
                             <div className="d-flex align-items-center mb-2">
                               <TimerIcon sx={{ fontSize: 12, color: "#FF9800", marginRight: "4px" }} />
                               <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
@@ -1327,31 +1357,35 @@ const TrackingData = () => {
                                 </span>
                               </small>
                             </div>
+                          )}
 
+                          <div className="mt-auto">
                             <Button
-                              variant="success"
                               className="d-flex align-items-center justify-content-center w-100"
                               onClick={() => handleViewSingleSession(item)}
                               style={{
                                 borderRadius: "4px",
                                 whiteSpace: "nowrap",
-                                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                borderColor: theme.palette.primary.main,
+                                background: isActive
+                                  ? `linear-gradient(135deg, ${theme.palette.success.main}, ${theme.palette.success.dark})`
+                                  : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                                borderColor: isActive ? theme.palette.success.main : theme.palette.primary.main,
                                 fontSize: "0.65rem",
                                 padding: "0.25rem 0.5rem",
                                 border: "none",
+                                color: "#fff",
                               }}
                             >
                               <FaEye className="me-1" style={{ fontSize: "0.6rem" }} />
                               View Session
                             </Button>
                           </div>
-                        </Card.Body>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
