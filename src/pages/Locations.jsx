@@ -2914,7 +2914,6 @@
 /////// Google Map API With Inbuilt date function
 
 
-
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -2944,6 +2943,7 @@ import {
   Modal,
   Fade,
   Popover,
+  Tooltip,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -2963,6 +2963,8 @@ import {
   NavigateBefore as NavigateBeforeIcon,
   NavigateNext as NavigateNextIcon,
   CalendarToday as CalendarIcon,
+  MyLocation as MyLocationIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from "../redux/slices/userSlice";
 import Calendar from "react-calendar";
@@ -3201,8 +3203,41 @@ const makeEndWithPhotoIcon = (photoUrl, time, size = 34) =>
     iconAnchor: [size / 2, size + 15],
   });
 
+const makeMovingIcon = (color, time, photoUrl = null, size = 32) => {
+  const hasPhoto = !!photoUrl;
+  const innerHtml = hasPhoto
+    ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>`
+    : `<span style="font-size:${size / 2}px;">📍</span>`;
+
+  return L.divIcon({
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${hasPhoto ? 'white' : color};border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:3px solid ${color};box-shadow:0 0 15px ${color};z-index:2;animation: marker-pulse 2s infinite;overflow:hidden;">
+        ${innerHtml}
+      </div>
+      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:2px 6px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:700;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,0.3);">
+        ${time} MOVING...
+      </div>
+      <style>
+        @keyframes marker-pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0px ${color}80; }
+          70% { transform: scale(1.15); box-shadow: 0 0 0 18px ${color}00; }
+          100% { transform: scale(1); box-shadow: 0 0 0 0px ${color}00; }
+        }
+      </style>
+    </div>`,
+    className: "",
+    iconSize: [size, size + 28],
+    iconAnchor: [size / 2, size + 15],
+  });
+};
+
 const isSameLatLng = (lat1, lng1, lat2, lng2) =>
   Math.abs(lat1 - lat2) < 0.00001 && Math.abs(lng1 - lng2) < 0.00001;
+
+const checkIsActive = (session) => {
+  if (!session) return false;
+  return session.isActive === true || session.isActive === "true" || session.isActive === 1 || session.isActive === "1";
+};
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 const Locations = () => {
@@ -3251,6 +3286,11 @@ const Locations = () => {
   const [loadingSessionsByDate, setLoadingSessionsByDate] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
+  // ✅ NEW: Live refresh states
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [refreshSpinning, setRefreshSpinning] = useState(false);
+
   // ── Refs ───────────────────────────────────────────────────────────────────
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -3259,6 +3299,10 @@ const Locations = () => {
   const markerRefs = useRef(new Map());
   const fetchedSessions = useRef(new Set());
   const sessionDataCache = useRef(new Map());
+  const isInitialLoad = useRef(true);
+  const lastFitBoundsSessionId = useRef(null);
+  // ✅ flag: fly to live end-point after next refresh redraws
+  const flyToLiveAfterRefresh = useRef(false);
 
   const openSessionDrawer = useCallback(() => setActiveDrawer("sessions"), []);
   const closeActiveDrawer = useCallback(() => setActiveDrawer(null), []);
@@ -3268,6 +3312,9 @@ const Locations = () => {
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
   };
+
+  // ✅ Derived: is the currently-selected session live?
+  const isSelectedSessionActive = checkIsActive(selectedSession);
 
   // Format date for backend
   const formatBackendDate = (date) => {
@@ -3285,12 +3332,40 @@ const Locations = () => {
   const fetchSessionsForDate = useCallback(async (date) => {
     const userId = metadata?.userId || metadata?.trackId;
     if (!userId) return;
-    
     setLoadingSessionsByDate(true);
     const formattedDate = formatBackendDate(date);
     await dispatch(getUserSessionsByDate({ userId, date: formattedDate, limit: 50 }));
     setLoadingSessionsByDate(false);
   }, [dispatch, metadata?.userId, metadata?.trackId]);
+
+  // ✅ NEW: Refresh live session data
+  const handleRefreshLiveLocation = useCallback(async () => {
+    if (!selectedSessionId || isRefreshing) return;
+    const userId = metadata?.userId || metadata?.trackId;
+    if (!userId) return;
+
+    setIsRefreshing(true);
+    setRefreshSpinning(true);
+    // ✅ Tell processSessionData to fly to the live point once redrawn
+    flyToLiveAfterRefresh.current = true;
+
+    try {
+      // Remove from cache so fresh data is fetched
+      sessionDataCache.current.delete(String(selectedSessionId));
+      fetchedSessions.current.delete(String(selectedSessionId));
+
+      // Re-fetch session details
+      await dispatch(getSessionDetails({ userId, sessionId: String(selectedSessionId) }));
+
+      setLastRefreshed(new Date());
+    } catch (err) {
+      console.error("Refresh failed:", err);
+    } finally {
+      setIsRefreshing(false);
+      // Keep spin animation a bit longer for visual feedback
+      setTimeout(() => setRefreshSpinning(false), 600);
+    }
+  }, [selectedSessionId, isRefreshing, metadata, dispatch]);
 
   // Update sessions when userSessionsByDate changes
   useEffect(() => {
@@ -3307,7 +3382,7 @@ const Locations = () => {
         duration: session.startTime && session.endTime
           ? (new Date(session.endTime) - new Date(session.startTime)) / 1000
           : 0,
-        hasFullData: false
+        hasFullData: false,
       }));
       setSelectedDateSessions(formattedSessions);
       setAllSessions(formattedSessions);
@@ -3334,39 +3409,55 @@ const Locations = () => {
 
   const getStartEndFromPhotos = useCallback((session) => {
     if (!session) return { startPoint: null, endPoint: null };
-    const photos = session.photos || [];
-    const validPhotos = photos.filter(
+    const stats = getSessionStats(session);
+    const locs = getValidLocations(stats.locations);
+    const photos = (session.photos || []).filter(
       (p) => hasValidPhoto(p) && p.location && hasValidCoordinates(p.location)
     );
-    if (validPhotos.length === 0) {
-      const stats = getSessionStats(session);
-      const locs = getValidLocations(stats.locations);
-      return {
-        startPoint: locs.length > 0 ? locs[0] : null,
-        endPoint: locs.length > 1 ? locs[locs.length - 1] : null,
-      };
+    const sortedPhotos = photos.length > 0
+      ? [...photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      : [];
+
+    let sp = locs.length > 0 ? {
+      lat: getLat(locs[0]),
+      lng: getLng(locs[0]),
+      timestamp: locs[0].timestamp || locs[0].time || locs[0].createdAt,
+      address: getAddress(locs[0]),
+    } : null;
+
+    let ep = locs.length > 1 ? {
+      lat: getLat(locs[locs.length - 1]),
+      lng: getLng(locs[locs.length - 1]),
+      timestamp: locs[locs.length - 1].timestamp || locs[locs.length - 1].time || locs[locs.length - 1].createdAt,
+      address: getAddress(locs[locs.length - 1]),
+    } : (locs.length === 1 ? { ...sp } : null);
+
+    if (sortedPhotos.length > 0) {
+      const firstPhoto = sortedPhotos[0];
+      const lastPhoto = sortedPhotos[sortedPhotos.length - 1];
+
+      if (!sp || new Date(firstPhoto.timestamp) <= new Date(sp.timestamp)) {
+        sp = { lat: getLat(firstPhoto.location), lng: getLng(firstPhoto.location), timestamp: firstPhoto.timestamp, address: firstPhoto.address, photo: firstPhoto.url };
+      } else {
+        if (isSameLatLng(getLat(firstPhoto.location), getLng(firstPhoto.location), sp.lat, sp.lng)) {
+          sp.photo = firstPhoto.url;
+        }
+      }
+
+      if (checkIsActive(session)) {
+        if (ep) {
+          if (new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) ep.photo = lastPhoto.url;
+        } else if (lastPhoto) {
+          ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
+        }
+      } else {
+        if (!ep || new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) {
+          ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
+        }
+      }
     }
-    const sortedPhotos = [...validPhotos].sort(
-      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-    );
-    const firstPhoto = sortedPhotos[0];
-    const lastPhoto = sortedPhotos[sortedPhotos.length - 1];
-    return {
-      startPoint: {
-        lat: getLat(firstPhoto.location),
-        lng: getLng(firstPhoto.location),
-        timestamp: firstPhoto.timestamp,
-        address: firstPhoto.address,
-        photo: firstPhoto.url,
-      },
-      endPoint: {
-        lat: getLat(lastPhoto.location),
-        lng: getLng(lastPhoto.location),
-        timestamp: lastPhoto.timestamp,
-        address: lastPhoto.address,
-        photo: lastPhoto.url,
-      },
-    };
+
+    return { startPoint: sp, endPoint: ep };
   }, []);
 
   const buildSessionPhotos = useCallback((session) => {
@@ -3412,7 +3503,6 @@ const Locations = () => {
     return result;
   }, [getStartEndFromPhotos]);
 
-  // Process session data
   const processSessionData = useCallback(
     (sessionData) => {
       if (!sessionData) return;
@@ -3439,7 +3529,6 @@ const Locations = () => {
     [showPhotoMarkers]
   );
 
-  // Handle session click
   const handleSessionSelect = useCallback(
     (sessionId) => {
       const id = String(sessionId);
@@ -3447,6 +3536,8 @@ const Locations = () => {
 
       setSelectedSessionId(id);
       setIsLoadingSession(true);
+      // ✅ Reset last-refreshed when switching sessions
+      setLastRefreshed(null);
 
       if (sessionDataCache.current.has(id)) {
         const cachedSession = sessionDataCache.current.get(id);
@@ -3485,12 +3576,18 @@ const Locations = () => {
     [allSessions, selectedSessionId, selectedSession, metadata, dispatch, isMobile, processSessionData]
   );
 
-  // Watch Redux sessionDetails
   useEffect(() => {
     if (sessionDetails && String(sessionDetails.sessionId) === String(selectedSessionId)) {
       const id = String(sessionDetails.sessionId);
       const stats = getSessionStats(sessionDetails);
-      const sessionWithStats = { ...sessionDetails, ...stats };
+      const originalSession = userSessionsByDate.find(s => String(s.sessionId || s._id) === id);
+      const sessionWithStats = {
+        ...originalSession,
+        ...sessionDetails,
+        ...stats,
+        isActive: sessionDetails.isActive !== undefined ? sessionDetails.isActive : originalSession?.isActive,
+      };
+
       sessionDataCache.current.set(id, sessionWithStats);
 
       setSessionStatsMap((prev) => {
@@ -3509,19 +3606,28 @@ const Locations = () => {
 
       processSessionData(sessionWithStats);
     }
-  }, [sessionDetails, selectedSessionId, processSessionData]);
+  }, [sessionDetails, selectedSessionId, userSessionsByDate, processSessionData]);
 
-  // Auto-select first session when sessions load
   useEffect(() => {
     if (allSessions.length > 0 && !selectedSessionId && !selectedSession) {
-      const firstId = initialSelectedSessionId
-        ? String(initialSelectedSessionId)
-        : String(allSessions[0].sessionId || allSessions[0]._id);
-      handleSessionSelect(firstId);
+      let targetId = null;
+
+      if (isInitialLoad.current && initialSelectedSessionId) {
+        const idStr = String(initialSelectedSessionId);
+        const exists = allSessions.some(s => String(s.sessionId || s._id) === idStr);
+        if (exists) targetId = idStr;
+      }
+
+      if (!targetId) {
+        const topSession = allSessions[allSessions.length - 1];
+        targetId = String(topSession.sessionId || topSession._id);
+      }
+
+      handleSessionSelect(targetId);
+      isInitialLoad.current = false;
     }
   }, [allSessions, selectedSessionId, selectedSession, initialSelectedSessionId, handleSessionSelect]);
 
-  // Update start/end points when selected session changes
   useEffect(() => {
     if (selectedSession) {
       const { startPoint: sp, endPoint: ep } = getStartEndFromPhotos(selectedSession);
@@ -3569,25 +3675,57 @@ const Locations = () => {
     }
 
     if (startPoint && hasValidCoordinates(startPoint)) {
+      const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;">
+        <div style="background:linear-gradient(135deg, #22c55e, #15803d);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
+          <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🚀</span><b style="font-size:13px;letter-spacing:0.5px">START POINT</b></div>
+        </div>
+        <div style="padding:4px 0;">
+          <div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(startPoint.timestamp)}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Date:</b> ${fmtDate(startPoint.timestamp)}</div>
+          ${startPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${startPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);" onclick="window.open('${startPoint.photo}','_blank')"/></div>` : ""}
+        </div>
+      </div>`;
       const icon = makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34);
-      const m = L.marker([startPoint.lat, startPoint.lng], { icon, zIndexOffset: 1000 }).addTo(mapInstance.current);
+      const m = L.marker([startPoint.lat, startPoint.lng], { icon, zIndexOffset: 1000 })
+        .bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
       markers.current.push(m);
       markerRefs.current.set("start", m);
     } else if (validLocations.length > 0) {
       const fb = validLocations[0];
-      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).addTo(mapInstance.current);
+      const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#22c55e;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:12px">🚀</span><b style="font-size:11px">START POINT</b></div></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(fb.timestamp)}</div><div style="font-size:10px"><b>Date:</b> ${fmtDate(fb.timestamp)}</div></div>`;
+      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 })
+        .bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
       markers.current.push(m);
       markerRefs.current.set("start", m);
     }
 
+    const isActive = checkIsActive(session);
     if (endPoint && hasValidCoordinates(endPoint)) {
-      const icon = makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34);
-      const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 }).addTo(mapInstance.current);
+      const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;">
+        <div style="background:linear-gradient(135deg, ${isActive ? "#2196F3, #1976D2" : "#ef4444, #dc2626"});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
+          <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isActive ? "📍" : "🏁"}</span><b style="font-size:13px;letter-spacing:0.5px">${isActive ? "LIVE LOCATION" : "END POINT"}</b></div>
+        </div>
+        <div style="padding:4px 0;">
+          <div style="font-size:12px;color:#666;margin-bottom:2px;"><b>${isActive ? "Last Update" : "Time"}:</b> ${fmtTime(endPoint.timestamp)}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Address:</b> ${endPoint.address || "Fetching address..."}</div>
+          ${endPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${endPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);" onclick="window.open('${endPoint.photo}','_blank')"/></div>` : ""}
+        </div>
+      </div>`;
+      const icon = isActive
+        ? makeMovingIcon("#2196F3", fmtTime(endPoint.timestamp), endPoint.photo, 32)
+        : (endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28));
+      const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 })
+        .bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
       markers.current.push(m);
       markerRefs.current.set("end", m);
     } else if (validLocations.length > 1) {
-      const fb = validLocations[validLocations.length - 1];
-      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeEndIcon("#ef4444", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).addTo(mapInstance.current);
+      const lastLoc = validLocations[validLocations.length - 1];
+      const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:${isActive ? "#2196F3" : "#ef4444"};color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:12px">${isActive ? "📍" : "🏁"}</span><b style="font-size:11px">${isActive ? "LIVE LOCATION" : "END POINT"}</b></div></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
+      const icon = isActive
+        ? makeMovingIcon("#2196F3", fmtTime(lastLoc.timestamp), null, 30)
+        : makeEndIcon("#ef4444", fmtTime(lastLoc.timestamp), false, 28);
+      const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon, zIndexOffset: 1000 })
+        .bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
       markers.current.push(m);
       markerRefs.current.set("end", m);
     }
@@ -3599,53 +3737,52 @@ const Locations = () => {
         const lng = photo.location.lng || photo.location.longitude;
         if (startPoint && isSameLatLng(lat, lng, startPoint.lat, startPoint.lng)) return;
         if (endPoint && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
-        const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 }).addTo(mapInstance.current);
+        const popup = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg, #FF9800, #F57C00);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><b style="font-size:13px;letter-spacing:0.5px">📸 ROUTE PHOTO</b></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(photo.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:6px;"><b>Remark:</b> ${photo.remark || "No remark"}</div><div style="margin-top:6px;"><img src="${photo.url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);" onclick="window.open('${photo.url}','_blank')"/></div></div></div>`;
+        const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 })
+          .bindPopup(popup, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
         markers.current.push(m);
         markerRefs.current.set(`photo_${idx}`, m);
       });
     }
 
-    if (validLocations.length > 0) {
+    // ✅ After a live-refresh, fly directly to the latest (end/moving) point
+    if (flyToLiveAfterRefresh.current && checkIsActive(session)) {
+      flyToLiveAfterRefresh.current = false; // consume flag
+
+      // Prefer the resolved endPoint, fall back to last valid GPS fix
+      const liveEp = endPoint && hasValidCoordinates(endPoint)
+        ? endPoint
+        : validLocations.length > 0
+          ? { lat: getLat(validLocations[validLocations.length - 1]), lng: getLng(validLocations[validLocations.length - 1]) }
+          : null;
+
+      if (liveEp) {
+        mapInstance.current.flyTo([liveEp.lat, liveEp.lng], 17, { animate: true, duration: 1.2 });
+        return; // skip the normal fitBounds so we don't fight the fly
+      }
+    }
+
+    // Normal first-load fitBounds (not a refresh)
+    if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
       const bounds = L.latLngBounds(validLocations.map((l) => [getLat(l), getLng(l)]));
       mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
+      lastFitBoundsSessionId.current = String(session.sessionId || session._id);
     }
-  }, [startPoint, endPoint]);
+  }, [startPoint, endPoint, showPhotoMarkers]);
 
-  // Initialize Map
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
 
     const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
-    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, {
-      attribution: "&copy; Google Maps",
-      maxZoom: 19,
-    });
+    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 19 });
+    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 19 });
+    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 19 });
+    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 19 });
 
-    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, {
-      attribution: "&copy; Google Satellite",
-      maxZoom: 19,
-    });
-
-    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, {
-      attribution: "&copy; Google Hybrid",
-      maxZoom: 19,
-    });
-
-    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, {
-      attribution: "&copy; Google Terrain",
-      maxZoom: 19,
-    });
-
-    const baseMaps = {
-      "Roadmap": googleRoadmap,
-      "Satellite": googleSatellite,
-      "Hybrid": googleHybrid,
-      "Terrain": googleTerrain
-    };
-
+    const baseMaps = { "Roadmap": googleRoadmap, "Satellite": googleSatellite, "Hybrid": googleHybrid, "Terrain": googleTerrain };
     googleRoadmap.addTo(map);
-    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+    L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
 
     mapInstance.current = map;
     setIsMapInitialized(true);
@@ -3670,25 +3807,19 @@ const Locations = () => {
 
   useEffect(() => {
     return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-      }
+      if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     };
   }, []);
 
   useEffect(() => {
-    const tilePane = document.querySelector('.leaflet-tile-pane');
+    const tilePane = document.querySelector(".leaflet-tile-pane");
     if (tilePane) {
       tilePane.style.filter = isDarkMode ? "invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%)" : "none";
       tilePane.style.transition = "filter 0.3s ease";
     }
   }, [isDarkMode, isMapInitialized]);
 
-  const getPhotoCount = (session) => {
-    if (!session) return 0;
-    return session.photos?.length || 0;
-  };
+  const getPhotoCount = (session) => session?.photos?.length || 0;
 
   const handlePhotoClick = (photo) => {
     if (!mapInstance.current) return;
@@ -3709,10 +3840,10 @@ const Locations = () => {
     setSelectedDate(date);
     setShowCalendar(false);
     setCalendarAnchorEl(null);
-    // Clear current session selection
     setSelectedSessionId(null);
     setSelectedSession(null);
     setHasLocations(false);
+    setLastRefreshed(null);
     clearMap();
   };
 
@@ -3730,53 +3861,20 @@ const Locations = () => {
   const renderPhotoCarousel = () => {
     if (!selectedSession || sessionPhotos.length === 0) return null;
     return (
-      <Paper
-        elevation={3}
-        sx={{
-          position: "absolute",
-          bottom: 20,
-          left: 16,
-          right: 16,
-          zIndex: 600,
-          bgcolor: "rgba(0,0,0,0.4)",
-          backdropFilter: "blur(10px)",
-          borderRadius: 2,
-          p: 0.5,
-          overflow: "hidden",
-        }}
-      >
+      <Paper elevation={3} sx={{ position: "absolute", bottom: 20, left: 16, right: 16, zIndex: 600, bgcolor: "rgba(0,0,0,0.4)", backdropFilter: "blur(10px)", borderRadius: 2, p: 0.5, overflow: "hidden" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5, px: 0.5 }}>
           <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
           <Typography variant="caption" sx={{ color: "white", fontWeight: 500, fontSize: "10px" }}>
             Session Photos ({sessionPhotos.length})
           </Typography>
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 0.75,
-            overflowX: "auto",
-            overflowY: "hidden",
-            pb: 0.5,
-            "&::-webkit-scrollbar": { height: 3 },
-            "&::-webkit-scrollbar-track": { bgcolor: "rgba(255,255,255,0.1)", borderRadius: 2 },
-            "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,0.3)", borderRadius: 2 },
-          }}
-        >
+        <Box sx={{ display: "flex", gap: 0.75, overflowX: "auto", overflowY: "hidden", pb: 0.5, "&::-webkit-scrollbar": { height: 3 }, "&::-webkit-scrollbar-track": { bgcolor: "rgba(255,255,255,0.1)", borderRadius: 2 }, "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,0.3)", borderRadius: 2 } }}>
           {sessionPhotos.map((photo, index) => {
             const isStart = photo.type === "start";
             const isEnd = photo.type === "end";
             const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
             return (
-              <Box
-                key={photo.key || index}
-                onClick={() => handlePhotoClick(photo)}
-                sx={{
-                  flexShrink: 0, width: 60, height: 60, borderRadius: 1, overflow: "hidden",
-                  cursor: "pointer", border: `1.5px solid ${borderColor}`, position: "relative",
-                  transition: "transform 0.2s", "&:hover": { transform: "scale(1.05)" },
-                }}
-              >
+              <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 60, height: 60, borderRadius: 1, overflow: "hidden", cursor: "pointer", border: `1.5px solid ${borderColor}`, position: "relative", transition: "transform 0.2s", "&:hover": { transform: "scale(1.05)" } }}>
                 <img src={photo.url} alt={`Photo ${index + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
                   {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
@@ -3803,16 +3901,10 @@ const Locations = () => {
         <Fade in={photoModalOpen}>
           <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "90%", maxWidth: 800, bgcolor: "black", borderRadius: 2, boxShadow: 24, overflow: "hidden" }}>
             <Box sx={{ position: "relative" }}>
-              <IconButton onClick={() => setPhotoModalOpen(false)} sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}>
-                <CloseIcon />
-              </IconButton>
+              <IconButton onClick={() => setPhotoModalOpen(false)} sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}><CloseIcon /></IconButton>
               <img src={currentPhoto?.url} alt="Full size" style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }} />
-              <IconButton onClick={handlePrev} sx={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}>
-                <NavigateBeforeIcon />
-              </IconButton>
-              <IconButton onClick={handleNext} sx={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}>
-                <NavigateNextIcon />
-              </IconButton>
+              <IconButton onClick={handlePrev} sx={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}><NavigateBeforeIcon /></IconButton>
+              <IconButton onClick={handleNext} sx={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white", "&:hover": { bgcolor: "rgba(0,0,0,0.7)" } }}><NavigateNextIcon /></IconButton>
             </Box>
             <Box sx={{ p: 2, bgcolor: "black", color: "white" }}>
               <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
@@ -3827,201 +3919,66 @@ const Locations = () => {
     );
   };
 
-  // ─── Session List Component ──────────────────────────────────────────────
+  // ─── Session List ─────────────────────────────────────────────────────────
   const renderSessionList = () => (
     <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
       <Box sx={{ p: 0.75 }}>
-        {/* Header with Calendar */}
-        <Box sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 1.5,
-          pb: 0.75,
-          borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
-        }}>
+        {/* Header */}
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, pb: 0.75, borderBottom: `2px solid ${alpha("#2196F3", 0.2)}` }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-            <Box sx={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
-            }}>
+            <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #2196F3, #1976D2)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}` }}>
               <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
             </Box>
-            <Typography variant="subtitle2" fontWeight={700} sx={{
-              fontSize: "0.7rem",
-              background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              color: "transparent",
-              letterSpacing: "0.5px"
-            }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg, #2196F3, #1976D2)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
               SESSIONS
             </Typography>
-            <Chip
-              label={allSessions.length}
-              size="small"
-              sx={{
-                height: 18,
-                fontSize: "0.55rem",
-                fontWeight: 700,
-                bgcolor: alpha("#2196F3", 0.15),
-                color: "#2196F3",
-                borderRadius: "8px"
-              }}
-            />
+            <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#2196F3", 0.15), color: "#2196F3", borderRadius: "8px" }} />
           </Box>
 
-          {/* Date Picker Button */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={toggleCalendar}
-            startIcon={<CalendarIcon sx={{ fontSize: 14 }} />}
-            sx={{
-              borderColor: alpha("#2196F3", 0.3),
-              color: "#2196F3",
-              fontSize: "0.6rem",
-              py: 0.3,
-              px: 1,
-              borderRadius: "16px",
-              textTransform: "none",
-              "&:hover": {
-                borderColor: "#2196F3",
-                bgcolor: alpha("#2196F3", 0.05)
-              }
-            }}
-          >
+          <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} sx={{ borderColor: alpha("#2196F3", 0.3), color: "#2196F3", fontSize: "0.6rem", py: 0.3, px: 1, borderRadius: "16px", textTransform: "none", "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.05) } }}>
             {selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           </Button>
 
-          {/* Calendar Popover */}
-          <Popover
-            open={showCalendar}
-            anchorEl={calendarAnchorEl}
-            onClose={closeCalendar}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            PaperProps={{
-              sx: {
-                borderRadius: 2,
-                boxShadow: `0 4px 20px ${alpha("#000", 0.15)}`,
-                p: 1,
-              }
-            }}
-          >
+          <Popover open={showCalendar} anchorEl={calendarAnchorEl} onClose={closeCalendar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} transformOrigin={{ vertical: "top", horizontal: "right" }} PaperProps={{ sx: { borderRadius: 2, boxShadow: `0 4px 20px ${alpha("#000", 0.15)}`, p: 1 } }}>
             <style>{`
-              .compact-calendar {
-                border: none !important;
-                font-family: inherit !important;
-              }
-              .compact-calendar .react-calendar__tile {
-                padding: 8px 4px !important;
-                line-height: 1.2 !important;
-                font-size: 0.7rem !important;
-                position: relative;
-                border-radius: 8px !important;
-              }
-              .compact-calendar .react-calendar__navigation button {
-                min-width: 28px !important;
-                height: 28px !important;
-                font-size: 0.72rem !important;
-                padding: 0 !important;
-                border-radius: 6px !important;
-              }
-              .compact-calendar .react-calendar__navigation {
-                height: 28px !important;
-                margin-bottom: 8px !important;
-              }
-              .compact-calendar .react-calendar__month-view__weekdays {
-                font-size: 0.62rem !important;
-                text-transform: uppercase;
-                font-weight: 600;
-              }
-              .compact-calendar .react-calendar__month-view__weekdays__weekday {
-                padding: 4px !important;
-              }
-              .available-date {
-                background-color: ${alpha("#2196F3", 0.15)} !important;
-                border-radius: 8px !important;
-                font-weight: bold !important;
-              }
-              .available-date:hover {
-                background-color: ${alpha("#2196F3", 0.25)} !important;
-              }
-              .available-dot {
-                position: absolute;
-                bottom: 2px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-                background-color: #2196F3;
-              }
-              .react-calendar__tile--active {
-                background: linear-gradient(135deg, #2196F3, #1976D2) !important;
-                color: white !important;
-              }
-              .react-calendar__tile--now {
-                background: ${alpha("#2196F3", 0.1)} !important;
-              }
+              .compact-calendar { border: none !important; font-family: inherit !important; }
+              .compact-calendar .react-calendar__tile { padding: 8px 4px !important; line-height: 1.2 !important; font-size: 0.7rem !important; position: relative; border-radius: 8px !important; }
+              .compact-calendar .react-calendar__navigation button { min-width: 28px !important; height: 28px !important; font-size: 0.72rem !important; padding: 0 !important; border-radius: 6px !important; }
+              .compact-calendar .react-calendar__navigation { height: 28px !important; margin-bottom: 8px !important; }
+              .compact-calendar .react-calendar__month-view__weekdays { font-size: 0.62rem !important; text-transform: uppercase; font-weight: 600; }
+              .compact-calendar .react-calendar__month-view__weekdays__weekday { padding: 4px !important; }
+              .available-date { background-color: ${alpha("#2196F3", 0.15)} !important; border-radius: 8px !important; font-weight: bold !important; }
+              .available-date:hover { background-color: ${alpha("#2196F3", 0.25)} !important; }
+              .available-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: #2196F3; }
+              .react-calendar__tile--active { background: linear-gradient(135deg, #2196F3, #1976D2) !important; color: white !important; }
+              .react-calendar__tile--now { background: ${alpha("#2196F3", 0.1)} !important; }
             `}</style>
-            <Calendar
-              onChange={handleDateSelection}
-              value={selectedDate}
-              maxDate={new Date()}
-              next2Label={null}
-              prev2Label={null}
-              className="compact-calendar"
-              tileClassName={({ date, view }) => {
-                if (view === "month" && isDateAvailable(date)) return "available-date";
-                return null;
-              }}
-              tileContent={({ date, view }) => {
-                if (view === "month" && isDateAvailable(date)) {
-                  return <div className="available-dot" />;
-                }
-                return null;
-              }}
+            <Calendar onChange={handleDateSelection} value={selectedDate} maxDate={new Date()} next2Label={null} prev2Label={null} className="compact-calendar"
+              tileClassName={({ date, view }) => view === "month" && isDateAvailable(date) ? "available-date" : null}
+              tileContent={({ date, view }) => view === "month" && isDateAvailable(date) ? <div className="available-dot" /> : null}
             />
             <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-              <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#2196F3" }}>
-                Close
-              </Button>
+              <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#2196F3" }}>Close</Button>
             </Box>
           </Popover>
         </Box>
 
-        {/* Loading State */}
+        {/* Loading */}
         {loadingSessionsByDate && (
           <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
             <CircularProgress size={30} sx={{ color: "#2196F3" }} />
           </Box>
         )}
 
-        {/* No Sessions State */}
+        {/* Empty */}
         {!loadingSessionsByDate && allSessions.length === 0 && (
           <Box sx={{ textAlign: "center", py: 4 }}>
             <CalendarIcon sx={{ fontSize: 40, color: alpha("#2196F3", 0.3), mb: 1 }} />
-            <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
-              No sessions found for this date
-            </Typography>
+            <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>No sessions found for this date</Typography>
           </Box>
         )}
 
-        {/* Sessions List */}
+        {/* Sessions */}
         {!loadingSessionsByDate && allSessions.length > 0 && (
           <Stack spacing={1}>
             {[...allSessions].reverse().map((session, index) => {
@@ -4030,9 +3987,9 @@ const Locations = () => {
               const isLoading = isSelected && isLoadingSession;
               const photoCount = getPhotoCount(session);
               const stats = sessionStatsMap.get(sessionId) || getSessionStats(session);
-
               const cachedSession = sessionDataCache.current.get(sessionId);
               const displayRemark = session.remark || cachedSession?.remark || null;
+              const sessionIsActive = checkIsActive(session);
 
               return (
                 <Zoom in key={sessionId} style={{ transitionDelay: `${index * 50}ms` }}>
@@ -4051,215 +4008,119 @@ const Locations = () => {
                         : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
                       borderRadius: "12px",
                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                      "&:hover": {
-                        borderColor: alpha("#2196F3", 0.6),
-                        background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
-                        transform: "translateY(-2px) translateX(2px)",
-                        boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
-                      },
-                      ...(isSelected && {
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          left: 0,
-                          top: "20%",
-                          height: "60%",
-                          width: "3px",
-                          background: `linear-gradient(135deg, #2196F3, #1976D2)`,
-                          borderRadius: "0 4px 4px 0",
-                        }
-                      })
+                      "&:hover": { borderColor: alpha("#2196F3", 0.6), background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`, transform: "translateY(-2px) translateX(2px)", boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}` },
+                      ...(isSelected && { "&::before": { content: '""', position: "absolute", left: 0, top: "20%", height: "60%", width: "3px", background: "linear-gradient(135deg, #2196F3, #1976D2)", borderRadius: "0 4px 4px 0" } }),
                     }}
                   >
-                    <CardContent sx={{ p: 0.85, '&:last-child': { pb: 0.85 } }}>
+                    <CardContent sx={{ p: 0.85, "&:last-child": { pb: 0.85 } }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-                        <Box sx={{
-                          width: 26,
-                          height: 26,
-                          borderRadius: "10px",
-                          background: isSelected
-                            ? `linear-gradient(135deg, #2196F3, #1976D2)`
-                            : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
-                          transition: "all 0.2s ease"
-                        }}>
+                        <Box sx={{ width: 26, height: 26, borderRadius: "10px", background: isSelected ? "linear-gradient(135deg, #2196F3, #1976D2)" : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none", transition: "all 0.2s ease" }}>
                           {isLoading ? (
                             <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
                           ) : (
-                            <Typography fontWeight={700} sx={{
-                              fontSize: "0.65rem",
-                              color: isSelected ? "white" : "#2196F3",
-                              textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
-                            }}>
+                            <Typography fontWeight={700} sx={{ fontSize: "0.65rem", color: isSelected ? "white" : "#2196F3" }}>
                               {index + 1}
                             </Typography>
                           )}
                         </Box>
 
                         <Box sx={{ flex: 1 }}>
-                          <Typography fontWeight={700} sx={{
-                            fontSize: "0.7rem",
-                            color: isSelected ? "#2196F3" : "text.primary",
-                            letterSpacing: "0.3px",
-                            mb: 0.25
-                          }}>
+                          <Typography fontWeight={700} sx={{ fontSize: "0.7rem", color: isSelected ? "#2196F3" : "text.primary", letterSpacing: "0.3px", mb: 0.25 }}>
                             {displayRemark || `Session #${index + 1}`}
                           </Typography>
                         </Box>
 
-                        {photoCount > 0 && (
+                        {/* ✅ LIVE badge — shown only when isActive */}
+                        {sessionIsActive && (
                           <Box sx={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 0.25,
-                            bgcolor: alpha("#FF9800", 0.1),
-                            borderRadius: "12px",
-                            px: 0.65,
-                            py: 0.3,
-                            border: `1px solid ${alpha("#FF9800", 0.2)}`
+                            gap: 0.3,
+                            bgcolor: alpha("#22c55e", 0.12),
+                            border: `1px solid ${alpha("#22c55e", 0.35)}`,
+                            borderRadius: "10px",
+                            px: 0.6,
+                            py: 0.25,
                           }}>
-                            <PhotoIcon sx={{ fontSize: 10, color: "#FF9800" }} />
-                            <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#FF9800" }}>
-                              {photoCount}
+                            <Box sx={{
+                              width: 5,
+                              height: 5,
+                              borderRadius: "50%",
+                              bgcolor: "#22c55e",
+                              animation: "livePulse 1.4s ease-in-out infinite",
+                              "@keyframes livePulse": {
+                                "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                                "50%": { opacity: 0.4, transform: "scale(0.7)" },
+                              },
+                            }} />
+                            <Typography sx={{ fontSize: "0.5rem", fontWeight: 700, color: "#22c55e", letterSpacing: "0.4px" }}>
+                              LIVE
                             </Typography>
+                          </Box>
+                        )}
+
+                        {photoCount > 0 && (
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, bgcolor: alpha("#FF9800", 0.1), borderRadius: "12px", px: 0.65, py: 0.3, border: `1px solid ${alpha("#FF9800", 0.2)}` }}>
+                            <PhotoIcon sx={{ fontSize: 10, color: "#FF9800" }} />
+                            <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#FF9800" }}>{photoCount}</Typography>
                           </Box>
                         )}
                       </Box>
 
                       <Grid container spacing={0.6} sx={{ mb: 0.6 }}>
                         <Grid item xs={6}>
-                          <Box sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.6,
-                            p: 0.5,
-                            bgcolor: alpha("#FF9800", 0.04),
-                            borderRadius: "8px",
-                            border: `1px solid ${alpha("#FF9800", 0.08)}`,
-                          }}>
-                            <Box sx={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: "6px",
-                              bgcolor: alpha("#FF9800", 0.1),
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#FF9800", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#FF9800", 0.08)}` }}>
+                            <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#FF9800", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
                               <TimerIcon sx={{ fontSize: 12, color: "#FF9800" }} />
                             </Box>
                             <Box>
-                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                Duration
-                              </Typography>
-                              <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#FF9800" }}>
-                                {fmtDuration(stats.duration)}
-                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>Duration</Typography>
+                              <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#FF9800" }}>{fmtDuration(stats.duration)}</Typography>
                             </Box>
                           </Box>
                         </Grid>
                         <Grid item xs={6}>
-                          <Box sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.6,
-                            p: 0.5,
-                            bgcolor: alpha("#2196F3", 0.04),
-                            borderRadius: "8px",
-                            border: `1px solid ${alpha("#2196F3", 0.08)}`,
-                          }}>
-                            <Box sx={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: "6px",
-                              bgcolor: alpha("#2196F3", 0.1),
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#2196F3", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#2196F3", 0.08)}` }}>
+                            <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
                               <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
                             </Box>
                             <Box>
-                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                                Distance
-                              </Typography>
-                              <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
-                                {fmtDist(stats.distance)}
-                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distance</Typography>
+                              <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>{fmtDist(stats.distance)}</Typography>
                             </Box>
                           </Box>
                         </Grid>
                       </Grid>
 
-                      <Divider sx={{
-                        my: 0.6,
-                        borderColor: alpha(theme.palette.divider, 0.3),
-                        background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
-                      }} />
+                      <Divider sx={{ my: 0.6, borderColor: alpha(theme.palette.divider, 0.3), background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)` }} />
 
                       <Grid container spacing={0.6}>
                         <Grid item xs={6}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                            <Box sx={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: "6px",
-                              bgcolor: alpha("#22c55e", 0.1),
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}>
+                            <Box sx={{ width: 20, height: 20, borderRadius: "6px", bgcolor: alpha("#22c55e", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
                               <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
                             </Box>
                             <Box>
-                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-                                START
-                              </Typography>
-                              <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#22c55e" }}>
-                                {fmtTime(stats.startTime)}
-                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>START</Typography>
+                              <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#22c55e" }}>{fmtTime(stats.startTime)}</Typography>
                             </Box>
                           </Box>
                         </Grid>
                         <Grid item xs={6}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                            <Box sx={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: "6px",
-                              bgcolor: alpha("#ef4444", 0.1),
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}>
+                            <Box sx={{ width: 20, height: 20, borderRadius: "6px", bgcolor: alpha("#ef4444", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
                               <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
                             </Box>
                             <Box>
-                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>
-                                END
-                              </Typography>
-                              <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#ef4444" }}>
-                                {fmtTime(stats.endTime)}
-                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500 }}>END</Typography>
+                              <Typography fontWeight={600} sx={{ fontSize: "0.55rem", lineHeight: 1.2, color: "#ef4444" }}>{fmtTime(stats.endTime)}</Typography>
                             </Box>
                           </Box>
                         </Grid>
                       </Grid>
 
                       {isSelected && (
-                        <Box sx={{
-                          position: "absolute",
-                          bottom: 8,
-                          right: 8,
-                          width: 6,
-                          height: 6,
-                          borderRadius: "50%",
-                          bgcolor: "#2196F3",
-                          boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
-                        }} />
+                        <Box sx={{ position: "absolute", bottom: 8, right: 8, width: 6, height: 6, borderRadius: "50%", bgcolor: "#2196F3", boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}` }} />
                       )}
                     </CardContent>
                   </Card>
@@ -4307,6 +4168,7 @@ const Locations = () => {
               </Box>
             )}
 
+            {/* ── Stats overlay ── */}
             {selectedSession && hasLocations && (
               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)", bgcolor: "rgba(255, 255, 255, 0.3)" }}>
                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -4335,6 +4197,109 @@ const Locations = () => {
                   </Box>
                 </Box>
               </Paper>
+            )}
+
+            {/* ✅ LIVE REFRESH BUTTON — only visible when selected session isActive */}
+            {isSelectedSessionActive && (
+              <Zoom in={isSelectedSessionActive}>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: sessionPhotos.length > 0 ? 150 : 20,
+                    top: "auto",
+                    right: 16,
+                    zIndex: 600,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    gap: 0.5,
+                  }}
+                >
+                  <Tooltip title={lastRefreshed ? `Last updated: ${lastRefreshed.toLocaleTimeString()}` : "Refresh live location"} placement="left">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        bgcolor: "rgba(255,255,255,0.92)",
+                        backdropFilter: "blur(10px)",
+                        borderRadius: "24px",
+                        px: 1.5,
+                        py: 0.75,
+                        boxShadow: `0 4px 16px ${alpha("#22c55e", 0.35)}`,
+                        border: `1.5px solid ${alpha("#22c55e", 0.4)}`,
+                        cursor: isRefreshing ? "not-allowed" : "pointer",
+                        transition: "all 0.2s ease",
+                        "&:hover": !isRefreshing ? {
+                          bgcolor: "rgba(255,255,255,1)",
+                          boxShadow: `0 6px 20px ${alpha("#22c55e", 0.5)}`,
+                          transform: "translateY(-1px)",
+                        } : {},
+                      }}
+                      onClick={handleRefreshLiveLocation}
+                    >
+                      {/* Pulsing live dot */}
+                      <Box sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        bgcolor: "#22c55e",
+                        flexShrink: 0,
+                        animation: "liveDot 1.4s ease-in-out infinite",
+                        "@keyframes liveDot": {
+                          "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                          "50%": { opacity: 0.35, transform: "scale(0.65)" },
+                        },
+                      }} />
+
+                      <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#15803d", letterSpacing: "0.3px", userSelect: "none" }}>
+                        LIVE
+                      </Typography>
+
+                      {/* Refresh icon — spins while refreshing */}
+                      <Box sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 22,
+                        height: 22,
+                        borderRadius: "50%",
+                        bgcolor: alpha("#22c55e", 0.12),
+                        flexShrink: 0,
+                        transition: "background 0.2s",
+                        "&:hover": { bgcolor: alpha("#22c55e", 0.2) },
+                      }}>
+                        {isRefreshing ? (
+                          <CircularProgress size={13} sx={{ color: "#22c55e" }} />
+                        ) : (
+                          <RefreshIcon sx={{
+                            fontSize: 14,
+                            color: "#22c55e",
+                            transition: "transform 0.6s ease",
+                            transform: refreshSpinning ? "rotate(360deg)" : "rotate(0deg)",
+                          }} />
+                        )}
+                      </Box>
+                    </Box>
+                  </Tooltip>
+
+                  {/* Last refreshed timestamp */}
+                  {lastRefreshed && (
+                    <Typography sx={{
+                      fontSize: "0.52rem",
+                      color: alpha("#15803d", 0.8),
+                      bgcolor: "rgba(255,255,255,0.85)",
+                      backdropFilter: "blur(6px)",
+                      borderRadius: "10px",
+                      px: 1,
+                      py: 0.2,
+                      border: `1px solid ${alpha("#22c55e", 0.2)}`,
+                    }}>
+                      Updated {lastRefreshed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                    </Typography>
+                  )}
+                </Box>
+              </Zoom>
             )}
 
             {renderPhotoCarousel()}
