@@ -1002,25 +1002,26 @@ const TrackingData = () => {
               <Card className="border-0 shadow-sm mb-2 mb-md-3" style={{ borderRadius: "8px" }}>
                 <Card.Body style={{ padding: "6px 12px" }}>
                   <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-                    <div className="d-flex align-items-center flex-wrap" style={{ gap: "6px" }}>
+                    <div className="d-flex align-items-center flex-wrap" style={{ gap: "8px" }}>
                       <FaCalendarAlt
                         className="me-1"
-                        style={{ color: theme.palette.primary.main, fontSize: "0.8rem" }}
+                        style={{ color: theme.palette.secondary.main, fontSize: "1rem" }} // Changed color & size
                       />
                       <span
                         className="fw-semibold"
-                        style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
+                        style={{ color: theme.palette.text.secondary, fontSize: "0.85rem" }} // Changed color & size
                       >
                         {formatDate(selectedDate)}
                       </span>
                       {!isToday && (
                         <Badge
-                          className="px-2 py-0"
+                          className="px-2 py-1" // Increased padding
                           style={{
-                            fontSize: "0.6rem",
-                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            color: theme.palette.primary.main,
-                            border: "none",
+                            fontSize: "0.7rem", // Changed size
+                            backgroundColor: alpha(theme.palette.secondary.main, 0.15),
+                            // color: theme.palette.secondary.dark, // Changed color
+                            border: `1px solid ${alpha(theme.palette.secondary.main, 0.3)}`, // Added border
+                            borderRadius: "12px", // Changed border radius
                           }}
                         >
                           Filtered
@@ -1066,7 +1067,7 @@ const TrackingData = () => {
                     border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   }}
                 >
-                  <style>{`
+                  {/* <style>{`
                     .compact-calendar .react-calendar__tile {
                       padding: 8px 4px !important;
                       line-height: 1.2 !important;
@@ -1107,8 +1108,74 @@ const TrackingData = () => {
                       border-radius: 50%;
                       background-color: ${theme.palette.primary.main};
                     }
-                  `}</style>
-
+                  `}</style> */}
+                  <style>{`
+                  .compact-calendar .react-calendar__tile {
+                    padding: 8px 4px !important;
+                    line-height: 1.2 !important;
+                    font-size: 0.7rem !important;
+                    position: relative;
+                  }
+                  .compact-calendar .react-calendar__navigation button {
+                    min-width: 28px !important;
+                    height: 28px !important;
+                    font-size: 0.72rem !important;
+                    padding: 0 !important;
+                  }
+                  .compact-calendar .react-calendar__navigation {
+                    height: 28px !important;
+                    margin-bottom: 4px !important;
+                  }
+                  .compact-calendar .react-calendar__month-view__weekdays {
+                    font-size: 0.62rem !important;
+                  }
+                  .compact-calendar .react-calendar__month-view__weekdays__weekday {
+                    padding: 2px !important;
+                  }
+                  .available-date {
+                    background-color: ${alpha(theme.palette.primary.main, 0.1)} !important;
+                    border-radius: 50% !important;
+                    font-weight: bold !important;
+                  }
+                  .available-date:hover {
+                    background-color: ${alpha(theme.palette.primary.main, 0.2)} !important;
+                  }
+                  /* Selected date styling - Changed style */
+                  .compact-calendar .react-calendar__tile--active {
+                    background: linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark}) !important;
+                    color: white !important;
+                    border-radius: 8px !important;
+                    transform: scale(1.05) !important;
+                    box-shadow: 0 2px 8px ${alpha(theme.palette.primary.main, 0.3)} !important;
+                    font-weight: bold !important;
+                  }
+                  .compact-calendar .react-calendar__tile--active:hover {
+                    background: linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main}) !important;
+                    transform: scale(1.08) !important;
+                    box-shadow: 0 4px 12px ${alpha(theme.palette.primary.main, 0.4)} !important;
+                  }
+                  /* For available dates that are also selected */
+                  .compact-calendar .react-calendar__tile--active.available-date {
+                    background: linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark}) !important;
+                    color: white !important;
+                    border-radius: 8px !important;
+                  }
+                  .compact-calendar .react-calendar__tile--active .available-dot {
+                    background-color: white !important;
+                    width: 5px !important;
+                    height: 5px !important;
+                  }
+                  .available-dot {
+                    position: absolute;
+                    bottom: 2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                    background-color: ${theme.palette.primary.main};
+                  }
+                `}</style>
                   <Calendar
                     onChange={handleDateChange}
                     value={selectedDate}

@@ -1877,7 +1877,7 @@ import {
   Timeline as TimelineIcon,
   ShoppingBag as ShoppingBagIcon,
 } from "@mui/icons-material";
-import { motion , AnimatePresence} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUsers,
   FaUserCheck,
@@ -2394,7 +2394,7 @@ const StatsCards = ({ stats, loading }) => {
                     >
                       {stat.icon}
                     </Avatar>
-                    
+
                     {/* Click indicator icon for clickable cards */}
                     {stat.onClick && (
                       <Box
@@ -2428,7 +2428,7 @@ const StatsCards = ({ stats, loading }) => {
                   </Box>
                 </Box>
               </Box>
-              
+
               {/* Bottom gradient bar - make it more prominent for clickable cards */}
               <Box
                 sx={{
@@ -2441,7 +2441,7 @@ const StatsCards = ({ stats, loading }) => {
                   opacity: stat.onClick ? 1 : 0.8,
                 }}
               />
-              
+
               {/* Add "Click to view" tooltip-like text on hover for desktop */}
               {stat.onClick && !isMobile && (
                 <Box
@@ -2464,7 +2464,7 @@ const StatsCards = ({ stats, loading }) => {
                   Click →
                 </Box>
               )}
-              
+
               {/* Add subtle cursor icon effect on hover for clickable cards */}
               {stat.onClick && (
                 <Box
@@ -2585,26 +2585,26 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 
   // ── AddOns processing - ONLY COMPLETED and SORTED by createdAt DESC (newest first) ──
   const allAddOns = planData.addOns || [];
-  
+
   // Filter only completed add-ons and sort by createdAt (newest first)
   const completedAddOns = allAddOns
     .filter(a => a.status === 'completed')
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
+
   // Get the first 2 most recent completed add-ons (for inline display)
   const recent2AddOns = completedAddOns.slice(0, 2);
-  
+
   // All completed for dropdown list (already sorted newest first)
   const allCompletedForList = [...completedAddOns];
 
   const formatAddOnDateTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-IN', { 
-      day: '2-digit', 
-      month: 'short', 
+    return date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
       year: '2-digit',
-      hour: '2-digit', 
-      minute: '2-digit' 
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -2703,6 +2703,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Created At</Typography>
             <Typography variant="body2" fontWeight="500" sx={{ fontSize: '0.7rem', color: 'text.primary' }}>{formatDateDDMMYYYY(planData.createdAt)}</Typography>
+    
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Expires At</Typography>
@@ -2782,7 +2783,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                 {recent2AddOns.map((addOn, idx) => (
                   <Grid item xs={6} key={addOn._id || idx}>
                     <Box sx={{
-                      p: { xs: 0.8, sm: 1 }, 
+                      p: { xs: 0.8, sm: 1 },
                       borderRadius: 1.5,
                       bgcolor: alpha('#22c55e', 0.04),
                       border: `1px solid ${alpha('#22c55e', 0.2)}`,
@@ -2808,16 +2809,16 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                         <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: '#22c55e' }}>
                           +{addOn.addOnMaxUser} users
                         </Typography>
-                        <Chip 
-                          label={idx === 0 ? "NEWEST" : "RECENT"} 
-                          size="small" 
-                          sx={{ 
-                            height: 14, 
-                            fontSize: '0.45rem', 
-                            fontWeight: 700, 
+                        <Chip
+                          label={idx === 0 ? "NEWEST" : "RECENT"}
+                          size="small"
+                          sx={{
+                            height: 14,
+                            fontSize: '0.45rem',
+                            fontWeight: 700,
                             bgcolor: idx === 0 ? alpha(theme.palette.primary.main, 0.2) : alpha('#22c55e', 0.12),
                             color: idx === 0 ? theme.palette.primary.main : '#22c55e'
-                          }} 
+                          }}
                         />
                       </Box>
                       <Typography sx={{ fontSize: '0.55rem', fontWeight: 600, color: 'text.primary' }}>
@@ -2875,9 +2876,9 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                         }}
                       >
                         {/* Rank / Position */}
-                        <Typography sx={{ 
-                          fontSize: '0.5rem', 
-                          fontWeight: 700, 
+                        <Typography sx={{
+                          fontSize: '0.5rem',
+                          fontWeight: 700,
                           minWidth: 28,
                           color: idx === 0 ? theme.palette.primary.main : 'text.secondary',
                         }}>
@@ -2885,8 +2886,8 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                         </Typography>
 
                         {/* Date */}
-                        <Typography sx={{ 
-                          fontSize: '0.5rem', 
+                        <Typography sx={{
+                          fontSize: '0.5rem',
                           fontWeight: idx < 2 ? 700 : 500,
                           minWidth: 65,
                           color: idx === 0 ? theme.palette.primary.main : 'text.secondary',
@@ -2895,13 +2896,13 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                         </Typography>
 
                         {/* Users */}
-                        <Box sx={{ 
-                          minWidth: 44, 
-                          textAlign: 'center', 
-                          bgcolor: alpha('#22c55e', 0.1), 
-                          borderRadius: 1, 
-                          px: 0.5, 
-                          py: 0.2 
+                        <Box sx={{
+                          minWidth: 44,
+                          textAlign: 'center',
+                          bgcolor: alpha('#22c55e', 0.1),
+                          borderRadius: 1,
+                          px: 0.5,
+                          py: 0.2
                         }}>
                           <Typography sx={{ fontSize: '0.55rem', fontWeight: 800, color: '#22c55e' }}>
                             +{addOn.addOnMaxUser}
@@ -2963,18 +2964,18 @@ const RecentActivities = ({ users, loading }) => {
 
   // Sort users to show today's entries first, then all others
   const today = new Date().toISOString().split('T')[0];
-  
+
   const sortedUsers = [...users].sort((a, b) => {
     const aDate = a.updatedAt?.split('T')[0];
     const bDate = b.updatedAt?.split('T')[0];
-    
+
     const aIsToday = aDate === today;
     const bIsToday = bDate === today;
-    
+
     // Today's entries come first
     if (aIsToday && !bIsToday) return -1;
     if (!aIsToday && bIsToday) return 1;
-    
+
     // Then sort by date (newest first)
     return new Date(b.updatedAt) - new Date(a.updatedAt);
   });
@@ -3026,7 +3027,7 @@ const RecentActivities = ({ users, loading }) => {
           {displayUsers.map((activity, index) => {
             const activityDate = activity.updatedAt?.split('T')[0];
             const isToday = activityDate === today;
-            
+
             return (
               <motion.div
                 key={activity._id || index}
@@ -3041,8 +3042,8 @@ const RecentActivities = ({ users, loading }) => {
                     borderRadius: { xs: 1.5, sm: 2 },
                     bgcolor: alpha(theme.palette.primary.main, isToday ? 0.08 : 0.02),
                     border: "1px solid",
-                    borderColor: isToday 
-                      ? alpha(theme.palette.primary.main, 0.3) 
+                    borderColor: isToday
+                      ? alpha(theme.palette.primary.main, 0.3)
                       : alpha(theme.palette.primary.main, 0.1),
                     display: "flex",
                     alignItems: "center",
@@ -3071,23 +3072,23 @@ const RecentActivities = ({ users, loading }) => {
                   >
                     {activity.name?.charAt(0) || "U"}
                   </Avatar>
-                  
+
                   <Box sx={{ flex: 1, width: '100%' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
                       <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
                         {activity.name || "Unknown User"}
                       </Typography>
                       {isToday && (
-                        <Chip 
-                          label="Today" 
-                          size="small" 
-                          sx={{ 
-                            height: 16, 
-                            fontSize: '0.5rem', 
+                        <Chip
+                          label="Today"
+                          size="small"
+                          sx={{
+                            height: 16,
+                            fontSize: '0.5rem',
                             bgcolor: alpha(theme.palette.primary.main, 0.2),
                             color: theme.palette.primary.main,
                             fontWeight: 600
-                          }} 
+                          }}
                         />
                       )}
                     </Box>
@@ -3095,13 +3096,13 @@ const RecentActivities = ({ users, loading }) => {
                       {activity.status || "No action"}
                     </Typography>
                   </Box>
-                  
-                  <Typography variant="caption" color="text.secondary" sx={{ 
-                    fontSize: '0.6rem', 
+
+                  <Typography variant="caption" color="text.secondary" sx={{
+                    fontSize: '0.6rem',
                     minWidth: { xs: 'auto', sm: 80 },
                     textAlign: { xs: 'center', sm: 'right' }
                   }}>
-                    {activity.updatedAt 
+                    {activity.updatedAt
                       ? new Date(activity.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                       : '—'}
                   </Typography>

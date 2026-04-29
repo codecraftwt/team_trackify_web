@@ -3915,7 +3915,7 @@ const UserCard = ({
                   letterSpacing: 0.2,
                 }}
               >
-                {displayDate ? moment(displayDate).format("MMM D, YYYY") : "--/--/--"}
+                {displayDate ? moment(displayDate).format("MMM D, YYYY") : "---"}
               </Typography>
             </Box>
           </Box>
@@ -4361,7 +4361,7 @@ const UserCard = ({
 //                     color: !displayDate ? 'error.main' : 'text.secondary',
 //                     fontWeight: !displayDate ? 500 : 400
 //                   }}>
-//                     {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
+//                     {displayDate ? moment(displayDate).format('MMM D, YYYY') : "---"}
 //                   </TableCell>
 //                   <TableCell align="right">
 //                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
@@ -4861,14 +4861,14 @@ const ResponsiveTable = ({
                         color: !displayDate ? 'error.main' : 'text.secondary',
                         fontWeight: !displayDate ? 500 : 400
                       }}>
-                        {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
+                        {displayDate ? moment(displayDate).format('MMM D, YYYY') : "---"}
                       </TableCell>
                       <TableCell sx={{ 
                         fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
                         color: !planExpiryDate ? 'error.main' : 'text.secondary',
                         fontWeight: !planExpiryDate ? 500 : 400
                       }}>
-                        {planExpiryDate ? moment(planExpiryDate).format('MMM D, YYYY') : "--/--/--"}
+                        {planExpiryDate ? moment(planExpiryDate).format('MMM D, YYYY') : "---"}
                       </TableCell>
                     </>
                   ) : (
@@ -4877,7 +4877,7 @@ const ResponsiveTable = ({
                       color: !displayDate ? 'error.main' : 'text.secondary',
                       fontWeight: !displayDate ? 500 : 400
                     }}>
-                      {displayDate ? moment(displayDate).format('MMM D, YYYY') : "--/--/--"}
+                      {displayDate ? moment(displayDate).format('MMM D, YYYY') : "---"}
                     </TableCell>
                   )}
                   <TableCell align="right">
@@ -6154,7 +6154,8 @@ const UserManagement = () => {
               flexWrap: 'wrap'
             }}>
                  {/* ADD THIS CLEAR ALL BUTTON */}
-              {(searchQuery || startDate || endDate || tabValue !== 0) && (
+              {/* {(searchQuery || startDate || endDate || tabValue !== 0) && ( */}
+              {(searchQuery || startDate || endDate ) && (
                 <Button
                   variant="contained"
                   startIcon={<CancelIcon sx={{ fontSize: 16 }} />}
