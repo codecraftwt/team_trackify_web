@@ -49,7 +49,6 @@
 //   History as HistoryIcon,
 // } from "@mui/icons-material";
 // import { motion } from "framer-motion";
-// import { formatDateDDMMYYYY } from "../../utils/dateFormat";
 // import moment from "moment";
 
 // // TabPanel component
@@ -69,6 +68,13 @@
 
 // // Mobile Card View Component
 // const UserCard = ({ user, onCardClick, theme }) => {
+//   // Get last tracking date (lastStartTime) or fallback to createdAt
+//   const getDisplayDate = () => {
+//     return user.lastStartTime || user.createdAt;
+//   };
+
+//   const displayDate = getDisplayDate();
+
 //   return (
 //     <motion.div
 //       initial={{ opacity: 0, y: 20 }}
@@ -144,27 +150,12 @@
 //               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 //                 <CalendarIcon sx={{ color: theme.palette.primary.main, fontSize: 14 }} />
 //                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem" }}>
-//                   {formatDateDDMMYYYY(user.createdAt)}
+//                   Last Tracking:
 //                 </Typography>
 //               </Box>
-//               <Tooltip title="View Tracking">
-//                 <IconButton
-//                   size="small"
-//                   onClick={(e) => {
-//                     e.stopPropagation();
-//                     onCardClick(user);
-//                   }}
-//                   sx={{
-//                     color: theme.palette.primary.main,
-//                     bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                     width: 26,
-//                     height: 26,
-//                     "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-//                   }}
-//                 >
-//                   <VisibilityIcon sx={{ fontSize: 14 }} />
-//                 </IconButton>
-//               </Tooltip>
+//               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", fontWeight: 500 }}>
+//                 {displayDate ? moment(displayDate).format('MMM D, YYYY') : 'N/A'}
+//               </Typography>
 //             </Box>
 //           </Stack>
 //         </CardContent>
@@ -175,6 +166,11 @@
 
 // // Desktop Table View Component
 // const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
+//   // Get last tracking date (lastStartTime) or fallback to createdAt
+//   const getDisplayDate = (user) => {
+//     return user.lastStartTime || user.createdAt;
+//   };
+
 //   return (
 //     <TableContainer
 //       component={Paper}
@@ -199,77 +195,80 @@
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Name</TableCell>
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Email</TableCell>
 //             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Mobile</TableCell>
-//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Joined Date</TableCell>
+//             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Last Tracking Date</TableCell>
 //             <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Actions</TableCell>
 //           </TableRow>
 //         </TableHead>
 //         <TableBody>
-//           {users.map((user, index) => (
-//             <TableRow
-//               key={user._id}
-//               hover
-//               onClick={() => onRowClick(user)}
-//               sx={{
-//                 cursor: "pointer",
-//                 "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.05) },
-//               }}
-//             >
-//               <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, py: 1 }}>{index + 1}</TableCell>
-//               <TableCell sx={{ py: 1 }}>
-//                 <Avatar
-//                   src={user.avtar}
-//                   sx={{
-//                     width: { xs: 32, sm: 35, md: 38 },
-//                     height: { xs: 32, sm: 35, md: 38 },
-//                     bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                     color: theme.palette.primary.main,
-//                   }}
-//                 >
-//                   {user.name?.charAt(0) || <PersonIcon />}
-//                 </Avatar>
-//               </TableCell>
-//               <TableCell sx={{ py: 1 }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" } }}>
-//                   {user.name}
-//                 </Typography>
-//               </TableCell>
-//               <TableCell sx={{ py: 1 }}>
-//                 <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
-//                   {user.email}
-//                 </Typography>
-//               </TableCell>
-//               <TableCell sx={{ py: 1 }}>
-//                 <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
-//                   {user.mobile_no || "—"}
-//                 </Typography>
-//               </TableCell>
-//               <TableCell sx={{ py: 1 }}>
-//                 <Typography variant="body2" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" }, color: "text.secondary" }}>
-//                   {moment(user.createdAt).format('MMM D, YYYY')}
-//                 </Typography>
-//               </TableCell>
-//               <TableCell align="center" sx={{ py: 1 }}>
-//                 <Tooltip title="View Tracking">
-//                   <IconButton
-//                     size="small"
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                       onRowClick(user);
-//                     }}
+//           {users.map((user, index) => {
+//             const displayDate = getDisplayDate(user);
+//             return (
+//               <TableRow
+//                 key={user._id}
+//                 hover
+//                 onClick={() => onRowClick(user)}
+//                 sx={{
+//                   cursor: "pointer",
+//                   "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.05) },
+//                 }}
+//               >
+//                 <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, py: 1 }}>{index + 1}</TableCell>
+//                 <TableCell sx={{ py: 1 }}>
+//                   <Avatar
+//                     src={user.avtar}
 //                     sx={{
-//                       color: theme.palette.primary.main,
+//                       width: { xs: 32, sm: 35, md: 38 },
+//                       height: { xs: 32, sm: 35, md: 38 },
 //                       bgcolor: alpha(theme.palette.primary.main, 0.1),
-//                       width: { xs: 28, sm: 30 },
-//                       height: { xs: 28, sm: 30 },
-//                       "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+//                       color: theme.palette.primary.main,
 //                     }}
 //                   >
-//                     <VisibilityIcon sx={{ fontSize: { xs: 14, sm: 15 } }} />
-//                   </IconButton>
-//                 </Tooltip>
-//               </TableCell>
-//             </TableRow>
-//           ))}
+//                     {user.name?.charAt(0) || <PersonIcon />}
+//                   </Avatar>
+//                 </TableCell>
+//                 <TableCell sx={{ py: 1 }}>
+//                   <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" } }}>
+//                     {user.name}
+//                   </Typography>
+//                 </TableCell>
+//                 <TableCell sx={{ py: 1 }}>
+//                   <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
+//                     {user.email}
+//                   </Typography>
+//                 </TableCell>
+//                 <TableCell sx={{ py: 1 }}>
+//                   <Typography variant="body2" sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" }, color: "text.secondary" }}>
+//                     {user.mobile_no || "—"}
+//                   </Typography>
+//                 </TableCell>
+//                 <TableCell sx={{ py: 1 }}>
+//                   <Typography variant="body2" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" }, color: "text.secondary" }}>
+//                     {displayDate ? moment(displayDate).format('MMM D, YYYY') : 'N/A'}
+//                   </Typography>
+//                 </TableCell>
+//                 <TableCell align="center" sx={{ py: 1 }}>
+//                   <Tooltip title="View Tracking">
+//                     <IconButton
+//                       size="small"
+//                       onClick={(e) => {
+//                         e.stopPropagation();
+//                         onRowClick(user);
+//                       }}
+//                       sx={{
+//                         color: theme.palette.primary.main,
+//                         bgcolor: alpha(theme.palette.primary.main, 0.1),
+//                         width: { xs: 28, sm: 30 },
+//                         height: { xs: 28, sm: 30 },
+//                         "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+//                       }}
+//                     >
+//                       <VisibilityIcon sx={{ fontSize: { xs: 14, sm: 15 } }} />
+//                     </IconButton>
+//                   </Tooltip>
+//                 </TableCell>
+//               </TableRow>
+//             );
+//           })}
 //         </TableBody>
 //       </Table>
 //     </TableContainer>
@@ -378,7 +377,6 @@
 //                   bgcolor: isWarning ? alpha("#ef4444", 0.03) : "transparent",
 //                   "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.05) },
 //                 }}
-//                 // onClick={() => onViewPayment(payment)}
 //               >
 //                 <TableCell sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, py: 1 }}>{index + 1}</TableCell>
 //                 <TableCell sx={{ py: 1 }}>
@@ -451,7 +449,7 @@
 //   const originalAmount = payment.originalAmount || payment.amount;
 //   const discountAmount = payment.discountAmount || 0;
 //   const paidAmount = payment.amount;
-  
+
 //   const getPlanStatus = () => {
 //     if (payment.isCancelledByUser === true || payment.status === "cancelled") return { label: "Cancelled", color: "#ef4444" };
 //     if (payment.status === "failed") return { label: "Failed", color: "#ef4444" };
@@ -570,7 +568,7 @@
 //   const [tempEndDate, setTempEndDate] = useState(null);
 //   const [sortOrder, setSortOrder] = useState("desc");
 //   const [tabValue, setTabValue] = useState(0);
-  
+
 //   // Pagination state for Plan History (Backend Pagination)
 //   const [allPayments, setAllPayments] = useState([]);
 //   const [currentPage, setCurrentPage] = useState(1);
@@ -584,7 +582,7 @@
 //     let filtered = [...users];
 //     if (searchQuery) {
 //       const query = searchQuery.toLowerCase();
-//       filtered = filtered.filter(user => 
+//       filtered = filtered.filter(user =>
 //         user.name?.toLowerCase().includes(query) ||
 //         user.email?.toLowerCase().includes(query) ||
 //         user.mobile_no?.includes(query)
@@ -592,13 +590,13 @@
 //     }
 //     if (startDate && endDate) {
 //       filtered = filtered.filter(user => {
-//         const userDate = new Date(user.createdAt);
+//         const userDate = new Date(user.lastStartTime || user.createdAt);
 //         return userDate >= startDate && userDate <= endDate;
 //       });
 //     }
 //     filtered.sort((a, b) => {
-//       const dateA = new Date(a.createdAt);
-//       const dateB = new Date(b.createdAt);
+//       const dateA = new Date(a.lastStartTime || a.createdAt);
+//       const dateB = new Date(b.lastStartTime || b.createdAt);
 //       return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
 //     });
 //     return filtered;
@@ -619,36 +617,36 @@
 //   const fetchPayments = async (page, reset = false) => {
 //     if (isLoadingMore) return;
 //     if (!hasMore && !reset) return;
-    
+
 //     setIsLoadingMore(true);
-    
+
 //     try {
-//       const result = await dispatch(getPaymentHistory({ 
-//         adminId, 
-//         page, 
+//       const result = await dispatch(getPaymentHistory({
+//         adminId,
+//         page,
 //         limit: 10,
 //         search: searchQuery,
 //         startDate: startDate ? startDate.toISOString() : null,
 //         endDate: endDate ? endDate.toISOString() : null,
 //         sortOrder: sortOrder,
 //       })).unwrap();
-      
+
 //       const newPayments = result.data || [];
 //       const pagination = result.pagination;
-      
+
 //       setTotalPayments(pagination?.totalItems || 0);
 //       setTotalPages(pagination?.totalPages || 0);
-      
+
 //       if (reset) {
 //         setAllPayments(newPayments);
 //       } else {
 //         setAllPayments(prev => [...prev, ...newPayments]);
 //       }
-      
+
 //       const currentTotal = reset ? newPayments.length : allPayments.length + newPayments.length;
 //       setHasMore(currentTotal < (pagination?.totalItems || 0));
 //       setCurrentPage(page);
-      
+
 //     } catch (error) {
 //       console.error("Error fetching payments:", error);
 //     } finally {
@@ -778,9 +776,9 @@
 //                     <Button variant="outlined" startIcon={<CalendarIcon sx={{ fontSize: 16 }} />} onClick={handleDateFilterClick} size="small" sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: 36, '&:hover': { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
 //                       Date Filter
 //                     </Button>
-//                     <Button variant="outlined" startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />} onClick={handleSortChange} size="small" sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: 36, '&:hover': { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
+//                     {/* <Button variant="outlined" startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />} onClick={handleSortChange} size="small" sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: 36, '&:hover': { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
 //                       {sortOrder === "asc" ? "Oldest First" : "Newest First"}
-//                     </Button>
+//                     </Button> */}
 //                   </Box>
 //                 </Grid>
 //               </Grid>
@@ -793,7 +791,6 @@
 //                   <DatePicker label="Start Date" value={tempStartDate} onChange={setTempStartDate} slotProps={{ textField: { size: "small", fullWidth: true } }} />
 //                   <DatePicker label="End Date" value={tempEndDate} onChange={setTempEndDate} slotProps={{ textField: { size: "small", fullWidth: true } }} />
 //                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 1 }}>
-//                     <Button size="small" onClick={clearDateFilter} sx={{ fontSize: '0.7rem', textTransform: 'none' }}>Clear</Button>
 //                     <Button size="small" variant="contained" onClick={applyDateFilter} sx={{ fontSize: '0.7rem', textTransform: 'none', bgcolor: theme.palette.primary.main, '&:hover': { bgcolor: theme.palette.primary.dark } }}>Apply</Button>
 //                   </Box>
 //                 </Box>
@@ -808,7 +805,9 @@
 //                 <Tabs value={tabValue} onChange={handleTabChange} variant={isMobile ? "fullWidth" : "standard"} sx={{ "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: { xs: "0.7rem", md: "0.85rem" }, minHeight: { xs: 42, md: 48 }, px: { xs: 1, md: 2 } }, "& .Mui-selected": { color: `${theme.palette.primary.main} !important` }, "& .MuiTabs-indicator": { bgcolor: theme.palette.primary.main } }}>
 //                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><ActiveIcon sx={{ color: "#22c55e", fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "Active" : "Active Users"}</span><Chip label={filteredActiveUsers.length} size="small" sx={{ bgcolor: alpha("#22c55e", 0.1), color: "#22c55e", fontWeight: 600, fontSize: "0.55rem", height: 16 }} /></Box>} />
 //                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><InactiveIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "Inactive" : "Inactive Users"}</span><Chip label={filteredInactiveUsers.length} size="small" sx={{ bgcolor: alpha(theme.palette.text.secondary, 0.1), color: theme.palette.text.secondary, fontWeight: 600, fontSize: "0.55rem", height: 16 }} /></Box>} />
-//                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><HistoryIcon sx={{ color: theme.palette.info.main, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "History" : "Plan History"}</span><Chip label={totalPayments} size="small" sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.main, fontWeight: 600, fontSize: "0.55rem", height: 16 }} /></Box>} />
+//                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><HistoryIcon sx={{ color: theme.palette.info.main, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "History" : "Plan History"}</span>
+//                     {/* <Chip label={totalPayments} size="small" sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.main, fontWeight: 600, fontSize: "0.55rem", height: 16 }} /> */}
+//                   </Box>} />
 //                 </Tabs>
 //               </Box>
 
@@ -863,6 +862,13 @@
 
 
 
+
+
+
+
+
+
+//// With date filter clear
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -899,7 +905,12 @@ import {
   Button,
   Menu,
 } from "@mui/material";
-import { Search as SearchIcon, ArrowUpward as ArrowUpwardIcon, ArrowDownward as ArrowDownwardIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  Cancel as CancelIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  ArrowDownward as ArrowDownwardIcon
+} from "@mui/icons-material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import {
@@ -933,7 +944,6 @@ function TabPanel({ children, value, index, ...other }) {
 
 // Mobile Card View Component
 const UserCard = ({ user, onCardClick, theme }) => {
-  // Get last tracking date (lastStartTime) or fallback to createdAt
   const getDisplayDate = () => {
     return user.lastStartTime || user.createdAt;
   };
@@ -1030,8 +1040,7 @@ const UserCard = ({ user, onCardClick, theme }) => {
 };
 
 // Desktop Table View Component
-const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
-  // Get last tracking date (lastStartTime) or fallback to createdAt
+const UserTable = ({ users, onRowClick, theme, isMobile, isTablet, sortOrder, onSortChange }) => {
   const getDisplayDate = (user) => {
     return user.lastStartTime || user.createdAt;
   };
@@ -1060,7 +1069,27 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet }) => {
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Name</TableCell>
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Email</TableCell>
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Mobile</TableCell>
-            <TableCell sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Last Tracking Date</TableCell>
+            <TableCell
+              sx={{
+                fontWeight: 600,
+                fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" },
+                color: theme.palette.primary.main,
+                cursor: "pointer",
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                },
+              }}
+              onClick={onSortChange}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                Last Tracking Date
+                {sortOrder === "asc" ? (
+                  <ArrowUpwardIcon sx={{ fontSize: 14 }} />
+                ) : (
+                  <ArrowDownwardIcon sx={{ fontSize: 14 }} />
+                )}
+              </Box>
+            </TableCell>
             <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" }, color: theme.palette.primary.main }}>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -1314,7 +1343,7 @@ const PlanHistoryCard = ({ payment, onViewPayment, theme }) => {
   const originalAmount = payment.originalAmount || payment.amount;
   const discountAmount = payment.discountAmount || 0;
   const paidAmount = payment.amount;
-  
+
   const getPlanStatus = () => {
     if (payment.isCancelledByUser === true || payment.status === "cancelled") return { label: "Cancelled", color: "#ef4444" };
     if (payment.status === "failed") return { label: "Failed", color: "#ef4444" };
@@ -1433,7 +1462,7 @@ const ListUsers = () => {
   const [tempEndDate, setTempEndDate] = useState(null);
   const [sortOrder, setSortOrder] = useState("desc");
   const [tabValue, setTabValue] = useState(0);
-  
+
   // Pagination state for Plan History (Backend Pagination)
   const [allPayments, setAllPayments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -1447,7 +1476,7 @@ const ListUsers = () => {
     let filtered = [...users];
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(user => 
+      filtered = filtered.filter(user =>
         user.name?.toLowerCase().includes(query) ||
         user.email?.toLowerCase().includes(query) ||
         user.mobile_no?.includes(query)
@@ -1482,36 +1511,36 @@ const ListUsers = () => {
   const fetchPayments = async (page, reset = false) => {
     if (isLoadingMore) return;
     if (!hasMore && !reset) return;
-    
+
     setIsLoadingMore(true);
-    
+
     try {
-      const result = await dispatch(getPaymentHistory({ 
-        adminId, 
-        page, 
+      const result = await dispatch(getPaymentHistory({
+        adminId,
+        page,
         limit: 10,
         search: searchQuery,
         startDate: startDate ? startDate.toISOString() : null,
         endDate: endDate ? endDate.toISOString() : null,
         sortOrder: sortOrder,
       })).unwrap();
-      
+
       const newPayments = result.data || [];
       const pagination = result.pagination;
-      
+
       setTotalPayments(pagination?.totalItems || 0);
       setTotalPages(pagination?.totalPages || 0);
-      
+
       if (reset) {
         setAllPayments(newPayments);
       } else {
         setAllPayments(prev => [...prev, ...newPayments]);
       }
-      
+
       const currentTotal = reset ? newPayments.length : allPayments.length + newPayments.length;
       setHasMore(currentTotal < (pagination?.totalItems || 0));
       setCurrentPage(page);
-      
+
     } catch (error) {
       console.error("Error fetching payments:", error);
     } finally {
@@ -1568,12 +1597,20 @@ const ListUsers = () => {
     }
   };
 
-  const handleSortChange = () => {
-    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-    setSortOrder(newSortOrder);
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setStartDate(null);
+    setEndDate(null);
+    setTempStartDate(null);
+    setTempEndDate(null);
     if (tabValue === 2) {
       resetAndFetchPayments();
     }
+  };
+
+  const handleSortChange = () => {
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
   };
 
   const handleSearchChange = (e) => {
@@ -1623,41 +1660,324 @@ const ListUsers = () => {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           {/* Search and Filters */}
           <motion.div variants={itemVariants}>
-            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 2, sm: 2.5 }, borderRadius: { xs: 2, sm: 2.5 }, border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.1) }}>
-              <Grid container spacing={1.5} alignItems="center">
-                <Grid item xs={12} md={6}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.2, sm: 1.5 },
+                mb: { xs: 2, sm: 2.5 },
+                borderRadius: { xs: 2, sm: 2.5 },
+                border: '1px solid',
+                borderColor: alpha(theme.palette.primary.main, 0.1),
+              }}
+            >
+              <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'stretch', sm: 'center' },
+                gap: { xs: 1.2, sm: 1.5 },
+              }}>
+                {/* Search Field - takes all available space */}
+                <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
                     placeholder="Search by name, email, or mobile..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     size="small"
-                    InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment>) }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: { xs: 2, sm: 2.5 }, bgcolor: alpha(theme.palette.primary.main, 0.05), fontSize: { xs: '0.75rem', sm: '0.8rem' }, height: 40 } }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 18, sm: 20 } }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: searchQuery && (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            onClick={() => setSearchQuery("")}
+                            sx={{ p: 0.5 }}
+                          >
+                            <CancelIcon sx={{ fontSize: 16, color: theme.palette.text.secondary }} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: { xs: 2, sm: 2.5 },
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                        height: { xs: 42, sm: 46 },
+                      },
+                    }}
                   />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ display: 'flex', gap: 1, justifyContent: { xs: 'flex-start', md: 'flex-end' }, flexWrap: 'wrap' }}>
-                    <Button variant="outlined" startIcon={<CalendarIcon sx={{ fontSize: 16 }} />} onClick={handleDateFilterClick} size="small" sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: 36, '&:hover': { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
-                      Date Filter
+                </Box>
+
+                {/* Buttons Row */}
+                <Box sx={{
+                  display: 'flex',
+                  gap: 1,
+                  flexShrink: 0,
+                  flexWrap: 'wrap',
+                  justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                  alignItems: 'center',
+                }}>
+                  {(searchQuery || startDate || endDate) && (
+                    <Button
+                      variant="contained"
+                      startIcon={<CancelIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                      onClick={clearAllFilters}
+                      size="small"
+                      sx={{
+                        bgcolor: '#ef4444',
+                        '&:hover': { bgcolor: '#dc2626' },
+                        fontSize: { xs: '0.62rem', sm: '0.7rem' },
+                        height: { xs: 36, sm: 38 },
+                        px: { xs: 1.5, sm: 2 },
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Clear Filters
                     </Button>
-                    <Button variant="outlined" startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />} onClick={handleSortChange} size="small" sx={{ borderColor: alpha(theme.palette.divider, 0.5), color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: 36, '&:hover': { borderColor: theme.palette.primary.main, color: theme.palette.primary.main } }}>
-                      {sortOrder === "asc" ? "Oldest First" : "Newest First"}
-                    </Button>
-                  </Box>
-                </Grid>
-              </Grid>
+                  )}
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<CalendarIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                    onClick={handleDateFilterClick}
+                    size="small"
+                    sx={{
+                      borderColor: alpha(theme.palette.divider, 0.5),
+                      color: 'text.secondary',
+                      fontSize: { xs: '0.62rem', sm: '0.7rem' },
+                      height: { xs: 36, sm: 38 },
+                      px: { xs: 1.5, sm: 2 },
+                      whiteSpace: 'nowrap',
+                      '&:hover': {
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    Date Filter
+                  </Button>
+                </Box>
+              </Box>
             </Paper>
 
-            {/* Date Filter Menu */}
-            <Menu anchorEl={dateFilterAnchor} open={Boolean(dateFilterAnchor)} onClose={handleDateFilterClose} PaperProps={{ sx: { p: 2, width: { xs: 280, sm: 320 }, borderRadius: { xs: 2, sm: 3 }, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid', borderColor: alpha(theme.palette.primary.main, 0.1) } }}>
+            {/* Date Filter Menu - Updated with new styling */}
+            <Menu
+              anchorEl={dateFilterAnchor}
+              open={Boolean(dateFilterAnchor)}
+              onClose={handleDateFilterClose}
+              PaperProps={{
+                sx: {
+                  p: 1.5,
+                  width: { xs: 240, sm: 270 },
+                  borderRadius: { xs: 2, sm: 2.5 },
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                  border: '1px solid',
+                  borderColor: alpha(theme.palette.primary.main, 0.1),
+                },
+              }}
+            >
               <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                  <DatePicker label="Start Date" value={tempStartDate} onChange={setTempStartDate} slotProps={{ textField: { size: "small", fullWidth: true } }} />
-                  <DatePicker label="End Date" value={tempEndDate} onChange={setTempEndDate} slotProps={{ textField: { size: "small", fullWidth: true } }} />
-                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 1 }}>
-                    <Button size="small" onClick={clearDateFilter} sx={{ fontSize: '0.7rem', textTransform: 'none' }}>Clear</Button>
-                    <Button size="small" variant="contained" onClick={applyDateFilter} sx={{ fontSize: '0.7rem', textTransform: 'none', bgcolor: theme.palette.primary.main, '&:hover': { bgcolor: theme.palette.primary.dark } }}>Apply</Button>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  minWidth: 180,
+                }}>
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                        mb: 0.5,
+                        lineHeight: 1,
+                        display: 'block',
+                      }}
+                    >
+                      Start
+                    </Typography>
+                    <DatePicker
+                      value={tempStartDate}
+                      onChange={setTempStartDate}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          placeholder: "DD/MM/YYYY",
+                          sx: {
+                            '& .MuiInputBase-root': {
+                              minHeight: '32px !important',
+                              height: '32px !important',
+                              fontSize: '0.75rem',
+                              borderRadius: '6px',
+                            },
+                            '& .MuiInputBase-input': {
+                              padding: '4px 8px !important',
+                              fontSize: '0.75rem',
+                            },
+                            '& .MuiInputBase-input::placeholder': {
+                              fontSize: '0.65rem !important',
+                              opacity: 0.5,
+                            },
+                            '& fieldset': {
+                              borderWidth: '1px',
+                            }
+                          }
+                        },
+                        inputAdornment: {
+                          sx: {
+                            '& .MuiSvgIcon-root': {
+                              fontSize: '0.9rem',
+                            },
+                            '& button': {
+                              padding: '2px',
+                            }
+                          }
+                        },
+                        popper: {
+                          sx: {
+                            '& .MuiDateCalendar-root': {
+                              width: 240,
+                              height: 'auto',
+                            },
+                            '& .MuiPickersCalendarHeader-root': {
+                              paddingLeft: '8px',
+                              paddingRight: '8px',
+                            },
+                            '& .MuiDayCalendar-weekDayLabel': {
+                              width: 28,
+                              height: 28,
+                              fontSize: '0.65rem',
+                            },
+                            '& .MuiPickersDay-root': {
+                              width: 28,
+                              height: 28,
+                              fontSize: '0.7rem',
+                            },
+                            '& .MuiDayCalendar-slideTransition': {
+                              minHeight: 180,
+                            },
+                          }
+                        }
+                      }}
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                        mb: 0.5,
+                        lineHeight: 1,
+                        display: 'block',
+                      }}
+                    >
+                      End
+                    </Typography>
+                    <DatePicker
+                      value={tempEndDate}
+                      onChange={setTempEndDate}
+                      slotProps={{
+                        textField: {
+                          size: "small",
+                          fullWidth: true,
+                          placeholder: "DD/MM/YYYY",
+                          sx: {
+                            '& .MuiInputBase-root': {
+                              minHeight: '32px !important',
+                              height: '32px !important',
+                              fontSize: '0.75rem',
+                              borderRadius: '6px',
+                            },
+                            '& .MuiInputBase-input': {
+                              padding: '4px 8px !important',
+                              fontSize: '0.75rem',
+                            },
+                            '& .MuiInputBase-input::placeholder': {
+                              fontSize: '0.65rem !important',
+                              opacity: 0.5,
+                            },
+                            '& fieldset': {
+                              borderWidth: '1px',
+                            }
+                          }
+                        },
+                        inputAdornment: {
+                          sx: {
+                            '& .MuiSvgIcon-root': {
+                              fontSize: '0.9rem',
+                            },
+                            '& button': {
+                              padding: '2px',
+                            }
+                          }
+                        },
+                        popper: {
+                          sx: {
+                            '& .MuiDateCalendar-root': {
+                              width: 240,
+                              height: 'auto',
+                            },
+                            '& .MuiPickersCalendarHeader-root': {
+                              paddingLeft: '8px',
+                              paddingRight: '8px',
+                            },
+                            '& .MuiDayCalendar-weekDayLabel': {
+                              width: 28,
+                              height: 28,
+                              fontSize: '0.65rem',
+                            },
+                            '& .MuiPickersDay-root': {
+                              width: 28,
+                              height: 28,
+                              fontSize: '0.7rem',
+                            },
+                            '& .MuiDayCalendar-slideTransition': {
+                              minHeight: 180,
+                            },
+                          }
+                        }
+                      }}
+                    />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 0.5 }}>
+
+                    <Button
+                      fullWidth
+                      size="small"
+                      variant="contained"
+                      onClick={applyDateFilter}
+                      sx={{
+                        fontSize: { xs: '0.78rem', sm: '0.75rem' },
+                        fontWeight: 700,
+                        py: { xs: 1.5, sm: 1.3 },
+                        height: { xs: 42, sm: 40 },
+                        lineHeight: 1,
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+                        bgcolor: theme.palette.primary.main,
+                        color: theme.palette.primary.contrastText,
+                        '&:hover': {
+                          bgcolor: theme.palette.primary.dark,
+                          boxShadow: '0 5px 14px rgba(0,0,0,0.22)',
+                          transform: 'translateY(-1px)',
+                        },
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      Apply
+                    </Button>
                   </Box>
                 </Box>
               </LocalizationProvider>
@@ -1671,9 +1991,7 @@ const ListUsers = () => {
                 <Tabs value={tabValue} onChange={handleTabChange} variant={isMobile ? "fullWidth" : "standard"} sx={{ "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: { xs: "0.7rem", md: "0.85rem" }, minHeight: { xs: 42, md: 48 }, px: { xs: 1, md: 2 } }, "& .Mui-selected": { color: `${theme.palette.primary.main} !important` }, "& .MuiTabs-indicator": { bgcolor: theme.palette.primary.main } }}>
                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><ActiveIcon sx={{ color: "#22c55e", fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "Active" : "Active Users"}</span><Chip label={filteredActiveUsers.length} size="small" sx={{ bgcolor: alpha("#22c55e", 0.1), color: "#22c55e", fontWeight: 600, fontSize: "0.55rem", height: 16 }} /></Box>} />
                   <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><InactiveIcon sx={{ color: theme.palette.text.secondary, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "Inactive" : "Inactive Users"}</span><Chip label={filteredInactiveUsers.length} size="small" sx={{ bgcolor: alpha(theme.palette.text.secondary, 0.1), color: theme.palette.text.secondary, fontWeight: 600, fontSize: "0.55rem", height: 16 }} /></Box>} />
-                  <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><HistoryIcon sx={{ color: theme.palette.info.main, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "History" : "Plan History"}</span>
-                  {/* <Chip label={totalPayments} size="small" sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.main, fontWeight: 600, fontSize: "0.55rem", height: 16 }} /> */}
-                  </Box>} />
+                  <Tab label={<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 1 } }}><HistoryIcon sx={{ color: theme.palette.info.main, fontSize: { xs: 14, md: 16 } }} /><span>{isMobile ? "History" : "Plan History"}</span></Box>} />
                 </Tabs>
               </Box>
 
@@ -1683,11 +2001,11 @@ const ListUsers = () => {
               ) : (
                 <>
                   <TabPanel value={tabValue} index={0}>
-                    {filteredActiveUsers.length === 0 ? <EmptyState status="active users" icon={PersonIcon} theme={theme} /> : isMobile ? (<Box sx={{ px: 1 }}>{filteredActiveUsers.map((user) => (<UserCard key={user._id} user={user} onCardClick={handleRowClick} theme={theme} />))}</Box>) : (<UserTable users={filteredActiveUsers} onRowClick={handleRowClick} theme={theme} isMobile={isMobile} isTablet={isTablet} />)}
+                    {filteredActiveUsers.length === 0 ? <EmptyState status="active users" icon={PersonIcon} theme={theme} /> : isMobile ? (<Box sx={{ px: 1 }}>{filteredActiveUsers.map((user) => (<UserCard key={user._id} user={user} onCardClick={handleRowClick} theme={theme} />))}</Box>) : (<UserTable users={filteredActiveUsers} onRowClick={handleRowClick} theme={theme} isMobile={isMobile} isTablet={isTablet} sortOrder={sortOrder} onSortChange={handleSortChange} />)}
                   </TabPanel>
 
                   <TabPanel value={tabValue} index={1}>
-                    {filteredInactiveUsers.length === 0 ? <EmptyState status="inactive users" icon={PersonIcon} theme={theme} /> : isMobile ? (<Box sx={{ px: 1 }}>{filteredInactiveUsers.map((user) => (<UserCard key={user._id} user={user} onCardClick={handleRowClick} theme={theme} />))}</Box>) : (<UserTable users={filteredInactiveUsers} onRowClick={handleRowClick} theme={theme} isMobile={isMobile} isTablet={isTablet} />)}
+                    {filteredInactiveUsers.length === 0 ? <EmptyState status="inactive users" icon={PersonIcon} theme={theme} /> : isMobile ? (<Box sx={{ px: 1 }}>{filteredInactiveUsers.map((user) => (<UserCard key={user._id} user={user} onCardClick={handleRowClick} theme={theme} />))}</Box>) : (<UserTable users={filteredInactiveUsers} onRowClick={handleRowClick} theme={theme} isMobile={isMobile} isTablet={isTablet} sortOrder={sortOrder} onSortChange={handleSortChange} />)}
                   </TabPanel>
 
                   <TabPanel value={tabValue} index={2}>
