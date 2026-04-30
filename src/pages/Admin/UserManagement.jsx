@@ -3421,7 +3421,7 @@ const TabsSkeleton = ({ isMobile }) => {
 //   const userEmail = user.email;
 //   const userMobile = user.mobile_no;
 //   const userIsActive = user.isActive;
-  
+
 //   // Determine which date to show
 //   const getDisplayDate = () => {
 //     if (role_id === 2) {
@@ -3432,10 +3432,10 @@ const TabsSkeleton = ({ isMobile }) => {
 //       return user.lastStartTime || user.registeredDate || user.createdAt || user.createdAt;
 //     }
 //   };
-  
+
 //   const displayDate = getDisplayDate();
 //   const dateLabel = role_id === 2 ? "Joined" : "Last Check-in";
-  
+
 //   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
 //   const userAvatar = user.avtar || user.profileImage;
 
@@ -3729,7 +3729,7 @@ const UserCard = ({
   const userEmail = user.email;
   const userMobile = user.mobile_no;
   const userIsActive = user.isActive;
-  
+
   // Determine which date to show - REMOVED registration date fallback
   const getDisplayDate = () => {
     if (role_id === 2) {
@@ -3740,10 +3740,10 @@ const UserCard = ({
       return user.lastStartTime || null;
     }
   };
-  
+
   const displayDate = getDisplayDate();
   const dateLabel = role_id === 2 ? "Joined" : "Last Check-in";
-  
+
   const userCreatedAt = user.createdAt || user.registeredDate || user.createdAt;
   const userAvatar = user.avtar || user.profileImage;
 
@@ -4128,7 +4128,7 @@ const UserCard = ({
 
 //     return cols;
 //   };
-  
+
 //   // Check if no users available
 //   if (!users || users.length === 0) {
 //     return (
@@ -4597,7 +4597,7 @@ const ResponsiveTable = ({
 
     return cols;
   };
-  
+
   // Check if no users available
   if (!users || users.length === 0) {
     return (
@@ -4856,15 +4856,15 @@ const ResponsiveTable = ({
                   )}
                   {isSuperAdmin ? (
                     <>
-                      <TableCell sx={{ 
-                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                      <TableCell sx={{
+                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' },
                         color: !displayDate ? 'error.main' : 'text.secondary',
                         fontWeight: !displayDate ? 500 : 400
                       }}>
                         {displayDate ? moment(displayDate).format('MMM D, YYYY') : "---"}
                       </TableCell>
-                      <TableCell sx={{ 
-                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                      <TableCell sx={{
+                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' },
                         color: !planExpiryDate ? 'error.main' : 'text.secondary',
                         fontWeight: !planExpiryDate ? 500 : 400
                       }}>
@@ -4872,8 +4872,8 @@ const ResponsiveTable = ({
                       </TableCell>
                     </>
                   ) : (
-                    <TableCell sx={{ 
-                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' }, 
+                    <TableCell sx={{
+                      fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.75rem' },
                       color: !displayDate ? 'error.main' : 'text.secondary',
                       fontWeight: !displayDate ? 500 : 400
                     }}>
@@ -5493,52 +5493,6 @@ const UserManagement = () => {
     }
   };
 
-  // const handleDownloadPDF = async () => {
-  //   const doc = new jsPDF();
-  //   doc.setFontSize(18);
-  //   doc.setTextColor(theme.palette.primary.main);
-  //   doc.setFont(undefined, "bold");
-  //   doc.text("Team Trackify", 105, 15, { align: "center" });
-  //   doc.setFontSize(16);
-  //   doc.setTextColor(0, 0, 0);
-  //   doc.text("User List Report", 105, 30, { align: "center" });
-  //   doc.setFontSize(10);
-  //   doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 40, { align: "center" });
-
-  //   const tableColumn = role_id === 2
-  //     ? ["Name", "Email", "Mobile No", "Status", "Joined Date"]
-  //     : ["Name", "Email", "Status", "Joined Date"];
-
-  //   const tableRows = (usersList || []).map((user) => {
-  //     if (role_id === 2) {
-  //       return [
-  //         user.name || "N/A",
-  //         user.email || "N/A",
-  //         user.mobile_no || "N/A",
-  //         user.isActive ? "Active" : "Inactive",
-  //         user.createdAt ? moment(user.createdAt).format("MMM D, YYYY") : "N/A",
-  //       ];
-  //     } else {
-  //       return [
-  //         user.name || "N/A",
-  //         user.email || "N/A",
-  //         user.isActive ? "Active" : "Inactive",
-  //         user.registeredDate || user.createdAt ? moment(user.registeredDate || user.createdAt).format("MMM D, YYYY") : "N/A",
-  //       ];
-  //     }
-  //   });
-
-  //   autoTable(doc, {
-  //     head: [tableColumn],
-  //     body: tableRows,
-  //     startY: 50,
-  //     styles: { fontSize: 9, cellPadding: 3 },
-  //     headStyles: { fillColor: [37, 99, 235], textColor: 255 },
-  //     alternateRowStyles: { fillColor: [240, 240, 240] },
-  //   });
-
-  //   doc.save(`users-${new Date().toISOString().split("T")[0]}.pdf`);
-  // };
   const handleDownloadPDF = async () => {
     // Get the currently displayed users based on tab (Active/Inactive) and filters
     const currentDisplayUsers = tabValue === 0 ? activeUsers : inactiveUsers;
@@ -6012,104 +5966,27 @@ const UserManagement = () => {
         </Box>
       </Box>
 
-      {/* Search and Filters */}
-      {/* <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 1.5, sm: 1.5 },
-          mb: { xs: 2, sm: 2.5 },
-          borderRadius: { xs: 2, sm: 2.5 },
-          border: '1px solid',
-          borderColor: alpha(theme.palette.primary.main, 0.1),
-        }}
-      >
-        <Grid container spacing={1.5} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              placeholder={`Search ${role_id === 1 ? 'users' : 'organizations'}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: { xs: 2, sm: 2.5 },
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                  height: 38,
-                },
-              }}
-            />
-          </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Box sx={{
-              display: 'flex',
-              gap: 1,
-              justifyContent: { xs: 'flex-start', md: 'flex-end' },
-              flexWrap: 'wrap'
-            }}>
-              <Button
-                variant="outlined"
-                startIcon={<CalendarIcon sx={{ fontSize: 16 }} />}
-                onClick={handleDateFilterClick}
-                size="small"
-                sx={{
-                  borderColor: alpha(theme.palette.divider, 0.5),
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  height: 34,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                  },
-                }}
-              >
-                Date Filter
-              </Button>
-
-              <Button
-                variant="outlined"
-                startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />}
-                onClick={handleSort}
-                size="small"
-                sx={{
-                  borderColor: alpha(theme.palette.divider, 0.5),
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  height: 34,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                  },
-                }}
-              >
-                Joined Date
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper> */}
       {/* Search and Filters */}
+
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 1.5, sm: 1.5 },
+          p: { xs: 1.2, sm: 1.5 },
           mb: { xs: 2, sm: 2.5 },
           borderRadius: { xs: 2, sm: 2.5 },
           border: '1px solid',
           borderColor: alpha(theme.palette.primary.main, 0.1),
         }}
       >
-        <Grid container spacing={1.5} alignItems="center">
-          <Grid item xs={12} md={6}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: { xs: 1.2, sm: 1.5 },
+        }}>
+          {/* Search Field - takes all available space */}
+          <Box sx={{ flex: 1 }}>
             <TextField
               fullWidth
               placeholder={`Search ${role_id === 1 ? 'users' : 'organizations'}...`}
@@ -6119,10 +5996,9 @@ const UserManagement = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
+                    <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 18, sm: 20 } }} />
                   </InputAdornment>
                 ),
-                // Add clear button inside search field
                 endAdornment: searchQuery && (
                   <InputAdornment position="end">
                     <IconButton
@@ -6139,86 +6015,67 @@ const UserManagement = () => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: { xs: 2, sm: 2.5 },
                   bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                  height: 38,
+                  fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                  height: { xs: 42, sm: 46 },
                 },
               }}
             />
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={6}>
-            <Box sx={{
-              display: 'flex',
-              gap: 1,
-              justifyContent: { xs: 'flex-start', md: 'flex-end' },
-              flexWrap: 'wrap'
-            }}>
-                 {/* ADD THIS CLEAR ALL BUTTON */}
-              {/* {(searchQuery || startDate || endDate || tabValue !== 0) && ( */}
-              {(searchQuery || startDate || endDate ) && (
-                <Button
-                  variant="contained"
-                  startIcon={<CancelIcon sx={{ fontSize: 16 }} />}
-                  onClick={handleClearAllFilters}
-                  size="small"
-                  sx={{
-                    bgcolor: '#ef4444',
-                    '&:hover': {
-                      bgcolor: '#dc2626',
-                    },
-                    fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                    height: 34,
-                    px: 2,
-                  }}
-                >
-                  Clear All Filters
-                </Button>
-              )}
+          {/* Buttons Row */}
+          <Box sx={{
+            display: 'flex',
+            gap: 1,
+            flexShrink: 0,
+            flexWrap: 'wrap',
+            justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+            alignItems: 'center',
+          }}>
+            {(searchQuery || startDate || endDate) && (
               <Button
-                variant="outlined"
-                startIcon={<CalendarIcon sx={{ fontSize: 16 }} />}
-                onClick={handleDateFilterClick}
+                variant="contained"
+                startIcon={<CancelIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                onClick={handleClearAllFilters}
                 size="small"
                 sx={{
-                  borderColor: alpha(theme.palette.divider, 0.5),
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  height: 34,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                  },
+                  bgcolor: '#ef4444',
+                  '&:hover': { bgcolor: '#dc2626' },
+                  fontSize: { xs: '0.62rem', sm: '0.7rem' },
+                  height: { xs: 36, sm: 38 },
+                  px: { xs: 1.5, sm: 2 },
+                  whiteSpace: 'nowrap',
                 }}
               >
-                Date Filter
+                Clear Filters
               </Button>
+            )}
 
-              <Button
-                variant="outlined"
-                startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />}
-                onClick={handleSort}
-                size="small"
-                sx={{
-                  borderColor: alpha(theme.palette.divider, 0.5),
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  height: 34,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                  },
-                }}
-              >
-                Joined Date
-              </Button>
-
-           
-            </Box>
-          </Grid>
-        </Grid>
+            <Button
+              variant="outlined"
+              startIcon={<CalendarIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+              onClick={handleDateFilterClick}
+              size="small"
+              sx={{
+                borderColor: alpha(theme.palette.divider, 0.5),
+                color: 'text.secondary',
+                fontSize: { xs: '0.62rem', sm: '0.7rem' },
+                height: { xs: 36, sm: 38 },
+                px: { xs: 1.5, sm: 2 },
+                whiteSpace: 'nowrap',
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                  color: theme.palette.primary.main,
+                },
+              }}
+            >
+              Date Filter
+            </Button>
+          </Box>
+        </Box>
       </Paper>
+
       {/* Date Filter Menu */}
-      <Menu
+      {/* <Menu
         anchorEl={dateFilterAnchor}
         open={Boolean(dateFilterAnchor)}
         onClose={handleDateFilterClose}
@@ -6343,49 +6200,225 @@ const UserManagement = () => {
               />
             </Box>
 
-            <Box sx={{
-              display: 'flex',
-              gap: 0.8,
-              justifyContent: 'flex-end',
-              mt: 0.5,
-            }}>
-              <Button
-                size="small"
-                onClick={clearDateFilter}
-                sx={{
-                  fontSize: '0.68rem',
-                  fontWeight: 700,
-                  minWidth: 'auto',
-                  px: 1.8,
-                  py: 0.6,
-                  lineHeight: 1,
-                  color: 'text.primary',
-                  textTransform: 'none',
-                  border: '1.5px solid',
-                  borderColor: 'divider',
-                  borderRadius: '8px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                    borderColor: 'text.primary',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-                  }
-                }}
-              >
-                Clear
-              </Button>
+           
 
+            <Box sx={{ mt: { xs: 0.5, sm: 0.3 } }}>
               <Button
+                fullWidth
                 size="small"
                 variant="contained"
-                disableElevation={false}
                 onClick={applyDateFilter}
                 sx={{
-                  fontSize: '0.7rem',
+                  fontSize: { xs: '0.78rem', sm: '0.75rem' },
                   fontWeight: 700,
-                  minWidth: 'auto',
-                  px: 2.5,
-                  py: 0.7,
+                  py: { xs: 1.5, sm: 1.3 },
+                  height: { xs: 42, sm: 40 },
+                  lineHeight: 1,
+                  textTransform: 'none',
+                  borderRadius: '8px',
+                  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                    boxShadow: '0 5px 14px rgba(0,0,0,0.22)',
+                    transform: 'translateY(-1px)',
+                  },
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Apply
+              </Button>
+            </Box>
+          </Box>
+        </LocalizationProvider>
+      </Menu> */}
+      <Menu
+        anchorEl={dateFilterAnchor}
+        open={Boolean(dateFilterAnchor)}
+        onClose={handleDateFilterClose}
+        PaperProps={{
+          sx: {
+            p: 2,
+            width: { xs: 240, sm: 270 },          // ① slightly narrower
+            borderRadius: { xs: 2, sm: 3 },
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            border: '1px solid',
+            borderColor: alpha(theme.palette.primary.main, 0.1),
+          },
+        }}
+      >
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5,
+            p: 0.5,
+            minWidth: 180,                          // ① match narrower menu
+          }}>
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  mb: 0.2,
+                  lineHeight: 1,
+                  display: 'block',
+                }}
+              >
+                Start
+              </Typography>
+              <DatePicker
+                value={startDate}
+                onChange={setStartDate}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    fullWidth: true,
+                    placeholder: "Start",
+                    sx: {
+                      '& .MuiInputBase-root': {
+                        height: 18,                 // ② reduced from 22
+                        fontSize: '0.65rem',        // ② slightly smaller text
+                        borderRadius: '4px',
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '1px 5px !important', // ② tighter padding
+                      },
+                      '& .MuiInputBase-input::placeholder': {
+                        fontSize: '0.6rem',
+                        opacity: 0.6,
+                      },
+                      '& fieldset': {
+                        borderWidth: '1px',
+                      }
+                    }
+                  },
+                  inputAdornment: {
+                    sx: {
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '0.8rem',         // ② smaller calendar icon
+                      }
+                    }
+                  },
+                  popper: {                          // ③ shrink the calendar popup
+                    sx: {
+                      '& .MuiDateCalendar-root': {
+                        width: 240,
+                        height: 'auto',
+                      },
+                      '& .MuiPickersCalendarHeader-root': {
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
+                      },
+                      '& .MuiDayCalendar-weekDayLabel': {
+                        width: 28,
+                        height: 28,
+                        fontSize: '0.65rem',
+                      },
+                      '& .MuiPickersDay-root': {
+                        width: 28,
+                        height: 28,
+                        fontSize: '0.7rem',
+                      },
+                      '& .MuiDayCalendar-slideTransition': {
+                        minHeight: 180,
+                      },
+                    }
+                  }
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  mb: 0.2,
+                  lineHeight: 1,
+                  display: 'block',
+                }}
+              >
+                End
+              </Typography>
+              <DatePicker
+                value={endDate}
+                onChange={setEndDate}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    fullWidth: true,
+                    placeholder: "End",
+                    sx: {
+                      '& .MuiInputBase-root': {
+                        height: 18,                 // ② reduced from 22
+                        fontSize: '0.65rem',
+                        borderRadius: '4px',
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '1px 5px !important', // ② tighter padding
+                      },
+                      '& .MuiInputBase-input::placeholder': {
+                        fontSize: '0.6rem',
+                        opacity: 0.6,
+                      },
+                      '& fieldset': {
+                        borderWidth: '1px',
+                      }
+                    }
+                  },
+                  inputAdornment: {
+                    sx: {
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '0.8rem',         // ② smaller calendar icon
+                      }
+                    }
+                  },
+                  popper: {                          // ③ shrink the calendar popup
+                    sx: {
+                      '& .MuiDateCalendar-root': {
+                        width: 240,
+                        height: 'auto',
+                      },
+                      '& .MuiPickersCalendarHeader-root': {
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
+                      },
+                      '& .MuiDayCalendar-weekDayLabel': {
+                        width: 28,
+                        height: 28,
+                        fontSize: '0.65rem',
+                      },
+                      '& .MuiPickersDay-root': {
+                        width: 28,
+                        height: 28,
+                        fontSize: '0.7rem',
+                      },
+                      '& .MuiDayCalendar-slideTransition': {
+                        minHeight: 180,
+                      },
+                    }
+                  }
+                }}
+              />
+            </Box>
+
+            <Box sx={{ mt: { xs: 0.5, sm: 0.3 } }}>
+              <Button
+                fullWidth
+                size="small"
+                variant="contained"
+                onClick={applyDateFilter}
+                sx={{
+                  fontSize: { xs: '0.78rem', sm: '0.75rem' },
+                  fontWeight: 700,
+                  py: { xs: 1.5, sm: 1.3 },
+                  height: { xs: 42, sm: 40 },
                   lineHeight: 1,
                   textTransform: 'none',
                   borderRadius: '8px',
@@ -6406,7 +6439,6 @@ const UserManagement = () => {
           </Box>
         </LocalizationProvider>
       </Menu>
-
       {/* Tabs */}
       <Paper
         elevation={0}
