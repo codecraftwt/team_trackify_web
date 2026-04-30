@@ -323,15 +323,6 @@ const Login = () => {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      disabled={isLoading}
-                      style={{ accentColor: theme.palette.primary.main, marginRight: '6px', width: '14px', height: '14px' }}
-                    />
-                    <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-                      Remember me
-                    </Typography>
                   </Box>
                   <Link to="/forgot-password" style={{ color: theme.palette.primary.main, textDecoration: 'none', fontSize: isMobile ? '0.7rem' : '0.75rem', fontWeight: 500 }}>
                     Forgot password?
