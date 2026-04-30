@@ -3407,59 +3407,128 @@ const Locations = () => {
     }
   }, [selectedDate, fetchSessionsForDate]);
 
+  // const getStartEndFromPhotos = useCallback((session) => {
+  //   if (!session) return { startPoint: null, endPoint: null };
+  //   const stats = getSessionStats(session);
+  //   const locs = getValidLocations(stats.locations);
+  //   const photos = (session.photos || []).filter(
+  //     (p) => hasValidPhoto(p) && p.location && hasValidCoordinates(p.location)
+  //   );
+  //   const sortedPhotos = photos.length > 0
+  //     ? [...photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+  //     : [];
+
+  //   let sp = locs.length > 0 ? {
+  //     lat: getLat(locs[0]),
+  //     lng: getLng(locs[0]),
+  //     timestamp: locs[0].timestamp || locs[0].time || locs[0].createdAt,
+  //     address: getAddress(locs[0]),
+  //   } : null;
+
+  //   let ep = locs.length > 1 ? {
+  //     lat: getLat(locs[locs.length - 1]),
+  //     lng: getLng(locs[locs.length - 1]),
+  //     timestamp: locs[locs.length - 1].timestamp || locs[locs.length - 1].time || locs[locs.length - 1].createdAt,
+  //     address: getAddress(locs[locs.length - 1]),
+  //   } : (locs.length === 1 ? { ...sp } : null);
+
+  //   if (sortedPhotos.length > 0) {
+  //     const firstPhoto = sortedPhotos[0];
+  //     const lastPhoto = sortedPhotos[sortedPhotos.length - 1];
+
+  //     if (!sp || new Date(firstPhoto.timestamp) <= new Date(sp.timestamp)) {
+  //       sp = { lat: getLat(firstPhoto.location), lng: getLng(firstPhoto.location), timestamp: firstPhoto.timestamp, address: firstPhoto.address, photo: firstPhoto.url };
+  //     } else {
+  //       if (isSameLatLng(getLat(firstPhoto.location), getLng(firstPhoto.location), sp.lat, sp.lng)) {
+  //         sp.photo = firstPhoto.url;
+  //       }
+  //     }
+
+  //     if (checkIsActive(session)) {
+  //       if (ep) {
+  //         if (new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) ep.photo = lastPhoto.url;
+  //       } else if (lastPhoto) {
+  //         ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
+  //       }
+  //     } else {
+  //       if (!ep || new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) {
+  //         ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
+  //       }
+  //     }
+  //   }
+
+  //   return { startPoint: sp, endPoint: ep };
+  // }, []);
+
+
   const getStartEndFromPhotos = useCallback((session) => {
-    if (!session) return { startPoint: null, endPoint: null };
-    const stats = getSessionStats(session);
-    const locs = getValidLocations(stats.locations);
-    const photos = (session.photos || []).filter(
-      (p) => hasValidPhoto(p) && p.location && hasValidCoordinates(p.location)
-    );
-    const sortedPhotos = photos.length > 0
-      ? [...photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      : [];
+  if (!session) return { startPoint: null, endPoint: null };
+  const stats = getSessionStats(session);
+  const locs = getValidLocations(stats.locations);
+  const photos = (session.photos || []).filter(
+    (p) => hasValidPhoto(p) && p.location && hasValidCoordinates(p.location)
+  );
+  const sortedPhotos = photos.length > 0
+    ? [...photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    : [];
 
-    let sp = locs.length > 0 ? {
-      lat: getLat(locs[0]),
-      lng: getLng(locs[0]),
-      timestamp: locs[0].timestamp || locs[0].time || locs[0].createdAt,
-      address: getAddress(locs[0]),
-    } : null;
+  // Start with location-based start point (fallback)
+  let sp = locs.length > 0 ? {
+    lat: getLat(locs[0]),
+    lng: getLng(locs[0]),
+    timestamp: locs[0].timestamp || locs[0].time || locs[0].createdAt,
+    address: getAddress(locs[0]),
+  } : null;
 
-    let ep = locs.length > 1 ? {
-      lat: getLat(locs[locs.length - 1]),
-      lng: getLng(locs[locs.length - 1]),
-      timestamp: locs[locs.length - 1].timestamp || locs[locs.length - 1].time || locs[locs.length - 1].createdAt,
-      address: getAddress(locs[locs.length - 1]),
-    } : (locs.length === 1 ? { ...sp } : null);
+  let ep = locs.length > 1 ? {
+    lat: getLat(locs[locs.length - 1]),
+    lng: getLng(locs[locs.length - 1]),
+    timestamp: locs[locs.length - 1].timestamp || locs[locs.length - 1].time || locs[locs.length - 1].createdAt,
+    address: getAddress(locs[locs.length - 1]),
+  } : (locs.length === 1 ? { ...sp } : null);
 
-    if (sortedPhotos.length > 0) {
-      const firstPhoto = sortedPhotos[0];
-      const lastPhoto = sortedPhotos[sortedPhotos.length - 1];
+  if (sortedPhotos.length > 0) {
+    const firstPhoto = sortedPhotos[0];  // 0th index photo
+    const lastPhoto = sortedPhotos[sortedPhotos.length - 1];
 
-      if (!sp || new Date(firstPhoto.timestamp) <= new Date(sp.timestamp)) {
-        sp = { lat: getLat(firstPhoto.location), lng: getLng(firstPhoto.location), timestamp: firstPhoto.timestamp, address: firstPhoto.address, photo: firstPhoto.url };
-      } else {
-        if (isSameLatLng(getLat(firstPhoto.location), getLng(firstPhoto.location), sp.lat, sp.lng)) {
-          sp.photo = firstPhoto.url;
-        }
+    // ✅ ALWAYS use the first photo as the start point (0th index)
+    // Override sp with first photo's location
+    sp = { 
+      lat: getLat(firstPhoto.location), 
+      lng: getLng(firstPhoto.location), 
+      timestamp: firstPhoto.timestamp, 
+      address: firstPhoto.address || getAddress(firstPhoto.location), 
+      photo: firstPhoto.url 
+    };
+
+    // Handle end point based on session status
+    if (checkIsActive(session)) {
+      // For active sessions: use last photo for end point if available
+      if (lastPhoto) {
+        ep = { 
+          lat: getLat(lastPhoto.location), 
+          lng: getLng(lastPhoto.location), 
+          timestamp: lastPhoto.timestamp, 
+          address: lastPhoto.address || getAddress(lastPhoto.location), 
+          photo: lastPhoto.url 
+        };
       }
-
-      if (checkIsActive(session)) {
-        if (ep) {
-          if (new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) ep.photo = lastPhoto.url;
-        } else if (lastPhoto) {
-          ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
-        }
-      } else {
-        if (!ep || new Date(lastPhoto.timestamp) >= new Date(ep.timestamp)) {
-          ep = { lat: getLat(lastPhoto.location), lng: getLng(lastPhoto.location), timestamp: lastPhoto.timestamp, address: lastPhoto.address, photo: lastPhoto.url };
-        }
+    } else {
+      // For completed sessions: use last photo as end point
+      if (lastPhoto) {
+        ep = { 
+          lat: getLat(lastPhoto.location), 
+          lng: getLng(lastPhoto.location), 
+          timestamp: lastPhoto.timestamp, 
+          address: lastPhoto.address || getAddress(lastPhoto.location), 
+          photo: lastPhoto.url 
+        };
       }
     }
+  }
 
-    return { startPoint: sp, endPoint: ep };
-  }, []);
-
+  return { startPoint: sp, endPoint: ep };
+}, []);
   const buildSessionPhotos = useCallback((session) => {
     if (!session) return [];
     const { startPoint: sp, endPoint: ep } = getStartEndFromPhotos(session);
