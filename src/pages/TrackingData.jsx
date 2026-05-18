@@ -925,6 +925,47 @@ const TrackingData = () => {
     }
   `;
 
+
+  // Title Trim
+
+  // Add this helper function before your component or inside it
+  const cleanRemark = (remark) => {
+    if (!remark || typeof remark !== 'string') return "Session";
+
+    // Split by dash and filter out empty/duplicate consecutive values
+    const parts = remark.split('-').map(part => part.trim()).filter(part => part !== '');
+
+    // Remove consecutive duplicates
+    const uniqueParts = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (i === 0 || parts[i] !== parts[i - 1]) {
+        uniqueParts.push(parts[i]);
+      }
+    }
+
+    return uniqueParts.join(' - ');
+  };
+
+  // Alternative simpler version - just take first and last part
+  const cleanRemarkSimple = (remark) => {
+    if (!remark || typeof remark !== 'string') return "Session";
+
+    const parts = remark.split('-').map(part => part.trim()).filter(part => part !== '');
+
+    if (parts.length <= 2) return remark;
+
+    // Keep first and last part only (removes middle duplicates)
+    return `${parts[0]} - ${parts[parts.length - 1]}`;
+  };
+
+  // Alternative: Remove duplicate consecutive words
+  const cleanRemarkAdvanced = (remark) => {
+    if (!remark || typeof remark !== 'string') return "Session";
+
+    // Remove exact duplicate consecutive phrases
+    return remark.replace(/\s*-\s*([^-]+?)\s*-\s*\1(?=\s*-|\s*$)/gi, ' - $1');
+  };
+
   return (
     <div className="min-vh-100" style={{ background: alpha(theme.palette.background.default, 1) }}>
       <style>{blinkKeyframes}</style>
@@ -1333,12 +1374,24 @@ const TrackingData = () => {
                               <FaRoute size={14} style={{ color: isActive ? theme.palette.success.main : theme.palette.primary.main }} />
                             </div>
                             <div>
-                              <h6
+                              {/* <h6
                                 className="fw-semibold mb-0"
                                 style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
                               >
                                 {item.remark || "Session"}
-                              </h6>
+                              </h6> */}
+                              <h6
+  className="fw-semibold mb-0"
+  style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
+>
+  {(() => {
+    const remark = item.remark || "Session";
+    // Remove consecutive duplicates
+    const parts = remark.split('-').map(p => p.trim()).filter(p => p);
+    const cleaned = parts.filter((p, i, arr) => i === 0 || p !== arr[i-1]).join(' - ');
+    return cleaned;
+  })()}
+</h6>
                             </div>
                           </div>
 
