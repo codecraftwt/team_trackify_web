@@ -668,10 +668,7 @@ const ExpiringPlansTable = ({ data = [] }) => {
                         Price:
                       </Typography>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.2 }}>
-                        <MoneyIcon sx={{
-                          color: theme.palette.primary.main,
-                          fontSize: { xs: 8, sm: 10, md: 12 }
-                        }} />
+                       
                         <Typography
                           variant="body2"
                           fontWeight={500}
