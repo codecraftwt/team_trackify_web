@@ -747,6 +747,7 @@ import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
   LocalOffer as CouponIcon,
+   CurrencyRupee as CurrencyRupeeIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -1098,7 +1099,7 @@ const RevenueManagement = () => {
         {/* Stats Cards */}
         <Grid container spacing={{ xs: 1.5, md: 2 }} sx={{ mb: 3 }}>
           {[
-            { icon: MoneyIcon, value: `₹${totalCompletedAmount?.toLocaleString("en-IN")}`, label: "Total Revenue", accent: theme.palette.primary.main },
+            { icon: CurrencyRupeeIcon, value: `₹${totalCompletedAmount?.toLocaleString("en-IN")}`, label: "Total Revenue", accent: theme.palette.primary.main },
             { icon: PeopleIcon, value: numberOfPaidUsers, label: "Paid Users", accent: "#10b981" },
             { icon: PlanIcon, value: `${totalPlanCount} Plans`, label: `₹${totalPlanAmount?.toLocaleString("en-IN")}`, accent: "#3b82f6" },
             { icon: AddonIcon, value: `${totalAddOnCount} Add-ons`, label: `₹${totalAddOnAmount?.toLocaleString("en-IN")}`, accent: "#8b5cf6" },
