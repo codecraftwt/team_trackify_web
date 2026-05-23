@@ -720,6 +720,7 @@ import {
   Redeem as RedeemIcon,
   Login as LoginIcon,
   ExitToApp as ExitToAppIcon,
+   CurrencyRupee as CurrencyRupeeIcon,
 } from '@mui/icons-material';
 import { logout, stopImpersonation } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
@@ -946,7 +947,7 @@ const { userInfo } = useSelector((state) => state.user);
   const superAdminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
-    { text: 'Revenue Analytics', icon: <MoneyIcon />, path: '/super-admin/revenue' },
+    { text: 'Revenue Analytics', icon: <CurrencyRupeeIcon />, path: '/super-admin/revenue' },
     { text: 'Coupon Management', icon: <RedeemIcon  />, path: '/super-admin/couponmanagment' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },

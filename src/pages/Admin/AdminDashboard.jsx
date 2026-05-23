@@ -2805,7 +2805,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                         }
                       })
                     }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.3 }}>
+                      {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.3 }}>
                         <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: '#22c55e' }}>
                           +{addOn.addOnMaxUser} users
                         </Typography>
@@ -2820,7 +2820,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
                             color: idx === 0 ? theme.palette.primary.main : '#22c55e'
                           }}
                         />
-                      </Box>
+                      </Box> */}
                       <Typography sx={{ fontSize: '0.55rem', fontWeight: 600, color: 'text.primary' }}>
                         ₹{addOn.addOnAmount}
                         {addOn.addOnDiscountAmount > 0 && (
