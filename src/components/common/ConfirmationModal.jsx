@@ -1,4 +1,3 @@
-// src/components/common/ConfirmationModal.jsx
 import React, { Fragment } from 'react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 

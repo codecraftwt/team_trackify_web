@@ -54,7 +54,7 @@ const SearchFilter = ({
   const theme = useTheme();
   const isMobileScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isTabletScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -84,7 +84,7 @@ const SearchFilter = ({
 
   const today = new Date();
   today.setHours(23, 59, 59, 999);
-  
+
   const handleClear = () => {
     setLocalStartDate(null);
     setLocalEndDate(null);
@@ -164,7 +164,7 @@ const SearchFilter = ({
 
   const renderSortMenuItems = () => (
     <>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("date", "desc")}
         selected={sortBy === "date" && sortOrder === "desc"}
         sx={{
@@ -177,7 +177,7 @@ const SearchFilter = ({
           <ArrowDownwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("date", "asc")}
         selected={sortBy === "date" && sortOrder === "asc"}
         sx={{
@@ -190,7 +190,7 @@ const SearchFilter = ({
           <ArrowUpwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("amount", "desc")}
         selected={sortBy === "amount" && sortOrder === "desc"}
         sx={{
@@ -203,7 +203,7 @@ const SearchFilter = ({
           <ArrowDownwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("amount", "asc")}
         selected={sortBy === "amount" && sortOrder === "asc"}
         sx={{
@@ -216,7 +216,7 @@ const SearchFilter = ({
           <ArrowUpwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("name", "asc")}
         selected={sortBy === "name" && sortOrder === "asc"}
         sx={{
@@ -229,7 +229,7 @@ const SearchFilter = ({
           <ArrowUpwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("name", "desc")}
         selected={sortBy === "name" && sortOrder === "desc"}
         sx={{
@@ -242,7 +242,7 @@ const SearchFilter = ({
           <ArrowDownwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("status", "asc")}
         selected={sortBy === "status" && sortOrder === "asc"}
         sx={{
@@ -255,7 +255,7 @@ const SearchFilter = ({
           <ArrowUpwardIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
         </Box>
       </MenuItem>
-      <MenuItem 
+      <MenuItem
         onClick={() => handleSortChange("status", "desc")}
         selected={sortBy === "status" && sortOrder === "desc"}
         sx={{
@@ -462,34 +462,6 @@ const SearchFilter = ({
             </Badge>
           </Box>
 
-          {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {totalAmount > 0 && (
-                <Chip
-                  label={`₹${totalAmount.toLocaleString("en-IN")}`}
-                  size="small"
-                  sx={{
-                    bgcolor: alpha(theme.palette.success.main, 0.1),
-                    color: theme.palette.success.main,
-                    fontWeight: 600,
-                    fontSize: '0.65rem',
-                    height: 28,
-                  }}
-                />
-              )}
-              <Chip
-                label={`${resultsCount} ${resultsCount === 1 ? 'result' : 'results'}`}
-                size="small"
-                sx={{
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                  color: theme.palette.primary.main,
-                  fontWeight: 600,
-                  fontSize: '0.65rem',
-                  height: 28,
-                }}
-              />
-            </Box>
-          </Box> */}
         </Paper>
 
         <Drawer
@@ -559,16 +531,16 @@ const SearchFilter = ({
       }}
     >
       {/* First Row: Search and Filters */}
-      <Box sx={{ 
-        display: "flex", 
+      <Box sx={{
+        display: "flex",
         flexDirection: { xs: "column", sm: "row" },
         flexWrap: "wrap", // Allow wrapping
-        alignItems: "center", 
+        alignItems: "center",
         gap: 1.2,
         mb: { xs: 1.5, sm: 0 }
       }}>
         {/* Search - takes remaining space */}
-        <Box sx={{ 
+        <Box sx={{
           flex: { xs: "1 1 100%", sm: "2 1 200px" },
           minWidth: { xs: "100%", sm: "200px" }
         }}>
@@ -602,9 +574,9 @@ const SearchFilter = ({
             }}
           />
         </Box>
-        
+
         {/* Sort Button */}
-        <Box sx={{ 
+        <Box sx={{
           flex: { xs: "1 1 100%", sm: "0 1 auto" },
           minWidth: { xs: "100%", sm: "auto" }
         }}>
@@ -647,9 +619,9 @@ const SearchFilter = ({
         >
           {renderSortMenuItems()}
         </Menu>
-        
+
         {/* Date Range Button */}
-        <Box sx={{ 
+        <Box sx={{
           flex: { xs: "1 1 100%", sm: "0 1 auto" },
           minWidth: { xs: "100%", sm: "auto" }
         }}>
@@ -707,45 +679,6 @@ const SearchFilter = ({
           {renderDateFilterContent()}
         </Popover>
       </Box>
-
-      {/* Second Row: Results and Total (only visible on tablet when wrapped) */}
-      {/* <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'flex-end',
-        mt: { xs: 1.5, sm: 0 }
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {totalAmount > 0 && (
-            <Tooltip title="Total amount for current page" arrow>
-              <Chip
-                label={`₹${totalAmount.toLocaleString("en-IN")}`}
-                size="small"
-                sx={{
-                  bgcolor: alpha(theme.palette.success.main, 0.1),
-                  color: theme.palette.success.main,
-                  fontWeight: 600,
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  height: 28,
-                }}
-              />
-            </Tooltip>
-          )}
-          <Tooltip title="Number of records on current page" arrow>
-            <Chip
-              label={`${resultsCount} ${resultsCount === 1 ? 'result' : 'results'}`}
-              size="small"
-              sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-                fontWeight: 600,
-                fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                height: 28,
-              }}
-            />
-          </Tooltip>
-        </Box>
-      </Box> */}
     </Paper>
   );
 };

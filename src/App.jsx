@@ -34,7 +34,7 @@ import OrganizationDetails from './pages/SuperAdmin/OrganizationDetails';
 import RevenueAnalytics from './pages/SuperAdmin/RevenueManagement';
 import PlanManagement from './pages/SuperAdmin/PlanManagement';
 import ContactList from './pages/SuperAdmin/ContactList';
-import SuperAdminProfile from './pages/SuperAdmin/ProfileManagement';
+// import SuperAdminProfile from './pages/SuperAdmin/ProfileManagement';
 import TransactionHistory from './pages/Admin/TransactionHistory';
 import AddUser from './pages/Admin/component/AddUser';
 import ResetPasswordProfile from './components/common/ResetPasswordProfile.jsx';

@@ -3,10 +3,7 @@ import { motion } from 'framer-motion';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
-// import EmailIcon from '@mui/icons-material/Email';
 import InstagramIcon from '@mui/icons-material/Instagram';
-// import EmailIcon from '@mui/icons-material/Email';
-// import logoImage from '../../assets/Team-Trackify-logo.png';
 import logoImage from '../../assets/logo31.png';
 
 const Footer = () => {
@@ -37,22 +34,15 @@ const Footer = () => {
       label: 'InstagramIcon',
     },
     {
-      icon: <FacebookIcon  sx={{ fontSize: 20 }} />,
+      icon: <FacebookIcon sx={{ fontSize: 20 }} />,
       href: 'https://www.facebook.com/TeamTrackify',
       label: 'Facebook',
     },
     {
-      icon: <TwitterIcon  sx={{ fontSize: 20 }} />,
+      icon: <TwitterIcon sx={{ fontSize: 20 }} />,
       href: 'https://x.com/trackify87',
       label: 'Tweeter',
     },
-  
-
-    // {
-    //   icon: <EmailIcon sx={{ fontSize: 20 }} />,
-    //   href: 'mailto:walstarappdev@gmail.com',
-    //   label: 'Email',
-    // },
   ];
 
   const LinkColumn = ({ title, links, delay }) => (
@@ -253,8 +243,9 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Bottom bar */}
-          {/* <motion.div
+
+
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -274,8 +265,43 @@ const Footer = () => {
               color: '#6b7280',
               fontSize: 'clamp(0.68rem, 1.6vw, 0.8rem)',
               margin: 0,
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '4px',
             }}>
-              {currentYear} Designed byWalstar Media LLP& Developed byInstant Website Development
+              {currentYear} Designed by{' '}
+              <a
+                href="https://walstarmedia.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#6b7280',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
+              >
+                Walstar Media LLP
+              </a>
+              {' & Developed by '}
+              <a
+                href="https://instantwebsitedevelopment.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#6b7280',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
+              >
+                Instant Website Development
+              </a>
             </p>
 
             <Link
@@ -291,81 +317,7 @@ const Footer = () => {
             >
               Privacy Policy
             </Link>
-          </motion.div> */}
-        
-        <motion.div
-  initial={{ opacity: 0 }}
-  whileInView={{ opacity: 1 }}
-  viewport={{ once: true }}
-  transition={{ duration: 0.5, delay: 0.4 }}
-  style={{
-    borderTop: '1px solid rgba(255,255,255,0.08)',
-    marginTop: 'clamp(24px, 5vw, 40px)',
-    paddingTop: 'clamp(14px, 3vw, 22px)',
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 12,
-  }}
->
-  <p style={{
-    color: '#6b7280',
-    fontSize: 'clamp(0.68rem, 1.6vw, 0.8rem)',
-    margin: 0,
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: '4px',
-  }}>
-    {currentYear} Designed by{' '}
-    <a
-      href="https://walstarmedia.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        color: '#6b7280',
-        textDecoration: 'none',
-        fontWeight: 'bold',
-        transition: 'color 0.2s',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
-      onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
-    >
-      Walstar Media LLP
-    </a>
-    {' & Developed by '}
-    <a
-      href="https://instantwebsitedevelopment.in/"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        color: '#6b7280',
-        textDecoration: 'none',
-        fontWeight: 'bold',
-        transition: 'color 0.2s',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
-      onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
-    >
-      Instant Website Development
-    </a>
-  </p>
-
-  <Link
-    to="/privacypolicy"
-    style={{
-      color: '#6b7280',
-      textDecoration: 'none',
-      fontSize: 'clamp(0.68rem, 1.6vw, 0.8rem)',
-      transition: 'color 0.2s',
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
-    onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
-  >
-    Privacy Policy
-  </Link>
-</motion.div>
+          </motion.div>
 
         </div>
       </footer>
