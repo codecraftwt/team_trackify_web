@@ -6791,10 +6791,10 @@ const Locations = () => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
     const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
-    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 19 });
-    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 19 });
-    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 19 });
-    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 19 });
+    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 15.5 });
+    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 15.5 });
+    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 15.5 });
+    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 15.5 });
     const baseMaps = { "Roadmap": googleRoadmap, "Satellite": googleSatellite, "Hybrid": googleHybrid, "Terrain": googleTerrain };
     googleRoadmap.addTo(map);
     L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
@@ -6860,37 +6860,98 @@ const Locations = () => {
   const closeCalendar = () => { setShowCalendar(false); setCalendarAnchorEl(null); };
 
   // ─── Photo Carousel — now inside session panel (bottom of right col) ───────
-  const renderPhotoCarousel = () => {
-    if (!selectedSession || sessionPhotos.length === 0) return null;
-    return (
-      <Box sx={{ px: 1, pb: 1, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`, bgcolor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", flexShrink: 0, overflow: "hidden" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
-          <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-          <Typography variant="caption" sx={{ color: isDarkMode ? "rgba(255,255,255,0.8)" : "text.secondary", fontWeight: 600, fontSize: "10px" }}>
-            Photos ({sessionPhotos.length})
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 0.75, overflowX: "auto", overflowY: "hidden", pb: 0.5, "&::-webkit-scrollbar": { height: 3 }, "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 } }}>
-          {sessionPhotos.map((photo, index) => {
-            const isStart = photo.type === "start", isEnd = photo.type === "end";
-            const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
-            return (
-              <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
-                <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
-                  {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
-                </Box>
-                <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
-                  {fmtTime(photo.timestamp)}
-                </Typography>
-              </Box>
-            );
-          })}
-        </Box>
+  // const renderPhotoCarousel = () => {
+  //   if (!selectedSession || sessionPhotos.length === 0) return null;
+  //   return (
+  //     <Box sx={{ px: 1, pb: 1, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`, bgcolor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", flexShrink: 0, overflow: "hidden" }}>
+  //       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+  //         <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+  //         <Typography variant="caption" sx={{ color: isDarkMode ? "rgba(255,255,255,0.8)" : "text.secondary", fontWeight: 600, fontSize: "10px" }}>
+  //           Photos ({sessionPhotos.length})
+  //         </Typography>
+  //       </Box>
+  //       <Box sx={{ display: "flex", gap: 0.75, overflowX: "auto", overflowY: "hidden", pb: 0.5, "&::-webkit-scrollbar": { height: 3 }, "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 } }}>
+  //         {sessionPhotos.map((photo, index) => {
+  //           const isStart = photo.type === "start", isEnd = photo.type === "end";
+  //           const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+  //           return (
+  //             <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
+  //               <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  //               <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
+  //                 {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+  //               </Box>
+  //               <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
+  //                 {fmtTime(photo.timestamp)}
+  //               </Typography>
+  //             </Box>
+  //           );
+  //         })}
+  //       </Box>
+  //     </Box>
+  //   );
+  // };
+const renderPhotoCarousel = () => {
+  if (!selectedSession || sessionPhotos.length === 0) return null;
+  return (
+    <Box sx={{ px: 1, pb: 1, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`, bgcolor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", flexShrink: 0, overflow: "hidden" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+        <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+        <Typography variant="caption" sx={{ color: isDarkMode ? "rgba(255,255,255,0.8)" : "text.secondary", fontWeight: 600, fontSize: "10px" }}>
+          Photos ({sessionPhotos.length})
+        </Typography>
       </Box>
-    );
-  };
-
+      <Box 
+        className="photo-scroll-container"
+        sx={{ 
+          display: "flex", 
+          gap: 0.75, 
+          overflowX: "auto", 
+          overflowY: "hidden", 
+          pb: 1, 
+          cursor: "grab",
+          "&:active": { cursor: "grabbing" },
+          // Make scrollbar visible and stylish
+          "&::-webkit-scrollbar": { 
+            height: 8,
+            WebkitAppearance: "none"
+          },
+          "&::-webkit-scrollbar-track": { 
+            bgcolor: alpha(theme.palette.divider, 0.1),
+            borderRadius: 4,
+            margin: "0 4px"
+          },
+          "&::-webkit-scrollbar-thumb": { 
+            bgcolor: alpha("#FF9800", 0.5),
+            borderRadius: 4,
+            transition: "background 0.2s",
+            "&:hover": {
+              bgcolor: alpha("#FF9800", 0.7)
+            }
+          },
+          // Firefox scrollbar styling
+          scrollbarWidth: "thin",
+          scrollbarColor: `${alpha("#FF9800", 0.5)} ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
+        {sessionPhotos.map((photo, index) => {
+          const isStart = photo.type === "start", isEnd = photo.type === "end";
+          const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+          return (
+            <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
+              <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
+                {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+              </Box>
+              <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
+                {fmtTime(photo.timestamp)}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+};
   // ─── Photo Modal ───────────────────────────────────────────────────────────
   const renderPhotoModal = () => {
     if (!photoModalOpen || selectedPhotoIndex === null) return null;

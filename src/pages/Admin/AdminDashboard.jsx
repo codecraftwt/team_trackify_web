@@ -1095,9 +1095,257 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //   );
 // };
 
-const RecentActivities = ({ users, loading }) => {
-  // Show Address Also
+// const RecentActivities = ({ users, loading }) => {
+//   // Show Address Also
 
+//   const theme = useTheme();
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+//   if (loading) {
+//     return <RecentActivitiesSkeleton />;
+//   }
+
+//   if (!users || users.length === 0) {
+//     return <EmptyRecentActivities />;
+//   }
+
+//   // Sort users to show today's entries first, then all others
+//   const today = new Date().toISOString().split('T')[0];
+
+//   const sortedUsers = [...users].sort((a, b) => {
+//     const aDate = a.lastActive?.split('T')[0];
+//     const bDate = b.lastActive?.split('T')[0];
+
+//     const aIsToday = aDate === today;
+//     const bIsToday = bDate === today;
+
+//     // Today's entries come first
+//     if (aIsToday && !bIsToday) return -1;
+//     if (!aIsToday && bIsToday) return 1;
+
+//     // Then sort by date (newest first)
+//     return new Date(b.lastActive) - new Date(a.lastActive);
+//   });
+
+//   // Show all users (no limit)
+//   const displayUsers = sortedUsers;
+
+//   // Helper function to get display address
+//   // const getDisplayAddress = (activity) => {
+//   //   const address = activity.lastLocation?.address;
+//   //   if (address && address !== "Unknown Address" && address !== "Unknown") {
+//   //     return address;
+//   //   }
+//   //   // Show coordinates if address is missing
+//   //   if (activity.lastLocation?.latitude && activity.lastLocation?.longitude) {
+//   //     const lat = activity.lastLocation.latitude;
+//   //     const lng = activity.lastLocation.longitude;
+//   //     if (lat !== 0 && lng !== 0) {
+//   //       return `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+//   //     }
+//   //   }
+//   //   return "Place not available";
+//   // };
+// // Current code (lines ~750-766)
+// const getDisplayAddress = (activity) => {
+//   const address = activity.lastLocation?.address;
+//   if (address && address !== "Unknown Address" && address !== "Unknown") {
+//     return address;
+//   }
+//   // Show coordinates if address is missing ❌ This is what you DON'T want
+//   if (activity.lastLocation?.latitude && activity.lastLocation?.longitude) {
+//     const lat = activity.lastLocation.latitude;
+//     const lng = activity.lastLocation.longitude;
+//     if (lat !== 0 && lng !== 0) {
+//       return `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+//     }
+//   }
+//   return "Place not available";
+// };
+//   // Helper function to get status color
+//   const getStatusColor = (status) => {
+//     switch (status?.toLowerCase()) {
+//       case 'active':
+//         return 'success';
+//       case 'completed':
+//         return 'info';
+//       case 'inactive':
+//         return 'warning';
+//       default:
+//         return 'default';
+//     }
+//   };
+
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, y: 20 }}
+//       animate={{ opacity: 1, y: 0 }}
+//       transition={{ duration: 0.5, delay: 0.3 }}
+//     >
+//       <Paper
+//         elevation={0}
+//         sx={{
+//           p: { xs: 1.5, sm: 2, md: 2.5 },
+//           borderRadius: { xs: 2.5, sm: 3, md: 3.5 },
+//           border: "1px solid",
+//           borderColor: alpha(theme.palette.primary.main, 0.1),
+//           background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+//         }}
+//       >
+//         <Box sx={{
+//           display: "flex",
+//           flexDirection: { xs: 'column', sm: 'row' },
+//           justifyContent: "space-between",
+//           alignItems: { xs: 'flex-start', sm: 'center' },
+//           mb: { xs: 1.5, sm: 2 },
+//           gap: 0.8
+//         }}>
+//           <Typography variant="body1" fontWeight="600" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, color: theme.palette.primary.main }}>
+//             Recent Activities
+//           </Typography>
+//           <Chip
+//             label={`Total: ${displayUsers.length}`}
+//             size="small"
+//             sx={{
+//               bgcolor: alpha(theme.palette.primary.main, 0.1),
+//               color: theme.palette.primary.main,
+//               fontWeight: 500,
+//               fontSize: { xs: '0.6rem', sm: '0.65rem' },
+//               height: { xs: 22, sm: 24 },
+//             }}
+//           />
+//         </Box>
+
+//         <Stack spacing={1.5}>
+//           {displayUsers.map((activity, index) => {
+//             const activityDate = activity.lastActive?.split('T')[0];
+//             const isToday = activityDate === today;
+//             const displayAddress = getDisplayAddress(activity);
+//             const status = activity.status || "No action";
+//             const statusColor = getStatusColor(status);
+
+//             return (
+//               <motion.div
+//                 key={activity.userId || activity._id || index}
+//                 initial={{ opacity: 0, x: -20 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 transition={{ delay: Math.min(index * 0.05, 0.5) }}
+//               >
+//                 <Paper
+//                   elevation={0}
+//                   sx={{
+//                     p: { xs: 1.2, sm: 1.5 },
+//                     borderRadius: { xs: 1.5, sm: 2 },
+//                     bgcolor: alpha(theme.palette.primary.main, isToday ? 0.08 : 0.02),
+//                     border: "1px solid",
+//                     borderColor: isToday
+//                       ? alpha(theme.palette.primary.main, 0.3)
+//                       : alpha(theme.palette.primary.main, 0.1),
+//                     display: "flex",
+//                     alignItems: "flex-start",
+//                     flexDirection: { xs: 'column', sm: 'row' },
+//                     textAlign: { xs: 'center', sm: 'left' },
+//                     gap: { xs: 0.8, sm: 0 },
+//                     transition: "all 0.2s ease",
+//                     "&:hover": {
+//                       bgcolor: alpha(theme.palette.primary.main, isToday ? 0.12 : 0.05),
+//                       transform: !isMobile ? "translateX(4px)" : "none",
+//                       borderColor: alpha(theme.palette.primary.main, 0.4),
+//                     },
+//                   }}
+//                 >
+//                   <Avatar
+//                     sx={{
+//                       bgcolor: alpha(theme.palette.primary.main, isToday ? 0.3 : 0.2),
+//                       color: theme.palette.primary.main,
+//                       mr: { xs: 0, sm: 1.5 },
+//                       mb: { xs: 0.5, sm: 0 },
+//                       width: { xs: 36, sm: 40 },
+//                       height: { xs: 36, sm: 40 },
+//                       fontSize: '0.8rem',
+//                       fontWeight: 600,
+//                     }}
+//                   >
+//                     {activity.name?.charAt(0) || "U"}
+//                   </Avatar>
+
+//                   <Box sx={{ flex: 1, width: '100%' }}>
+
+//                     {/* Row 1: Name (left) + Status (right) */}
+//                     <Box sx={{
+//                       display: 'flex',
+//                       alignItems: 'center',
+//                       justifyContent: 'space-between',
+//                       mb: 0.4,
+//                     }}>
+//                       <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
+//                         {activity.name || "Unknown User"}
+//                       </Typography>
+
+//                       <Chip
+//                         label={status}
+//                         size="small"
+//                         color={statusColor}
+//                         sx={{
+//                           height: 20,
+//                           fontSize: '0.6rem',
+//                           fontWeight: 500,
+//                           '& .MuiChip-label': { px: 1, py: 0 }
+//                         }}
+//                       />
+//                     </Box>
+
+//                     {/* Row 2: Address */}
+//                     <Box sx={{ mb: 0.4 }}>
+//                       <Typography
+//                         variant="caption"
+//                         sx={{
+//                           fontSize: '0.65rem',
+//                           color: 'text.secondary',
+//                           display: 'flex',
+//                           alignItems: 'center',
+//                           gap: 0.5,
+//                           justifyContent: { xs: 'center', sm: 'flex-start' }
+//                         }}
+//                       >
+//                         <LocationOnIcon sx={{ fontSize: '0.7rem', opacity: 0.7 }} />
+//                         {displayAddress}
+//                       </Typography>
+//                     </Box>
+
+//                     {/* Row 3: Start time (left) + Last active time (right) */}
+//                     <Box sx={{
+//                       display: 'flex',
+//                       alignItems: 'center',
+//                       justifyContent: 'space-between',
+//                       flexWrap: 'wrap',
+//                       gap: 1,
+//                     }}>
+//                       {activity.startTime && (
+//                         <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.disabled' }}>
+//                           🕐 Started: {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+//                         </Typography>
+//                       )}
+
+//                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
+//                         {activity.lastActive
+//                           ? new Date(activity.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+//                           : '—'}
+//                       </Typography>
+//                     </Box>
+
+//                   </Box>
+//                 </Paper>
+//               </motion.div>
+//             );
+//           })}
+//         </Stack>
+//       </Paper>
+//     </motion.div>
+//   );
+// };
+const RecentActivities = ({ users, loading }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -1110,45 +1358,37 @@ const RecentActivities = ({ users, loading }) => {
     return <EmptyRecentActivities />;
   }
 
-  // Sort users to show today's entries first, then all others
   const today = new Date().toISOString().split('T')[0];
 
   const sortedUsers = [...users].sort((a, b) => {
     const aDate = a.lastActive?.split('T')[0];
     const bDate = b.lastActive?.split('T')[0];
-
     const aIsToday = aDate === today;
     const bIsToday = bDate === today;
-
-    // Today's entries come first
     if (aIsToday && !bIsToday) return -1;
     if (!aIsToday && bIsToday) return 1;
-
-    // Then sort by date (newest first)
     return new Date(b.lastActive) - new Date(a.lastActive);
   });
 
-  // Show all users (no limit)
   const displayUsers = sortedUsers;
 
-  // Helper function to get display address
+  // ✅ NEW FUNCTION - Only shows proper address, NEVER coordinates
   const getDisplayAddress = (activity) => {
     const address = activity.lastLocation?.address;
-    if (address && address !== "Unknown Address" && address !== "Unknown") {
+    
+    // Only return if it's a valid, proper address (not "Unknown", not coordinates)
+    if (address && 
+        address !== "Unknown Address" && 
+        address !== "Unknown" &&
+        !address.includes("°") && // Exclude coordinates like "12.34°"
+        address.length > 5) {
       return address;
     }
-    // Show coordinates if address is missing
-    if (activity.lastLocation?.latitude && activity.lastLocation?.longitude) {
-      const lat = activity.lastLocation.latitude;
-      const lng = activity.lastLocation.longitude;
-      if (lat !== 0 && lng !== 0) {
-        return `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
-      }
-    }
-    return "Place not available";
+    
+    // Don't show coordinates at all
+    return "Address not available";
   };
 
-  // Helper function to get status color
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'active':
@@ -1256,8 +1496,7 @@ const RecentActivities = ({ users, loading }) => {
                   </Avatar>
 
                   <Box sx={{ flex: 1, width: '100%' }}>
-
-                    {/* Row 1: Name (left) + Status (right) */}
+                    {/* Row 1: Name + Status */}
                     <Box sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1267,7 +1506,6 @@ const RecentActivities = ({ users, loading }) => {
                       <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
                         {activity.name || "Unknown User"}
                       </Typography>
-
                       <Chip
                         label={status}
                         size="small"
@@ -1281,7 +1519,7 @@ const RecentActivities = ({ users, loading }) => {
                       />
                     </Box>
 
-                    {/* Row 2: Address */}
+                    {/* ✅ Row 2: Address - ONLY shows proper address */}
                     <Box sx={{ mb: 0.4 }}>
                       <Typography
                         variant="caption"
@@ -1299,7 +1537,7 @@ const RecentActivities = ({ users, loading }) => {
                       </Typography>
                     </Box>
 
-                    {/* Row 3: Start time (left) + Last active time (right) */}
+                    {/* Row 3: Start time + Last active time */}
                     <Box sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1312,14 +1550,12 @@ const RecentActivities = ({ users, loading }) => {
                           🕐 Started: {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Typography>
                       )}
-
                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
                         {activity.lastActive
                           ? new Date(activity.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                           : '—'}
                       </Typography>
                     </Box>
-
                   </Box>
                 </Paper>
               </motion.div>

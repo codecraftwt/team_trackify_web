@@ -1547,22 +1547,22 @@ const ReportLocation = () => {
 
         const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Maps",
-            maxZoom: 19,
+            maxZoom: 15.5,
         });
 
         const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Satellite",
-            maxZoom: 19,
+            maxZoom: 15.5,
         });
 
         const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Hybrid",
-            maxZoom: 19,
+            maxZoom: 15.5,
         });
 
         const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Terrain",
-            maxZoom: 19,
+            maxZoom: 15.5,
         });
 
         const baseMaps = {
