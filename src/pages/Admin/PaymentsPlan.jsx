@@ -6087,11 +6087,9 @@ const PaymentPlans = () => {
             </CardContent>
 
             <CardActions sx={{ p: 2.5, pt: 0 }}>
-              {/* ─── Button logic ─── */}
               {!isAddOn && isActivePlan ? (
-                // ✅ Active non-expired plan → Active + Cancel buttons
                 <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                  <Button
+                  {/* <Button
                     fullWidth
                     variant="contained"
                     color="success"
@@ -6121,10 +6119,9 @@ const PaymentPlans = () => {
                     }}
                   >
                     Cancel
-                  </Button>
+                  </Button> */}
                 </Box>
               ) : !isAddOn && isCurrentPlan && isSubscriptionExpired ? (
-                // ✅ Expired plan → Renew button (subscribe again)
                 <Button
                   fullWidth
                   variant="contained"
