@@ -340,6 +340,159 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     return !Object.values(newErrors).some((error) => error);
   };
 
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   if (!validateForm()) return;
+//   if (submitting) return;
+
+//   setSubmitting(true);
+
+//   const payload = new FormData();
+  
+//   // Check if editing user has admin_panel permission (Sub Admin)
+//   const isEditingSubAdmin = editingUser && editingUser.permissions?.includes("admin_panel");
+  
+//   // For Sub Admin users, only allow specific fields to be updated
+//   if (isEditingSubAdmin) {
+//     // Sub Admin can only update these fields
+//     payload.append("name", formData.fullName);
+//     payload.append("mobile_no", formData.mobile);
+//     payload.append("email", formData.email);
+//     payload.append("address", formData.address);
+//     payload.append("isActive", formData.status === "active");
+    
+//     // Handle avatar
+//     if (formData.avtar && formData.avtar instanceof File) {
+//       payload.append("avtar", formData.avtar);
+//     }
+//     if (imageRemoved) {
+//       payload.append("removeAvtar", "true");
+//     }
+    
+//     // Do NOT include email, role_id, permissions, etc.
+    
+//   } else {
+//     // Full update for regular users
+//     payload.append("name", formData.fullName);
+//     payload.append("email", formData.email);
+//     payload.append("mobile_no", formData.mobile);
+//     payload.append("address", formData.address);
+//     payload.append("isActive", formData.status === "active");
+
+//     // Only send createdby and adminId for NEW users
+//     if (!editingUser) {
+//       const creatorId = userDataa?._id || userData?._id;
+//       payload.append("createdby", creatorId);
+
+//       if (isSubAdmin || isAdmin) {
+//         const rootAdminId = isSubAdmin 
+//           ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
+//           : creatorId;
+          
+//         if (rootAdminId) {
+//           payload.append("adminId", rootAdminId);
+//         } else if (isSubAdmin) {
+//           console.warn("Sub-admin has no adminId - checking token...");
+//           try {
+//             const token = localStorage.getItem('token');
+//             if (token) {
+//               const base64Payload = token.split('.')[1];
+//               const decoded = JSON.parse(atob(base64Payload));
+//               if (decoded.adminId) payload.append("adminId", decoded.adminId);
+//             }
+//           } catch (e) {
+//             console.error('Failed to decode token:', e);
+//           }
+//         }
+//       }
+//     }
+
+//     if (!editingUser) {
+//       if (isAdmin) {
+//         payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+//       } else if (isSuperAdmin) {
+//         payload.append("role_id", 1);
+//       } else {
+//         payload.append("role_id", 0);
+//       }
+//     } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
+//       payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+//     }
+
+//     // Handle avatar
+//     if (formData.avtar && formData.avtar instanceof File) {
+//       payload.append("avtar", formData.avtar);
+//     }
+//     if (editingUser && imageRemoved) {
+//       payload.append("removeAvtar", "true");
+//     }
+
+//     const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
+//     payload.append("permissions", JSON.stringify(permissions));
+//   }
+
+//   for (let pair of payload.entries()) {
+//     console.log(pair[0] + ': ' + pair[1]);
+//   }
+
+//   try {
+//     if (editingUser) {
+//       const userId = editingUser._id || editingUser.id;
+//       if (!userId) {
+//         throw new Error("User ID is missing");
+//       }
+
+//       let result;
+      
+//       // For Sub Admin, always use regular update (not permissions update)
+//       if (isEditingSubAdmin) {
+//         result = await dispatch(
+//           updateUser({ userId: userId, formData: payload })
+//         ).unwrap();
+//       } else if (Number(formData.role_id) === 3 && !formData.avtar && !imageRemoved) {
+//         const role_id = Number(formData.role_id);
+//         result = await dispatch(
+//           updateUserPermissions({ userId, permissions: ["admin_panel"], role_id })
+//         ).unwrap();
+//       } else {
+//         result = await dispatch(
+//           updateUser({ userId: userId, formData: payload })
+//         ).unwrap();
+//       }
+//       toast.success("User updated successfully!");
+//     } else {
+//       payload.append("password", formData.password);
+//       payload.append("confirmPassword", formData.confirmPassword);
+//       await dispatch(registerUser(payload)).unwrap();
+//       toast.success("User created successfully!");
+//     }
+//     onClose(true); 
+//   } catch (error) {
+//     let errorMessage = "Operation failed";
+//     if (typeof error === 'string') {
+//       errorMessage = error;
+//     } else if (error?.message) {
+//       errorMessage = error.message;
+//     } else if (error?.response?.data?.message) {
+//       errorMessage = error.response.data.message;
+//     } else if (error?.data?.message) {
+//       errorMessage = error.data.message;
+//     }
+//     toast.error(errorMessage, {
+//       position: "top-right",
+//       autoClose: 5000,
+//       hideProgressBar: false,
+//       closeOnClick: true,
+//       pauseOnHover: true,
+//       draggable: true,
+//     });
+//     console.error("Final toast error message:", errorMessage);
+//   } finally {
+//     setSubmitting(false);
+//   }
+// };
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -350,149 +503,97 @@ const handleSubmit = async (e) => {
 
   const payload = new FormData();
   
-  // Check if editing user has admin_panel permission (Sub Admin)
-  const isEditingSubAdmin = editingUser && editingUser.permissions?.includes("admin_panel");
-  
-  // For Sub Admin users, only allow specific fields to be updated
-  if (isEditingSubAdmin) {
-    // Sub Admin can only update these fields
-    payload.append("name", formData.fullName);
-    payload.append("mobile_no", formData.mobile);
-    payload.append("email", formData.email);
-    payload.append("address", formData.address);
-    payload.append("isActive", formData.status === "active");
+  // Always include basic fields
+  payload.append("name", formData.fullName);
+  payload.append("mobile_no", formData.mobile);
+  payload.append("email", formData.email);
+  payload.append("address", formData.address);
+  payload.append("isActive", formData.status === "active");
+
+  // Handle avatar
+  if (formData.avtar && formData.avtar instanceof File) {
+    payload.append("avtar", formData.avtar);
+  }
+  if (imageRemoved) {
+    payload.append("removeAvtar", "true");
+  }
+
+  // For EDITING users - handle role/permissions updates
+  if (editingUser) {
+    const userId = editingUser._id || editingUser.id;
+    if (!userId) throw new Error("User ID is missing");
+
+    // Check if this is a Sub Admin (has admin_panel permission)
+    const isCurrentlySubAdmin = editingUser.permissions?.includes("admin_panel");
+    const newIsSubAdmin = formData.adminPanelAccess;
     
-    // Handle avatar
-    if (formData.avtar && formData.avtar instanceof File) {
-      payload.append("avtar", formData.avtar);
+    // If permissions are changing OR we need to send full update
+    if (isCurrentlySubAdmin !== newIsSubAdmin) {
+      // Permission is changing - need to update role_id
+      payload.append("role_id", newIsSubAdmin ? 3 : 0);
+      payload.append("permissions", JSON.stringify(newIsSubAdmin ? ["admin_panel"] : []));
+    } else if (newIsSubAdmin) {
+      // Keeping as Sub Admin - still need to ensure role_id is correct
+      payload.append("role_id", 3);
+      payload.append("permissions", JSON.stringify(["admin_panel"]));
+    } else {
+      // Regular user - ensure role_id is 0
+      payload.append("role_id", 0);
+      payload.append("permissions", JSON.stringify([]));
     }
-    if (imageRemoved) {
-      payload.append("removeAvtar", "true");
+
+    // Send the update
+    let result;
+    if (isCurrentlySubAdmin !== newIsSubAdmin || formData.avtar || imageRemoved) {
+      // Use regular update for avatar or permission changes
+      result = await dispatch(
+        updateUser({ userId: userId, formData: payload })
+      ).unwrap();
+    } else {
+      // Just update permissions without avatar
+      result = await dispatch(
+        updateUserPermissions({ 
+          userId, 
+          permissions: newIsSubAdmin ? ["admin_panel"] : [],
+          role_id: newIsSubAdmin ? 3 : 0 
+        })
+      ).unwrap();
     }
     
-    // Do NOT include email, role_id, permissions, etc.
-    
+    toast.success("User updated successfully!");
   } else {
-    // Full update for regular users
-    payload.append("name", formData.fullName);
-    payload.append("email", formData.email);
-    payload.append("mobile_no", formData.mobile);
-    payload.append("address", formData.address);
-    payload.append("isActive", formData.status === "active");
+    // NEW USER creation logic
+    const creatorId = userDataa?._id || userData?._id;
+    payload.append("createdby", creatorId);
 
-    // Only send createdby and adminId for NEW users
-    if (!editingUser) {
-      const creatorId = userDataa?._id || userData?._id;
-      payload.append("createdby", creatorId);
-
-      if (isSubAdmin || isAdmin) {
-        const rootAdminId = isSubAdmin 
-          ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
-          : creatorId;
-          
-        if (rootAdminId) {
-          payload.append("adminId", rootAdminId);
-        } else if (isSubAdmin) {
-          console.warn("Sub-admin has no adminId - checking token...");
-          try {
-            const token = localStorage.getItem('token');
-            if (token) {
-              const base64Payload = token.split('.')[1];
-              const decoded = JSON.parse(atob(base64Payload));
-              if (decoded.adminId) payload.append("adminId", decoded.adminId);
-            }
-          } catch (e) {
-            console.error('Failed to decode token:', e);
-          }
-        }
-      }
+    if (isSubAdmin || isAdmin) {
+      const rootAdminId = isSubAdmin 
+        ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
+        : creatorId;
+        
+      if (rootAdminId) payload.append("adminId", rootAdminId);
     }
 
-    if (!editingUser) {
-      if (isAdmin) {
-        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-      } else if (isSuperAdmin) {
-        payload.append("role_id", 1);
-      } else {
-        payload.append("role_id", 0);
-      }
-    } else if (isAdmin && (Number(editingUser.role_id) === 0 || Number(editingUser.role_id) === 3)) {
+    if (isAdmin) {
       payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-    }
-
-    // Handle avatar
-    if (formData.avtar && formData.avtar instanceof File) {
-      payload.append("avtar", formData.avtar);
-    }
-    if (editingUser && imageRemoved) {
-      payload.append("removeAvtar", "true");
+    } else if (isSuperAdmin) {
+      payload.append("role_id", 1);
+    } else {
+      payload.append("role_id", 0);
     }
 
     const permissions = formData.adminPanelAccess ? ["admin_panel"] : [];
     payload.append("permissions", JSON.stringify(permissions));
+    payload.append("password", formData.password);
+    payload.append("confirmPassword", formData.confirmPassword);
+    
+    await dispatch(registerUser(payload)).unwrap();
+    toast.success("User created successfully!");
   }
-
-  for (let pair of payload.entries()) {
-    console.log(pair[0] + ': ' + pair[1]);
-  }
-
-  try {
-    if (editingUser) {
-      const userId = editingUser._id || editingUser.id;
-      if (!userId) {
-        throw new Error("User ID is missing");
-      }
-
-      let result;
-      
-      // For Sub Admin, always use regular update (not permissions update)
-      if (isEditingSubAdmin) {
-        result = await dispatch(
-          updateUser({ userId: userId, formData: payload })
-        ).unwrap();
-      } else if (Number(formData.role_id) === 3 && !formData.avtar && !imageRemoved) {
-        const role_id = Number(formData.role_id);
-        result = await dispatch(
-          updateUserPermissions({ userId, permissions: ["admin_panel"], role_id })
-        ).unwrap();
-      } else {
-        result = await dispatch(
-          updateUser({ userId: userId, formData: payload })
-        ).unwrap();
-      }
-      toast.success("User updated successfully!");
-    } else {
-      payload.append("password", formData.password);
-      payload.append("confirmPassword", formData.confirmPassword);
-      await dispatch(registerUser(payload)).unwrap();
-      toast.success("User created successfully!");
-    }
-    onClose(true); 
-  } catch (error) {
-    let errorMessage = "Operation failed";
-    if (typeof error === 'string') {
-      errorMessage = error;
-    } else if (error?.message) {
-      errorMessage = error.message;
-    } else if (error?.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error?.data?.message) {
-      errorMessage = error.data.message;
-    }
-    toast.error(errorMessage, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
-    console.error("Final toast error message:", errorMessage);
-  } finally {
-    setSubmitting(false);
-  }
+  
+  onClose(true);
 };
-  const handleClose = () => {
+const handleClose = () => {
     if (!submitting) {
       onClose(false);
     }
