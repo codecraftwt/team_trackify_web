@@ -75,7 +75,7 @@ function TabPanel({ children, value, index, ...other }) {
 // Mobile Card View Component
 const UserCard = ({ user, onCardClick, theme }) => {
   const getDisplayDate = () => {
-    return user.lastStartTime || user.createdAt;
+    return user.lastStartTime ;
   };
 
   const displayDate = getDisplayDate();
@@ -159,7 +159,7 @@ const UserCard = ({ user, onCardClick, theme }) => {
                 </Typography>
               </Box>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", fontWeight: 500 }}>
-                {displayDate ? moment(displayDate).format('MMM D, YYYY') : 'N/A'}
+                {displayDate ? moment(displayDate).format('MMM D, YYYY') : '---'}
               </Typography>
             </Box>
           </Stack>
@@ -172,7 +172,7 @@ const UserCard = ({ user, onCardClick, theme }) => {
 // Desktop Table View Component
 const UserTable = ({ users, onRowClick, theme, isMobile, isTablet, sortOrder, onSortChange }) => {
   const getDisplayDate = (user) => {
-    return user.lastStartTime || user.createdAt;
+    return user.lastStartTime ;
   };
 
   return (
@@ -267,7 +267,7 @@ const UserTable = ({ users, onRowClick, theme, isMobile, isTablet, sortOrder, on
                 </TableCell>
                 <TableCell sx={{ py: 1 }}>
                   <Typography variant="body2" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" }, color: "text.secondary" }}>
-                    {displayDate ? moment(displayDate).format('MMM D, YYYY') : 'N/A'}
+                    {displayDate ? moment(displayDate).format('MMM D, YYYY') : '---'}
                   </Typography>
                 </TableCell>
                 <TableCell align="center" sx={{ py: 1 }}>
