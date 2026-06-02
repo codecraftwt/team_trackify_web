@@ -1414,32 +1414,23 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const isSmallMobile = useMediaQuery("(max-width:480px)");
   const isLandscape = useMediaQuery("(orientation: landscape)");
 
   const userDataa = JSON.parse(localStorage.getItem("user"));
   const role_id = userDataa?.role_id;
-  const currentUserId =
-    userDataa?._id || userDataa?.id || userDataa?.userId || userDataa?.user_id;
+  const currentUserId = userDataa?._id || userDataa?.id || userDataa?.userId || userDataa?.user_id;
   const userData = useSelector((state) => state.user?.userInfo || {});
 
   const [submitting, setSubmitting] = useState(false);
-  // ─── NEW: server-side error message ───────────────────────────────────────
   const [serverError, setServerError] = useState("");
 
   const isSuperAdmin = Number(role_id) === 2;
   const isAdmin = Number(role_id) === 1;
   const isSubAdmin = Number(role_id) === 3;
-  const editingUserId =
-    editingUser?._id ||
-    editingUser?.id ||
-    editingUser?.userId ||
-    editingUser?.user_id;
-  const isEditingSelf =
-    Boolean(currentUserId) &&
-    Boolean(editingUserId) &&
-    String(currentUserId) === String(editingUserId);
+  
+  const editingUserId = editingUser?._id || editingUser?.id || editingUser?.userId || editingUser?.user_id;
+  const isEditingSelf = Boolean(currentUserId) && Boolean(editingUserId) && String(currentUserId) === String(editingUserId);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -1461,7 +1452,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Reset submitting & serverError whenever the dialog opens/closes
   useEffect(() => {
     if (!open) {
       setSubmitting(false);
@@ -1480,8 +1470,9 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   };
 
   const getNameFieldIcon = () => {
-    if (isSuperAdmin && !editingUser)
+    if (isSuperAdmin && !editingUser) {
       return <BusinessIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />;
+    }
     return <PersonIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />;
   };
 
@@ -1495,9 +1486,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
         role_id: Number(editingUser.role_id) || 0,
-        adminPanelAccess: editingUser.permissions
-          ? editingUser.permissions.includes("admin_panel")
-          : Number(editingUser.role_id) === 3,
+        adminPanelAccess: editingUser.permissions ? editingUser.permissions.includes("admin_panel") : Number(editingUser.role_id) === 3,
       });
       setImageRemoved(false);
       if (editingUser.avtar) setPreviewImage(editingUser.avtar);
@@ -1527,13 +1516,9 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     switch (name) {
       case "fullName":
         if (!value?.trim()) {
-          error = isSuperAdmin && !editingUser
-            ? "Organization name is required"
-            : "User name is required";
+          error = isSuperAdmin && !editingUser ? "Organization name is required" : "User name is required";
         } else if (value.length < 3) {
-          error = isSuperAdmin && !editingUser
-            ? "Organization name must be at least 3 characters"
-            : "Name must be at least 3 characters";
+          error = isSuperAdmin && !editingUser ? "Organization name must be at least 3 characters" : "Name must be at least 3 characters";
         } else if (value.length > 50) {
           error = "Name must be less than 50 characters";
         }
@@ -1575,7 +1560,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Clear server error on any change
     setServerError("");
 
     if (name === "mobile") {
@@ -1651,112 +1635,214 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     return !Object.values(newErrors).some((e) => e);
   };
 
-  // ─── FIXED handleSubmit ────────────────────────────────────────────────────
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    if (submitting) return;
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
+  //   if (submitting) return;
 
-    setSubmitting(true);
-    setServerError(""); // clear previous server errors
+  //   setSubmitting(true);
+  //   setServerError("");
 
-    try {
-      const payload = new FormData();
+  //   try {
+  //     const payload = new FormData();
 
-      payload.append("name", formData.fullName);
-      payload.append("mobile_no", formData.mobile);
-      payload.append("email", formData.email);
-      payload.append("address", formData.address);
-      payload.append("isActive", formData.status === "active");
+  //     // Always include basic fields
+  //     payload.append("name", formData.fullName);
+  //     payload.append("mobile_no", formData.mobile);
+  //     payload.append("email", formData.email);
+  //     payload.append("address", formData.address);
+  //     payload.append("isActive", formData.status === "active");
 
-      if (formData.avtar && formData.avtar instanceof File) {
-        payload.append("avtar", formData.avtar);
-      }
-      if (imageRemoved) {
-        payload.append("removeAvtar", "true");
-      }
+  //     // Handle avatar
+  //     if (formData.avtar && formData.avtar instanceof File) {
+  //       payload.append("avtar", formData.avtar);
+  //     }
+  //     if (imageRemoved) {
+  //       payload.append("removeAvtar", "true");
+  //     }
 
-      if (editingUser) {
-        const userId = editingUser._id || editingUser.id;
-        if (!userId) throw new Error("User ID is missing");
+  //     if (editingUser) {
+  //       const userId = editingUser._id || editingUser.id;
+  //       if (!userId) throw new Error("User ID is missing");
 
-        const isCurrentlySubAdmin = editingUser.permissions?.includes("admin_panel");
+  //       const isCurrentlySubAdmin = editingUser.permissions?.includes("admin_panel");
+  //       const newIsSubAdmin = formData.adminPanelAccess;
+
+  //       // Always send role_id and permissions for editing users
+  //       payload.append("role_id", newIsSubAdmin ? 3 : 0);
+  //       payload.append("permissions", JSON.stringify(newIsSubAdmin ? ["admin_panel"] : []));
+
+  //       // For Admin (role_id 1) updating users - send full update
+  //       await dispatch(updateUser({ userId, formData: payload })).unwrap();
+        
+  //       toast.success("User updated successfully!");
+  //     } else {
+  //       // NEW USER creation
+  //       const creatorId = userDataa?._id || userData?._id;
+  //       payload.append("createdby", creatorId);
+
+  //       if (isSubAdmin || isAdmin) {
+  //         const rootAdminId = isSubAdmin
+  //           ? userDataa?.adminId?._id || (typeof userDataa?.adminId === "string" ? userDataa.adminId : null)
+  //           : creatorId;
+  //         if (rootAdminId) payload.append("adminId", rootAdminId);
+  //       }
+
+  //       // Set role_id based on who is creating
+  //       if (isAdmin) {
+  //         payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+  //       } else if (isSuperAdmin) {
+  //         payload.append("role_id", 1);
+  //       } else {
+  //         payload.append("role_id", 0);
+  //       }
+
+  //       payload.append("permissions", JSON.stringify(formData.adminPanelAccess ? ["admin_panel"] : []));
+  //       payload.append("password", formData.password);
+  //       payload.append("confirmPassword", formData.confirmPassword);
+
+  //       await dispatch(registerUser(payload)).unwrap();
+  //       toast.success("User created successfully!");
+  //     }
+
+  //     onClose(true);
+  //   } catch (error) {
+  //     let errorMessage = "Operation failed. Please try again.";
+
+  //     if (typeof error === "string") {
+  //       errorMessage = error;
+  //     } else if (error?.message) {
+  //       errorMessage = error.message;
+  //     } else if (error?.response?.data?.message) {
+  //       errorMessage = error.response.data.message;
+  //     } else if (error?.data?.message) {
+  //       errorMessage = error.data.message;
+  //     }
+
+  //     // Check for duplicate email/mobile
+  //     if (errorMessage.toLowerCase().includes("duplicate") || 
+  //         errorMessage.toLowerCase().includes("already exists") ||
+  //         errorMessage.toLowerCase().includes("email") && errorMessage.toLowerCase().includes("taken")) {
+  //       errorMessage = "Email or mobile number already registered. Please use different credentials.";
+  //     }
+
+  //     setServerError(errorMessage);
+  //     toast.error(errorMessage, {
+  //       position: "top-right",
+  //       autoClose: 5000,
+  //     });
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  if (submitting) return;
+
+  setSubmitting(true);
+  setServerError("");
+
+  try {
+    const payload = new FormData();
+
+    // Always include basic fields
+    payload.append("name", formData.fullName);
+    payload.append("mobile_no", formData.mobile);
+    payload.append("email", formData.email);
+    payload.append("address", formData.address);
+    payload.append("isActive", formData.status === "active");
+
+    // Handle avatar
+    if (formData.avtar && formData.avtar instanceof File) {
+      payload.append("avtar", formData.avtar);
+    }
+    if (imageRemoved) {
+      payload.append("removeAvtar", "true");
+    }
+
+    if (editingUser) {
+      const userId = editingUser._id || editingUser.id;
+      if (!userId) throw new Error("User ID is missing");
+
+      // ✅ FIX: For Super Admin (role_id 2) - ONLY update basic info, NEVER send role_id or permissions
+      if (isSuperAdmin) {
+        // Super Admin should NOT change role_id or permissions
+        // Only send name, email, mobile, address, isActive, avatar
+        // DO NOT append role_id or permissions at all
+        await dispatch(updateUser({ userId, formData: payload })).unwrap();
+      } 
+      // For Admin (role_id 1) - can update role/permissions
+      else if (isAdmin) {
         const newIsSubAdmin = formData.adminPanelAccess;
-
         payload.append("role_id", newIsSubAdmin ? 3 : 0);
         payload.append("permissions", JSON.stringify(newIsSubAdmin ? ["admin_panel"] : []));
+        await dispatch(updateUser({ userId, formData: payload })).unwrap();
+      }
+      // For regular users editing their own profile
+      else {
+        await dispatch(updateUser({ userId, formData: payload })).unwrap();
+      }
+      
+      toast.success("User updated successfully!");
+    } else {
+      // NEW USER creation (same as before)
+      const creatorId = userDataa?._id || userData?._id;
+      payload.append("createdby", creatorId);
 
-        if (isCurrentlySubAdmin !== newIsSubAdmin || formData.avtar || imageRemoved) {
-          await dispatch(updateUser({ userId, formData: payload })).unwrap();
-        } else {
-          await dispatch(
-            updateUserPermissions({
-              userId,
-              permissions: newIsSubAdmin ? ["admin_panel"] : [],
-              role_id: newIsSubAdmin ? 3 : 0,
-            })
-          ).unwrap();
-        }
-        toast.success("User updated successfully!");
+      if (isSubAdmin || isAdmin) {
+        const rootAdminId = isSubAdmin
+          ? userDataa?.adminId?._id || (typeof userDataa?.adminId === "string" ? userDataa.adminId : null)
+          : creatorId;
+        if (rootAdminId) payload.append("adminId", rootAdminId);
+      }
+
+      // Set role_id based on who is creating
+      if (isAdmin) {
+        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+      } else if (isSuperAdmin) {
+        payload.append("role_id", 1);
       } else {
-        const creatorId = userDataa?._id || userData?._id;
-        payload.append("createdby", creatorId);
-
-        if (isSubAdmin || isAdmin) {
-          const rootAdminId = isSubAdmin
-            ? userDataa?.adminId?._id ||
-              (typeof userDataa?.adminId === "string" ? userDataa.adminId : null)
-            : creatorId;
-          if (rootAdminId) payload.append("adminId", rootAdminId);
-        }
-
-        if (isAdmin) {
-          payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-        } else if (isSuperAdmin) {
-          payload.append("role_id", 1);
-        } else {
-          payload.append("role_id", 0);
-        }
-
-        payload.append("permissions", JSON.stringify(formData.adminPanelAccess ? ["admin_panel"] : []));
-        payload.append("password", formData.password);
-        payload.append("confirmPassword", formData.confirmPassword);
-
-        await dispatch(registerUser(payload)).unwrap();
-        toast.success("User created successfully!");
+        payload.append("role_id", 0);
       }
 
-      onClose(true);
-    } catch (error) {
-      // ─── Extract server error message ────────────────────────────────────
-      let errorMessage = "Operation failed. Please try again.";
+      payload.append("permissions", JSON.stringify(formData.adminPanelAccess ? ["admin_panel"] : []));
+      payload.append("password", formData.password);
+      payload.append("confirmPassword", formData.confirmPassword);
 
-      if (typeof error === "string") {
-        errorMessage = error;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error?.data?.message) {
-        errorMessage = error.data.message;
-      }
-
-      // Show inside the form AND in toast
-      setServerError(errorMessage);
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      // ─── ALWAYS reset submitting so button is re-enabled ─────────────────
-      setSubmitting(false);
+      await dispatch(registerUser(payload)).unwrap();
+      toast.success("User created successfully!");
     }
-  };
 
+    onClose(true);
+  } catch (error) {
+    let errorMessage = "Operation failed. Please try again.";
+
+    if (typeof error === "string") {
+      errorMessage = error;
+    } else if (error?.message) {
+      errorMessage = error.message;
+    } else if (error?.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error?.data?.message) {
+      errorMessage = error.data.message;
+    }
+
+    if (errorMessage.toLowerCase().includes("duplicate") || 
+        errorMessage.toLowerCase().includes("already exists") ||
+        errorMessage.toLowerCase().includes("email") && errorMessage.toLowerCase().includes("taken")) {
+      errorMessage = "Email or mobile number already registered. Please use different credentials.";
+    }
+
+    setServerError(errorMessage);
+    toast.error(errorMessage, {
+      position: "top-right",
+      autoClose: 5000,
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
   const handleClose = () => {
     if (!submitting) onClose(false);
   };
@@ -1785,7 +1871,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
           borderColor: alpha(theme.palette.primary.main, 0.1),
           m: { xs: 0, sm: 1.5, md: 2 },
           height: { xs: isSmallMobile ? "100%" : "auto", sm: "auto" },
-          // Ensure dialog doesn't overflow viewport
           maxHeight: { xs: "100%", sm: "90vh" },
           display: "flex",
           flexDirection: "column",
@@ -1822,9 +1907,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     height: { xs: 28, sm: 32, md: 36 },
                   }}
                 >
-                  {isSuperAdmin
-                    ? <BusinessIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />
-                    : <PersonIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />}
+                  {isSuperAdmin ? <BusinessIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} /> : <PersonIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />}
                 </Avatar>
                 <Box>
                   <Typography
@@ -1843,9 +1926,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                       display: { xs: isLandscape ? "none" : "block", sm: "block" },
                     }}
                   >
-                    {editingUser
-                      ? "Update the information below"
-                      : "Fill in the details to create a new account"}
+                    {editingUser ? "Update the information below" : "Fill in the details to create a new account"}
                   </Typography>
                 </Box>
               </Box>
@@ -1866,16 +1947,12 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
             </Box>
 
             {/* Form */}
-            <form
-              onSubmit={handleSubmit}
-              style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}
-            >
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
               <DialogContent
                 sx={{
                   p: { xs: isLandscape ? 1.5 : 1.5, sm: 2, md: 2.5 },
                   flex: 1,
                   overflowY: "auto",
-                  // Custom scrollbar
                   "&::-webkit-scrollbar": { width: "6px" },
                   "&::-webkit-scrollbar-thumb": {
                     backgroundColor: alpha(theme.palette.primary.main, 0.3),
@@ -1883,7 +1960,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                   },
                 }}
               >
-                {/* ─── SERVER ERROR BANNER ────────────────────────────────── */}
+                {/* Server Error Banner */}
                 {serverError && (
                   <Alert
                     severity="error"
@@ -1892,7 +1969,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                       mb: 2,
                       borderRadius: 1.5,
                       fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                      "& .MuiAlert-message": { fontWeight: 500 },
                     }}
                   >
                     {serverError}
@@ -1915,11 +1991,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                       size="small"
                       disabled={isLoading}
                       InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">{getNameFieldIcon()}</InputAdornment>
-                        ),
+                        startAdornment: <InputAdornment position="start">{getNameFieldIcon()}</InputAdornment>,
                       }}
-                      sx={fieldSx(theme, isMobile)}
                     />
                   </Grid>
 
@@ -1945,11 +2018,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                           </InputAdornment>
                         ),
                       }}
-                      sx={fieldSx(theme, isMobile)}
                     />
                   </Grid>
 
-                  {/* Password Fields - only for new users */}
+                  {/* Password Fields - Only for new users */}
                   {!editingUser && (
                     <>
                       <Grid item xs={12} md={6}>
@@ -1974,20 +2046,12 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                             ),
                             endAdornment: (
                               <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  edge="end"
-                                  size="small"
-                                  disabled={isLoading}
-                                >
-                                  {showPassword
-                                    ? <VisibilityOffIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
-                                    : <VisibilityIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />}
+                                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" disabled={isLoading}>
+                                  {showPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
                                 </IconButton>
                               </InputAdornment>
                             ),
                           }}
-                          sx={fieldSx(theme, isMobile)}
                         />
                       </Grid>
 
@@ -2013,20 +2077,12 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                             ),
                             endAdornment: (
                               <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                  edge="end"
-                                  size="small"
-                                  disabled={isLoading}
-                                >
-                                  {showConfirmPassword
-                                    ? <VisibilityOffIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
-                                    : <VisibilityIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />}
+                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small" disabled={isLoading}>
+                                  {showConfirmPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
                                 </IconButton>
                               </InputAdornment>
                             ),
                           }}
-                          sx={fieldSx(theme, isMobile)}
                         />
                       </Grid>
                     </>
@@ -2054,7 +2110,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                           </InputAdornment>
                         ),
                       }}
-                      sx={fieldSx(theme, isMobile)}
                     />
                   </Grid>
 
@@ -2081,11 +2136,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                           </InputAdornment>
                         ),
                       }}
-                      sx={fieldSx(theme, isMobile)}
                     />
                   </Grid>
 
-                  {/* Account Status */}
+                  {/* Account Status - Only for editing and not self */}
                   {!isEditingSelf && (
                     <Grid item xs={12} md={6}>
                       <Box
@@ -2101,27 +2155,14 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                         <FormControl component="fieldset" fullWidth>
                           <FormLabel
                             component="legend"
-                            sx={{
-                              color: "text.primary",
-                              fontWeight: 500,
-                              mb: 0.5,
-                              fontSize: { xs: "0.70rem", sm: "0.75rem" },
-                            }}
+                            sx={{ color: "text.primary", fontWeight: 500, mb: 0.5, fontSize: { xs: "0.70rem", sm: "0.75rem" } }}
                           >
                             Account Status
                           </FormLabel>
-                          <RadioGroup
-                            row
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            sx={{ flexWrap: "wrap", gap: { xs: 0.5, sm: 1 } }}
-                          >
+                          <RadioGroup row name="status" value={formData.status} onChange={handleChange} sx={{ flexWrap: "wrap", gap: { xs: 0.5, sm: 1 } }}>
                             <FormControlLabel
                               value="active"
-                              control={
-                                <Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />
-                              }
+                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
                               label={
                                 <Chip
                                   label="Active"
@@ -2138,9 +2179,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                             />
                             <FormControlLabel
                               value="inactive"
-                              control={
-                                <Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />
-                              }
+                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
                               label={
                                 <Chip
                                   label="Inactive"
@@ -2161,37 +2200,24 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     </Grid>
                   )}
 
-                  {/* Admin Panel Access */}
+                  {/* Admin Panel Access - Only for Admin users creating/editing */}
                   {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
                     <Grid item xs={12} md={6}>
                       <Box
-                        onClick={() =>
-                          !isLoading &&
-                          setFormData((prev) => ({
-                            ...prev,
-                            adminPanelAccess: !prev.adminPanelAccess,
-                            role_id: !prev.adminPanelAccess ? 3 : 0,
-                          }))
-                        }
+                        onClick={() => !isLoading && setFormData((prev) => ({ ...prev, adminPanelAccess: !prev.adminPanelAccess, role_id: !prev.adminPanelAccess ? 3 : 0 }))}
                         sx={{
                           height: "95%",
                           display: "flex",
                           alignItems: "center",
                           cursor: "pointer",
-                          bgcolor: formData.adminPanelAccess
-                            ? alpha(theme.palette.primary.main, 0.08)
-                            : alpha(theme.palette.primary.main, 0.02),
+                          bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.08) : alpha(theme.palette.primary.main, 0.02),
                           px: 2,
                           py: { xs: 1.2, md: 1 },
                           borderRadius: 2.5,
                           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                           border: "2px solid",
-                          borderColor: formData.adminPanelAccess
-                            ? theme.palette.primary.main
-                            : alpha(theme.palette.primary.main, 0.08),
-                          boxShadow: formData.adminPanelAccess
-                            ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}`
-                            : "none",
+                          borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.08),
+                          boxShadow: formData.adminPanelAccess ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}` : "none",
                         }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
@@ -2199,45 +2225,23 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                             sx={{
                               width: 32,
                               height: 32,
-                              bgcolor: formData.adminPanelAccess
-                                ? theme.palette.primary.main
-                                : alpha(theme.palette.primary.main, 0.1),
+                              bgcolor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.1),
                               color: formData.adminPanelAccess ? "white" : theme.palette.primary.main,
-                              transition: "all 0.3s ease",
                             }}
                           >
                             <AdminPanelSettingsIcon sx={{ fontSize: 18 }} />
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 700,
-                                color: formData.adminPanelAccess
-                                  ? theme.palette.primary.main
-                                  : "text.primary",
-                                lineHeight: 1.1,
-                              }}
-                            >
+                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: formData.adminPanelAccess ? theme.palette.primary.main : "text.primary" }}>
                               Admin Panel Access
                             </Typography>
                           </Box>
                           <Checkbox
                             checked={formData.adminPanelAccess}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                adminPanelAccess: e.target.checked,
-                                role_id: e.target.checked ? 3 : 0,
-                              }))
-                            }
+                            onChange={(e) => setFormData((prev) => ({ ...prev, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 }))}
                             disabled={isLoading}
                             size="small"
-                            sx={{
-                              p: 0.5,
-                              color: alpha(theme.palette.primary.main, 0.3),
-                              "&.Mui-checked": { color: theme.palette.primary.main },
-                            }}
+                            sx={{ p: 0.5, color: alpha(theme.palette.primary.main, 0.3), "&.Mui-checked": { color: theme.palette.primary.main } }}
                           />
                         </Box>
                       </Box>
@@ -2246,32 +2250,12 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
                   {/* Profile Photo */}
                   <Grid item xs={12}>
-                    <Typography
-                      variant="subtitle2"
-                      gutterBottom
-                      sx={{ color: "text.primary", fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
-                    >
+                    <Typography variant="subtitle2" gutterBottom sx={{ color: "text.primary", fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
                       Profile Photo
                     </Typography>
 
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: { xs: "column", sm: "row" },
-                        alignItems: { xs: "flex-start", sm: "center" },
-                        gap: 1.5,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: { xs: "column", sm: "row" },
-                          alignItems: { xs: "stretch", sm: "center" },
-                          gap: 1,
-                          width: { xs: "100%", sm: "auto" },
-                        }}
-                      >
+                    <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5, flexWrap: "wrap" }}>
+                      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "stretch", sm: "center" }, gap: 1, width: { xs: "100%", sm: "auto" } }}>
                         <Button
                           variant="outlined"
                           component="label"
@@ -2285,39 +2269,19 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                             width: { xs: "100%", sm: "auto" },
                             py: { xs: 0.5, sm: 0.6 },
                             fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                            "&:hover": {
-                              borderColor: theme.palette.primary.dark,
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                            },
+                            "&:hover": { borderColor: theme.palette.primary.dark, bgcolor: alpha(theme.palette.primary.main, 0.1) },
                           }}
                         >
                           Upload Photo
-                          <input
-                            type="file"
-                            hidden
-                            accept="image/jpeg,image/png,image/gif"
-                            onChange={handleImageChange}
-                            disabled={isLoading}
-                          />
+                          <input type="file" hidden accept="image/jpeg,image/png,image/gif" onChange={handleImageChange} disabled={isLoading} />
                         </Button>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, alignSelf: "center" }}
-                        >
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, alignSelf: "center" }}>
                           JPG, PNG, GIF up to 5MB
                         </Typography>
                       </Box>
 
                       {(previewImage || (editingUser?.avtar && !imageRemoved)) && (
-                        <Box
-                          sx={{
-                            position: "relative",
-                            display: "inline-block",
-                            mt: { xs: 1, sm: 0 },
-                            ml: { xs: 0, sm: 1 },
-                          }}
-                        >
+                        <Box sx={{ position: "relative", display: "inline-block", mt: { xs: 1, sm: 0 }, ml: { xs: 0, sm: 1 } }}>
                           <Avatar
                             src={previewImage || editingUser?.avtar}
                             sx={{
@@ -2351,16 +2315,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                     </Box>
 
                     {errors.avtar && (
-                      <Alert
-                        severity="error"
-                        sx={{
-                          mt: 1.5,
-                          borderRadius: 1.5,
-                          fontSize: { xs: "0.65rem", sm: "0.7rem" },
-                          py: 0.5,
-                        }}
-                        icon={<CloseIcon fontSize="small" />}
-                      >
+                      <Alert severity="error" sx={{ mt: 1.5, borderRadius: 1.5, fontSize: { xs: "0.65rem", sm: "0.7rem" }, py: 0.5 }} icon={<CloseIcon fontSize="small" />}>
                         {errors.avtar}
                       </Alert>
                     )}
@@ -2368,7 +2323,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                 </Grid>
               </DialogContent>
 
-              {/* ─── FIXED DIALOG ACTIONS ─────────────────────────────────────── */}
+              {/* Dialog Actions */}
               <DialogActions
                 sx={{
                   p: { xs: 1.5, sm: 2, md: 2.5 },
@@ -2376,7 +2331,6 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                   borderTop: "1px solid",
                   borderColor: alpha(theme.palette.primary.main, 0.1),
                   flexShrink: 0,
-                  // Stack vertically on small screens, row on larger
                   display: "flex",
                   flexDirection: { xs: "column-reverse", sm: "row" },
                   justifyContent: { xs: "stretch", sm: "flex-end" },
@@ -2430,9 +2384,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
                   {isLoading ? (
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <CircularProgress size={14} sx={{ color: "white" }} />
-                      <span style={{ fontSize: "0.75rem" }}>
-                        {editingUser ? "Updating..." : "Saving..."}
-                      </span>
+                      <span style={{ fontSize: "0.75rem" }}>{editingUser ? "Updating..." : "Saving..."}</span>
                     </Box>
                   ) : editingUser ? (
                     isSuperAdmin ? "Update Admin" : "Update User"
@@ -2448,17 +2400,5 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     </Dialog>
   );
 };
-
-// ─── Shared field styles helper ───────────────────────────────────────────────
-const fieldSx = (theme, isMobile) => ({
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 1.5,
-    fontSize: { xs: "0.75rem", sm: "0.8rem" },
-    "&:hover fieldset": { borderColor: theme.palette.primary.main },
-  },
-  "& .MuiInputLabel-root": { fontSize: { xs: "0.7rem", sm: "0.75rem" } },
-  "& .MuiInputBase-input": { fontSize: { xs: "0.7rem", sm: "0.75rem" }, py: 1.2 },
-  "& .MuiFormHelperText-root": { fontSize: { xs: "0.6rem", sm: "0.65rem" }, mt: 0.3 },
-});
 
 export default AddUser;

@@ -6776,7 +6776,7 @@ const Locations = () => {
     if (flyToLiveAfterRefresh.current && checkIsActive(session)) {
       flyToLiveAfterRefresh.current = false;
       const liveTarget = [...validLocations].reverse().find((l) => l.isOnline === true) ?? (validLocations.length > 0 ? validLocations[validLocations.length - 1] : null);
-      if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 17, { animate: true, duration: 1.0 }); return; }
+      if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 16, { animate: true, duration: 1.0 }); return; }
     }
 
     if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
@@ -6791,10 +6791,10 @@ const Locations = () => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
     const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
-    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 15.5 });
-    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 15.5 });
-    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 15.5 });
-    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 15.5 });
+    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 16 });
+    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 16 });
+    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 16 });
+    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 16 });
     const baseMaps = { "Roadmap": googleRoadmap, "Satellite": googleSatellite, "Hybrid": googleHybrid, "Terrain": googleTerrain };
     googleRoadmap.addTo(map);
     L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
