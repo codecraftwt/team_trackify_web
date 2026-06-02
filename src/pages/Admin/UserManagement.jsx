@@ -4481,8 +4481,10 @@ const UserManagement = () => {
   let inactiveUsers = [];
 
   if (role_id === 2) {
-    activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
-    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
+    // activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
+    // inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive === true);
+  inactiveUsers = (filteredUsers || []).filter((user) => user.isActive === false);
   } else if (role_id === 1) {
     activeUsers = (filteredUsers || []).filter((user) => user.isActive);
     inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
