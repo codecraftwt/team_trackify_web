@@ -6830,7 +6830,7 @@ const Locations = () => {
   const handlePhotoClick = (photo) => {
     if (!mapInstance.current) return;
     const flyAndOpen = (latLng, markerKey) => {
-      mapInstance.current.flyTo(latLng, 18, { animate: true, duration: 1.2 });
+      mapInstance.current.flyTo(latLng, 16, { animate: true, duration: 1.2 });
       if (markerKey && markerRefs.current.has(markerKey)) {
         const m = markerRefs.current.get(markerKey);
         mapInstance.current.once("moveend", () => m.openPopup());
@@ -7091,7 +7091,7 @@ const renderPhotoCarousel = () => {
                       )}
                     </Box>
 
-                    <Grid container spacing={0.5} sx={{ mb: 0.5 }}>
+                    {/* <Grid container spacing={0.5} sx={{ mb: 0.5 }}>
                       <Grid item xs={6}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#FF9800", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#FF9800", 0.1)}` }}>
                           <TimerIcon sx={{ fontSize: 11, color: "#FF9800", flexShrink: 0 }} />
@@ -7110,8 +7110,27 @@ const renderPhotoCarousel = () => {
                           </Box>
                         </Box>
                       </Grid>
-                    </Grid>
-
+                    </Grid> */}
+<Grid container spacing={0.5} sx={{ mb: 0.5 }}>
+  <Grid item xs={6}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#FF9800", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#FF9800", 0.1)}` }}>
+      <TimerIcon sx={{ fontSize: 11, color: "#FF9800", flexShrink: 0 }} />
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Duration</Typography>
+        <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#FF9800", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sessionIsActive ? "Live" : fmtDuration(stats.duration)}</Typography>
+      </Box>
+    </Box>
+  </Grid>
+  <Grid item xs={6}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#2196F3", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#2196F3", 0.1)}` }}>
+      <StraightenIcon sx={{ fontSize: 11, color: "#2196F3", flexShrink: 0 }} />
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Distance</Typography>
+        <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#2196F3" }}>{sessionIsActive ? "Updating..." : fmtDist(stats.distance)}</Typography>
+      </Box>
+    </Box>
+  </Grid>
+</Grid>
                     <Divider sx={{ my: 0.4, borderColor: alpha(theme.palette.divider, 0.25) }} />
 
                     <Grid container spacing={0.4}>
