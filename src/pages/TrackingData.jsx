@@ -7,6 +7,7 @@ import {
   FaRoute,
   FaClock,
   FaMapMarkerAlt,
+  FaSync,
 } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -37,7 +38,20 @@ const TrackingData = () => {
   const trackData = location.state?.item;
   const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
+  // Manual refresh handler
+  const handleManualRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(
+      getUserSessionsByDate({
+        userId: trackData.id || trackData?._id,
+        date: backendFormattedDate,
+        limit: 50,
+      })
+    );
+    setRefreshing(false);
+  };
   const isReturningFromLocations =
     sessionStorage.getItem("returningFromLocations") === "true";
 
@@ -326,7 +340,7 @@ const TrackingData = () => {
         <div className="row justify-content-center">
           <div className="col-12">
             {/* Header Section */}
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-2 mb-md-3 gap-2">
+            {/* <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-2 mb-md-3 gap-2">
               <div className="d-flex align-items-center">
                 <FaRoute className="me-2" style={{ color: theme.palette.primary.main, fontSize: "1rem" }} />
                 <div>
@@ -350,8 +364,66 @@ const TrackingData = () => {
               >
                 Total Sessions: {sessions?.length || 0}
               </Badge>
-            </div>
+            </div> */}
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-2 mb-md-3 gap-2">
+              <div className="d-flex align-items-center">
+                <FaRoute className="me-2" style={{ color: theme.palette.primary.main, fontSize: "1rem" }} />
+                <div>
+                  <h6 className="fw-bold mb-0" style={{ color: theme.palette.text.primary, fontSize: "0.9rem" }}>
+                    {isToday ? "Today's Tracking" : "Tracking History"}
+                  </h6>
+                  <small style={{ fontSize: "0.65rem", color: theme.palette.text.secondary }}>
+                    {formatDate(selectedDate)}
+                  </small>
+                </div>
+              </div>
 
+              <div className="d-flex align-items-center gap-2">
+                {/* Refresh Button - Styled like session cards */}
+                <Button
+                  className="d-flex align-items-center justify-content-center"
+                  onClick={handleManualRefresh}
+                  disabled={refreshing}
+                  style={{
+                    borderRadius: "20px",
+                    fontSize: "0.65rem",
+                    padding: "0.25rem 0.75rem",
+                    whiteSpace: "nowrap",
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                    border: "none",
+                    color: "#fff",
+                    fontWeight: 500,
+                  }}
+                >
+                  {refreshing ? (
+                    <>
+                      <div className="spinner-border spinner-border-sm me-1" role="status" style={{ width: "10px", height: "10px" }}>
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      <span>Syncing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaSync className="me-1" style={{ fontSize: "0.55rem" }} />
+                      <span>Sync</span>
+                    </>
+                  )}
+                </Button>
+
+                <Badge
+                  className="px-2 py-1 rounded-pill"
+                  style={{
+                    fontSize: "0.65rem",
+                    whiteSpace: "nowrap",
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                    fontWeight: 500,
+                    color: "#fff",
+                  }}
+                >
+                  Total Sessions: {sessions?.length || 0}
+                </Badge>
+              </div>
+            </div>
             {/* Date Selector Card */}
             <div style={{ position: "relative" }}>
               <Card className="border-0 shadow-sm mb-2 mb-md-3" style={{ borderRadius: "8px" }}>
@@ -695,17 +767,17 @@ const TrackingData = () => {
                                 {item.remark || "Session"}
                               </h6> */}
                               <h6
-  className="fw-semibold mb-0"
-  style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
->
-  {(() => {
-    const remark = item.remark || "Session";
-    // Remove consecutive duplicates
-    const parts = remark.split('-').map(p => p.trim()).filter(p => p);
-    const cleaned = parts.filter((p, i, arr) => i === 0 || p !== arr[i-1]).join(' - ');
-    return cleaned;
-  })()}
-</h6>
+                                className="fw-semibold mb-0"
+                                style={{ color: theme.palette.text.primary, fontSize: "0.75rem" }}
+                              >
+                                {(() => {
+                                  const remark = item.remark || "Session";
+                                  // Remove consecutive duplicates
+                                  const parts = remark.split('-').map(p => p.trim()).filter(p => p);
+                                  const cleaned = parts.filter((p, i, arr) => i === 0 || p !== arr[i - 1]).join(' - ');
+                                  return cleaned;
+                                })()}
+                              </h6>
                             </div>
                           </div>
 
@@ -782,31 +854,31 @@ const TrackingData = () => {
                           </div> */}
 
                           <div className="d-flex align-items-center mb-1">
-  <FaRoute
-    className="me-1"
-    style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
-  />
-  <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
-    {isActive ? (
-      <>
-        Status:{" "}
-        <span style={{ color: theme.palette.success.main, fontWeight: 500 }}>
-          Live (updating...)
-        </span>
-      </>
-    ) : (
-      <>
-        Travelled Distance:{" "}
-        <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
-          {item.totalDistance
-            ? Math.floor((item.totalDistance / 1000) * 10) / 10
-            : 0}{" "}
-          km
-        </span>
-      </>
-    )}
-  </small>
-</div>
+                            <FaRoute
+                              className="me-1"
+                              style={{ color: theme.palette.primary.main, fontSize: "0.7rem" }}
+                            />
+                            <small style={{ fontSize: "0.6rem", color: theme.palette.text.secondary }}>
+                              {isActive ? (
+                                <>
+                                  Status:{" "}
+                                  <span style={{ color: theme.palette.success.main, fontWeight: 500 }}>
+                                    Live (updating...)
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  Travelled Distance:{" "}
+                                  <span style={{ color: theme.palette.text.primary, fontWeight: 500 }}>
+                                    {item.totalDistance
+                                      ? Math.floor((item.totalDistance / 1000) * 10) / 10
+                                      : 0}{" "}
+                                    km
+                                  </span>
+                                </>
+                              )}
+                            </small>
+                          </div>
 
                           {!isActive && (
                             <div className="d-flex align-items-center mb-2">

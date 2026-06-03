@@ -6565,17 +6565,33 @@ const Locations = () => {
     const isActive = checkIsActive(session);
     const rawPhotos = session.photos || [];
 
-    if (isActive) {
-      const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
-        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      return validPhotos.map((photo, idx) => {
-        const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
-        const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
-        const type = idx === 0 ? "start" : idx === validPhotos.length - 1 ? "end" : "route";
-        return { key: type === "start" ? "start" : type === "end" ? "end" : `photo_${idx}`, idx, url: photo.url, timestamp: photo.timestamp, address: photo.address || "Address not available", lat: pLat, lng: pLng, type };
-      });
-    }
+    // if (isActive) {
+    //   const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
+    //     .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    //   return validPhotos.map((photo, idx) => {
+    //     const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
+    //     const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
+    //     const type = idx === 0 ? "start" : idx === validPhotos.length - 1 ? "end" : "route";
+    //     return { key: type === "start" ? "start" : type === "end" ? "end" : `photo_${idx}`, idx, url: photo.url, timestamp: photo.timestamp, address: photo.address || "Address not available", lat: pLat, lng: pLng, type };
+    //   });
+    // }
 
+    // It Taking Add Photo as Photo stop
+if (isActive) {
+  const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
+    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  return validPhotos.map((photo, idx) => {
+    const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
+    const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
+    const type = idx === 0 ? "start" : "route";           // ← changed
+    return {
+      key: type === "start" ? "start" : `photo_${idx}`,   // ← changed
+      idx, url: photo.url, timestamp: photo.timestamp,
+      address: photo.address || "Address not available",
+      lat: pLat, lng: pLng, type
+    };
+  });
+}
     const { startPoint: sp, endPoint: ep } = getStartEndFromPhotos(session);
     const result = [];
     const seenUrls = new Set();
@@ -6701,6 +6717,93 @@ const Locations = () => {
     polylines.current = []; markers.current = []; markerRefs.current.clear();
   };
 
+  // const drawMapWithSession = useCallback((session, showPhotos) => {
+  //   if (!mapInstance.current) return;
+  //   const stats = getSessionStats(session);
+  //   const allLocations = stats.locations || [];
+  //   if (!allLocations.length) return;
+  //   clearMap();
+  //   const validLocations = getValidLocations(allLocations);
+  //   if (validLocations.length === 0) return;
+
+  //   for (let i = 0; i < validLocations.length - 1; i++) {
+  //     const line = L.polyline(
+  //       [[getLat(validLocations[i]), getLng(validLocations[i])], [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])]],
+  //       { color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444", weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
+  //     ).addTo(mapInstance.current);
+  //     polylines.current.push(line);
+  //   }
+
+  //   if (startPoint && hasValidCoordinates(startPoint)) {
+  //     const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🚀</span><b style="font-size:13px;letter-spacing:0.5px">START POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(startPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Date:</b> ${fmtDate(startPoint.timestamp)}</div>${startPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${startPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${startPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
+  //     const icon = startPoint.photo ? makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34) : makeStartIcon("#22c55e", fmtTime(startPoint.timestamp), false, 28);
+  //     const m = L.marker([startPoint.lat, startPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
+  //     markers.current.push(m); markerRefs.current.set("start", m);
+  //   } else if (validLocations.length > 0) {
+  //     const fb = validLocations[0];
+  //     const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#22c55e;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🚀 START POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(fb.timestamp)}</div></div>`;
+  //     const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+  //     markers.current.push(m); markerRefs.current.set("start", m);
+  //   }
+
+  //   const isActive = checkIsActive(session);
+
+  //   if (isActive && validLocations.length > 0) {
+  //     const mostRecent = validLocations[validLocations.length - 1];
+  //     const ts = mostRecent.timestamp || mostRecent.time || mostRecent.createdAt;
+  //     const isOnline = mostRecent.isOnline === true;
+  //     const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isOnline ? '📍' : '📶'}</span><b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN (OFFLINE)'}</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Last Update:</b> ${fmtTime(ts)}</div><div style="font-size:12px;color:#666;"><b>Status:</b> ${isOnline ? '🟢 Online' : '⚫ Offline'}</div><div style="font-size:12px;color:#666;margin-top:4px;"><b>Address:</b> ${getAddress(mostRecent)}</div></div></div>`;
+  //     const markerColor = isOnline ? "#2196F3" : "#6c757d";
+  //     const m = L.marker([getLat(mostRecent), getLng(mostRecent)], { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
+  //     markers.current.push(m); markerRefs.current.set("live", m);
+  //   } else if (!isActive) {
+  //     if (endPoint && hasValidCoordinates(endPoint)) {
+  //       const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🏁</span><b style="font-size:13px;letter-spacing:0.5px">END POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(endPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Address:</b> ${endPoint.address || "Address not available"}</div>${endPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${endPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${endPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
+  //       const icon = endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28);
+  //       const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
+  //       markers.current.push(m); markerRefs.current.set("end", m);
+  //     } else if (validLocations.length > 1) {
+  //       const lastLoc = validLocations[validLocations.length - 1];
+  //       const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#ef4444;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
+  //       const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon("#ef4444", fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+  //       markers.current.push(m); markerRefs.current.set("end", m);
+  //     }
+  //   }
+
+  //   if (showPhotos && session.photos && session.photos.length > 0) {
+  //     const sortedPhotos = [...session.photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  //     sortedPhotos.forEach((photo, idx) => {
+  //       if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
+  //       const lat = getLat(photo.location), lng = getLng(photo.location);
+  //       if (!isActive) {
+  //         if (startPoint && isSameLatLng(lat, lng, startPoint.lat, startPoint.lng)) return;
+  //         if (endPoint && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
+  //       }
+  //       const isFirst = isActive && idx === 0;
+  //       const isLast = isActive && idx === sortedPhotos.length - 1;
+  //       const markerKey = isFirst ? "start" : isLast ? "end" : `photo_${idx}`;
+  //       const label = isFirst ? "FIRST PHOTO" : isLast ? "LATEST PHOTO" : "ROUTE PHOTO";
+  //       const popup = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#FF9800,#F57C00);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><b style="font-size:13px;letter-spacing:0.5px">📸 ${label}</b></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(photo.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:6px;"><b>Remark:</b> ${photo.remark || "No remark"}</div><div style="margin-top:6px;"><img src="${photo.url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${photo.url}','_blank')"/></div></div></div>`;
+  //       const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 }).bindPopup(popup, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
+  //       markers.current.push(m); markerRefs.current.set(markerKey, m);
+  //     });
+  //   }
+
+  //   if (flyToLiveAfterRefresh.current && checkIsActive(session)) {
+  //     flyToLiveAfterRefresh.current = false;
+  //     const liveTarget = [...validLocations].reverse().find((l) => l.isOnline === true) ?? (validLocations.length > 0 ? validLocations[validLocations.length - 1] : null);
+  //     if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 16, { animate: true, duration: 1.0 }); return; }
+  //   }
+
+  //   if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
+  //     const bounds = L.latLngBounds(validLocations.map((l) => [getLat(l), getLng(l)]));
+  //     mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
+  //     lastFitBoundsSessionId.current = String(session.sessionId || session._id);
+  //   }
+  // }, [startPoint, endPoint, showPhotoMarkers]);
+
+  // ── Map init ───────────────────────────────────────────────────────────────
+  
   const drawMapWithSession = useCallback((session, showPhotos) => {
     if (!mapInstance.current) return;
     const stats = getSessionStats(session);
@@ -6734,12 +6837,21 @@ const Locations = () => {
 
     if (isActive && validLocations.length > 0) {
       const mostRecent = validLocations[validLocations.length - 1];
-      const ts = mostRecent.timestamp || mostRecent.time || mostRecent.createdAt;
-      const isOnline = mostRecent.isOnline === true;
-      const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isOnline ? '📍' : '📶'}</span><b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN (OFFLINE)'}</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Last Update:</b> ${fmtTime(ts)}</div><div style="font-size:12px;color:#666;"><b>Status:</b> ${isOnline ? '🟢 Online' : '⚫ Offline'}</div><div style="font-size:12px;color:#666;margin-top:4px;"><b>Address:</b> ${getAddress(mostRecent)}</div></div></div>`;
-      const markerColor = isOnline ? "#2196F3" : "#6c757d";
-      const m = L.marker([getLat(mostRecent), getLng(mostRecent)], { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-      markers.current.push(m); markerRefs.current.set("live", m);
+      const isSameAsStart =
+        validLocations.length === 1 ||
+        isSameLatLng(
+          getLat(mostRecent), getLng(mostRecent),
+          getLat(validLocations[0]), getLng(validLocations[0])
+        );
+
+      if (!isSameAsStart) {
+        const ts = mostRecent.timestamp || mostRecent.time || mostRecent.createdAt;
+        const isOnline = mostRecent.isOnline === true;
+        const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isOnline ? '📍' : '📶'}</span><b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN (OFFLINE)'}</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Last Update:</b> ${fmtTime(ts)}</div><div style="font-size:12px;color:#666;"><b>Status:</b> ${isOnline ? '🟢 Online' : '⚫ Offline'}</div><div style="font-size:12px;color:#666;margin-top:4px;"><b>Address:</b> ${getAddress(mostRecent)}</div></div></div>`;
+        const markerColor = isOnline ? "#2196F3" : "#6c757d";
+        const m = L.marker([getLat(mostRecent), getLng(mostRecent)], { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
+        markers.current.push(m); markerRefs.current.set("live", m);
+      }
     } else if (!isActive) {
       if (endPoint && hasValidCoordinates(endPoint)) {
         const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🏁</span><b style="font-size:13px;letter-spacing:0.5px">END POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(endPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Address:</b> ${endPoint.address || "Address not available"}</div>${endPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${endPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${endPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
@@ -6759,14 +6871,13 @@ const Locations = () => {
       sortedPhotos.forEach((photo, idx) => {
         if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
         const lat = getLat(photo.location), lng = getLng(photo.location);
-        if (!isActive) {
-          if (startPoint && isSameLatLng(lat, lng, startPoint.lat, startPoint.lng)) return;
-          if (endPoint && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
-        }
-        const isFirst = isActive && idx === 0;
+        // Always skip photo marker if it overlaps the start point
+        if (startPoint && hasValidCoordinates(startPoint) && isSameLatLng(lat, lng, startPoint.lat, startPoint.lng)) return;
+        // For inactive sessions also skip if overlaps end point
+        if (!isActive && endPoint && hasValidCoordinates(endPoint) && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
         const isLast = isActive && idx === sortedPhotos.length - 1;
-        const markerKey = isFirst ? "start" : isLast ? "end" : `photo_${idx}`;
-        const label = isFirst ? "FIRST PHOTO" : isLast ? "LATEST PHOTO" : "ROUTE PHOTO";
+        const markerKey = isLast ? "end" : `photo_${idx}`;
+        const label = isLast ? "LATEST PHOTO" : "ROUTE PHOTO";
         const popup = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#FF9800,#F57C00);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><b style="font-size:13px;letter-spacing:0.5px">📸 ${label}</b></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(photo.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:6px;"><b>Remark:</b> ${photo.remark || "No remark"}</div><div style="margin-top:6px;"><img src="${photo.url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${photo.url}','_blank')"/></div></div></div>`;
         const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 }).bindPopup(popup, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
         markers.current.push(m); markerRefs.current.set(markerKey, m);
@@ -6785,8 +6896,6 @@ const Locations = () => {
       lastFitBoundsSessionId.current = String(session.sessionId || session._id);
     }
   }, [startPoint, endPoint, showPhotoMarkers]);
-
-  // ── Map init ───────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
@@ -6842,7 +6951,7 @@ const Locations = () => {
       const key = markerRefs.current.has("end") ? "end" : markerRefs.current.has("live") ? "live" : null;
       if (key) { const m = markerRefs.current.get(key); flyAndOpen(m.getLatLng(), key); return; }
     }
-    if (photo.lat && photo.lng) mapInstance.current.flyTo([photo.lat, photo.lng], 18, { animate: true, duration: 1.2 });
+    if (photo.lat && photo.lng) mapInstance.current.flyTo([photo.lat, photo.lng], 16, { animate: true, duration: 1.2 });
   };
 
   const handleDateSelection = (date) => {
