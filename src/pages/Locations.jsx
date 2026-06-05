@@ -6130,7 +6130,7 @@ import {
   CircularProgress,
   Zoom,
   Divider,
-  Modal,
+  Modal,  
   Fade,
   Popover,
   Tooltip,
@@ -7326,7 +7326,7 @@ const renderPhotoCarousel = () => {
             </Box>
           )}
 
-          {selectedSession && hasLocations && (
+          {selectedSession && hasLocations && !isSelectedSessionActive && (
             <Paper sx={{
               position: "absolute", top: 12, left: 50,
               p: "7px 10px", borderRadius: 2, zIndex: 500, boxShadow: 2,
@@ -7345,7 +7345,7 @@ const renderPhotoCarousel = () => {
                   { icon: <TimerIcon sx={{ fontSize: 9, color: "#FF9800" }} />, label: fmtDuration(totalDuration), color: "#FF9800", bg: alpha("#FF9800", 0.08) },
                   { icon: <StraightenIcon sx={{ fontSize: 9, color: "#2196F3" }} />, label: fmtDist(totalDistance), color: "#2196F3", bg: alpha("#2196F3", 0.08) },
                   { icon: <StartIcon sx={{ fontSize: 9, color: "#22c55e" }} />, label: fmtTime(startTime), color: "#22c55e", bg: alpha("#22c55e", 0.08) },
-                  { icon: <FlagIcon sx={{ fontSize: 9, color: "#ef4444" }} />, label: fmtTime(endTime), color: "#ef4444", bg: alpha("#ef4444", 0.08) },
+                  { icon: <FlagIcon sx={{ fontSize: 9, color: "#ef4444" }} />, label: fmtTime(endTime), color: "#ef4444", bg: alpha("#ef4444", 0.08) }, 
                 ].map((chip, i) => (
                   <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 0.3, bgcolor: chip.bg, px: 0.6, py: 0.25, borderRadius: "6px", flexShrink: 1, minWidth: 0 }}>
                     {chip.icon}
