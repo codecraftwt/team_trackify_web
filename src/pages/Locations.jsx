@@ -1106,7 +1106,7 @@
 //                         </Typography>
 //                       )}
 //                     </Box>
-                    
+
 //                     <Box sx={{ flex: 1 }}>
 //                       <Typography fontWeight={700} sx={{ 
 //                         fontSize: "0.7rem", 
@@ -1127,7 +1127,7 @@
 //                         </Typography>
 //                       </Box> */}
 //                     </Box>
-                    
+
 //                     {photoCount > 0 && (
 //                       <Box sx={{ 
 //                         display: "flex", 
@@ -6130,7 +6130,7 @@ import {
   CircularProgress,
   Zoom,
   Divider,
-  Modal,  
+  Modal,
   Fade,
   Popover,
   Tooltip,
@@ -6577,21 +6577,21 @@ const Locations = () => {
     // }
 
     // It Taking Add Photo as Photo stop
-if (isActive) {
-  const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  return validPhotos.map((photo, idx) => {
-    const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
-    const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
-    const type = idx === 0 ? "start" : "route";           // ← changed
-    return {
-      key: type === "start" ? "start" : `photo_${idx}`,   // ← changed
-      idx, url: photo.url, timestamp: photo.timestamp,
-      address: photo.address || "Address not available",
-      lat: pLat, lng: pLng, type
-    };
-  });
-}
+    if (isActive) {
+      const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      return validPhotos.map((photo, idx) => {
+        const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
+        const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
+        const type = idx === 0 ? "start" : "route";           // ← changed
+        return {
+          key: type === "start" ? "start" : `photo_${idx}`,   // ← changed
+          idx, url: photo.url, timestamp: photo.timestamp,
+          address: photo.address || "Address not available",
+          lat: pLat, lng: pLng, type
+        };
+      });
+    }
     const { startPoint: sp, endPoint: ep } = getStartEndFromPhotos(session);
     const result = [];
     const seenUrls = new Set();
@@ -6803,7 +6803,7 @@ if (isActive) {
   // }, [startPoint, endPoint, showPhotoMarkers]);
 
   // ── Map init ───────────────────────────────────────────────────────────────
-  
+
   const drawMapWithSession = useCallback((session, showPhotos) => {
     if (!mapInstance.current) return;
     const stats = getSessionStats(session);
@@ -6822,10 +6822,48 @@ if (isActive) {
     }
 
     if (startPoint && hasValidCoordinates(startPoint)) {
-      const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🚀</span><b style="font-size:13px;letter-spacing:0.5px">START POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(startPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Date:</b> ${fmtDate(startPoint.timestamp)}</div>${startPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${startPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${startPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
+      const popupContent = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #22c55e">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:16px">🚀</span>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1f2937">Start Point</div>
+        <div style="font-size:10px;color:#22c55e">Beginning of journey</div>
+      </div>
+    </div>
+    <div style="padding:12px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <span style="font-size:11px;color:#6b7280">🕐</span>
+        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(startPoint.timestamp)}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+        <span style="font-size:11px;color:#6b7280">📅</span>
+        <span style="font-size:11px;color:#374151">${fmtDate(startPoint.timestamp)}</span>
+      </div>
+      ${startPoint.photo ? `
+      <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
+        <img src="${startPoint.photo}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${startPoint.photo}','_blank')"/>
+      </div>
+      <div style="margin-top:8px;text-align:center">
+        <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+      </div>
+      ` : ''}
+    </div>
+  </div>`;
+
       const icon = startPoint.photo ? makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34) : makeStartIcon("#22c55e", fmtTime(startPoint.timestamp), false, 28);
-      const m = L.marker([startPoint.lat, startPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-      markers.current.push(m); markerRefs.current.set("start", m);
+      const m = L.marker([startPoint.lat, startPoint.lng], {
+        icon,
+        zIndexOffset: 1000
+      }).bindPopup(popupContent, {
+        maxWidth: 260,
+        minWidth: 200,
+        className: 'photo-popup'
+      }).addTo(mapInstance.current);
+
+      markers.current.push(m);
+      markerRefs.current.set("start", m);
     } else if (validLocations.length > 0) {
       const fb = validLocations[0];
       const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#22c55e;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🚀 START POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(fb.timestamp)}</div></div>`;
@@ -6847,17 +6885,118 @@ if (isActive) {
       if (!isSameAsStart) {
         const ts = mostRecent.timestamp || mostRecent.time || mostRecent.createdAt;
         const isOnline = mostRecent.isOnline === true;
-        const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isOnline ? '📍' : '📶'}</span><b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN (OFFLINE)'}</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Last Update:</b> ${fmtTime(ts)}</div><div style="font-size:12px;color:#666;"><b>Status:</b> ${isOnline ? '🟢 Online' : '⚫ Offline'}</div><div style="font-size:12px;color:#666;margin-top:4px;"><b>Address:</b> ${getAddress(mostRecent)}</div></div></div>`;
-        const markerColor = isOnline ? "#2196F3" : "#6c757d";
-        const m = L.marker([getLat(mostRecent), getLng(mostRecent)], { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-        markers.current.push(m); markerRefs.current.set("live", m);
+
+        // Modern, clean popup design
+        const popupContent = `<div style="min-width:180px;font-family: system-ui, -apple-system, sans-serif;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid ${isOnline ? '#22c55e' : '#9ca3af'}">
+      <div style="width:32px;height:32px;border-radius:50%;background:${isOnline ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#9ca3af,#6b7280)'};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:16px">${isOnline ? '📍' : '📌'}</span>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1f2937">${isOnline ? 'Live Location' : 'Last Known'}</div>
+        <div style="font-size:10px;color:${isOnline ? '#22c55e' : '#9ca3af'};display:flex;align-items:center;gap:4px">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline ? '#22c55e' : '#9ca3af'};${isOnline ? 'animation: pulse 1s infinite' : ''}"></span>
+          ${isOnline ? 'Online' : 'Offline'}
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 12px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;color:#6b7280">🕐</span>
+        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(ts)}</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <span style="font-size:11px;color:#6b7280">📍</span>
+        <span style="font-size:11px;color:#4b5563;line-height:1.3">${getAddress(mostRecent).substring(0, 80)}${getAddress(mostRecent).length > 80 ? '...' : ''}</span>
+      </div>
+    </div>
+    <style>
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+    </style>
+  </div>`;
+
+        const markerColor = isOnline ? "#22c55e" : "#9ca3af";
+        const m = L.marker([getLat(mostRecent), getLng(mostRecent)], {
+          icon: makeMovingIcon(markerColor, fmtTime(ts), 24),
+          zIndexOffset: 1100
+        }).bindPopup(popupContent, {
+          maxWidth: 220,
+          minWidth: 180,
+          className: 'clean-popup'
+        }).addTo(mapInstance.current);
+
+        // Clean popup styles
+        if (!document.querySelector('#clean-popup-styles')) {
+          const style = document.createElement('style');
+          style.id = 'clean-popup-styles';
+          style.textContent = `
+      .clean-popup .leaflet-popup-content-wrapper {
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background: white;
+      }
+      .clean-popup .leaflet-popup-content {
+        margin: 0;
+        min-width: 180px;
+      }
+      .clean-popup .leaflet-popup-tip {
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+    `;
+          document.head.appendChild(style);
+        }
+
+        markers.current.push(m);
+        markerRefs.current.set("live", m);
       }
     } else if (!isActive) {
       if (endPoint && hasValidCoordinates(endPoint)) {
-        const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🏁</span><b style="font-size:13px;letter-spacing:0.5px">END POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(endPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Address:</b> ${endPoint.address || "Address not available"}</div>${endPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${endPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${endPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
+        const popupContent = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #ef4444">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:16px">🏁</span>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1f2937">End Point</div>
+        <div style="font-size:10px;color:#ef4444">Journey completed</div>
+      </div>
+    </div>
+    <div style="padding:12px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <span style="font-size:11px;color:#6b7280">🕐</span>
+        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(endPoint.timestamp)}</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <span style="font-size:11px;color:#6b7280;flex-shrink:0">📍</span>
+        <span style="font-size:11px;color:#4b5563;word-wrap:break-word;word-break:break-word;white-space:normal;line-height:1.4">${endPoint.address || "Address not available"}</span>
+      </div>
+      ${endPoint.photo ? `
+      <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
+        <img src="${endPoint.photo}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${endPoint.photo}','_blank')"/>
+      </div>
+      <div style="margin-top:8px;text-align:center">
+        <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+      </div>
+      ` : ''}
+    </div>
+  </div>`;
+
         const icon = endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28);
-        const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-        markers.current.push(m); markerRefs.current.set("end", m);
+        const m = L.marker([endPoint.lat, endPoint.lng], {
+          icon,
+          zIndexOffset: 1000
+        }).bindPopup(popupContent, {
+          maxWidth: 260,
+          minWidth: 200,
+          className: 'photo-popup'
+        }).addTo(mapInstance.current);
+
+        markers.current.push(m);
+        markerRefs.current.set("end", m);
       } else if (validLocations.length > 1) {
         const lastLoc = validLocations[validLocations.length - 1];
         const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#ef4444;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
@@ -6877,11 +7016,73 @@ if (isActive) {
         if (!isActive && endPoint && hasValidCoordinates(endPoint) && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
         const isLast = isActive && idx === sortedPhotos.length - 1;
         const markerKey = isLast ? "end" : `photo_${idx}`;
-        const label = isLast ? "LATEST PHOTO" : "ROUTE PHOTO";
-        const popup = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#FF9800,#F57C00);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><b style="font-size:13px;letter-spacing:0.5px">📸 ${label}</b></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(photo.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:6px;"><b>Remark:</b> ${photo.remark || "No remark"}</div><div style="margin-top:6px;"><img src="${photo.url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${photo.url}','_blank')"/></div></div></div>`;
-        const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 }).bindPopup(popup, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-        markers.current.push(m); markerRefs.current.set(markerKey, m);
+        const label = isLast ? "Latest Photo" : "Route Photo";
+
+        // Modern, clean photo popup design with time & remark on same line
+        const popup = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #f59e0b">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+          <span style="font-size:16px">📸</span>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1f2937">${label}</div>
+          <div style="font-size:10px;color:#f59e0b">${idx + 1} of ${sortedPhotos.length}</div>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+            <span style="font-size:11px;color:#6b7280">🕐</span>
+            <span style="font-size:11px;color:#374151;font-weight:500;white-space:nowrap">${fmtTime(photo.timestamp)}</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:4px;flex:1;min-width:120px">
+            <span style="font-size:11px;color:#6b7280;flex-shrink:0">💬</span>
+            <span style="font-size:11px;color:#4b5563;word-wrap:break-word;word-break:break-word;white-space:normal;line-height:1.4;font-style:${photo.remark ? 'normal' : 'italic'}">${photo.remark || "No remark"}</span>
+          </div>
+        </div>
+        <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
+          <img src="${photo.url}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${photo.url}','_blank')"/>
+        </div>
+        <div style="margin-top:8px;text-align:center">
+          <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+        </div>
+      </div>
+    </div>`;
+
+        const m = L.marker([lat, lng], {
+          icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28),
+          zIndexOffset: 950
+        }).bindPopup(popup, {
+          maxWidth: 260,
+          minWidth: 200,
+          className: 'photo-popup'
+        }).addTo(mapInstance.current);
+
+        markers.current.push(m);
+        markerRefs.current.set(markerKey, m);
       });
+    }
+
+    // Add photo popup styles if not already added
+    if (!document.querySelector('#photo-popup-styles')) {
+      const style = document.createElement('style');
+      style.id = 'photo-popup-styles';
+      style.textContent = `
+    .photo-popup .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: white;
+    }
+    .photo-popup .leaflet-popup-content {
+      margin: 0;
+      min-width: 200px;
+    }
+    .photo-popup .leaflet-popup-tip {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  `;
+      document.head.appendChild(style);
     }
 
     if (flyToLiveAfterRefresh.current && checkIsActive(session)) {
@@ -6999,68 +7200,68 @@ if (isActive) {
   //     </Box>
   //   );
   // };
-const renderPhotoCarousel = () => {
-  if (!selectedSession || sessionPhotos.length === 0) return null;
-  return (
-    <Box sx={{ px: 1, pb: 1, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`, bgcolor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", flexShrink: 0, overflow: "hidden" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
-        <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
-        <Typography variant="caption" sx={{ color: isDarkMode ? "rgba(255,255,255,0.8)" : "text.secondary", fontWeight: 600, fontSize: "10px" }}>
-          Photos ({sessionPhotos.length})
-        </Typography>
-      </Box>
-      <Box 
-        className="photo-scroll-container"
-        sx={{ 
-          display: "flex", 
-          gap: 0.75, 
-          overflowX: "auto", 
-          overflowY: "hidden", 
-          pb: 1, 
-          cursor: "grab",
-          "&:active": { cursor: "grabbing" },
-          // Make scrollbar visible and stylish
-          "&::-webkit-scrollbar": { 
-            height: 8,
-            WebkitAppearance: "none"
-          },
-          "&::-webkit-scrollbar-track": { 
-            bgcolor: alpha(theme.palette.divider, 0.1),
-            borderRadius: 4,
-            margin: "0 4px"
-          },
-          "&::-webkit-scrollbar-thumb": { 
-            bgcolor: alpha("#FF9800", 0.5),
-            borderRadius: 4,
-            transition: "background 0.2s",
-            "&:hover": {
-              bgcolor: alpha("#FF9800", 0.7)
-            }
-          },
-          // Firefox scrollbar styling
-          scrollbarWidth: "thin",
-          scrollbarColor: `${alpha("#FF9800", 0.5)} ${alpha(theme.palette.divider, 0.1)}`,
-        }}
-      >
-        {sessionPhotos.map((photo, index) => {
-          const isStart = photo.type === "start", isEnd = photo.type === "end";
-          const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
-          return (
-            <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
-              <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
-                {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+  const renderPhotoCarousel = () => {
+    if (!selectedSession || sessionPhotos.length === 0) return null;
+    return (
+      <Box sx={{ px: 1, pb: 1, pt: 0.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`, bgcolor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(8px)", flexShrink: 0, overflow: "hidden" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+          <CollectionsIcon sx={{ fontSize: 12, color: "#FF9800" }} />
+          <Typography variant="caption" sx={{ color: isDarkMode ? "rgba(255,255,255,0.8)" : "text.secondary", fontWeight: 600, fontSize: "10px" }}>
+            Photos ({sessionPhotos.length})
+          </Typography>
+        </Box>
+        <Box
+          className="photo-scroll-container"
+          sx={{
+            display: "flex",
+            gap: 0.75,
+            overflowX: "auto",
+            overflowY: "hidden",
+            pb: 1,
+            cursor: "grab",
+            "&:active": { cursor: "grabbing" },
+            // Make scrollbar visible and stylish
+            "&::-webkit-scrollbar": {
+              height: 8,
+              WebkitAppearance: "none"
+            },
+            "&::-webkit-scrollbar-track": {
+              bgcolor: alpha(theme.palette.divider, 0.1),
+              borderRadius: 4,
+              margin: "0 4px"
+            },
+            "&::-webkit-scrollbar-thumb": {
+              bgcolor: alpha("#FF9800", 0.5),
+              borderRadius: 4,
+              transition: "background 0.2s",
+              "&:hover": {
+                bgcolor: alpha("#FF9800", 0.7)
+              }
+            },
+            // Firefox scrollbar styling
+            scrollbarWidth: "thin",
+            scrollbarColor: `${alpha("#FF9800", 0.5)} ${alpha(theme.palette.divider, 0.1)}`,
+          }}
+        >
+          {sessionPhotos.map((photo, index) => {
+            const isStart = photo.type === "start", isEnd = photo.type === "end";
+            const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+            return (
+              <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
+                <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
+                  {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+                </Box>
+                <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
+                  {fmtTime(photo.timestamp)}
+                </Typography>
               </Box>
-              <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
-                {fmtTime(photo.timestamp)}
-              </Typography>
-            </Box>
-          );
-        })}
+            );
+          })}
+        </Box>
       </Box>
-    </Box>
-  );
-};
+    );
+  };
   // ─── Photo Modal ───────────────────────────────────────────────────────────
   const renderPhotoModal = () => {
     if (!photoModalOpen || selectedPhotoIndex === null) return null;
@@ -7220,26 +7421,26 @@ const renderPhotoCarousel = () => {
                         </Box>
                       </Grid>
                     </Grid> */}
-<Grid container spacing={0.5} sx={{ mb: 0.5 }}>
-  <Grid item xs={6}>
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#FF9800", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#FF9800", 0.1)}` }}>
-      <TimerIcon sx={{ fontSize: 11, color: "#FF9800", flexShrink: 0 }} />
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Duration</Typography>
-        <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#FF9800", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sessionIsActive ? "Live" : fmtDuration(stats.duration)}</Typography>
-      </Box>
-    </Box>
-  </Grid>
-  <Grid item xs={6}>
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#2196F3", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-      <StraightenIcon sx={{ fontSize: 11, color: "#2196F3", flexShrink: 0 }} />
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Distance</Typography>
-        <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#2196F3" }}>{sessionIsActive ? "Updating..." : fmtDist(stats.distance)}</Typography>
-      </Box>
-    </Box>
-  </Grid>
-</Grid>
+                    <Grid container spacing={0.5} sx={{ mb: 0.5 }}>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#FF9800", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#FF9800", 0.1)}` }}>
+                          <TimerIcon sx={{ fontSize: 11, color: "#FF9800", flexShrink: 0 }} />
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Duration</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#FF9800", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sessionIsActive ? "Live" : fmtDuration(stats.duration)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#2196F3", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#2196F3", 0.1)}` }}>
+                          <StraightenIcon sx={{ fontSize: 11, color: "#2196F3", flexShrink: 0 }} />
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Distance</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#2196F3" }}>{sessionIsActive ? "Updating..." : fmtDist(stats.distance)}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    </Grid>
                     <Divider sx={{ my: 0.4, borderColor: alpha(theme.palette.divider, 0.25) }} />
 
                     <Grid container spacing={0.4}>
@@ -7329,25 +7530,29 @@ const renderPhotoCarousel = () => {
           {selectedSession && hasLocations && !isSelectedSessionActive && (
             <Paper sx={{
               position: "absolute", top: 12, left: 50,
-              p: "7px 10px", borderRadius: 2, zIndex: 500, boxShadow: 2,
-              backdropFilter: "blur(10px)", bgcolor: "rgba(255,255,255,0.88)",
-              display: "flex", flexDirection: "column", gap: 0.6,
+              p: "6px 8px", borderRadius: 2, zIndex: 500, boxShadow: 2,
+              backdropFilter: "blur(10px)", bgcolor: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.3)",
+              display: "flex", flexDirection: "column", gap: 0.5,
               maxWidth: "calc(100% - 120px)", minWidth: 0,
             }}>
+              {/* Session title */}
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
                 <PinDropIcon sx={{ fontSize: 12, color: "#2196F3", flexShrink: 0 }} />
                 <Typography sx={{ fontSize: "0.6rem", color: "#2196F3", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {selectedSession.remark || "Session"}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", gap: 0.5, flexWrap: "nowrap", minWidth: 0 }}>
+
+              {/* 2x2 grid */}
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0.4 }}>
                 {[
-                  { icon: <TimerIcon sx={{ fontSize: 9, color: "#FF9800" }} />, label: fmtDuration(totalDuration), color: "#FF9800", bg: alpha("#FF9800", 0.08) },
-                  { icon: <StraightenIcon sx={{ fontSize: 9, color: "#2196F3" }} />, label: fmtDist(totalDistance), color: "#2196F3", bg: alpha("#2196F3", 0.08) },
-                  { icon: <StartIcon sx={{ fontSize: 9, color: "#22c55e" }} />, label: fmtTime(startTime), color: "#22c55e", bg: alpha("#22c55e", 0.08) },
-                  { icon: <FlagIcon sx={{ fontSize: 9, color: "#ef4444" }} />, label: fmtTime(endTime), color: "#ef4444", bg: alpha("#ef4444", 0.08) }, 
+                  { icon: <TimerIcon sx={{ fontSize: 9, color: "#FF9800" }} />, label: fmtDuration(totalDuration), color: "#FF9800", bg: alpha("#FF9800", 0.15) },
+                  { icon: <StraightenIcon sx={{ fontSize: 9, color: "#2196F3" }} />, label: fmtDist(totalDistance), color: "#2196F3", bg: alpha("#2196F3", 0.15) },
+                  { icon: <StartIcon sx={{ fontSize: 9, color: "#22c55e" }} />, label: fmtTime(startTime), color: "#22c55e", bg: alpha("#22c55e", 0.15) },
+                  { icon: <FlagIcon sx={{ fontSize: 9, color: "#ef4444" }} />, label: fmtTime(endTime), color: "#ef4444", bg: alpha("#ef4444", 0.15) },
                 ].map((chip, i) => (
-                  <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 0.3, bgcolor: chip.bg, px: 0.6, py: 0.25, borderRadius: "6px", flexShrink: 1, minWidth: 0 }}>
+                  <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 0.3, bgcolor: chip.bg, px: 0.6, py: 0.25, borderRadius: "6px", minWidth: 0 }}>
                     {chip.icon}
                     <Typography sx={{ fontSize: "0.54rem", fontWeight: 600, color: chip.color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {chip.label}
