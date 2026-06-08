@@ -2908,49 +2908,49 @@ const ReportLocation = () => {
     );
 
     // ─── Photo Carousel Component (Vertical Scroll) ────────────────────────────────
-    const PhotoCarousel = () => {
-        if (!selectedSession || sessionPhotos.length === 0) return null;
+   const PhotoCarousel = () => {
+    if (!selectedSession || sessionPhotos.length === 0) return null;
 
-        return (
-            <Box sx={{ 
-                p: 1, 
-                pt: 0, 
-                borderTop: `1px solid ${alpha("#2196F3", 0.1)}`,
-                maxHeight: 260,
-                overflowY: "auto",
-                "&::-webkit-scrollbar": { width: 3 },
-                "&::-webkit-scrollbar-track": { bgcolor: alpha("#2196F3", 0.05), borderRadius: 2 },
-                "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 },
-            }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, mb: 0.5 }}>
-                    <CollectionsIcon sx={{ fontSize: 11, color: "#FF9800" }} />
-                    <Typography sx={{ fontSize: "0.55rem", fontWeight: 500, color: "text.secondary" }}>
-                        Photos ({sessionPhotos.length}) • Click to fly
-                    </Typography>
-                </Box>
-                <Box
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: 0.75,
-                    }}
-                >
-                    {sessionPhotos.map((photo, index) => (
-                        <DraggablePhoto
-                            key={`${photo.key || photo.url}_${index}`}
-                            photo={photo}
-                            index={index}
-                            onDragEnd={handleDragEnd}
-                            onPhotoClick={handlePhotoModalOpen}
-                            onFlyToLocation={flyToLocation}
-                            onDragStart={(idx) => setDraggingIndex(idx)}
-                            isDragging={draggingIndex === index}
-                        />
-                    ))}
-                </Box>
+    return (
+        <Box sx={{ 
+            p: 0.75, 
+            pt: 0, 
+            borderTop: `1px solid ${alpha("#2196F3", 0.1)}`,
+            maxHeight: 220,  // Reduced height for smaller display
+            overflowY: "auto",
+            "&::-webkit-scrollbar": { width: 3 },
+            "&::-webkit-scrollbar-track": { bgcolor: alpha("#2196F3", 0.05), borderRadius: 2 },
+            "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 },
+        }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, mb: 0.5 }}>
+                <CollectionsIcon sx={{ fontSize: 10, color: "#FF9800" }} />
+                <Typography sx={{ fontSize: "0.5rem", fontWeight: 500, color: "text.secondary" }}>
+                    Photos ({sessionPhotos.length})
+                </Typography>
             </Box>
-        );
-    };
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",  // 3 images per row
+                    gap: 0.5,  // Smaller gap between images
+                }}
+            >
+                {sessionPhotos.map((photo, index) => (
+                    <DraggablePhoto
+                        key={`${photo.key || photo.url}_${index}`}
+                        photo={photo}
+                        index={index}
+                        onDragEnd={handleDragEnd}
+                        onPhotoClick={handlePhotoModalOpen}
+                        onFlyToLocation={flyToLocation}
+                        onDragStart={(idx) => setDraggingIndex(idx)}
+                        isDragging={draggingIndex === index}
+                    />
+                ))}
+            </Box>
+        </Box>
+    );
+};
 
     // ─── Photo Modal ───────────────────────────────────────────────────────────
     const renderPhotoModal = () => {
