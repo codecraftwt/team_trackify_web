@@ -22,6 +22,7 @@ import { IconButton } from "@mui/material";
 import { ArrowBack as ArrowBackIcon, Timer as TimerIcon, FiberManualRecord as LiveIcon } from "@mui/icons-material";
 
 const TrackingData = () => {
+  const isReturningFromLocations = sessionStorage.getItem("returningFromLocations") === "true";
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -52,8 +53,8 @@ const TrackingData = () => {
     );
     setRefreshing(false);
   };
-  const isReturningFromLocations =
-    sessionStorage.getItem("returningFromLocations") === "true";
+  // const isReturningFromLocations =
+  //   sessionStorage.getItem("returningFromLocations") === "true";
 
   const getStoredDate = () => {
     const storedDate = localStorage.getItem("selectedDate");
@@ -63,8 +64,9 @@ const TrackingData = () => {
     return new Date();
   };
 
-  const [selectedDate, setSelectedDate] = useState(getStoredDate());
+  // const [selectedDate, setSelectedDate] = useState(getStoredDate());
 
+  const [selectedDate, setSelectedDate] = useState(getStoredDate);
   useEffect(() => {
     sessionStorage.removeItem("returningFromLocations");
   }, []);
@@ -445,7 +447,8 @@ const TrackingData = () => {
                           className="px-2 py-1" // Increased padding
                           style={{
                             fontSize: "0.7rem", // Changed size
-                            backgroundColor: alpha(theme.palette.secondary.main, 0.15),
+                            // backgroundColor: alpha(theme.palette.secondary.main, 0.15),
+                            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark,0.15})`,
                             // color: theme.palette.secondary.dark, // Changed color
                             border: `1px solid ${alpha(theme.palette.secondary.main, 0.3)}`, // Added border
                             borderRadius: "12px", // Changed border radius
