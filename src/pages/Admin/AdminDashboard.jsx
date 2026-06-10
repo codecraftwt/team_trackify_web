@@ -927,7 +927,6 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 };
 
 
-//Without Showing Address
 // const RecentActivities = ({ users, loading }) => {
 //   const theme = useTheme();
 //   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -941,229 +940,37 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //     return <EmptyRecentActivities />;
 //   }
 
-//   // Sort users to show today's entries first, then all others
-//   const today = new Date().toISOString().split('T')[0];
-
-//   const sortedUsers = [...users].sort((a, b) => {
-//     const aDate = a.updatedAt?.split('T')[0];
-//     const bDate = b.updatedAt?.split('T')[0];
-
-//     const aIsToday = aDate === today;
-//     const bIsToday = bDate === today;
-
-//     // Today's entries come first
-//     if (aIsToday && !bIsToday) return -1;
-//     if (!aIsToday && bIsToday) return 1;
-
-//     // Then sort by date (newest first)
-//     return new Date(b.updatedAt) - new Date(a.updatedAt);
-//   });
-
-//   // Show all users (no limit)
-//   const displayUsers = sortedUsers;
-
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.5, delay: 0.3 }}
-//     >
-//       <Paper
-//         elevation={0}
-//         sx={{
-//           p: { xs: 1.5, sm: 2, md: 2.5 },
-//           borderRadius: { xs: 2.5, sm: 3, md: 3.5 },
-//           border: "1px solid",
-//           borderColor: alpha(theme.palette.primary.main, 0.1),
-//           background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
-//         }}
-//       >
-//         <Box sx={{
-//           display: "flex",
-//           flexDirection: { xs: 'column', sm: 'row' },
-//           justifyContent: "space-between",
-//           alignItems: { xs: 'flex-start', sm: 'center' },
-//           mb: { xs: 1.5, sm: 2 },
-//           gap: 0.8
-//         }}>
-//           <Typography variant="body1" fontWeight="600" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, color: theme.palette.primary.main }}>
-//             Recent Activities
-//           </Typography>
-//           <Chip
-//             label={`Total: ${displayUsers.length}`}
-//             size="small"
-//             sx={{
-//               bgcolor: alpha(theme.palette.primary.main, 0.1),
-//               color: theme.palette.primary.main,
-//               fontWeight: 500,
-//               fontSize: { xs: '0.6rem', sm: '0.65rem' },
-//               height: { xs: 22, sm: 24 },
-//             }}
-//           />
-//         </Box>
-
-//         <Stack spacing={1.5}>
-//           {displayUsers.map((activity, index) => {
-//             const activityDate = activity.updatedAt?.split('T')[0];
-//             const isToday = activityDate === today;
-
-//             return (
-//               <motion.div
-//                 key={activity._id || index}
-//                 initial={{ opacity: 0, x: -20 }}
-//                 animate={{ opacity: 1, x: 0 }}
-//                 transition={{ delay: Math.min(index * 0.05, 0.5) }}
-//               >
-//                 <Paper
-//                   elevation={0}
-//                   sx={{
-//                     p: { xs: 1.2, sm: 1.5 },
-//                     borderRadius: { xs: 1.5, sm: 2 },
-//                     bgcolor: alpha(theme.palette.primary.main, isToday ? 0.08 : 0.02),
-//                     border: "1px solid",
-//                     borderColor: isToday
-//                       ? alpha(theme.palette.primary.main, 0.3)
-//                       : alpha(theme.palette.primary.main, 0.1),
-//                     display: "flex",
-//                     alignItems: "center",
-//                     flexDirection: { xs: 'column', sm: 'row' },
-//                     textAlign: { xs: 'center', sm: 'left' },
-//                     gap: { xs: 0.8, sm: 0 },
-//                     transition: "all 0.2s ease",
-//                     "&:hover": {
-//                       bgcolor: alpha(theme.palette.primary.main, isToday ? 0.12 : 0.05),
-//                       transform: !isMobile ? "translateX(4px)" : "none",
-//                       borderColor: alpha(theme.palette.primary.main, 0.4),
-//                     },
-//                   }}
-//                 >
-//                   <Avatar
-//                     sx={{
-//                       bgcolor: alpha(theme.palette.primary.main, isToday ? 0.3 : 0.2),
-//                       color: theme.palette.primary.main,
-//                       mr: { xs: 0, sm: 1.5 },
-//                       mb: { xs: 0.5, sm: 0 },
-//                       width: { xs: 36, sm: 40 },
-//                       height: { xs: 36, sm: 40 },
-//                       fontSize: '0.8rem',
-//                       fontWeight: 600,
-//                     }}
-//                   >
-//                     {activity.name?.charAt(0) || "U"}
-//                   </Avatar>
-
-//                   <Box sx={{ flex: 1, width: '100%' }}>
-//                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-//                       <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
-//                         {activity.name || "Unknown User"}
-//                       </Typography>
-//                       {isToday && (
-//                         <Chip
-//                           label="Today"
-//                           size="small"
-//                           sx={{
-//                             height: 16,
-//                             fontSize: '0.5rem',
-//                             bgcolor: alpha(theme.palette.primary.main, 0.2),
-//                             color: theme.palette.primary.main,
-//                             fontWeight: 600
-//                           }}
-//                         />
-//                       )}
-//                     </Box>
-//                     <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
-//                       {activity.status || "No action"}
-//                     </Typography>
-//                   </Box>
-
-//                   <Typography variant="caption" color="text.secondary" sx={{
-//                     fontSize: '0.6rem',
-//                     minWidth: { xs: 'auto', sm: 80 },
-//                     textAlign: { xs: 'center', sm: 'right' }
-//                   }}>
-//                     {activity.updatedAt
-//                       ? new Date(activity.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-//                       : '—'}
-//                   </Typography>
-//                 </Paper>
-//               </motion.div>
-//             );
-//           })}
-//         </Stack>
-//       </Paper>
-//     </motion.div>
-//   );
-// };
-
-// const RecentActivities = ({ users, loading }) => {
-//   // Show Address Also
-
-//   const theme = useTheme();
-//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-//   const isSmallMobile = useMediaQuery('(max-width:480px)');
-
-//   if (loading) {
-//     return <RecentActivitiesSkeleton />;
-//   }
-
-//   if (!users || users.length === 0) {
-//     return <EmptyRecentActivities />;
-//   }
-
-//   // Sort users to show today's entries first, then all others
 //   const today = new Date().toISOString().split('T')[0];
 
 //   const sortedUsers = [...users].sort((a, b) => {
 //     const aDate = a.lastActive?.split('T')[0];
 //     const bDate = b.lastActive?.split('T')[0];
-
 //     const aIsToday = aDate === today;
 //     const bIsToday = bDate === today;
-
-//     // Today's entries come first
 //     if (aIsToday && !bIsToday) return -1;
 //     if (!aIsToday && bIsToday) return 1;
-
-//     // Then sort by date (newest first)
 //     return new Date(b.lastActive) - new Date(a.lastActive);
 //   });
 
-//   // Show all users (no limit)
 //   const displayUsers = sortedUsers;
 
-//   // Helper function to get display address
-//   // const getDisplayAddress = (activity) => {
-//   //   const address = activity.lastLocation?.address;
-//   //   if (address && address !== "Unknown Address" && address !== "Unknown") {
-//   //     return address;
-//   //   }
-//   //   // Show coordinates if address is missing
-//   //   if (activity.lastLocation?.latitude && activity.lastLocation?.longitude) {
-//   //     const lat = activity.lastLocation.latitude;
-//   //     const lng = activity.lastLocation.longitude;
-//   //     if (lat !== 0 && lng !== 0) {
-//   //       return `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
-//   //     }
-//   //   }
-//   //   return "Place not available";
-//   // };
-// // Current code (lines ~750-766)
-// const getDisplayAddress = (activity) => {
-//   const address = activity.lastLocation?.address;
-//   if (address && address !== "Unknown Address" && address !== "Unknown") {
-//     return address;
-//   }
-//   // Show coordinates if address is missing ❌ This is what you DON'T want
-//   if (activity.lastLocation?.latitude && activity.lastLocation?.longitude) {
-//     const lat = activity.lastLocation.latitude;
-//     const lng = activity.lastLocation.longitude;
-//     if (lat !== 0 && lng !== 0) {
-//       return `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+//   // ✅ NEW FUNCTION - Only shows proper address, NEVER coordinates
+//   const getDisplayAddress = (activity) => {
+//     const address = activity.lastLocation?.address;
+    
+//     // Only return if it's a valid, proper address (not "Unknown", not coordinates)
+//     if (address && 
+//         address !== "Unknown Address" && 
+//         address !== "Unknown" &&
+//         !address.includes("°") && // Exclude coordinates like "12.34°"
+//         address.length > 5) {
+//       return address;
 //     }
-//   }
-//   return "Place not available";
-// };
-//   // Helper function to get status color
+    
+//     // Don't show coordinates at all
+//     return "Address not available";
+//   };
+
 //   const getStatusColor = (status) => {
 //     switch (status?.toLowerCase()) {
 //       case 'active':
@@ -1271,8 +1078,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //                   </Avatar>
 
 //                   <Box sx={{ flex: 1, width: '100%' }}>
-
-//                     {/* Row 1: Name (left) + Status (right) */}
+//                     {/* Row 1: Name + Status */}
 //                     <Box sx={{
 //                       display: 'flex',
 //                       alignItems: 'center',
@@ -1282,7 +1088,6 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //                       <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
 //                         {activity.name || "Unknown User"}
 //                       </Typography>
-
 //                       <Chip
 //                         label={status}
 //                         size="small"
@@ -1296,7 +1101,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //                       />
 //                     </Box>
 
-//                     {/* Row 2: Address */}
+//                     {/* ✅ Row 2: Address - ONLY shows proper address */}
 //                     <Box sx={{ mb: 0.4 }}>
 //                       <Typography
 //                         variant="caption"
@@ -1314,7 +1119,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //                       </Typography>
 //                     </Box>
 
-//                     {/* Row 3: Start time (left) + Last active time (right) */}
+//                     {/* Row 3: Start time + Last active time */}
 //                     <Box sx={{
 //                       display: 'flex',
 //                       alignItems: 'center',
@@ -1327,14 +1132,12 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //                           🕐 Started: {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 //                         </Typography>
 //                       )}
-
 //                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
 //                         {activity.lastActive
 //                           ? new Date(activity.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 //                           : '—'}
 //                       </Typography>
 //                     </Box>
-
 //                   </Box>
 //                 </Paper>
 //               </motion.div>
@@ -1345,8 +1148,10 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 //     </motion.div>
 //   );
 // };
+
 const RecentActivities = ({ users, loading }) => {
   const theme = useTheme();
+  const navigate = useNavigate(); // ADD THIS - Make sure useNavigate is imported at top
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
@@ -1372,20 +1177,17 @@ const RecentActivities = ({ users, loading }) => {
 
   const displayUsers = sortedUsers;
 
-  // ✅ NEW FUNCTION - Only shows proper address, NEVER coordinates
   const getDisplayAddress = (activity) => {
     const address = activity.lastLocation?.address;
     
-    // Only return if it's a valid, proper address (not "Unknown", not coordinates)
     if (address && 
         address !== "Unknown Address" && 
         address !== "Unknown" &&
-        !address.includes("°") && // Exclude coordinates like "12.34°"
+        !address.includes("°") &&
         address.length > 5) {
       return address;
     }
     
-    // Don't show coordinates at all
     return "Address not available";
   };
 
@@ -1400,6 +1202,32 @@ const RecentActivities = ({ users, loading }) => {
       default:
         return 'default';
     }
+  };
+
+  // Handle click on activity card
+  const handleActivityClick = (activity) => {
+    const userId = activity.userId || activity._id;
+    
+    if (!userId) {
+      console.error("No user ID found in activity:", activity);
+      return;
+    }
+
+    const activityDate = activity.lastActive ? new Date(activity.lastActive) : new Date();
+    
+    localStorage.setItem("selectedDate", activityDate.toISOString());
+    sessionStorage.removeItem("returningFromLocations");
+    
+    navigate("/trackingdata", {
+      state: {
+        item: {
+          id: userId,
+          _id: userId,
+          name: activity.name || "User",
+          userName: activity.name || "User"
+        }
+      }
+    });
   };
 
   return (
@@ -1459,6 +1287,7 @@ const RecentActivities = ({ users, loading }) => {
               >
                 <Paper
                   elevation={0}
+                  onClick={() => handleActivityClick(activity)}
                   sx={{
                     p: { xs: 1.2, sm: 1.5 },
                     borderRadius: { xs: 1.5, sm: 2 },
@@ -1473,10 +1302,35 @@ const RecentActivities = ({ users, loading }) => {
                     textAlign: { xs: 'center', sm: 'left' },
                     gap: { xs: 0.8, sm: 0 },
                     transition: "all 0.2s ease",
+                    cursor: "pointer",
                     "&:hover": {
-                      bgcolor: alpha(theme.palette.primary.main, isToday ? 0.12 : 0.05),
+                      bgcolor: alpha(theme.palette.primary.main, isToday ? 0.15 : 0.08),
                       transform: !isMobile ? "translateX(4px)" : "none",
-                      borderColor: alpha(theme.palette.primary.main, 0.4),
+                      borderColor: alpha(theme.palette.primary.main, 0.5),
+                      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
+                    },
+                    "&:active": {
+                      transform: "scale(0.99)",
+                    },
+                    position: "relative",
+                    overflow: "hidden",
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      right: 12,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 20,
+                      height: 20,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='${encodeURIComponent(theme.palette.primary.main)}'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundSize: "contain",
+                      backgroundRepeat: "no-repeat",
+                      opacity: 0.5,
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                      transform: "translateY(-50%) translateX(2px)",
                     },
                   }}
                 >
@@ -1496,7 +1350,6 @@ const RecentActivities = ({ users, loading }) => {
                   </Avatar>
 
                   <Box sx={{ flex: 1, width: '100%' }}>
-                    {/* Row 1: Name + Status */}
                     <Box sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1519,7 +1372,6 @@ const RecentActivities = ({ users, loading }) => {
                       />
                     </Box>
 
-                    {/* ✅ Row 2: Address - ONLY shows proper address */}
                     <Box sx={{ mb: 0.4 }}>
                       <Typography
                         variant="caption"
@@ -1537,7 +1389,6 @@ const RecentActivities = ({ users, loading }) => {
                       </Typography>
                     </Box>
 
-                    {/* Row 3: Start time + Last active time */}
                     <Box sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1566,7 +1417,6 @@ const RecentActivities = ({ users, loading }) => {
     </motion.div>
   );
 };
-// Main AdminDashboard Component
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();

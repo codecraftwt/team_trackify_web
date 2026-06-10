@@ -448,7 +448,7 @@ const TrackingData = () => {
                           style={{
                             fontSize: "0.7rem", // Changed size
                             // backgroundColor: alpha(theme.palette.secondary.main, 0.15),
-                            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark,0.15})`,
+                            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                             // color: theme.palette.secondary.dark, // Changed color
                             border: `1px solid ${alpha(theme.palette.secondary.main, 0.3)}`, // Added border
                             borderRadius: "12px", // Changed border radius
