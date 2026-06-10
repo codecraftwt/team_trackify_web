@@ -1205,30 +1205,34 @@ const RecentActivities = ({ users, loading }) => {
   };
 
   // Handle click on activity card
-  const handleActivityClick = (activity) => {
-    const userId = activity.userId || activity._id;
-    
-    if (!userId) {
-      console.error("No user ID found in activity:", activity);
-      return;
-    }
+ const handleActivityClick = (activity) => {
+  const userId = activity.userId || activity._id;
+  
+  if (!userId) {
+    console.error("No user ID found in activity:", activity);
+    return;
+  }
 
-    const activityDate = activity.lastActive ? new Date(activity.lastActive) : new Date();
-    
-    localStorage.setItem("selectedDate", activityDate.toISOString());
-    sessionStorage.removeItem("returningFromLocations");
-    
-    navigate("/trackingdata", {
-      state: {
-        item: {
-          id: userId,
-          _id: userId,
-          name: activity.name || "User",
-          userName: activity.name || "User"
-        }
-      }
-    });
-  };
+  const activityDate = activity.lastActive ? new Date(activity.lastActive) : new Date();
+  
+  localStorage.setItem("selectedDate", activityDate.toISOString());
+  sessionStorage.removeItem("returningFromLocations");
+  
+  // Get the session ID if available from the activity data
+  const sessionId = activity.sessionId || activity._id;
+  
+  navigate("/trackingdata", {
+    state: {
+      item: {
+        id: userId,
+        _id: userId,
+        name: activity.name || "User",
+        userName: activity.name || "User"
+      },
+      selectedSessionId: sessionId  // ADD THIS LINE
+    }
+  });
+};
 
   return (
     <motion.div

@@ -34,13 +34,52 @@ const TrackingData = () => {
   const availableDates = useSelector((state) => state.user?.userAvailableDates || []);
   const availableDatesLoading = useSelector((state) => state.user?.userAvailableDatesLoading || false);
 
+
   const location = useLocation();
   const navigate = useNavigate();
   const trackData = location.state?.item;
   const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [highlightedSessionId, setHighlightedSessionId] = useState(null);
 
+
+  // Check for session to highlight when component mounts
+  useEffect(() => {
+    if (location.state?.selectedSessionId) {
+      setHighlightedSessionId(location.state.selectedSessionId);
+    } else if (location.state?.highlightSession) {
+      setHighlightedSessionId(location.state.highlightSession);
+    }
+  }, [location.state]);
+
+  // Auto scroll to highlighted session after sessions load
+  // Auto scroll to highlighted session after sessions load
+  useEffect(() => {
+    if (highlightedSessionId && sessionsData.length > 0 && !sessionsLoading && !loading) {
+      // Give more time for DOM to fully render
+      setTimeout(() => {
+        const highlightedElement = document.querySelector(`[data-session-id="${highlightedSessionId}"]`);
+        if (highlightedElement) {
+          // Scroll with offset to center the card properly
+          const elementPosition = highlightedElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 100;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+
+          // Also add a temporary extra glow effect
+          highlightedElement.style.transition = 'all 0.3s ease';
+          highlightedElement.style.transform = 'scale(1.02)';
+          setTimeout(() => {
+            highlightedElement.style.transform = 'scale(1)';
+          }, 1000);
+        }
+      }, 800); // Increased delay to ensure DOM is ready
+    }
+  }, [highlightedSessionId, sessionsData, sessionsLoading, loading]);
   // Manual refresh handler
   const handleManualRefresh = async () => {
     setRefreshing(true);
@@ -248,12 +287,24 @@ const TrackingData = () => {
 
   // Blinking animation for live dot
   const blinkKeyframes = `
-    @keyframes blink {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.8); }
-      100% { opacity: 1; transform: scale(1); }
+  @keyframes blink {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  
+  @keyframes glowPulse {
+    0% { 
+      box-shadow: 0 0 0 2px ${theme.palette.primary.main}, 0 0 15px 5px ${alpha(theme.palette.primary.main, 0.4)};
     }
-  `;
+    50% { 
+      box-shadow: 0 0 0 2px ${theme.palette.primary.main}, 0 0 30px 12px ${alpha(theme.palette.primary.main, 0.8)};
+    }
+    100% { 
+      box-shadow: 0 0 0 2px ${theme.palette.primary.main}, 0 0 15px 5px ${alpha(theme.palette.primary.main, 0.4)};
+    }
+  }
+`;
 
 
   // Title Trim
@@ -728,19 +779,41 @@ const TrackingData = () => {
                     : 0;
 
                   const isActive = item.isActive === true;
+                  const isHighlighted = highlightedSessionId && (item.sessionId === highlightedSessionId || item._id === highlightedSessionId);
 
                   return (
                     <Card
                       key={item.sessionId || index}
+                      data-session-id={item.sessionId}
                       className="border-0 shadow-sm h-100"
                       style={{
+                        // borderRadius: "8px",
+                        // width: "100%",
+                        // height: "100%",
+                        // border: isActive ? `1px solid ${alpha(theme.palette.success.main, 0.5)}` : "none",
+                        // boxShadow: isActive ? `0 4px 12px ${alpha(theme.palette.success.main, 0.15)}` : "0 1px 4px rgba(0,0,0,0.03)",
+                        // transition: "all 0.2s ease",
+
                         borderRadius: "8px",
                         width: "100%",
                         height: "100%",
-                        border: isActive ? `1px solid ${alpha(theme.palette.success.main, 0.5)}` : "none",
-                        boxShadow: isActive ? `0 4px 12px ${alpha(theme.palette.success.main, 0.15)}` : "0 1px 4px rgba(0,0,0,0.03)",
-                        transition: "all 0.2s ease",
+                        border: isActive
+                          ? `1px solid ${alpha(theme.palette.success.main, 0.5)}`
+                          : isHighlighted
+                            ? `2px solid ${theme.palette.primary.main}`
+                            : "none",
+                        boxShadow: isActive
+                          ? `0 4px 12px ${alpha(theme.palette.success.main, 0.15)}`
+                          : isHighlighted
+                            ? `0 0 0 2px ${theme.palette.primary.main}, 0 0 20px 8px ${alpha(theme.palette.primary.main, 0.6)}`  // GLOWING EFFECT
+                            : "0 1px 4px rgba(0,0,0,0.03)",
+                        transition: "all 0.3s ease-in-out",
+                        backgroundColor: isHighlighted ? alpha(theme.palette.primary.main, 0.08) : "transparent",
+                        animation: isHighlighted ? "glowPulse 1.5s ease-in-out infinite" : "none",
+
+
                       }}
+
                     >
                       <Card.Body className="p-2" style={{ height: "100%" }}>
                         <div className="d-flex flex-column h-100">
