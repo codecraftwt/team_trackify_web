@@ -96,20 +96,46 @@ const TrackingData = () => {
   //   sessionStorage.getItem("returningFromLocations") === "true";
 
   const getStoredDate = () => {
+    // First check if we're returning from locations
+    if (isReturningFromLocations) {
+      const savedDate = sessionStorage.getItem("lastSelectedDate");
+      if (savedDate) {
+        return new Date(savedDate);
+      }
+      const storedDate = localStorage.getItem("selectedDate");
+      if (storedDate) {
+        return new Date(storedDate);
+      }
+    }
+
+    // Check localStorage for previously selected date
     const storedDate = localStorage.getItem("selectedDate");
-    if (isReturningFromLocations && storedDate) {
+    if (storedDate) {
       return new Date(storedDate);
     }
+
+    // Default to today
     return new Date();
   };
 
   // const [selectedDate, setSelectedDate] = useState(getStoredDate());
 
   const [selectedDate, setSelectedDate] = useState(getStoredDate);
-  useEffect(() => {
-    sessionStorage.removeItem("returningFromLocations");
-  }, []);
 
+  // Save date whenever it changes (add this right after the useState)
+  useEffect(() => {
+    localStorage.setItem("selectedDate", selectedDate.toISOString());
+    sessionStorage.setItem("lastSelectedDate", selectedDate.toISOString());
+  }, [selectedDate]);
+
+  useEffect(() => {
+    // Keep the flag for 1 second to ensure date is loaded
+    const timer = setTimeout(() => {
+      sessionStorage.removeItem("returningFromLocations");
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
   // Format date for backend (YYYY-MM-DD)
   const backendFormattedDate =
     selectedDate.getFullYear() + "-" +
@@ -145,7 +171,9 @@ const TrackingData = () => {
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    localStorage.setItem("selectedDate", date.toISOString());
+    const dateISO = date.toISOString();
+    localStorage.setItem("selectedDate", dateISO);
+    sessionStorage.setItem("lastSelectedDate", dateISO);
     setShowCalendar(false);
   };
 
@@ -156,10 +184,28 @@ const TrackingData = () => {
     return availableDates.includes(dateStr);
   };
 
+  // Add this useEffect at the end of your other useEffects
+  useEffect(() => {
+    return () => {
+      // Clean up when component unmounts normally
+      if (!sessionStorage.getItem("returningFromLocations")) {
+        sessionStorage.removeItem("lastSelectedDate");
+      }
+    };
+  }, []);
+  // Optional: Clear session storage when page is actually refreshed (not navigation)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem("returningFromLocations");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
   // Send ALL sessions for the selected date to Locations
   const handleViewAllLocations = () => {
     if (!sessionsData || sessionsData.length === 0) return;
-
+    sessionStorage.setItem("lastSelectedDate", selectedDate.toISOString());
     const formattedSessions = sessionsData.map((session) => ({
       _id: session._id,
       sessionId: session.sessionId,
@@ -221,7 +267,7 @@ const TrackingData = () => {
         : 0,
       hasFullData: false
     }));
-
+    sessionStorage.setItem("lastSelectedDate", selectedDate.toISOString());
     sessionStorage.setItem("returningFromLocations", "true");
     navigate(`/locations`, {
       state: {

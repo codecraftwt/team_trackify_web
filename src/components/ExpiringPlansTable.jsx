@@ -356,83 +356,162 @@ const ExpiringPlansTable = ({ data = [] }) => {
     );
   };
 
+  // return (
+  //   <motion.div
+  //     initial={{ opacity: 0, y: 20 }}
+  //     animate={{ opacity: 1, y: 0 }}
+  //     transition={{ duration: 0.5 }}
+  //   >
+  //     <Paper
+  //       elevation={0}
+  //       sx={{
+  //         borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
+  //         overflow: "hidden",
+  //         border: "1px solid",
+  //         borderColor: alpha(theme.palette.primary.main, 0.1),
+  //         boxShadow: `0 5px 15px -8px ${alpha(theme.palette.primary.main, 0.1)}`,
+  //         bgcolor: theme.palette.background.paper,
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           p: { xs: 1.5, sm: 1.75, md: 2 },
+  //           background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+  //           color: "white",
+  //         }}
+  //       >
+  //         <Box sx={{
+  //           display: "flex",
+  //           alignItems: "center",
+  //           justifyContent: "space-between",
+  //           flexWrap: "wrap",
+  //           gap: 0.75
+  //         }}>
+  //           <Box>
+  //             <Typography
+  //               variant="subtitle1"
+  //               fontWeight={600}
+  //               color="white"
+  //               sx={{
+  //                 fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+  //                 mb: 0.25
+  //               }}
+  //             >
+  //               Users with Expiring Plans (Next 30 Days)
+  //             </Typography>
+  //             <Typography
+  //               variant="caption"
+  //               sx={{
+  //                 color: alpha("#ffffff", 0.8),
+  //                 fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }
+  //               }}
+  //             >
+  //               {`${limitedData.length} ${limitedData.length === 1 ? 'user' : 'users'} with plans expiring in next 30 days`}
+  //             </Typography>
+  //           </Box>
+
+  //           <Chip
+  //             label={`${limitedData.length}`}
+  //             size="small"
+  //             icon={<PeopleIcon sx={{ fontSize: { xs: 8, sm: 10, md: 12 } }} />}
+  //             sx={{
+  //               bgcolor: alpha("#ffffff", 0.2),
+  //               color: "white",
+  //               fontWeight: 600,
+  //               fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+  //               height: { xs: 20, sm: 22, md: 24 },
+  //               "& .MuiChip-icon": {
+  //                 color: "white",
+  //                 fontSize: { xs: 8, sm: 10, md: 12 },
+  //               },
+  //             }}
+  //           />
+  //         </Box>
+  //       </Box>
+
+  //       <SingleLineView />
+  //     </Paper>
+  //   </motion.div>
+  // );
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
+        overflow: "hidden",
+        border: "1px solid",
+        borderColor: alpha(theme.palette.primary.main, 0.1),
+        boxShadow: `0 5px 15px -8px ${alpha(theme.palette.primary.main, 0.1)}`,
+        bgcolor: theme.palette.background.paper,
+      }}
     >
-      <Paper
-        elevation={0}
+      <Box
         sx={{
-          borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
-          overflow: "hidden",
-          border: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.1),
-          boxShadow: `0 5px 15px -8px ${alpha(theme.palette.primary.main, 0.1)}`,
-          bgcolor: theme.palette.background.paper,
+          p: { xs: 1.5, sm: 1.75, md: 2 },
+          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+          color: "white",
         }}
       >
-        <Box
-          sx={{
-            p: { xs: 1.5, sm: 1.75, md: 2 },
-            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            color: "white",
-          }}
-        >
-          <Box sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 0.75
-          }}>
-            <Box>
-              <Typography
-                variant="subtitle1"
-                fontWeight={600}
-                color="white"
-                sx={{
-                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
-                  mb: 0.25
-                }}
-              >
-                Users with Expiring Plans (Next 30 Days)
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: alpha("#ffffff", 0.8),
-                  fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }
-                }}
-              >
-                {`${limitedData.length} ${limitedData.length === 1 ? 'user' : 'users'} with plans expiring in next 30 days`}
-              </Typography>
-            </Box>
-
-            <Chip
-              label={`${limitedData.length}`}
-              size="small"
-              icon={<PeopleIcon sx={{ fontSize: { xs: 8, sm: 10, md: 12 } }} />}
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 0.75
+        }}>
+          <Box>
+            <Typography
+              variant="subtitle1"
+              fontWeight={600}
+              color="white"
               sx={{
-                bgcolor: alpha("#ffffff", 0.2),
-                color: "white",
-                fontWeight: 600,
-                fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
-                height: { xs: 20, sm: 22, md: 24 },
-                "& .MuiChip-icon": {
-                  color: "white",
-                  fontSize: { xs: 8, sm: 10, md: 12 },
-                },
+                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                mb: 0.25
               }}
-            />
+            >
+              Users with Expiring Plans (Next 30 Days)
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: alpha("#ffffff", 0.8),
+                fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' }
+              }}
+            >
+              {`${limitedData.length} ${limitedData.length === 1 ? 'user' : 'users'} with plans expiring in next 30 days`}
+            </Typography>
           </Box>
-        </Box>
 
-        <SingleLineView />
-      </Paper>
-    </motion.div>
-  );
+          <Chip
+            label={`${limitedData.length}`}
+            size="small"
+            icon={<PeopleIcon sx={{ fontSize: { xs: 8, sm: 10, md: 12 } }} />}
+            sx={{
+              bgcolor: alpha("#ffffff", 0.2),
+              color: "white",
+              fontWeight: 600,
+              fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+              height: { xs: 20, sm: 22, md: 24 },
+              "& .MuiChip-icon": {
+                color: "white",
+                fontSize: { xs: 8, sm: 10, md: 12 },
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
+      {/* Only render table body if there is data */}
+      {limitedData.length > 0 && <SingleLineView />}
+    </Paper>
+  </motion.div>
+);
 };
 
 export default ExpiringPlansTable;
