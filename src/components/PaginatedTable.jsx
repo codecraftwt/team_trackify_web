@@ -27,6 +27,7 @@ import {
   PictureAsPdf as PdfIcon,
   Clear as ClearIcon,
   Check as CheckIcon,
+  SearchOff as SearchOffIcon,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -43,7 +44,7 @@ const PaginatedTable = ({
   totalPages = 1,
   totalCount = 0,
   currentPage = 1,
-  onPageChange = () => {},
+  onPageChange = () => { },
   loading = false,
   rowRender = null,
   mobileCardRender = null,
@@ -161,11 +162,10 @@ const PaginatedTable = ({
       <Box
         sx={{
           p: { xs: 1.2, sm: 1.5, md: 2 },
-          background: `linear-gradient(135deg, ${primaryColor}, ${
-            primaryColor === "#2563EB"
-              ? theme.palette.primary.dark
-              : "#0a5c55"
-          })`,
+          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor === "#2563EB"
+            ? theme.palette.primary.dark
+            : "#0a5c55"
+            })`,
           color: "white",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
@@ -626,26 +626,27 @@ const PaginatedTable = ({
                     );
                   })
                 ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      align="center"
-                      sx={{ py: { xs: 3, sm: 4, md: 5 } }}
-                    >
+                  <TableCell
+                    colSpan={columns.length}
+                    align="center"
+                    sx={{ py: { xs: 3, sm: 4, md: 5 }, border: 'none' }}
+                  >
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1
+                    }}>
+                      <SearchOffIcon sx={{ fontSize: { xs: 32, sm: 36, md: 40 }, color: 'text.disabled' }} />
                       <Typography
                         color="text.secondary"
-                        sx={{
-                          fontSize: {
-                            xs: "0.7rem",
-                            sm: "0.75rem",
-                            md: "0.8rem",
-                          },
-                        }}
+                        sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" } }}
                       >
                         No data found
                       </Typography>
-                    </TableCell>
-                  </TableRow>
+                    </Box>
+                  </TableCell>
                 )}
               </AnimatePresence>
             </TableBody>

@@ -172,7 +172,7 @@ const PlanManagement = () => {
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
-  const [viewMode, setViewMode] = useState('list');
+  const [viewMode, setViewMode] = useState('card');
 
   const { plansList = [], loading, error } = useSelector((state) => state.plan || {});
 
@@ -1215,13 +1215,14 @@ const PlanManagement = () => {
                     },
                   }}
                 >
-                  <ToggleButton value="list">
-                    <ViewListIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                    List
-                  </ToggleButton>
+                  
                   <ToggleButton value="card">
                     <ViewModuleIcon sx={{ fontSize: 16, mr: 0.5 }} />
                     Card
+                  </ToggleButton>
+                  <ToggleButton value="list">
+                    <ViewListIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                    List
                   </ToggleButton>
                 </ToggleButtonGroup>
               )}
