@@ -34,6 +34,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BoltIcon from '@mui/icons-material/Bolt';
 import BusinessIcon from '@mui/icons-material/Business';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { getAvailablePlans } from '../redux/slices/planSlice';
 
@@ -66,6 +67,240 @@ const PlanCardSkeleton = () => {
         </Box>
       </Card>
     </Grid>
+  );
+};
+
+const CouponSection = ({ theme }) => {
+  const [couponValue, setCouponValue] = useState(10);
+  const [promoCode, setPromoCode] = useState('WELCOME20');
+  const [revealIndex, setRevealIndex] = useState(0);
+
+  const generateRandomPromoCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCouponValue((prev) => (prev >= 90 ? 10 : prev + 10));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    if (revealIndex < 8) {
+      timer = setTimeout(() => {
+        setRevealIndex((prev) => prev + 1);
+      }, 150);
+    } else {
+      timer = setTimeout(() => {
+        setPromoCode(generateRandomPromoCode());
+        setRevealIndex(0);
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [revealIndex]);
+
+  const getDisplayPromoCode = () => {
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      if (i < revealIndex) {
+        result += promoCode[i];
+      } else {
+        result += 'X';
+      }
+    }
+    return result;
+  };
+
+  return (
+    <section className="py-8 sm:py-10" style={{ background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.01)} 100%)`, borderTop: `1px solid ${alpha(theme.palette.divider, 0.08)}`, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.08)}` }}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Grid container spacing={3} alignItems="center">
+          {/* Left Column: Static Points */}
+          <Grid item xs={12} md={7}>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Box sx={{
+                  width: 30, height: 30, borderRadius: '50%',
+                  background: alpha(theme.palette.primary.main, 0.1),
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: theme.palette.primary.main
+                }}>
+                  <LocalOfferIcon sx={{ fontSize: 15 }} />
+                </Box>
+                <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 1.5, color: theme.palette.primary.main, lineHeight: 1 }}>
+                  Special Promotions
+                </Typography>
+              </Box>
+
+              <Typography variant="h4" sx={{ fontWeight: 800, mb: 1.5, color: 'text.primary', fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.8rem' }, lineHeight: 1.2 }}>
+                Have a Coupon Code? Save on Every Plan!
+              </Typography>
+
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2.5, fontSize: { xs: '0.8rem', sm: '0.85rem' }, lineHeight: 1.4 }}>
+                Whether you are starting small or scaling up to an enterprise solution, our promotional discounts can be applied across all tiers. Look out for our seasonal campaigns to unlock maximum value!
+              </Typography>
+
+              <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {[
+                  { title: 'Available on All Plans', desc: 'From our Basic starter plan to fully customized Enterprise solutions, coupons apply to all options.' },
+                  { title: 'Stackable with Annual Discounts', desc: 'Combine any active coupon code with our 25% annual billing discount for ultimate savings.' },
+                  { title: 'Simple One-Click Activation', desc: 'Just enter your promo code at the checkout page. The discount updates your payment amount instantly.' },
+                  { title: 'Risk-Free Guarantee', desc: 'All discounted plans still come with our standard 14-day free trial period and flexible cancellation policy.' }
+                ].map((point, index) => (
+                  <ListItem key={index} disableGutters sx={{ alignItems: 'flex-start', py: 0.25 }}>
+                    <ListItemIcon sx={{ minWidth: 26, mt: 0.25 }}>
+                      <Box sx={{
+                        width: 16, height: 16, borderRadius: '50%',
+                        background: alpha(theme.palette.primary.main, 0.1),
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <FaCheck style={{ color: theme.palette.primary.main, fontSize: 8 }} />
+                      </Box>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={point.title}
+                      secondary={point.desc}
+                      primaryTypographyProps={{ sx: { fontSize: '0.8rem', fontWeight: 700, color: 'text.primary', mb: 0.25, lineHeight: 1.2 } }}
+                      secondaryTypographyProps={{ sx: { fontSize: '0.75rem', color: 'text.secondary', lineHeight: 1.3 } }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </motion.div>
+          </Grid>
+
+          {/* Right Column: Stylish Virtual Coupon Card */}
+          <Grid item xs={12} md={5}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Paper
+                elevation={4}
+                sx={{
+                  position: 'relative',
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  color: 'white',
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  p: { xs: 2.5, sm: 3 },
+                  boxShadow: `0 15px 30px -10px ${alpha(theme.palette.primary.main, 0.4)}`,
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  // Punch-out circles on the left & right sides
+                  '&::before, &::after': {
+                    content: '""',
+                    position: 'absolute',
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: theme.palette.background.paper,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                  },
+                  '&::before': { left: -10 },
+                  '&::after': { right: -10 },
+                }}
+              >
+                {/* Decorative background glow */}
+                <Box sx={{
+                  position: 'absolute',
+                  top: -40,
+                  right: -40,
+                  width: 120,
+                  height: 120,
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  filter: 'blur(15px)',
+                }} />
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                  <Chip
+                    icon={<LocalOfferIcon sx={{ fontSize: 10, color: `${theme.palette.primary.main} !important` }} />}
+                    label="ACTIVE OFFER"
+                    size="small"
+                    sx={{
+                      backgroundColor: 'white',
+                      color: theme.palette.primary.main,
+                      fontWeight: 700,
+                      fontSize: '0.6rem',
+                      mb: 2,
+                      height: 20,
+                      px: 0.5,
+                      '& .MuiChip-icon': { color: theme.palette.primary.main }
+                    }}
+                  />
+
+                  <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5, letterSpacing: -0.5, textShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '1.8rem', lineHeight: 1.1 }}>
+                    <motion.span
+                      key={couponValue}
+                      initial={{ opacity: 0.3, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ display: 'inline-block' }}
+                    >
+                      {couponValue}% OFF
+                    </motion.span>
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.75rem', mb: 2, lineHeight: 1.3 }}>
+                    Welcome offer for new teams. Apply on any plan checkout!
+                  </Typography>
+
+                  {/* Dotted separator line */}
+                  <Box sx={{
+                    width: '100%',
+                    borderTop: '2px dashed rgba(255, 255, 255, 0.3)',
+                    my: 1.5,
+                  }} />
+
+                  <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.6rem', letterSpacing: 1, textTransform: 'uppercase', mb: 0.5, lineHeight: 1 }}>
+                    Your Promo Code
+                  </Typography>
+
+                  <Box sx={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(5px)',
+                    border: '1px dashed rgba(255, 255, 255, 0.3)',
+                    borderRadius: 1.5,
+                    py: 1,
+                    px: 2,
+                    fontSize: '1rem',
+                    fontWeight: 800,
+                    letterSpacing: 2,
+                    color: 'white',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                    mb: 1.5,
+                    display: 'inline-block',
+                    fontFamily: 'monospace'
+                  }}>
+                    {getDisplayPromoCode()}
+                  </Box>
+
+                  <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.55rem', lineHeight: 1.2 }}>
+                    *Limited time offer. Enter code at final checkout page.
+                  </Typography>
+                </Box>
+              </Paper>
+            </motion.div>
+          </Grid>
+        </Grid>
+      </div>
+    </section>
   );
 };
 
@@ -113,7 +348,7 @@ const Pricing = () => {
     const parts = description.split(/\s-\s|-\s/);
     const startsWithDash = description.trim().startsWith('-');
     const cleanParts = parts.map(p => p.trim()).filter(Boolean);
-    
+
     if (cleanParts.length === 1 && !startsWithDash) {
       return (
         <span style={{ display: 'block', textAlign: 'center' }}>
@@ -189,6 +424,8 @@ const Pricing = () => {
     fetchPlans();
   }, [dispatch]);
 
+
+
   const getPrice = (plan) => (billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice);
   const getSavings = (plan) => billingCycle === 'yearly' && plan.monthlyPrice ? (plan.monthlyPrice * 12) - plan.yearlyPrice : 0;
 
@@ -232,7 +469,7 @@ const Pricing = () => {
       price: plan.isCustom ? 'Variable' : getPrice(plan),
       billingCycle: billingCycle
     });
-    
+
     const selectedPlanData = {
       id: plan.id,
       name: plan.name,
@@ -247,20 +484,20 @@ const Pricing = () => {
       color: plan.color,
       isCustom: plan.isCustom || false,
     };
-    
+
     console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
-    
+
     // Store in sessionStorage
     sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
     console.log("💾 Saved to sessionStorage");
-    
+
     // Navigate with state
     console.log("🚀 Navigating to /register with state");
-    navigate('/register', { 
-      state: { 
-        selectedPlan: selectedPlanData, 
-        fromPricing: true 
-      } 
+    navigate('/register', {
+      state: {
+        selectedPlan: selectedPlanData,
+        fromPricing: true
+      }
     });
   };
 
@@ -269,7 +506,7 @@ const Pricing = () => {
     const savings = getSavings(plan);
 
     return (
-      <Grid item xs={12} sm={6} md={4} key={plan.id || index} sx={{ display: 'flex' }}>
+      <Grid item xs={12} sm={6} md={3} key={plan.id || index} sx={{ display: 'flex' }}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -283,7 +520,7 @@ const Pricing = () => {
             transform: isPopular && !isMobile ? 'scale(1.02)' : 'scale(1)',
             zIndex: isPopular ? 10 : 1,
             transition: 'transform 0.3s ease',
-            '&:hover': { transform: isPopular && !isMobile ? 'scale(1.03)' : 'scale(1.01)' },
+            '&:hover': { transform: isPopular && !isMobile ? 'scale(1.04)' : 'scale(1.02)' },
           }}>
             {isPopular && (
               <Box sx={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', zIndex: 20 }}>
@@ -304,83 +541,116 @@ const Pricing = () => {
               </Box>
             )}
             <Card
-              elevation={isPopular ? 4 : 1}
+              elevation={isPopular ? 6 : 2}
               sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                border: isPopular ? '2px solid' : '1px solid',
-                borderColor: isPopular ? alpha(plan.color, 0.5) : alpha(theme.palette.divider, 0.5),
-                borderRadius: 2,
+                border: '1px solid',
+                borderColor: isPopular ? alpha(plan.color, 0.6) : alpha(theme.palette.divider, 0.15),
+                borderRadius: 3,
                 overflow: 'hidden',
                 position: 'relative',
-                '&:hover': { boxShadow: !isMobile ? `0 12px 24px -10px ${alpha(plan.color, 0.2)}` : 'none' },
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: isPopular 
+                  ? `0 10px 25px -5px ${alpha(plan.color, 0.25)}` 
+                  : `0 4px 20px -10px rgba(0,0,0,0.08)`,
+                '&:hover': { 
+                  boxShadow: !isMobile 
+                    ? `0 20px 35px -10px ${alpha(plan.color, 0.35)}` 
+                    : 'none',
+                  borderColor: alpha(plan.color, 0.8),
+                  '& .plan-icon-container': {
+                    transform: 'scale(1.1) rotate(5deg)',
+                    background: `linear-gradient(135deg, ${alpha(plan.color, 0.15)} 0%, ${alpha(plan.color, 0.35)} 100%)`,
+                  }
+                },
               }}
             >
-              <Box sx={{ height: 3, background: plan.gradient, width: '100%' }} />
-              <CardContent sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <Box sx={{ height: 4, background: plan.gradient, width: '100%' }} />
+              <CardContent sx={{ p: 2.5, display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <Box sx={{ textAlign: 'center', mb: 1.5 }}>
-                  <Box sx={{
-                    width: 56, height: 56, borderRadius: '50%',
-                    background: `linear-gradient(135deg, ${alpha(plan.color, 0.1)} 0%, ${alpha(plan.color, 0.2)} 100%)`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1,
-                    border: `2px solid ${alpha(plan.color, 0.2)}`,
-                  }}>
-                    <Box sx={{ color: plan.color, fontSize: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Box 
+                    className="plan-icon-container"
+                    sx={{
+                      width: 52, height: 52, borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${alpha(plan.color, 0.08)} 0%, ${alpha(plan.color, 0.18)} 100%)`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1.25,
+                      border: `1px solid ${alpha(plan.color, 0.25)}`,
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <Box sx={{ color: plan.color, fontSize: '1.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {plan.icon}
                     </Box>
                   </Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'text.primary', fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' } }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: 'text.primary', fontSize: { xs: '0.95rem', sm: '1.05rem', md: '1.1rem' }, letterSpacing: -0.2 }}>
                     {plan.name}
                   </Typography>
                 </Box>
-                <Box sx={{ minHeight: 32, mb: 1.5 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem', textAlign: 'center', display: 'block' }}>
+                
+                <Box sx={{ minHeight: 32, mb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem', textAlign: 'center', display: 'block', lineHeight: 1.3 }}>
                     {renderDescription(plan.description)}
                   </Typography>
                 </Box>
-                <Box sx={{ textAlign: 'center', mb: 1.5 }}>
+
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
                   {plan.isCustom ? (
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
-                      <Typography component="span" sx={{ fontSize: '1.4rem', fontWeight: 700, color: plan.color }}>Custom Pricing</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', minHeight: 32 }}>
+                      <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 800, color: plan.color }}>Custom Pricing</Typography>
                     </Box>
                   ) : (
-                    <>
-                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
-                        <Typography component="span" sx={{ fontSize: '1.5rem', fontWeight: 600, color: plan.color }}>₹{getPrice(plan)}</Typography>
-                        <Typography component="span" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>/{billingCycle === 'monthly' ? 'month' : 'yr'}</Typography>
+                    <Box sx={{ minHeight: 32 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.25 }}>
+                        <Typography component="span" sx={{ fontSize: '1.45rem', fontWeight: 800, color: plan.color, letterSpacing: -0.5 }}>₹{getPrice(plan)}</Typography>
+                        <Typography component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary', fontWeight: 500 }}>/{plan.duration}</Typography>
                       </Box>
-                      {savings > 0 && <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600, display: 'block', mt: 0.25, fontSize: '0.6rem' }}>Save ₹{savings}/year</Typography>}
-                    </>
+                      {savings > 0 && (
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'block', mt: 0.25, fontSize: '0.55rem', letterSpacing: 0.2 }}>
+                          Save ₹{savings}/year
+                        </Typography>
+                      )}
+                    </Box>
                   )}
                 </Box>
-                <Box sx={{ mb: 1.5 }}>
+
+                <Box sx={{ mb: 2 }}>
                   <Button fullWidth variant={getButtonVariant(plan)} onClick={() => handleSelectPlan(plan)} sx={getButtonStyles(plan)}>
                     {plan.isCustom ? 'Configure Plan' : 'Buy Now'}
                   </Button>
-                 
                 </Box>
+
+                <Box sx={{ width: '100%', height: '1px', bgcolor: alpha(theme.palette.divider, 0.08), mb: 2 }} />
+
                 {!plan.isCustom && (
-                  <Box sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: { xs: '180px', sm: '200px', md: '220px' }, pr: 0.5 }}>
-                    <List sx={{ '& .MuiListItem-root': { px: 0, py: 0.25 } }}>
+                  <Box sx={{ 
+                    flexGrow: 1, 
+                    overflowY: 'auto', 
+                    maxHeight: { xs: '180px', sm: '200px', md: '220px' }, 
+                    pr: 0.5,
+                    scrollbarWidth: 'none',
+                    '&::-webkit-scrollbar': { display: 'none' }
+                  }}>
+                    <List sx={{ '& .MuiListItem-root': { px: 0, py: 0.2 } }}>
                       {plan.features.map((feature, i) => (
                         <ListItem key={i} disableGutters>
-                          <ListItemIcon sx={{ minWidth: 24 }}>
-                            <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha(plan.color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <FaCheck style={{ color: plan.color, fontSize: 10 }} />
+                          <ListItemIcon sx={{ minWidth: 20 }}>
+                            <Box sx={{ width: 14, height: 14, borderRadius: '50%', background: alpha(plan.color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <FaCheck style={{ color: plan.color, fontSize: 8 }} />
                             </Box>
                           </ListItemIcon>
-                          <ListItemText primary={feature} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.primary' } }} />
+                          <ListItemText primary={feature} primaryTypographyProps={{ sx: { fontSize: '0.65rem', color: 'text.primary', fontWeight: 500 } }} />
                         </ListItem>
                       ))}
                       {plan.limitations?.map((lim, i) => (
-                        <ListItem key={`lim-${i}`} disableGutters sx={{ opacity: 0.7 }}>
-                          <ListItemIcon sx={{ minWidth: 24 }}>
-                            <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha('#ef4444', 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <FaTimes style={{ color: '#ef4444', fontSize: 10 }} />
+                        <ListItem key={`lim-${i}`} disableGutters sx={{ opacity: 0.6 }}>
+                          <ListItemIcon sx={{ minWidth: 20 }}>
+                            <Box sx={{ width: 14, height: 14, borderRadius: '50%', background: alpha('#ef4444', 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <FaTimes style={{ color: '#ef4444', fontSize: 8 }} />
                             </Box>
                           </ListItemIcon>
-                          <ListItemText primary={lim} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.secondary', textDecoration: 'line-through' } }} />
+                          <ListItemText primary={lim} primaryTypographyProps={{ sx: { fontSize: '0.65rem', color: 'text.secondary', textDecoration: 'line-through' } }} />
                         </ListItem>
                       ))}
                     </List>
@@ -395,12 +665,11 @@ const Pricing = () => {
   };
 
   const faqs = [
-    { question: 'Can I change plans later?', answer: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we will prorate any charges.' },
-    { question: 'What happens after the free trial?', answer: 'After your 14-day free trial, you can choose to continue with a paid plan or cancel. No charges until you decide.' },
-    { question: 'Do you offer discounts for annual plans?', answer: 'Yes! Annual plans save you up to 25% compared to monthly billing. Perfect for teams committed to long-term growth.' },
-    { question: 'Is there a setup fee?', answer: 'No setup fees, ever. What you see is what you pay. Transparent pricing with no hidden costs.' },
+    { question: 'Is there a setup fee?', answer: 'No setup fees. What you see is what you pay, with complete transparency.' },
+    { question: 'Do you offer discounts?', answer: 'Yes, we are offering discounts on all plans.' },
     { question: 'Can I get a custom plan?', answer: 'Absolutely! Contact our sales team for custom Enterprise solutions tailored to your specific needs.' },
     { question: 'What payment methods do you accept?', answer: 'We accept all major credit cards, debit cards, and bank transfers for Enterprise plans.' },
+    { question: 'Can we add-on in current plan?', answer: 'Yes, we have add-on plans available that you can add anytime to your current plan.' }
   ];
 
   return (
@@ -420,23 +689,6 @@ const Pricing = () => {
               Real-time GPS tracking + simple reports for field teams.<br />
               No complex setup. <strong>No developer API required</strong> on affordable plans.
             </p>
-            {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-medium" style={{ color: billingCycle === 'monthly' ? theme.palette.text.primary : theme.palette.text.secondary }}>Monthly</span>
-                <button onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')} className="relative w-12 h-6 rounded-full p-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" style={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` }}>
-                  <motion.div className="w-4 h-4 bg-white rounded-full shadow-md" animate={{ x: billingCycle === 'yearly' ? (isMobile ? 20 : 24) : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }} />
-                </button>
-                <div className="flex items-center gap-1">
-                  <span className="text-xs sm:text-sm font-medium" style={{ color: billingCycle === 'yearly' ? theme.palette.text.primary : theme.palette.text.secondary }}>Yearly</span>
-                  <Chip label="Save up to 25%" size="small" sx={{ background: 'linear-gradient(135deg, #059669, #10b981)', color: 'white', fontWeight: 'bold', fontSize: '0.55rem', height: 18, '& .MuiChip-label': { px: 0.8 } }} />
-                </div>
-              </div>
-            </div> */}
-            <div className="flex flex-wrap justify-center gap-2 text-xs" style={{ color: theme.palette.text.secondary }}>
-              <div className="flex items-center gap-1"><FaCheck size={8} style={{ color: theme.palette.primary.main }} /> 14-day free trial</div>
-              <div className="flex items-center gap-1"><FaCheck size={8} style={{ color: theme.palette.primary.main }} /> No credit card required</div>
-              <div className="flex items-center gap-1"><FaCheck size={8} style={{ color: theme.palette.primary.main }} /> Cancel anytime</div>
-            </div>
           </motion.div>
         </div>
       </section>
@@ -462,6 +714,8 @@ const Pricing = () => {
           </Grid>
         </div>
       </section>
+
+      <CouponSection theme={theme} />
 
       <section className="py-8 sm:py-10 md:py-12" style={{ backgroundColor: alpha(theme.palette.primary.main, 0.03) }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
