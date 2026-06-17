@@ -77,7 +77,7 @@ const Section = ({ title, Icon, children }) => (
 // ── Main component ──
 const PaymentDetailsPopup = ({ open, onClose, paymentId }) => {
     const dispatch = useDispatch();
-    const { paymentDetailsData, paymentDetailsLoading, paymentDetailsError } =
+    const { paymentDetailsData, paymentDetailsLoading, paymentDetailsError, paymentHistory = [] } =
         useSelector((state) => state.payment);
 
     useEffect(() => {
@@ -86,6 +86,25 @@ const PaymentDetailsPopup = ({ open, onClose, paymentId }) => {
 
     const d = paymentDetailsData;
     const statusCfg = getStatusCfg(d?.status);
+
+    const getParentPlan = (transaction) => {
+        if (transaction && transaction.type === "addon" && transaction.parentPaymentId) {
+            const parentId = typeof transaction.parentPaymentId === "object"
+                ? transaction.parentPaymentId._id || transaction.parentPaymentId.id
+                : transaction.parentPaymentId;
+            return paymentHistory?.find((t) => t._id === parentId) || null;
+        }
+        return null;
+    };
+
+    const getPlanExpiryDate = (transaction) => {
+        if (!transaction) return null;
+        const parentPlan = getParentPlan(transaction);
+        return parentPlan?.expiresAt || transaction.expiresAt;
+    };
+
+    const parentPlan = getParentPlan(d);
+    const resolvedIsActive = parentPlan ? parentPlan.isActive : d?.isActive;
     const isAddon = d?.type === "addon";
 
     // ── Print Handler ──
@@ -165,10 +184,11 @@ const PaymentDetailsPopup = ({ open, onClose, paymentId }) => {
                             </div>
                             <div class="print-grid-item">
                                 <div class="print-row"><div class="print-label">Max Users</div><div class="print-value">${d?.maxUser || '—'}</div></div>
-                                <div class="print-row"><div class="print-label">Status</div><div class="print-value" style="color:${d?.isActive ? '#10b981' : '#ef4444'}">${d?.isActive ? 'Active' : 'Inactive'}</div></div>
+                                <div class="print-row"><div class="print-label">Status</div><div class="print-value" style="color:${resolvedIsActive ? '#10b981' : '#ef4444'}">${resolvedIsActive ? 'Active' : 'Inactive'}</div></div>
                             </div>
                         </div>
-                        <div class="print-row"><div class="print-label">Expires At</div><div class="print-value">${d?.expiresAt ? moment(d.expiresAt).format("DD MMM YYYY, hh:mm A") : '—'}</div></div>
+                        <div class="print-row"><div class="print-label">Start Date</div><div class="print-value">${d?.createdAt ? moment(d.createdAt).format("DD MMM YYYY, hh:mm A") : '—'}</div></div>
+                        <div class="print-row"><div class="print-label">Expires At</div><div class="print-value">${getPlanExpiryDate(d) ? moment(getPlanExpiryDate(d)).format("DD MMM YYYY, hh:mm A") : '—'}</div></div>
                     </div>
 
                     ${d?.couponCode ? `
@@ -345,8 +365,9 @@ const PaymentDetailsPopup = ({ open, onClose, paymentId }) => {
                                 </div>
                                 <Row label="Duration" value={d.duration} />
                                 <Row label="Max Users" value={d.maxUser} />
-                                <Row label="Subscription" value={d.isActive ? "Active" : "Inactive"} color={d.isActive ? "green-600" : "red-600"} />
-                                <Row label="Expires At" value={d.expiresAt ? moment(d.expiresAt).format("DD MMM YYYY") : null} />
+                                <Row label="Subscription" value={resolvedIsActive ? "Active" : "Inactive"} color={resolvedIsActive ? "green-600" : "red-600"} />
+                                <Row label="Start Date" value={d.createdAt ? moment(d.createdAt).format("DD MMM YYYY") : null} />
+                                <Row label="Expires At" value={getPlanExpiryDate(d) ? moment(getPlanExpiryDate(d)).format("DD MMM YYYY") : null} />
                             </div>
                         </Section>
 

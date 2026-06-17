@@ -295,6 +295,21 @@ const TransactionHistory = () => {
   const formatTime = (d) => new Date(d).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
   const formatAmount = (amount) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2 }).format(amount);
 
+  const getParentPlan = (transaction) => {
+    if (transaction.type === "addon" && transaction.parentPaymentId) {
+      const parentId = typeof transaction.parentPaymentId === "object"
+        ? transaction.parentPaymentId._id || transaction.parentPaymentId.id
+        : transaction.parentPaymentId;
+      return paymentHistory?.find((t) => t._id === parentId) || null;
+    }
+    return null;
+  };
+
+  const getPlanExpiryDate = (transaction) => {
+    const parentPlan = getParentPlan(transaction);
+    return parentPlan?.expiresAt || transaction.expiresAt;
+  };
+
   const getStatusIcon = (status) => {
     if (status === "completed") return <CheckCircleIcon sx={{ color: "#22c55e", fontSize: { xs: 12, sm: 14 } }} />;
     if (status === "pending") return <PendingIcon sx={{ color: theme.palette.secondary.main, fontSize: { xs: 12, sm: 14 } }} />;
@@ -690,8 +705,8 @@ const TransactionHistory = () => {
                               <Typography variant="body2" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" }, color: "text.primary" }}>
                                 {formatDate(transaction.createdAt)}
                               </Typography>
-                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.5rem", sm: "0.55rem", md: "0.6rem" } }}>
-                                {formatTime(transaction.createdAt)}
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.5rem", sm: "0.55rem", md: "0.6rem" }, display: "block" }}>
+                                Expires at: {getPlanExpiryDate(transaction) ? formatDate(getPlanExpiryDate(transaction)) : "—"}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ py: 1.2 }}>
@@ -892,16 +907,22 @@ const TransactionHistory = () => {
                                 </Box>
                               </Grid>
                             )}
-                            {transaction.expiresAt && (
-                              <Grid item xs={12} sm={6}>
-                                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>
-                                  {transaction.isExpired ? "Expired" : `Expires · ${transaction.remainingDays}d left`}
-                                </Typography>
-                                <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: transaction.isExpired ? "#ef4444" : "text.primary" }}>
-                                  {formatDate(transaction.expiresAt)}
-                                </Typography>
-                              </Grid>
-                            )}
+                            {getPlanExpiryDate(transaction) && (() => {
+                              const parentPlan = getParentPlan(transaction);
+                              const expiryDate = parentPlan?.expiresAt || transaction.expiresAt;
+                              const isExpired = parentPlan ? parentPlan.isExpired : transaction.isExpired;
+                              const remainingDays = parentPlan ? parentPlan.remainingDays : transaction.remainingDays;
+                              return (
+                                <Grid item xs={12} sm={6}>
+                                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: { xs: "0.55rem", sm: "0.6rem" } }}>
+                                    {isExpired ? "Expired" : `Expires · ${remainingDays}d left`}
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={500} sx={{ fontSize: { xs: "0.65rem", sm: "0.7rem" }, color: isExpired ? "#ef4444" : "text.primary" }}>
+                                    {formatDate(expiryDate)}
+                                  </Typography>
+                                </Grid>
+                              );
+                            })()}
                           </Grid>
                         </Paper>
                       </motion.div>

@@ -4480,17 +4480,21 @@ const UserManagement = () => {
   let activeUsers = [];
   let inactiveUsers = [];
 
+  const isNotDeleted = (user) => {
+    return user.deleted !== true && user.deleted !== "true";
+  };
+
   if (role_id === 2) {
     // activeUsers = (filteredUsers || []).filter((user) => user.isActive && user.deleted === "false");
     // inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && user.deleted === "false");
-    activeUsers = (filteredUsers || []).filter((user) => user.isActive === true);
-  inactiveUsers = (filteredUsers || []).filter((user) => user.isActive === false);
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive === true && isNotDeleted(user));
+    inactiveUsers = (filteredUsers || []).filter((user) => user.isActive === false && isNotDeleted(user));
   } else if (role_id === 1) {
-    activeUsers = (filteredUsers || []).filter((user) => user.isActive);
-    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive && isNotDeleted(user));
+    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && isNotDeleted(user));
   } else {
-    activeUsers = (filteredUsers || []).filter((user) => user.isActive);
-    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive);
+    activeUsers = (filteredUsers || []).filter((user) => user.isActive && isNotDeleted(user));
+    inactiveUsers = (filteredUsers || []).filter((user) => !user.isActive && isNotDeleted(user));
   }
 
   const handleTabChange = (event, newValue) => {

@@ -5514,19 +5514,34 @@ const PaymentPlans = () => {
         }
       }
       if (pendingPlanData) {
-        const matchedPlan = subscriptionPlans.find((p) => p._id === pendingPlanData._id || p.name === pendingPlanData.name);
-        if (matchedPlan) {
+        if (pendingPlanData.isCustom || pendingPlanData.id === "custom") {
           setTimeout(() => {
-            setSelectedPlanForCoupon(matchedPlan);
-            setCouponPopupOpen(true);
             sessionStorage.removeItem("selectedPlan");
             sessionStorage.removeItem("fromPricing");
-            toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, { icon: "💳" });
+            if (location.state?.selectedPlan) {
+              navigate(location.pathname, { replace: true, state: {} });
+            }
+            handleOpenCreateCustomPlan();
+            toast.info("Configure your custom plan configuration!", { icon: "⚙️" });
           }, 500);
+        } else {
+          const matchedPlan = subscriptionPlans.find((p) => p._id === pendingPlanData._id || p.name === pendingPlanData.name);
+          if (matchedPlan) {
+            setTimeout(() => {
+              setSelectedPlanForCoupon(matchedPlan);
+              setCouponPopupOpen(true);
+              sessionStorage.removeItem("selectedPlan");
+              sessionStorage.removeItem("fromPricing");
+              if (location.state?.selectedPlan) {
+                navigate(location.pathname, { replace: true, state: {} });
+              }
+              toast.info(`Ready to complete your purchase of the ${matchedPlan.name} plan!`, { icon: "💳" });
+            }, 500);
+          }
         }
       }
     }
-  }, [plansLoading, plansList, userCustomPlan, loading, location, authUser]);
+  }, [plansLoading, plansList, userCustomPlan, loading, location, authUser, navigate]);
 
   // ─── Custom plan handlers ──────────────────────────────────
   const handleCreateCustomPlan = async (e) => {

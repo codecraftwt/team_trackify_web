@@ -35,19 +35,27 @@ const Register = () => {
   // console.log("📍 REGISTER PAGE LOADED");
   // console.log("=========================================");
 
-  // Get selected plan from location state or session storage
-  const selectedPlan = location.state?.selectedPlan || (() => {
-    const stored = sessionStorage.getItem('selectedPlan');
-    return stored ? JSON.parse(stored) : null;
-  })();
+  // Get selected plan from location state only
+  const [selectedPlan, setSelectedPlan] = useState(() => {
+    if (location.state?.selectedPlan) {
+      return location.state.selectedPlan;
+    }
+    return null;
+  });
 
   console.log("✅ Final selectedPlan in Register:", selectedPlan);
 
-  // Clear session storage after reading to avoid persistence issues
-  if (selectedPlan && !location.state?.selectedPlan) {
-    // console.log("📦 Plan loaded from sessionStorage, clearing it...");
+  useEffect(() => {
+    // Clear session storage on mount
     sessionStorage.removeItem('selectedPlan');
-  }
+    sessionStorage.removeItem('fromPricing');
+
+    if (location.state?.selectedPlan) {
+      // Clear location state so that page refresh won't preserve it
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, []);
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -290,13 +298,12 @@ const Register = () => {
   useEffect(() => {
     return () => {
       // Only clear if we're not in OTP step and plan wasn't used
-      if (activeStep === 0 && selectedPlan && !location.state?.selectedPlan) {
-        // console.log("🧹 Cleaning up unused selectedPlan from sessionStorage");
+      if (activeStep === 0) {
         sessionStorage.removeItem('selectedPlan');
         sessionStorage.removeItem('fromPricing');
       }
     };
-  }, []);
+  }, [activeStep]);
 
   return (
     <Box sx={{ minHeight: '100vh', background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', py: { xs: 2, sm: 3 }, px: { xs: 1, sm: 2 } }}>
@@ -345,13 +352,13 @@ const Register = () => {
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
                     <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                      💰 Price: ₹{selectedPlan.price}
+                      💰 Price: {selectedPlan.isCustom ? 'Variable' : `₹${selectedPlan.price}`}
                     </Typography>
                     <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
                       📅 Duration: {selectedPlan.duration}
                     </Typography>
                     <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                      👥 Users: {selectedPlan.minUsers} - {selectedPlan.maxUsers}
+                      👥 Users: {selectedPlan.isCustom ? 'Custom Limits' : `${selectedPlan.minUsers} - ${selectedPlan.maxUsers}`}
                     </Typography>
                   </Box>
                   <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', display: 'block', mt: 0.5 }}>
