@@ -6157,6 +6157,8 @@ import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from 
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import L from "leaflet";
+window.L = L;
+import "leaflet-polylinedecorator";
 import "leaflet/dist/leaflet.css";
 
 // Fix Leaflet default icons
@@ -6819,6 +6821,33 @@ const Locations = () => {
         { color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444", weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
       ).addTo(mapInstance.current);
       polylines.current.push(line);
+    }
+
+    if (validLocations.length > 1) {
+      const entirePathCoords = validLocations.map((l) => [getLat(l), getLng(l)]);
+      try {
+        const decorator = L.polylineDecorator(entirePathCoords, {
+          patterns: [
+            {
+              offset: '5%',
+              repeat: '60px',
+              symbol: L.Symbol.arrowHead({
+                pixelSize: 10,
+                polygon: true,
+                headAngle: 60,
+                pathOptions: {
+                  stroke: false,
+                  fillOpacity: 1,
+                  fillColor: '#ffffff'
+                }
+              })
+            }
+          ]
+        }).addTo(mapInstance.current);
+        polylines.current.push(decorator);
+      } catch (err) {
+        console.error("Failed to add polyline decorator:", err);
+      }
     }
 
     if (startPoint && hasValidCoordinates(startPoint)) {
