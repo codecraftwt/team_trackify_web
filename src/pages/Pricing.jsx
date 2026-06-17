@@ -28,6 +28,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import StarIcon from '@mui/icons-material/Star';
+import SettingsIcon from '@mui/icons-material/Settings';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import BoltIcon from '@mui/icons-material/Bolt';
@@ -107,22 +108,72 @@ const Pricing = () => {
     return `linear-gradient(135deg, ${theme.palette.text.secondary}, ${theme.palette.grey[400]})`;
   };
 
-  const subscriptionPlans = availablePlans.map((plan) => ({
-    id: plan._id,
-    name: plan.name || 'Plan',
-    description: plan.description || 'Plan description',
-    monthlyPrice: plan.monthlyPrice || plan.price || 0,
-    yearlyPrice: plan.yearlyPrice || (plan.price ? Math.round(plan.price * 10 * 0.8) : 0),
-    duration: plan.duration || 'month',
-    icon: plan.icon || getPlanIcon(plan.name),
-    features: plan.features || [],
-    limitations: plan.limitations || [],
-    popular: plan.popular || plan.name?.toLowerCase().includes('growth') || plan.name?.toLowerCase().includes('pro') || false,
-    color: getPlanColor(plan.name),
-    gradient: getPlanGradient(plan.name),
-    maxUsers: plan.maxUsers || 10,
-    minUsers: plan.minUsers || 1,
-  }));
+  const renderDescription = (description) => {
+    if (!description) return null;
+    const parts = description.split(/\s-\s|-\s/);
+    const startsWithDash = description.trim().startsWith('-');
+    const cleanParts = parts.map(p => p.trim()).filter(Boolean);
+    
+    if (cleanParts.length === 1 && !startsWithDash) {
+      return (
+        <span style={{ display: 'block', textAlign: 'center' }}>
+          {cleanParts[0]}
+        </span>
+      );
+    }
+
+    return (
+      <div style={{ display: 'inline-block', textAlign: 'left' }}>
+        {cleanParts.map((part, idx) => (
+          <span key={idx} style={{ display: 'block' }}>
+            {(idx > 0 || startsWithDash) ? `✓ ${part}` : part}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+
+  const subscriptionPlans = [
+    ...availablePlans.map((plan) => ({
+      id: plan._id,
+      name: plan.name || 'Plan',
+      description: plan.description || 'Plan description',
+      monthlyPrice: plan.monthlyPrice || plan.price || 0,
+      yearlyPrice: plan.yearlyPrice || (plan.price ? Math.round(plan.price * 10 * 0.8) : 0),
+      duration: plan.duration || 'month',
+      icon: plan.icon || getPlanIcon(plan.name),
+      features: plan.features || [],
+      limitations: plan.limitations || [],
+      popular: plan.popular || plan.name?.toLowerCase().includes('growth') || plan.name?.toLowerCase().includes('pro') || false,
+      color: getPlanColor(plan.name),
+      gradient: getPlanGradient(plan.name),
+      maxUsers: plan.maxUsers || 10,
+      minUsers: plan.minUsers || 1,
+    })),
+    {
+      id: 'custom',
+      name: 'Custom Plan',
+      description: 'Need more users or custom duration? - Configure your own plan - Tailored pricing for your specific needs',
+      monthlyPrice: null,
+      yearlyPrice: null,
+      isCustom: true,
+      duration: 'custom',
+      icon: <SettingsIcon sx={{ fontSize: 24 }} />,
+      features: [
+        'Flexible user limits',
+        'Custom duration settings',
+        'Personalized support',
+        'Advanced reporting features'
+      ],
+      limitations: [],
+      popular: false,
+      color: '#9c27b0',
+      gradient: 'linear-gradient(135deg, #9c27b0, #ab47bc)',
+      maxUsers: 'Custom',
+      minUsers: 'Custom',
+    }
+  ];
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -178,22 +229,23 @@ const Pricing = () => {
     console.log("Plan Details:", {
       id: plan.id,
       name: plan.name,
-      price: getPrice(plan),
+      price: plan.isCustom ? 'Variable' : getPrice(plan),
       billingCycle: billingCycle
     });
     
     const selectedPlanData = {
       id: plan.id,
       name: plan.name,
-      price: getPrice(plan),
-      originalPrice: billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice,
+      price: plan.isCustom ? 'Variable' : getPrice(plan),
+      originalPrice: plan.isCustom ? 0 : (billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice),
       billingCycle: billingCycle,
-      duration: billingCycle === 'monthly' ? 'month' : 'year',
+      duration: plan.isCustom ? 'custom' : (billingCycle === 'monthly' ? 'month' : 'year'),
       maxUsers: plan.maxUsers,
       minUsers: plan.minUsers,
       description: plan.description,
       features: plan.features,
       color: plan.color,
+      isCustom: plan.isCustom || false,
     };
     
     console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
@@ -282,58 +334,58 @@ const Pricing = () => {
                     {plan.name}
                   </Typography>
                 </Box>
-                <Box sx={{ height: 32, mb: 1.5, overflow: 'hidden' }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem', textAlign: 'center', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {plan.description}
+                <Box sx={{ minHeight: 32, mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem', textAlign: 'center', display: 'block' }}>
+                    {renderDescription(plan.description)}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: 'center', mb: 1.5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
-                    <Typography component="span" sx={{ fontSize: '1.5rem', fontWeight: 600, color: plan.color }}>₹{getPrice(plan)}</Typography>
-                    <Typography component="span" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>/{billingCycle === 'monthly' ? 'mo' : 'yr'}</Typography>
-                  </Box>
-                  {savings > 0 && <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600, display: 'block', mt: 0.25, fontSize: '0.6rem' }}>Save ₹{savings}/year</Typography>}
+                  {plan.isCustom ? (
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
+                      <Typography component="span" sx={{ fontSize: '1.4rem', fontWeight: 700, color: plan.color }}>Custom Pricing</Typography>
+                    </Box>
+                  ) : (
+                    <>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.5 }}>
+                        <Typography component="span" sx={{ fontSize: '1.5rem', fontWeight: 600, color: plan.color }}>₹{getPrice(plan)}</Typography>
+                        <Typography component="span" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>/{billingCycle === 'monthly' ? 'month' : 'yr'}</Typography>
+                      </Box>
+                      {savings > 0 && <Typography variant="caption" sx={{ color: '#059669', fontWeight: 600, display: 'block', mt: 0.25, fontSize: '0.6rem' }}>Save ₹{savings}/year</Typography>}
+                    </>
+                  )}
                 </Box>
                 <Box sx={{ mb: 1.5 }}>
                   <Button fullWidth variant={getButtonVariant(plan)} onClick={() => handleSelectPlan(plan)} sx={getButtonStyles(plan)}>
-                    Buy Now
+                    {plan.isCustom ? 'Configure Plan' : 'Buy Now'}
                   </Button>
-                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 0.5, color: 'text.secondary', fontSize: '0.6rem' }}>
-                    14-day trial, no card required
-                  </Typography>
+                 
                 </Box>
-                <Box sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: { xs: '180px', sm: '200px', md: '220px' }, pr: 0.5 }}>
-                  <List sx={{ '& .MuiListItem-root': { px: 0, py: 0.25 } }}>
-                    <ListItem disableGutters>
-                      <ListItemIcon sx={{ minWidth: 24 }}>
-                        <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha(plan.color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <FaCheck style={{ color: plan.color, fontSize: 10 }} />
-                        </Box>
-                      </ListItemIcon>
-                      <ListItemText primary={`Up to ${plan.maxUsers} users`} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.primary' } }} />
-                    </ListItem>
-                    {plan.features.map((feature, i) => (
-                      <ListItem key={i} disableGutters>
-                        <ListItemIcon sx={{ minWidth: 24 }}>
-                          <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha(plan.color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FaCheck style={{ color: plan.color, fontSize: 10 }} />
-                          </Box>
-                        </ListItemIcon>
-                        <ListItemText primary={feature} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.primary' } }} />
-                      </ListItem>
-                    ))}
-                    {plan.limitations?.map((lim, i) => (
-                      <ListItem key={`lim-${i}`} disableGutters sx={{ opacity: 0.7 }}>
-                        <ListItemIcon sx={{ minWidth: 24 }}>
-                          <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha('#ef4444', 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <FaTimes style={{ color: '#ef4444', fontSize: 10 }} />
-                          </Box>
-                        </ListItemIcon>
-                        <ListItemText primary={lim} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.secondary', textDecoration: 'line-through' } }} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
+                {!plan.isCustom && (
+                  <Box sx={{ flexGrow: 1, overflowY: 'auto', maxHeight: { xs: '180px', sm: '200px', md: '220px' }, pr: 0.5 }}>
+                    <List sx={{ '& .MuiListItem-root': { px: 0, py: 0.25 } }}>
+                      {plan.features.map((feature, i) => (
+                        <ListItem key={i} disableGutters>
+                          <ListItemIcon sx={{ minWidth: 24 }}>
+                            <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha(plan.color, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <FaCheck style={{ color: plan.color, fontSize: 10 }} />
+                            </Box>
+                          </ListItemIcon>
+                          <ListItemText primary={feature} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.primary' } }} />
+                        </ListItem>
+                      ))}
+                      {plan.limitations?.map((lim, i) => (
+                        <ListItem key={`lim-${i}`} disableGutters sx={{ opacity: 0.7 }}>
+                          <ListItemIcon sx={{ minWidth: 24 }}>
+                            <Box sx={{ width: 18, height: 18, borderRadius: '50%', background: alpha('#ef4444', 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <FaTimes style={{ color: '#ef4444', fontSize: 10 }} />
+                            </Box>
+                          </ListItemIcon>
+                          <ListItemText primary={lim} primaryTypographyProps={{ sx: { fontSize: '0.7rem', color: 'text.secondary', textDecoration: 'line-through' } }} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Box>

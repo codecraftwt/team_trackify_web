@@ -21,6 +21,7 @@ import {
   Receipt as ReceiptIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 
 const ReceiptModal = ({ transaction, show, onHide }) => {
   const theme = useTheme();
@@ -29,6 +30,28 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+  const { paymentHistory = [] } = useSelector((state) => state.payment || {});
+
+  const getParentPlan = (tObj) => {
+    if (tObj && tObj.type === "addon" && tObj.parentPaymentId) {
+      const parentId = typeof tObj.parentPaymentId === "object"
+        ? tObj.parentPaymentId._id || tObj.parentPaymentId.id
+        : tObj.parentPaymentId;
+      return paymentHistory?.find((t) => t._id === parentId) || null;
+    }
+    return null;
+  };
+
+  const getExpiryDetails = (tObj) => {
+    if (!tObj) return {};
+    const parentPlan = getParentPlan(tObj);
+    return {
+      expiryDate: parentPlan?.expiresAt || tObj.expiresAt,
+      isExpired: parentPlan ? parentPlan.isExpired : tObj.isExpired,
+      remainingDays: parentPlan ? parentPlan.remainingDays : tObj.remainingDays,
+    };
+  };
 
   const handlePrint = () => {
     const printContents = receiptRef.current.innerHTML;
@@ -237,6 +260,47 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
                       {transaction.paymentMethod || "Online"}
                     </Typography>
                   </Box>
+                  {(() => {
+                    const { expiryDate, isExpired, remainingDays } = getExpiryDetails(transaction);
+                    if (!expiryDate) return null;
+                    return (
+                      <>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                            Expires At:
+                          </Typography>
+                          <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                            {formatDate(expiryDate)} • {formatTime(expiryDate)}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                            Expiry Status:
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            fontWeight={600}
+                            sx={{
+                              color: isExpired ? "#ef4444" : "#22c55e",
+                              fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                            }}
+                          >
+                            {isExpired ? "Expired" : `Active `}
+                          </Typography>
+                        </Box>
+                      </>
+                    );
+                  })()}
+                  {(transaction.maxUsers || transaction.maxUser) !== undefined && (
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                        User Capacity:
+                      </Typography>
+                      <Typography variant="caption" fontWeight={500} color="text.primary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                        {transaction.maxUsers || transaction.maxUser} Users
+                      </Typography>
+                    </Box>
+                  )}
                 </Stack>
               </Box>
 
