@@ -52,7 +52,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logout, stopImpersonation } from "../../redux/slices/authSlice";
+import { logout, logoutUser, stopImpersonation } from "../../redux/slices/authSlice";
 import {
   updateUser,
   getUserById,
@@ -260,6 +260,15 @@ const Profile = () => {
     useSelector((state) => state.user || {});
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleConfirmLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    }
+    dispatch(logout());
+    navigate("/login");
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [isConfigEditing, setIsConfigEditing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
@@ -1255,7 +1264,7 @@ const Profile = () => {
       <LogoutModal
         show={showLogoutModal}
         onHide={() => setShowLogoutModal(false)}
-        onConfirm={() => { dispatch(logout()); navigate("/login"); }}
+        onConfirm={handleConfirmLogout}
         title="Sign Out"
         message="Are you sure you want to sign out?"
         subMessage="You will be redirected to the login page."

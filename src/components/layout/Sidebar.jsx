@@ -40,7 +40,7 @@ import {
   ExitToApp as ExitToAppIcon,
    CurrencyRupee as CurrencyRupeeIcon,
 } from '@mui/icons-material';
-import { logout, stopImpersonation } from '../../redux/slices/authSlice';
+import { logout, logoutUser, stopImpersonation } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
 import logo from '../../../src/assets/logo31.png';
 
@@ -180,7 +180,13 @@ const { userInfo } = useSelector((state) => state.user);
     setShowLogoutModal(true);
   };
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    }
+
     localStorage.clear();
     sessionStorage.clear();
 

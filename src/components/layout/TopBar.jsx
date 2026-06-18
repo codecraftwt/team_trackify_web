@@ -21,7 +21,7 @@ import {
   Person as PersonIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-import { logout } from '../../redux/slices/authSlice';
+import { logout, logoutUser } from '../../redux/slices/authSlice';
 
 const TopBar = ({ onMenuClick, showMenuButton = false }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -43,7 +43,12 @@ const TopBar = ({ onMenuClick, showMenuButton = false }) => {
     setNotificationAnchor(null);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    }
     dispatch(logout());
     navigate('/login');
     handleMenuClose();

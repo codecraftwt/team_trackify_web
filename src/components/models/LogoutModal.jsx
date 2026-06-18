@@ -30,7 +30,12 @@ const LogoutModal = ({ show, onHide, onConfirm, title = "Confirm Logout", messag
     setIsLoggingOut(true);
 
     try {
-      // Clear ALL storage first
+      // Call the parent's onConfirm function (which should dispatch logout action)
+      if (onConfirm) {
+        await onConfirm();
+      }
+
+      // Clear ALL storage after the API call completes
       localStorage.clear();      // Clears all localStorage items
       sessionStorage.clear();    // Clears all sessionStorage items
 
@@ -40,11 +45,6 @@ const LogoutModal = ({ show, onHide, onConfirm, title = "Confirm Logout", messag
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-
-      // Call the parent's onConfirm function (which should dispatch logout action)
-      if (onConfirm) {
-        await onConfirm();
-      }
 
       // Force a small delay to ensure cleanup completes
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -57,8 +57,11 @@ const LogoutModal = ({ show, onHide, onConfirm, title = "Confirm Logout", messag
 
     } catch (error) {
       console.error("Logout error:", error);
+      localStorage.clear();
+      sessionStorage.clear();
       // Even if there's an error, try to navigate to login
       navigate('/login', { replace: true });
+      window.location.reload();
     } finally {
       setIsLoggingOut(false);
       onHide();
