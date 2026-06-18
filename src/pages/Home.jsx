@@ -18,7 +18,9 @@ import {
 } from 'react-icons/fa';
 import { FiArrowRight } from 'react-icons/fi';
 import landingImage from '../assets/landing.png';
-import mobileImage from '../assets/mobile.png';
+// import mobileImage from '../assets/mobile.png';
+import mobileImage from '../assets/Home_1.png';
+import Playstore from '../assets/Home_2.png';
 import ParticlesBackground from '../components/common/ParticlesBackground';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { useTheme, alpha } from '@mui/material';
@@ -434,9 +436,9 @@ const Home = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="relative">
-                <div className="relative bg-white p-2">
+                <div className="relative  p-2">
                   <img
-                    src={mobileImage}
+                    src={Playstore}
                     alt="App Screenshot"
                     className="w-full h-auto max-h-[500px] object-contain rounded-lg"
                   />
