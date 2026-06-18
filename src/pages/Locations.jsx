@@ -6157,9 +6157,8 @@ import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from 
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import L from "leaflet";
-window.L = L;
-import "leaflet-polylinedecorator";
 import "leaflet/dist/leaflet.css";
+import "leaflet-polylinedecorator";
 
 // Fix Leaflet default icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -6815,38 +6814,42 @@ const Locations = () => {
     const validLocations = getValidLocations(allLocations);
     if (validLocations.length === 0) return;
 
+    const totalSessionDistance = calcTotalDistance(validLocations);
+    const arrowDistanceInterval = totalSessionDistance > 1000 ? 500 : 100;
+    let accumulatedDistance = 0;
+
     for (let i = 0; i < validLocations.length - 1; i++) {
+      const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
+      const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
+      const color = validLocations[i].isOnline === true ? "#3553ea" : "#ef4444";
+
       const line = L.polyline(
-        [[getLat(validLocations[i]), getLng(validLocations[i])], [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])]],
-        { color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444", weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
+        [p1, p2],
+        { color, weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
       ).addTo(mapInstance.current);
       polylines.current.push(line);
-    }
 
-    if (validLocations.length > 1) {
-      const entirePathCoords = validLocations.map((l) => [getLat(l), getLng(l)]);
-      try {
-        const decorator = L.polylineDecorator(entirePathCoords, {
+      // Add a backward-pointing open arrowhead (BACKWARD_OPEN_ARROW style) at specified distance intervals
+      const dist = calcDistance(p1[0], p1[1], p2[0], p2[1]);
+      accumulatedDistance += dist;
+
+      if (accumulatedDistance >= arrowDistanceInterval) {
+        const decorator = L.polylineDecorator([p2, p1], {
           patterns: [
             {
-              offset: '5%',
-              repeat: '60px',
+              offset: '50%',
+              repeat: 0,
               symbol: L.Symbol.arrowHead({
                 pixelSize: 10,
-                polygon: true,
                 headAngle: 60,
-                pathOptions: {
-                  stroke: false,
-                  fillOpacity: 1,
-                  fillColor: '#ffffff'
-                }
+                polygon: false,
+                pathOptions: { stroke: true, color, weight: 2, opacity: 0.9 }
               })
             }
           ]
         }).addTo(mapInstance.current);
         polylines.current.push(decorator);
-      } catch (err) {
-        console.error("Failed to add polyline decorator:", err);
+        accumulatedDistance = 0; // Reset accumulator
       }
     }
 

@@ -19,7 +19,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import TargetIcon from '@mui/icons-material/TrackChanges';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import mobileImage from '../assets/mobile.png';
+import mobileImage from '../assets/About.png';
 
 const About = () => {
   const theme = useTheme();
@@ -138,8 +138,8 @@ const About = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24" style={{ 
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)` 
+      <section className="pt-24 pb-16 md:pt-32 md:pb-24" style={{
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`
       }}>
         <div className="container-custom">
           <motion.div
@@ -148,9 +148,9 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{ 
+            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main 
+              color: theme.palette.primary.main
             }}>
               About Us
             </div>
@@ -176,9 +176,9 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{ 
+              <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{
                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main 
+                color: theme.palette.primary.main
               }}>
                 Our Story
               </div>
@@ -228,16 +228,12 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="rounded-xl p-6 shadow-lg" style={{ 
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` 
-              }}>
-                <div className="bg-white rounded-lg p-3 text-center">
-                  <img
-                    src={mobileImage}
-                    alt="Trackify in action"
-                    className="w-full h-auto max-h-[450px] object-contain rounded-lg"
-                  />
-                </div>
+              <div className="text-center">
+                <img
+                  src={mobileImage}
+                  alt="Trackify in action"
+                  className="w-full h-auto max-h-[450px] object-contain rounded-lg"
+                />
               </div>
             </motion.div>
           </div>
@@ -245,8 +241,8 @@ const About = () => {
       </section>
 
       {/* Features Section */}
-      <section className="section-padding py-12 md:py-16" style={{ 
-        background: `linear-gradient(to bottom, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.primary.main, 0.02)} 50%, ${theme.palette.background.paper} 100%)` 
+      <section className="section-padding py-12 md:py-16" style={{
+        background: `linear-gradient(to bottom, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.primary.main, 0.02)} 50%, ${theme.palette.background.paper} 100%)`
       }}>
         <div className="container-custom">
           <motion.div
@@ -256,7 +252,7 @@ const About = () => {
             transition={{ duration: 0.7 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center gap-2 font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{ 
+            <div className="inline-flex items-center gap-2 font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
               color: theme.palette.primary.dark
             }}>
@@ -268,8 +264,8 @@ const About = () => {
             </div>
             <h2 className="text-2xl md:text-3xl font-bold mb-3 leading-tight" style={{ color: theme.palette.text.primary }}>
               Powerful Features.{' '}
-              <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{ 
-                backgroundImage: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` 
+              <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
+                backgroundImage: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`
               }}>
                 Zero Complexity.
               </span>
@@ -289,7 +285,7 @@ const About = () => {
                 transition={{ duration: 0.55, delay: index * 0.14 }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 className="group relative bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-300 ease-out overflow-hidden"
-                style={{ 
+                style={{
                   borderColor: alpha(theme.palette.divider, 0.5),
                   backgroundColor: theme.palette.background.paper,
                 }}
@@ -319,7 +315,7 @@ const About = () => {
                   </p>
 
                   <div className="mt-3 h-0.5 w-8 rounded-full transition-all duration-400 group-hover:w-12"
-                    style={{ 
+                    style={{
                       backgroundColor: alpha(theme.palette.primary.main, 0.2),
                     }} />
                 </div>
@@ -339,9 +335,9 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{ 
+            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main 
+              color: theme.palette.primary.main
             }}>
               Who It's For
             </div>
@@ -371,7 +367,7 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 * index }}
                 className="inline-flex items-center gap-2 border px-4 py-2 rounded-full font-medium transition-all duration-300 cursor-pointer text-sm"
-                style={{ 
+                style={{
                   backgroundColor: theme.palette.background.paper,
                   borderColor: alpha(theme.palette.divider, 0.5),
                   color: theme.palette.text.secondary,
@@ -409,9 +405,9 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{ 
+            <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main 
+              color: theme.palette.primary.main
             }}>
               Why Us
             </div>
@@ -434,7 +430,7 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 * index }}
                 className="flex items-center gap-2 border px-3 py-2 rounded-lg transition-all duration-300"
-                style={{ 
+                style={{
                   backgroundColor: theme.palette.background.paper,
                   borderColor: alpha(theme.palette.divider, 0.5),
                 }}
@@ -452,8 +448,8 @@ const About = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="w-16 h-0.5 mx-auto mb-4 rounded-full" style={{ 
-              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` 
+            <div className="w-16 h-0.5 mx-auto mb-4 rounded-full" style={{
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`
             }}></div>
             <h4 className="text-lg font-bold" style={{ color: theme.palette.text.primary }}>
               Smarter Tracking. Stronger Teams.{' '}
@@ -510,8 +506,8 @@ const About = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="section-padding py-12 md:py-16 text-white" style={{ 
-        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})` 
+      <section className="section-padding py-12 md:py-16 text-white" style={{
+        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`
       }}>
         <div className="container-custom text-center">
           <motion.div
@@ -534,7 +530,7 @@ const About = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/pricing')}
                 className="font-bold px-6 py-2.5 rounded-full transition-colors text-sm"
-                style={{ 
+                style={{
                   backgroundColor: 'white',
                   color: theme.palette.primary.main,
                 }}
@@ -546,7 +542,7 @@ const About = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/contact')}
                 className="font-bold px-6 py-2.5 rounded-full transition-colors text-sm"
-                style={{ 
+                style={{
                   border: `2px solid white`,
                   color: 'white',
                   backgroundColor: 'transparent',
