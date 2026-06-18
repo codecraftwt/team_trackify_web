@@ -10,6 +10,13 @@ export const loginUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${BASE_URL}/users/login`, userData);
+      const user = response.data.user;
+      const roleIdNum = (user?.role_id !== null && user?.role_id !== undefined) ? Number(user.role_id) : null;
+      
+      if (roleIdNum === 0 || roleIdNum === 3) {
+        return rejectWithValue({ message: 'Access denied: Users with this role are not allowed to log in.' });
+      }
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;

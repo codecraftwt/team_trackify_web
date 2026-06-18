@@ -6834,7 +6834,7 @@ const Locations = () => {
       accumulatedDistance += dist;
 
       if (accumulatedDistance >= arrowDistanceInterval) {
-        const decorator = L.polylineDecorator([p2, p1], {
+        const decorator = L.polylineDecorator([p1, p2], {
           patterns: [
             {
               offset: '50%',

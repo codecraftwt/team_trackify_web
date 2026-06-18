@@ -188,9 +188,9 @@ const About = () => {
               </h2>
               <div className="space-y-3 text-base leading-relaxed" style={{ color: theme.palette.text.secondary }}>
                 <p>
-                  Team Trackify was born from a simple observation: businesses needed
+                  Team Trackify was born from simple observation: businesses needed
                   better tools to track and manage their field teams. Traditional
-                  solutions were clunky, expensive, and didn't provide the real-time
+                  solutions were clunky, expensive and didn't provide the real-time
                   insights modern businesses require.
                 </p>
                 <p>

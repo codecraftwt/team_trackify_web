@@ -1991,6 +1991,7 @@ import {
 import { getSessionDetails } from "../../redux/slices/userSlice";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-polylinedecorator";
 
 // Fix Leaflet icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -2532,22 +2533,44 @@ const ReportLocation = () => {
         const validLocations = getValidLocations(allLocations);
         if (validLocations.length === 0) return;
 
-        // Draw polyline
+        // Draw polyline with backward-pointing open arrow direction routes
+        const totalSessionDistance = calcTotalDistance(validLocations);
+        const arrowDistanceInterval = totalSessionDistance > 1000 ? 500 : 100;
+        let accumulatedDistance = 0;
+
         for (let i = 0; i < validLocations.length - 1; i++) {
+            const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
+            const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
+            const color = validLocations[i].isOnline === true ? "#3553ea" : "#ef4444";
+
             const line = L.polyline(
-                [
-                    [getLat(validLocations[i]), getLng(validLocations[i])],
-                    [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
-                ],
-                {
-                    color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
-                    weight: 3,
-                    opacity: 0.8,
-                    lineJoin: "round",
-                    lineCap: "round",
-                }
+                [p1, p2],
+                { color, weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
             ).addTo(mapInstance.current);
             polylines.current.push(line);
+
+            // Add a backward-pointing open arrowhead (BACKWARD_OPEN_ARROW style) at specified distance intervals
+            const dist = calcDistance(p1[0], p1[1], p2[0], p2[1]);
+            accumulatedDistance += dist;
+
+            if (accumulatedDistance >= arrowDistanceInterval) {
+                const decorator = L.polylineDecorator([p1, p2], {
+                    patterns: [
+                        {
+                            offset: '50%',
+                            repeat: 0,
+                            symbol: L.Symbol.arrowHead({
+                                pixelSize: 10,
+                                headAngle: 60,
+                                polygon: false,
+                                pathOptions: { stroke: true, color, weight: 2, opacity: 0.9 }
+                            })
+                        }
+                    ]
+                }).addTo(mapInstance.current);
+                polylines.current.push(decorator);
+                accumulatedDistance = 0; // Reset accumulator
+            }
         }
 
         // Draw start point

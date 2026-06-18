@@ -16,9 +16,9 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   const rawRoleId = role_id ?? localUser?.role_id;
   const roleIdNum = Number(rawRoleId);
 
-  // Not authenticated → redirect to login
-  if (requireAuth && !isAuth) {
-    // console.log('Not authenticated, redirecting to login');
+  // Not authenticated or role is not allowed (0 or 3) → redirect to login
+  if (requireAuth && (!isAuth || roleIdNum === 0 || roleIdNum === 3)) {
+    // console.log('Not authenticated or unauthorized role, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
