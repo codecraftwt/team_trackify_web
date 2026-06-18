@@ -19,6 +19,34 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// Async thunk for logout API call
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.post(
+        `${BASE_URL}/users/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isImpersonating');
+      return response.data;
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isImpersonating');
+      return rejectWithValue(error.response?.data || 'Logout failed');
+    }
+  }
+);
+
 // Async thunk for forgot password (send OTP)
 export const forgotPassword = createAsyncThunk(
   'auth/forgotPassword',
@@ -255,6 +283,38 @@ const authSlice = createSlice({
         state.error = action.payload?.message || 'Login failed';
         state.success = false;
         state.isAuthenticated = false;
+      })
+
+      // Logout cases
+      .addCase(logoutUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.role_id = null;
+        state.isEmailVerified = false;
+        state.isImpersonating = false;
+        state.impersonatedBy = null;
+        state.originalUser = null;
+        state.success = true;
+        state.message = action.payload?.message || 'Logout successful';
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.role_id = null;
+        state.isEmailVerified = false;
+        state.isImpersonating = false;
+        state.impersonatedBy = null;
+        state.originalUser = null;
+        state.success = false;
+        state.error = action.payload?.message || 'Logout failed';
       })
 
       // Forgot Password cases

@@ -375,7 +375,7 @@ import {
   Person as PersonIcon,
   Email as EmailIcon,
 } from '@mui/icons-material';
-import { logout } from '../../redux/slices/authSlice';
+import { logout, logoutUser } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
 
 const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => {
@@ -456,7 +456,13 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
     setShowLogoutModal(true);
   };
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    }
+
     localStorage.clear();
     sessionStorage.clear();
 
