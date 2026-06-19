@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
@@ -17,18 +17,65 @@ import {
   FaGooglePlay,
 } from 'react-icons/fa';
 import { FiArrowRight } from 'react-icons/fi';
-import landingImage from '../assets/landing.png';
-// import mobileImage from '../assets/mobile.png';
+// import landingImage from '../assets/landing.png';
 import mobileImage from '../assets/Home_1.png';
+import mobileanimation from '../assets/Animation_Home2.mp4';
 import Playstore from '../assets/Home_2.png';
 import ParticlesBackground from '../components/common/ParticlesBackground';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
 import { useTheme, alpha } from '@mui/material';
 
+const TypingText = ({ text }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [phase, setPhase] = useState('typing'); // 'typing', 'paused', 'deleting'
+
+  useEffect(() => {
+    let timer;
+    if (phase === 'typing') {
+      if (displayText.length < text.length) {
+        timer = setTimeout(() => {
+          setDisplayText(text.substring(0, displayText.length + 1));
+        }, 60); // typing speed
+      } else {
+        setPhase('paused');
+      }
+    } else if (phase === 'paused') {
+      timer = setTimeout(() => {
+        setPhase('deleting');
+      }, 5000); // 5 seconds pause
+    } else if (phase === 'deleting') {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(text.substring(0, displayText.length - 1));
+        }, 25); // deleting speed
+      } else {
+        timer = setTimeout(() => {
+          setPhase('typing');
+        }, 500); // brief pause before starting to type again
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [displayText, phase, text]);
+
+  return (
+    <span>
+      {displayText}
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
+        style={{ display: 'inline-block', marginLeft: '2px', fontWeight: 'bold' }}
+      >
+        {/* | */}
+      </motion.span>
+    </span>
+  );
+};
+
 const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const appDownloadRef = useRef(null);
+  const [isVideoEnded, setIsVideoEnded] = useState(false);
 
 
   
@@ -147,7 +194,7 @@ const Home = () => {
             </h1>
 
             <h5 className="text-lg md:text-xl font-semibold mb-6" style={{ color: theme.palette.text.secondary }}>
-              Team Trackify – The Smart Way to Manage Field Teams
+              <TypingText text="Team Trackify – The Smart Way to Manage Field Teams" />
             </h5>
 
             <p className="text-base md:text-lg mb-6 leading-relaxed max-w-3xl mx-auto" style={{ color: theme.palette.text.secondary }}>
@@ -250,12 +297,30 @@ const Home = () => {
               className="order-1 lg:order-2"
             >
               
-                <div className="bg-white p-2 text-center">
-                  <img
-                    src={mobileImage}
-                    alt="Trackify in action"
-                    className="w-full h-auto max-h-[450px] object-contain rounded-lg"
-                  />
+                <div className="bg-white p-2 text-center relative overflow-hidden" style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {!isVideoEnded ? (
+                    <motion.video
+                      src={mobileanimation}
+                      autoPlay
+                      muted
+                      playsInline
+                      onEnded={() => setIsVideoEnded(true)}
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="w-full h-auto max-h-[450px] object-contain rounded-lg"
+                    />
+                  ) : (
+                    <motion.img
+                      src={mobileImage}
+                      alt="Trackify in action"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1.2, ease: "easeInOut" }}
+                      className="w-full h-auto max-h-[450px] object-contain rounded-lg"
+                    />
+                  )}
                 </div>
           
             </motion.div>
@@ -558,18 +623,7 @@ const Home = () => {
               confidence your business needs to grow.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/login')}
-                className="font-bold px-6 py-2.5 rounded-full transition-colors flex items-center text-sm"
-                style={{ 
-                  backgroundColor: 'white',
-                  color: theme.palette.primary.main,
-                }}
-              >
-                Start Free Trial <FiArrowRight className="ml-2" size={14} />
-              </motion.button>
+             
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

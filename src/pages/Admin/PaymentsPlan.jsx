@@ -4869,6 +4869,7 @@ import {
   People as PeopleIcon,
   Add as AddIcon,
   CheckCircle as CheckCircleIcon,
+  Check as CheckIcon,
   ArrowUpward as ArrowUpIcon,
   Info as InfoIcon,
   Warning as WarningIcon,
@@ -4884,6 +4885,7 @@ import {
   Savings as SavingsIcon,
   CalendarToday as CalendarIcon,
   Cancel as CancelIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -5120,66 +5122,123 @@ const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
   const limitedPaymentHistory = paymentHistory?.slice(0, 10) || [];
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth 
+      PaperProps={{ 
+        sx: { 
+          borderRadius: 3.5, 
+          overflow: "hidden",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.12)"
+        } 
+      }}
+    >
       <DialogTitle
         sx={{
           background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
           color: "white",
-          py: 2,
-          px: 3,
+          py: 1.75,
+          px: 2.5,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 1.5,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <HistoryIcon />
-          <Typography variant="h6" fontWeight={600}>Payment History</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+          <HistoryIcon sx={{ fontSize: 20 }} />
+          <Typography variant="subtitle1" fontWeight="700" sx={{ fontSize: "1rem" }}>Payment History</Typography>
         </Box>
-        {paymentHistory?.length > 2 && (
-          <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.8), fontSize: "0.7rem" }}>
-            Showing last 10 of {paymentHistory.length} payments
-          </Typography>
-        )}
+        <IconButton 
+          size="small" 
+          onClick={onClose} 
+          sx={{ color: "white", "&:hover": { bgcolor: "rgba(255,255,255,0.15)" } }}
+        >
+          <CloseIcon sx={{ fontSize: 18 }} />
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
+      <DialogContent sx={{ p: 2.5, maxHeight: 400, overflowY: "auto" }}>
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><CircularProgress /></Box>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 5 }}>
+            <CircularProgress size={28} />
+          </Box>
         ) : limitedPaymentHistory.length > 0 ? (
-          <TableContainer>
+          <TableContainer sx={{ border: `1px solid ${alpha(theme.palette.divider, 0.08)}`, borderRadius: 2 }}>
             <Table size="small">
-              <TableHead>
+              <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
                 <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Plan</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Coupon</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.72rem", py: 1.2, color: theme.palette.text.secondary }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.72rem", py: 1.2, color: theme.palette.text.secondary }}>Plan</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.72rem", py: 1.2, color: theme.palette.text.secondary }}>Amount</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.72rem", py: 1.2, color: theme.palette.text.secondary }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: "0.72rem", py: 1.2, color: theme.palette.text.secondary }}>Coupon</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {limitedPaymentHistory.map((payment) => (
-                  <TableRow key={payment._id}>
-                    <TableCell>{moment(payment.createdAt).format("DD/MM/YYYY")}</TableCell>
-                    <TableCell>{payment.planId?.name || "N/A"}</TableCell>
-                    <TableCell>
-                      <Typography fontWeight={600}>
-                        ₹{payment.amount}
+                  <TableRow 
+                    key={payment._id}
+                    sx={{ 
+                      "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.015) },
+                      transition: "background-color 0.2s ease" 
+                    }}
+                  >
+                    <TableCell sx={{ fontSize: "0.7rem", py: 1 }}>
+                      {moment(payment.createdAt).format("DD/MM/YYYY")}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: "0.7rem", py: 1, fontWeight: 500 }}>
+                      {payment.planId?.name || "N/A"}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: "0.7rem", py: 1 }}>
+                      <Box>
+                        <span style={{ fontWeight: 600 }}>₹{payment.amount}</span>
                         {payment.discountAmount > 0 && (
-                          <Typography component="span" color="success.main" sx={{ ml: 1, fontSize: "0.7rem" }}>
+                          <span style={{ color: theme.palette.success.main, marginLeft: 4, fontSize: "0.62rem", fontWeight: 600 }}>
                             (Saved ₹{payment.discountAmount})
-                          </Typography>
+                          </span>
                         )}
-                      </Typography>
+                      </Box>
                     </TableCell>
-                    <TableCell>
-                      <Chip label={payment.status} size="small" color={payment.status === "completed" ? "success" : "warning"} sx={{ fontSize: "0.6rem", height: 20 }} />
+                    <TableCell sx={{ py: 1 }}>
+                      <Chip 
+                        label={payment.status} 
+                        size="small" 
+                        variant="soft"
+                        sx={{ 
+                          fontSize: "0.58rem", 
+                          height: 18,
+                          fontWeight: 700,
+                          textTransform: "capitalize",
+                          bgcolor: payment.status === "completed" 
+                            ? alpha(theme.palette.success.main, 0.1) 
+                            : payment.status === "failed"
+                              ? alpha(theme.palette.error.main, 0.1)
+                              : alpha(theme.palette.warning.main, 0.1),
+                          color: payment.status === "completed"
+                            ? theme.palette.success.main
+                            : payment.status === "failed"
+                              ? theme.palette.error.main
+                              : theme.palette.warning.main
+                        }} 
+                      />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ fontSize: "0.7rem", py: 1 }}>
                       {payment.couponCode ? (
-                        <Chip label={payment.couponCode} size="small" icon={<LocalOfferIcon sx={{ fontSize: 12 }} />} sx={{ fontSize: "0.6rem", height: 20 }} />
+                        <Chip 
+                          label={payment.couponCode} 
+                          size="small" 
+                          icon={<LocalOfferIcon sx={{ fontSize: 10, color: "inherit !important" }} />} 
+                          sx={{ 
+                            fontSize: "0.58rem", 
+                            height: 18,
+                            fontWeight: 600,
+                            bgcolor: alpha(theme.palette.primary.main, 0.06),
+                            color: theme.palette.primary.main
+                          }} 
+                        />
                       ) : "-"}
                     </TableCell>
                   </TableRow>
@@ -5189,14 +5248,26 @@ const PaymentHistoryDialog = ({ open, onClose, paymentHistory, loading }) => {
           </TableContainer>
         ) : (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <ReceiptIcon sx={{ fontSize: 48, color: alpha(theme.palette.primary.main, 0.3), mb: 2 }} />
-            <Typography color="text.secondary">No payment history found</Typography>
+            <ReceiptIcon sx={{ fontSize: 40, color: alpha(theme.palette.primary.main, 0.2), mb: 1.5 }} />
+            <Typography variant="body2" color="text.secondary">No payment history found</Typography>
           </Box>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, pt: 0 }}>
-        <Button onClick={onClose} variant="contained" sx={{ borderRadius: 2 }}>Close</Button>
+      <DialogActions sx={{ px: 2.5, py: 1.75, borderTop: `1px solid ${alpha(theme.palette.divider, 0.06)}` }}>
+        <Button 
+          onClick={onClose} 
+          variant="contained" 
+          size="small"
+          sx={{ 
+            borderRadius: 1.5,
+            px: 3,
+            fontSize: "0.75rem",
+            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+          }}
+        >
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -5268,6 +5339,29 @@ const CancelSubscriptionDialog = ({ open, onClose, onConfirm, isCancelling, plan
 // ─────────────────────────────────────────────────────────────
 const PaymentPlans = () => {
   const theme = useTheme();
+  const renderPlanDescription = (description) => {
+    if (!description) return null;
+    const parts = description.split(/\s*-\s+/).map((p) => p.trim()).filter(Boolean);
+    if (parts.length <= 1) {
+      return (
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.74rem", mb: 1.5, display: "block" }}>
+          {description}
+        </Typography>
+      );
+    }
+    return (
+      <Box sx={{ mb: 1.5, textAlign: "left", width: "100%" }}>
+        {parts.map((part, idx) => (
+          <Box key={idx} sx={{ display: "flex", alignItems: "flex-start", gap: 0.75, mb: 0.5 }}>
+            <CheckIcon sx={{ color: theme.palette.success.main, fontSize: 13, mt: 0.25, flexShrink: 0 }} />
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.72rem", lineHeight: 1.3 }}>
+              {part}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -6012,9 +6106,7 @@ const PaymentPlans = () => {
             />
 
             <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.74rem", mb: 1.5, display: "block" }}>
-                {plan.description}
-              </Typography>
+              {renderPlanDescription(plan.description)}
 
               <Box sx={{ textAlign: "center", mb: 2.5, position: "relative" }}>
                 {hasCouponApplied && (
@@ -6088,6 +6180,11 @@ const PaymentPlans = () => {
                   <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, display: "block", textAlign: "center" }}>
                     ✓ Active Plan
                   </Typography>
+                  {subscriptionExpiry && (
+                    <Typography variant="caption" sx={{ color: theme.palette.success.main, display: "block", textAlign: "center", mt: 0.5, fontSize: "0.68rem", opacity: 0.85 }}>
+                      Expires on {moment(subscriptionExpiry).format("MMMM Do YYYY")}
+                    </Typography>
+                  )}
                 </Box>
               )}
 
@@ -6097,6 +6194,11 @@ const PaymentPlans = () => {
                   <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600, display: "block", textAlign: "center" }}>
                     ⚠ Subscription Expired
                   </Typography>
+                  {subscriptionExpiry && (
+                    <Typography variant="caption" sx={{ color: theme.palette.warning.main, display: "block", textAlign: "center", mt: 0.5, fontSize: "0.68rem", opacity: 0.85 }}>
+                      Expired on {moment(subscriptionExpiry).format("MMMM Do YYYY")}
+                    </Typography>
+                  )}
                 </Box>
               )}
             </CardContent>
@@ -6333,7 +6435,7 @@ const PaymentPlans = () => {
         )}
 
         {/* ✅ Subscription status alert — driven by API response */}
-        {subscriptionInfo?.hasSubscription && (
+        {/* {subscriptionInfo?.hasSubscription && (
           <Alert
             severity={isSubscriptionExpired ? "warning" : "info"}
             icon={isSubscriptionExpired ? <WarningIcon sx={{ fontSize: 18 }} /> : <InfoIcon sx={{ fontSize: 18 }} />}
@@ -6351,7 +6453,7 @@ const PaymentPlans = () => {
               {subscriptionInfo.message}
             </Typography>
           </Alert>
-        )}
+        )} */}
 
         {paymentSuccess && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
@@ -6365,9 +6467,11 @@ const PaymentPlans = () => {
         {/* Custom Plan Section */}
         {isAuthenticated && (
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
-              Your Custom Plan
-            </Typography>
+            {userCustomPlan && (
+              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+                Your Custom Plan
+              </Typography>
+            )}
             {!userCustomPlan && !fetchingCustomPlan && (
               <Button
                 variant="outlined"
@@ -6464,9 +6568,7 @@ const PaymentPlans = () => {
                   />
 
                   <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.74rem", mb: 1.5, display: "block" }}>
-                      {userCustomPlan.description}
-                    </Typography>
+                    {renderPlanDescription(userCustomPlan.description)}
                     <Box sx={{ textAlign: "center", mb: 2.5 }}>
                       <Typography variant="h5" fontWeight={700} sx={{ color: "#9c27b0", fontSize: "1.5rem" }}>
                         ₹{userCustomPlan.price}

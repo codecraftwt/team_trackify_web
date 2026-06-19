@@ -1991,6 +1991,7 @@ import {
 import { getSessionDetails } from "../../redux/slices/userSlice";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-polylinedecorator";
 
 // Fix Leaflet icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -2328,6 +2329,7 @@ const ReportLocation = () => {
     const [loading, setLoading] = useState(true);
     const [sessionDate, setSessionDate] = useState(null);
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [mapZoom, setMapZoom] = useState(13);
     const [draggingIndex, setDraggingIndex] = useState(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -2339,6 +2341,7 @@ const ReportLocation = () => {
     const polylines = useRef([]);
     const markers = useRef([]);
     const markerRefs = useRef(new Map());
+    const lastFitBoundsSessionId = useRef(null);
 
     // Show snackbar message
     const showMessage = (message, severity = "info") => {
@@ -2532,22 +2535,69 @@ const ReportLocation = () => {
         const validLocations = getValidLocations(allLocations);
         if (validLocations.length === 0) return;
 
-        // Draw polyline
+        // Zoom-based arrow size and interval calculation
+        // Zoom >= 16 (closer, ~500m scale): arrow size 24px
+        // Zoom 14-15 (~1km - 2km scale): arrow size 18px
+        // Zoom < 14: arrow size 12px
+        let arrowSize = 18;
+        if (mapZoom >= 16) {
+            arrowSize = 24;
+        } else if (mapZoom < 14) {
+            arrowSize = 12;
+        }
+
+        // Adjust arrow interval based on zoom level
+        let arrowDistanceInterval = 500;
+        if (mapZoom >= 17) {
+            arrowDistanceInterval = 100;
+        } else if (mapZoom === 16) {
+            arrowDistanceInterval = 250;
+        } else if (mapZoom === 15) {
+            arrowDistanceInterval = 500;
+        } else {
+            arrowDistanceInterval = 1000;
+        }
+
+        let accumulatedDistance = 0;
+
         for (let i = 0; i < validLocations.length - 1; i++) {
+            const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
+            const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
+            const color = validLocations[i].isOnline === true ? "#3553ea" : "#ef4444";
+
             const line = L.polyline(
-                [
-                    [getLat(validLocations[i]), getLng(validLocations[i])],
-                    [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
-                ],
-                {
-                    color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
-                    weight: 3,
-                    opacity: 0.8,
-                    lineJoin: "round",
-                    lineCap: "round",
-                }
+                [p1, p2],
+                { color, weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
             ).addTo(mapInstance.current);
             polylines.current.push(line);
+
+            // Add a forward-pointing Material-like open arrow at specified distance intervals
+            const dist = calcDistance(p1[0], p1[1], p2[0], p2[1]);
+            accumulatedDistance += dist;
+
+            if (accumulatedDistance >= arrowDistanceInterval) {
+                const decorator = L.polylineDecorator([p1, p2], {
+                    patterns: [
+                        {
+                            offset: '50%',
+                            repeat: 0,
+                            symbol: L.Symbol.marker({
+                                rotate: true,
+                                markerOptions: {
+                                    icon: L.divIcon({
+                                        html: `<svg viewBox="0 0 24 24" width="${arrowSize}" height="${arrowSize}" style="display: block; filter: drop-shadow(0px 1px 1.5px rgba(0,0,0,0.75));"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="#FFFFFF"/></svg>`,
+                                        iconSize: [arrowSize, arrowSize],
+                                        iconAnchor: [arrowSize / 2, arrowSize / 2],
+                                        className: ''
+                                    })
+                                }
+                            })
+                        }
+                    ]
+                }).addTo(mapInstance.current);
+                polylines.current.push(decorator);
+                accumulatedDistance = 0; // Reset accumulator
+            }
         }
 
         // Draw start point
@@ -2725,16 +2775,17 @@ const ReportLocation = () => {
 }
 
         // Fit bounds
-        if (validLocations.length > 0) {
+        if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
             const bounds = L.latLngBounds(validLocations.map((l) => [getLat(l), getLng(l)]));
             mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
+            lastFitBoundsSessionId.current = String(session.sessionId || session._id);
         }
-    }, [startPoint, endPoint]);
+    }, [startPoint, endPoint, mapZoom]);
 
     // Initialize Map
     useEffect(() => {
         if (!mapRef.current || isMapInitialized) return;
-        const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
+        const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13, minZoom: 3 });
 
         const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
 
@@ -2769,6 +2820,12 @@ const ReportLocation = () => {
         L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
         mapInstance.current = map;
+
+        // Listen to zoom changes to adapt arrows size and distance intervals dynamically
+        map.on('zoomend', () => {
+            setMapZoom(map.getZoom());
+        });
+
         setIsMapInitialized(true);
         if (selectedSession) {
             setTimeout(() => drawMapWithSession(selectedSession, showPhotoMarkers), 200);
@@ -2787,7 +2844,7 @@ const ReportLocation = () => {
         if (mapInstance.current && selectedSession) {
             setTimeout(() => drawMapWithSession(selectedSession, showPhotoMarkers), 100);
         }
-    }, [selectedSession, showPhotoMarkers, startPoint, endPoint, drawMapWithSession]);
+    }, [selectedSession, showPhotoMarkers, startPoint, endPoint, mapZoom, drawMapWithSession]);
 
     useEffect(() => {
         const onResize = () => {

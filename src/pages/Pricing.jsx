@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
+import ParticlesBackground from '../components/common/ParticlesBackground';
 import {
   Card,
   CardContent,
@@ -70,10 +71,88 @@ const PlanCardSkeleton = () => {
   );
 };
 
+const TEAR_POINTS = [
+  { x: 328, y: 140 },
+  { x: 320, y: 137 },
+  { x: 315, y: 141 },
+  { x: 308, y: 138 },
+  { x: 300, y: 142 },
+  { x: 290, y: 136 },
+  { x: 285, y: 140 },
+  { x: 278, y: 138 },
+  { x: 270, y: 143 },
+  { x: 262, y: 137 },
+  { x: 255, y: 141 },
+  { x: 248, y: 139 },
+  { x: 240, y: 142 },
+  { x: 230, y: 136 },
+  { x: 225, y: 140 },
+  { x: 218, y: 138 },
+  { x: 210, y: 143 },
+  { x: 202, y: 137 },
+  { x: 195, y: 141 },
+  { x: 188, y: 139 },
+  { x: 180, y: 142 },
+  { x: 170, y: 136 },
+  { x: 165, y: 140 },
+  { x: 158, y: 138 },
+  { x: 150, y: 143 },
+  { x: 142, y: 137 },
+  { x: 135, y: 141 },
+  { x: 128, y: 139 },
+  { x: 120, y: 142 },
+  { x: 110, y: 136 },
+  { x: 105, y: 140 },
+  { x: 98, y: 138 },
+  { x: 90, y: 143 },
+  { x: 82, y: 137 },
+  { x: 75, y: 141 },
+  { x: 68, y: 139 },
+  { x: 60, y: 142 },
+  { x: 50, y: 136 },
+  { x: 45, y: 140 },
+  { x: 38, y: 138 },
+  { x: 30, y: 143 },
+  { x: 22, y: 137 },
+  { x: 12, y: 140 }
+];
+
+const topTearPath = TEAR_POINTS.map(p => `L ${p.x} ${p.y}`).join(' ');
+const bottomTearPath = [...TEAR_POINTS].reverse().map(p => `L ${p.x} ${p.y - 140}`).join(' ');
+
+const getTopStubPath = (isTorn) => {
+  if (!isTorn) {
+    return "M 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140 A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0 Z";
+  }
+  return `M 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 ${topTearPath} A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0 Z`;
+};
+
+const getTopOuterBorderPath = (isTorn) => {
+  if (!isTorn) {
+    return "M 12 140 A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140";
+  }
+  return "M 0 128 L 0 12 A 12 12 0 0 0 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128";
+};
+
+const getBottomStubPath = (isTorn) => {
+  if (!isTorn) {
+    return "M 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140 A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0 Z";
+  }
+  return `M 12 0 ${bottomTearPath} A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140 A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0 Z`;
+};
+
+const getBottomOuterBorderPath = (isTorn) => {
+  if (!isTorn) {
+    return "M 12 0 L 328 0 A 12 12 0 0 0 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140 A 12 12 0 0 0 0 128 L 0 12 A 12 12 0 0 0 12 0";
+  }
+  return "M 340 12 L 340 128 A 12 12 0 0 0 328 140 L 12 140 A 12 12 0 0 0 0 128 L 0 12";
+};
+
 const CouponSection = ({ theme }) => {
   const [couponValue, setCouponValue] = useState(10);
-  const [promoCode, setPromoCode] = useState('WELCOME20');
-  const [revealIndex, setRevealIndex] = useState(0);
+  const [promoCode, setPromoCode] = useState('TRACKF20');
+  const [isTearing, setIsTearing] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const generateRandomPromoCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -85,37 +164,99 @@ const CouponSection = ({ theme }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCouponValue((prev) => (prev >= 90 ? 10 : prev + 10));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     let timer;
-    if (revealIndex < 8) {
+    if (isTearing) {
+      // 1. Tearing phase: wait for the drop animation to finish (1000ms), then reset the card
       timer = setTimeout(() => {
-        setRevealIndex((prev) => prev + 1);
-      }, 150);
-    } else {
-      timer = setTimeout(() => {
+        setIsTearing(false);
+        setCouponValue(10);
         setPromoCode(generateRandomPromoCode());
-        setRevealIndex(0);
-      }, 3000);
+        setIsResetting(true);
+      }, 1000);
+    } else if (isResetting) {
+      // 2. Resetting phase: wait for the entry animation of the new card to finish (600ms)
+      timer = setTimeout(() => {
+        setIsResetting(false);
+      }, 600);
+    } else {
+      // 3. Counting phase: increment coupon value every 250ms, hold at 90% for 1500ms
+      timer = setTimeout(() => {
+        if (couponValue < 90) {
+          setCouponValue((prev) => prev + 10);
+        } else {
+          setIsTearing(true);
+        }
+      }, couponValue === 90 ? 1500 : 250);
     }
     return () => clearTimeout(timer);
-  }, [revealIndex]);
+  }, [couponValue, isTearing, isResetting]);
 
   const getDisplayPromoCode = () => {
+    const revealCount = Math.floor(couponValue / 10) - 1;
     let result = '';
     for (let i = 0; i < 8; i++) {
-      if (i < revealIndex) {
+      if (i < revealCount) {
         result += promoCode[i];
       } else {
         result += 'X';
       }
     }
     return result;
+  };
+
+  const topShakeAnimation = {
+    shake: {
+      x: [0, -2, 2, -2, 2, -1, 1, -0.5, 0.5, 0],
+      y: [0, -1, 1, -1, 1, -0.5, 0.5, -0.2, 0.2, 0],
+      transition: {
+        duration: 0.3,
+        ease: "easeInOut"
+      }
+    },
+    normal: {
+      x: 0,
+      y: 0
+    }
+  };
+
+  const bottomTearAnimation = {
+    tearing: {
+      opacity: [1, 1, 0.9, 0],
+      y: [0, 12, 45, 320],
+      x: [0, -4, -10, -25],
+      rotate: [0, 6, 14, 28],
+      rotateX: [0, 8, 20, 40],
+      scale: [1, 0.99, 0.97, 0.85],
+      transition: {
+        duration: 1.0,
+        times: [0, 0.25, 0.5, 1.0],
+        ease: [0.45, 0, 0.55, 1]
+      }
+    },
+    normal: {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      rotate: 0,
+      rotateX: 0,
+      scale: 1,
+      transition: {
+        duration: 0.45,
+        ease: "easeOut"
+      }
+    },
+    resetting: {
+      opacity: [0, 1],
+      y: [-30, 0],
+      x: 0,
+      rotate: 0,
+      rotateX: 0,
+      scale: [0.95, 1],
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
   };
 
   return (
@@ -181,7 +322,7 @@ const CouponSection = ({ theme }) => {
             </motion.div>
           </Grid>
 
-          {/* Right Column: Stylish Virtual Coupon Card */}
+          {/* Right Column: Realistic Paper Coupon Card */}
           <Grid item xs={12} md={5}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -189,113 +330,227 @@ const CouponSection = ({ theme }) => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Paper
-                elevation={4}
+              <Box
                 sx={{
                   position: 'relative',
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                  color: 'white',
-                  borderRadius: 3,
-                  overflow: 'hidden',
-                  p: { xs: 2.5, sm: 3 },
-                  boxShadow: `0 15px 30px -10px ${alpha(theme.palette.primary.main, 0.4)}`,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  // Punch-out circles on the left & right sides
-                  '&::before, &::after': {
-                    content: '""',
-                    position: 'absolute',
-                    width: 20,
-                    height: 20,
-                    borderRadius: '50%',
-                    background: theme.palette.background.paper,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    zIndex: 2,
-                  },
-                  '&::before': { left: -10 },
-                  '&::after': { right: -10 },
+                  width: '100%',
+                  maxWidth: '340px',
+                  margin: '0 auto',
+                  filter: 'drop-shadow(0 12px 25px rgba(0, 0, 0, 0.08))',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0,
+                  perspective: 1200,
                 }}
               >
-                {/* Decorative background glow */}
-                <Box sx={{
-                  position: 'absolute',
-                  top: -40,
-                  right: -40,
-                  width: 120,
-                  height: 120,
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  filter: 'blur(15px)',
-                }} />
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-                  <Chip
-                    icon={<LocalOfferIcon sx={{ fontSize: 10, color: `${theme.palette.primary.main} !important` }} />}
-                    label="ACTIVE OFFER"
-                    size="small"
+                {/* 1. TOP HALF (STUB) */}
+                <motion.div
+                  animate={isTearing ? "shake" : "normal"}
+                  variants={topShakeAnimation}
+                  style={{ zIndex: 3 }}
+                >
+                  <Box
                     sx={{
-                      backgroundColor: 'white',
-                      color: theme.palette.primary.main,
-                      fontWeight: 700,
-                      fontSize: '0.6rem',
-                      mb: 2,
-                      height: 20,
-                      px: 0.5,
-                      '& .MuiChip-icon': { color: theme.palette.primary.main }
+                      position: 'relative',
+                      width: '100%',
+                      height: '140px',
                     }}
-                  />
-
-                  <Typography variant="h4" sx={{ fontWeight: 900, mb: 0.5, letterSpacing: -0.5, textShadow: '0 2px 4px rgba(0,0,0,0.1)', fontSize: '1.8rem', lineHeight: 1.1 }}>
-                    <motion.span
-                      key={couponValue}
-                      initial={{ opacity: 0.3, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.2 }}
-                      style={{ display: 'inline-block' }}
+                  >
+                    {/* SVG Graphic Layer */}
+                    <svg
+                      viewBox="0 0 340 140"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 1,
+                        overflow: 'visible',
+                      }}
                     >
-                      {couponValue}% OFF
-                    </motion.span>
-                  </Typography>
+                      <path
+                        d={getTopStubPath(isTearing)}
+                        fill="#E8E1D1"
+                      />
+                      <path
+                        d={getTopOuterBorderPath(isTearing)}
+                        fill="none"
+                        stroke={theme.palette.divider}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {!isTearing && (
+                        <line
+                          x1="10"
+                          y1="140"
+                          x2="330"
+                          y2="140"
+                          stroke={theme.palette.divider}
+                          strokeWidth="2"
+                          strokeDasharray="5 5"
+                        />
+                      )}
+                      {isTearing && (
+                        <path
+                          d={`M 330 140 ${topTearPath}`}
+                          fill="none"
+                          stroke={theme.palette.mode === 'dark' ? '#e2e8f0' : '#ffffff'}
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.9))' }}
+                        />
+                      )}
+                    </svg>
 
-                  <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.75rem', mb: 2, lineHeight: 1.3 }}>
-                    Welcome offer for new teams. Apply on any plan checkout!
-                  </Typography>
+                    {/* Content Layer: Percentage Discount on Top */}
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        zIndex: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        px: { xs: 2.5, sm: 3 },
+                        pb: 1,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: -0.5, color: '#f43f5e', fontSize: '1.8rem', lineHeight: 1 }}>
+                          <motion.span
+                            key={couponValue}
+                            initial={{ opacity: 0.3, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.1 }}
+                            style={{ display: 'inline-block' }}
+                          >
+                            {couponValue}% OFF
+                          </motion.span>
+                        </Typography>
+                      </Box>
 
-                  {/* Dotted separator line */}
-                  <Box sx={{
-                    width: '100%',
-                    borderTop: '2px dashed rgba(255, 255, 255, 0.3)',
-                    my: 1.5,
-                  }} />
+                      <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.74rem', fontWeight: 500, mb: 1, lineHeight: 1.3, maxWidth: 240, textAlign: 'center' }}>
+                        Welcome offer for new teams. Apply on any plan checkout!
+                      </Typography>
 
-                  <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.6rem', letterSpacing: 1, textTransform: 'uppercase', mb: 0.5, lineHeight: 1 }}>
-                    Your Promo Code
-                  </Typography>
-
-                  <Box sx={{
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(5px)',
-                    border: '1px dashed rgba(255, 255, 255, 0.3)',
-                    borderRadius: 1.5,
-                    py: 1,
-                    px: 2,
-                    fontSize: '1rem',
-                    fontWeight: 800,
-                    letterSpacing: 2,
-                    color: 'white',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                    mb: 1.5,
-                    display: 'inline-block',
-                    fontFamily: 'monospace'
-                  }}>
-                    {getDisplayPromoCode()}
+                      <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.55rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        *Limited time offer. Enter code at final checkout page.
+                      </Typography>
+                    </Box>
                   </Box>
+                </motion.div>
 
-                  <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.55rem', lineHeight: 1.2 }}>
-                    *Limited time offer. Enter code at final checkout page.
-                  </Typography>
-                </Box>
-              </Paper>
+                {/* 2. BOTTOM HALF (TICKET) */}
+                <motion.div
+                  key={isTearing ? 'tearing' : isResetting ? 'resetting' : 'normal'}
+                  animate={isTearing ? 'tearing' : isResetting ? 'resetting' : 'normal'}
+                  variants={bottomTearAnimation}
+                  style={{
+                    originY: 0,
+                    originX: 0.9,
+                    zIndex: 2,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '140px',
+                      marginTop: '-0.5px', // Subtle overlap to guarantee no gap
+                    }}
+                  >
+                    {/* SVG Graphic Layer */}
+                    <svg
+                      viewBox="0 0 340 140"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        zIndex: 1,
+                        overflow: 'visible',
+                      }}
+                    >
+                      <path
+                        d={getBottomStubPath(isTearing)}
+                        fill="#E8E1D1"
+                      />
+                      <path
+                        d={getBottomOuterBorderPath(isTearing)}
+                        fill="none"
+                        stroke={theme.palette.divider}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {isTearing && (
+                        <path
+                          d={`M 10 0 ${bottomTearPath}`}
+                          fill="none"
+                          stroke={theme.palette.mode === 'dark' ? '#e2e8f0' : '#ffffff'}
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.9))' }}
+                        />
+                      )}
+                    </svg>
+
+                    {/* Content Layer: Promo Code on Bottom */}
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        zIndex: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        px: { xs: 2.5, sm: 3 },
+                        pt: 1,
+                      }}
+                    >
+                      <Chip
+                        icon={<LocalOfferIcon sx={{ fontSize: 10, color: `${theme.palette.primary.main} !important` }} />}
+                        label="ACTIVE OFFER"
+                        size="small"
+                        sx={{
+                          backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                          color: theme.palette.primary.main,
+                          fontWeight: 700,
+                          fontSize: '0.62rem',
+                          mb: 1.5,
+                          height: 20,
+                          px: 0.5,
+                        }}
+                      />
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.62rem', fontWeight: 600, letterSpacing: 1.2, textTransform: 'uppercase', mb: 0.5 }}>
+                        Your Promo Code
+                      </Typography>
+                      <Box sx={{
+                        background: theme.palette.mode === 'dark' ? alpha(theme.palette.background.default, 0.5) : '#ffffff',
+                        border: `1.5px dashed ${alpha(theme.palette.primary.main, 0.35)}`,
+                        borderRadius: 2,
+                        py: 0.8,
+                        px: 2.5,
+                        fontSize: '1.05rem',
+                        fontWeight: 800,
+                        letterSpacing: 2,
+                        color: 'text.primary',
+                        fontFamily: 'monospace',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                      }}>
+                        {getDisplayPromoCode()}
+                      </Box>
+                    </Box>
+                  </Box>
+                </motion.div>
+              </Box>
             </motion.div>
           </Grid>
         </Grid>
@@ -315,9 +570,7 @@ const Pricing = () => {
 
   const { availablePlans = [] } = useSelector((state) => state.plan || {});
 
-  console.log("=========================================");
-  console.log("📍 PRICING PAGE LOADED");
-  console.log("=========================================");
+
 
   const getPlanIcon = (planName) => {
     const name = planName?.toLowerCase() || '';
@@ -461,14 +714,14 @@ const Pricing = () => {
   };
 
   const handleSelectPlan = (plan) => {
-    console.log("=========================================");
-    console.log("🎯 PLAN SELECTED IN PRICING PAGE");
-    console.log("Plan Details:", {
-      id: plan.id,
-      name: plan.name,
-      price: plan.isCustom ? 'Variable' : getPrice(plan),
-      billingCycle: billingCycle
-    });
+    // console.log("=========================================");
+    // console.log("🎯 PLAN SELECTED IN PRICING PAGE");
+    // console.log("Plan Details:", {
+    //   id: plan.id,
+    //   name: plan.name,
+    //   price: plan.isCustom ? 'Variable' : getPrice(plan),
+    //   billingCycle: billingCycle
+    // });
 
     const selectedPlanData = {
       id: plan.id,
@@ -485,14 +738,14 @@ const Pricing = () => {
       isCustom: plan.isCustom || false,
     };
 
-    console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
+    // console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
 
-    // Store in sessionStorage
+    // // Store in sessionStorage
     sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
-    console.log("💾 Saved to sessionStorage");
+    // console.log("💾 Saved to sessionStorage");
 
-    // Navigate with state
-    console.log("🚀 Navigating to /register with state");
+    // // Navigate with state
+    // console.log("🚀 Navigating to /register with state");
     navigate('/register', {
       state: {
         selectedPlan: selectedPlanData,
@@ -621,7 +874,6 @@ const Pricing = () => {
                   </Button>
                 </Box>
 
-                <Box sx={{ width: '100%', height: '1px', bgcolor: alpha(theme.palette.divider, 0.08), mb: 2 }} />
 
                 {!plan.isCustom && (
                   <Box sx={{ 
@@ -675,7 +927,7 @@ const Pricing = () => {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: theme.palette.background.paper }}>
       <Header />
-      <section className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-10 md:pb-12" style={{ background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)` }}>
+      {/* <section className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-10 md:pb-12" style={{ background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)` }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-3" style={{ backgroundColor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.dark }}>
@@ -691,8 +943,41 @@ const Pricing = () => {
             </p>
           </motion.div>
         </div>
-      </section>
+      </section> */}
+<section 
+  className="min-h-[100vh] flex items-center relative overflow-hidden" 
+  style={{
+    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`
+  }}
+>
+  <ParticlesBackground />
 
+  <div className="container-custom relative z-10">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="text-center max-w-4xl mx-auto"
+    >
+      <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{
+        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+        color: theme.palette.primary.dark
+      }}>
+        Simple. Transparent. No surprises.
+      </div>
+      
+      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-6" style={{ color: theme.palette.text.primary }}>
+        Know <span style={{ color: theme.palette.primary.main }}>exactly</span> where your team is —<br className="hidden sm:block" />
+        <span style={{ color: theme.palette.primary.main }}>right now</span>
+      </h1>
+      
+      <p className="text-base md:text-lg lg:text-xl leading-relaxed max-w-3xl mx-auto" style={{ color: theme.palette.text.secondary }}>
+        Real-time GPS tracking + simple reports for field teams.<br />
+        No complex setup. <strong>No developer API required</strong> on affordable plans.
+      </p>
+    </motion.div>
+  </div>
+</section>
       <section className="py-8 sm:py-10 md:py-12" style={{ backgroundColor: theme.palette.background.paper }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Grid container spacing={2} alignItems="stretch">

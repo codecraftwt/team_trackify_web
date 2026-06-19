@@ -24,7 +24,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { toast, ToastContainer } from 'react-toastify';
-import { loginUser, clearError, clearMessage } from '../../redux/slices/authSlice';
+import { loginUser, clearError, clearMessage, logout } from '../../redux/slices/authSlice';
 import Logo from '../../assets/logo31.png';
 
 const Login = () => {
@@ -94,6 +94,15 @@ const Login = () => {
 
     // Double check if we have a valid role
     if (roleIdNum === null || !user) {
+      return;
+    }
+
+    // Block role 0 and 3 users
+    if (roleIdNum === 0 || roleIdNum === 3) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch(logout());
+      toast.error('Access denied: Users with this role are not allowed to log in.');
       return;
     }
 

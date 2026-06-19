@@ -41,6 +41,7 @@ import {
   CalendarToday as CalendarIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
+  BarChart as BarChartIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -345,15 +346,45 @@ const PopularPlansChart = ({ data, isMobile }) => {
         sx={{
           p: 3,
           borderRadius: 3,
-          height: 300,
+          height: isMobile ? 300 : 350,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           bgcolor: alpha(theme.palette.background.paper, 0.5),
-          border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+          border: `1px dashed ${alpha(theme.palette.primary.main, 0.25)}`,
+          textAlign: "center",
+          gap: 2,
         }}
       >
-        <Typography color="text.secondary">No purchase data available</Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 70,
+            height: 70,
+            borderRadius: "50%",
+            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            color: theme.palette.primary.main,
+            animation: "pulsePopularPlans 2.5s infinite ease-in-out",
+            "@keyframes pulsePopularPlans": {
+              "0%": { transform: "scale(0.95)", boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0.2)}` },
+              "70%": { transform: "scale(1)", boxShadow: `0 0 0 10px ${alpha(theme.palette.primary.main, 0)}` },
+              "100%": { transform: "scale(0.95)", boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}` }
+            }
+          }}
+        >
+          <BarChartIcon sx={{ fontSize: 36 }} />
+        </Box>
+        <Box>
+          <Typography variant="subtitle1" fontWeight="700" color="text.primary">
+            No Plan Data Available
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 280, fontSize: "0.825rem" }}>
+            There are currently no purchase records found to generate the plan popularity overview.
+          </Typography>
+        </Box>
       </Paper>
     );
   }

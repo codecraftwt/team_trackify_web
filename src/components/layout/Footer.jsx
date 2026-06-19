@@ -4,7 +4,8 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import logoImage from '../../assets/logo31.png';
+// import logoImage from '../../assets/logo31.png';
+import logoImage from '../../assets/logo31_animated.gif';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -174,6 +175,7 @@ const Footer = () => {
                     width: 'auto',
                     objectFit: 'contain',
                     transition: 'transform 0.3s',
+                    borderRadius:8
                   }}
                 />
 

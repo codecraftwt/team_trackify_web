@@ -495,6 +495,18 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
   const isSmallMobile = useMediaQuery('(max-width:480px)');
   const [addOnsOpen, setAddOnsOpen] = useState(false);
 
+  const formatPlanDescription = (desc) => {
+    if (!desc) return "No Plan Description";
+    let text = desc.trim();
+    const hasLeadingDash = /^\s*-\s*/.test(text);
+    if (hasLeadingDash) {
+      text = text.replace(/^\s*-\s*/, "");
+    } else {
+      text = text.replace(/\s*-\s+/, " ");
+    }
+    return text.replace(/\s*-\s+/g, " | ");
+  };
+
   if (loading) return <CurrentPlanSkeleton />;
 
   // ── Empty state ────────────────────────────────────────────────────────────
@@ -660,7 +672,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
         <Box sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
           <Typography variant={isMobile ? "body1" : "h6"} fontWeight="600" gutterBottom
             sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' }, color: 'text.primary' }}>
-            {planData.description || "No Plan Description"}
+            {formatPlanDescription(planData.description)}
           </Typography>
         </Box>
 
