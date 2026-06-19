@@ -5,7 +5,8 @@ import { useTheme, alpha } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 // import logoImage from '../../assets/Team-Trackify-logo.png';
-import logoImage from '../../assets/logo31.png';
+// import logoImage from '../../assets/logo31.png';
+import logoImage from '../../assets/logo31_animated.gif';
 
 const Header = ({ onMenuClick }) => {
   const theme = useTheme();

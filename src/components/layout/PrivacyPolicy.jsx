@@ -1,8 +1,7 @@
-import React from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Card } from "react-bootstrap";
 import { motion } from "framer-motion";
 import {
-  FiArrowLeft,
   FiMail,
   FiClock,
   FiShield,
@@ -12,18 +11,16 @@ import {
   FiEye,
   FiAlertCircle,
 } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 
 const PrivacyPolicy = () => {
-  const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState(0);
 
-  // Policy sections with icons using updated primary color (#2f6eaa)
   const policySections = [
     {
       title: "1. Information We Collect",
-      icon: <FiUser className="text-primary" size={24} />,
+      icon: <FiUser size={20} />,
       subsections: [
         {
           title: "a. Personal Information:",
@@ -65,7 +62,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "2. How We Use Your Information",
-      icon: <FiShare2 className="text-primary" size={24} />,
+      icon: <FiShare2 size={20} />,
       content: (
         <>
           <p>We use the collected information to:</p>
@@ -83,7 +80,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "3. Data Sharing and Disclosure",
-      icon: <FiShield className="text-primary" size={24} />,
+      icon: <FiShield size={20} />,
       content: (
         <>
           <p>
@@ -117,7 +114,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "4. Data Security",
-      icon: <FiLock className="text-primary" size={24} />,
+      icon: <FiLock size={20} />,
       content: (
         <>
           <p>
@@ -141,7 +138,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "5. Data Retention",
-      icon: <FiClock className="text-primary" size={24} />,
+      icon: <FiClock size={20} />,
       content: (
         <>
           <p>
@@ -163,7 +160,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "6. Your Rights",
-      icon: <FiEye className="text-primary" size={24} />,
+      icon: <FiEye size={20} />,
       content: (
         <>
           <p>You have the following rights regarding your personal information:</p>
@@ -195,7 +192,7 @@ const PrivacyPolicy = () => {
           </ul>
           <p className="mt-3">
             To exercise these rights, please contact us at{" "}
-            <a href="mailto:walstarappdev@gmail.com" className="text-primary" style={{ color: '#2f6eaa' }}>
+            <a href="mailto:walstarappdev@gmail.com" className="text-primary font-semibold" style={{ color: '#2f6eaa', textDecoration: 'none' }}>
               walstarappdev@gmail.com
             </a>
             . We will respond within 30 days.
@@ -205,7 +202,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "7. Cookies and Tracking Technologies",
-      icon: <FiEye className="text-primary" size={24} />,
+      icon: <FiEye size={20} />,
       content: (
         <>
           <p>
@@ -235,7 +232,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "8. Children's Privacy",
-      icon: <FiShield className="text-primary" size={24} />,
+      icon: <FiShield size={20} />,
       content: (
         <p>
           Our services are not intended for individuals under the age of 18. We
@@ -247,7 +244,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "9. International Data Transfers",
-      icon: <FiShare2 className="text-primary" size={24} />,
+      icon: <FiShare2 size={20} />,
       content: (
         <p>
           Your information may be transferred to and processed in countries
@@ -259,7 +256,7 @@ const PrivacyPolicy = () => {
     },
     {
       title: "10. Changes to This Privacy Policy",
-      icon: <FiAlertCircle className="text-primary" size={24} />,
+      icon: <FiAlertCircle size={20} />,
       content: (
         <p>
           We may update this Privacy Policy from time to time to reflect changes
@@ -272,17 +269,17 @@ const PrivacyPolicy = () => {
     },
     {
       title: "11. Contact Us",
-      icon: <FiMail className="text-primary" size={24} />,
+      icon: <FiMail size={20} />,
       content: (
         <>
           <p>
             If you have any questions, concerns, or requests regarding this
             Privacy Policy or our data practices, please contact us:
           </p>
-          <div className="mt-3">
+          <div className="mt-3 bg-light p-3 rounded-3 border-start border-4" style={{ borderColor: '#2f6eaa' }}>
             <p className="mb-2">
               <strong>Email:</strong>{" "}
-              <a href="mailto:walstarappdev@gmail.com" className="text-primary" style={{ color: '#2f6eaa' }}>
+              <a href="mailto:walstarappdev@gmail.com" className="text-primary font-semibold" style={{ color: '#2f6eaa', textDecoration: 'none' }}>
                 walstarappdev@gmail.com
               </a>
             </p>
@@ -290,9 +287,9 @@ const PrivacyPolicy = () => {
               <strong>Address:</strong> Rukmini Nagar, Front Of Datta Mandir,
               2103/47 E, Shahupuri, Kolhapur, Maharashtra 416005
             </p>
-            <p className="mb-2">
+            <p className="mb-0">
               <strong>Phone:</strong>{" "}
-              <a href="tel:+918530111646" className="text-primary" style={{ color: '#2f6eaa' }}>
+              <a href="tel:+918530111646" className="text-primary font-semibold" style={{ color: '#2f6eaa', textDecoration: 'none' }}>
                 +91 8530111646
               </a>
             </p>
@@ -302,92 +299,237 @@ const PrivacyPolicy = () => {
     },
   ];
 
+  const scrollToSection = (index) => {
+    const el = document.getElementById(`section-${index}`);
+    if (el) {
+      const yOffset = -100; // Account for sticky header height
+      const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const elements = policySections.map((_, index) => document.getElementById(`section-${index}`));
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '-120px 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.id.split('-')[1]);
+          setActiveSection(index);
+        }
+      });
+    }, observerOptions);
+
+    elements.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      elements.forEach((el) => {
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, []);
+
   return (
-    <div className="min-vh-100 bg-light">
+    <div className="min-vh-100 bg-light flex flex-column">
+      <style>{`
+        .sticky-sidebar {
+          position: sticky;
+          top: 100px;
+          z-index: 10;
+        }
+        .sidebar-link {
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border-left: 3px solid transparent;
+          font-size: 0.92rem;
+          padding: 0.65rem 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #4b5563;
+          text-decoration: none;
+          border-radius: 0 8px 8px 0;
+        }
+        .sidebar-link:hover {
+          color: #2f6eaa !important;
+          background: rgba(47, 110, 170, 0.05);
+          border-left-color: rgba(47, 110, 170, 0.4);
+        }
+        .sidebar-link.active {
+          color: #2f6eaa !important;
+          font-weight: 600;
+          background: rgba(47, 110, 170, 0.08);
+          border-left-color: #2f6eaa;
+        }
+        .policy-card {
+          border: none;
+          box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+          border-radius: 16px;
+        }
+        .icon-wrapper {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          background: rgba(47, 110, 170, 0.08);
+          color: #2f6eaa;
+          width: 46px;
+          height: 46px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .policy-section {
+          padding-bottom: 2rem;
+          margin-bottom: 2rem;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .policy-section:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-bottom: 0;
+        }
+        .policy-section:hover .icon-wrapper {
+          background: #2f6eaa;
+          color: white !important;
+          transform: scale(1.08) rotate(5deg);
+          box-shadow: 0 4px 12px rgba(47, 110, 170, 0.25);
+        }
+        .bg-gradient-banner {
+          background: linear-gradient(135deg, #1e4f7a 0%, #2f6eaa 100%);
+          position: relative;
+          overflow: hidden;
+        }
+        .bg-gradient-banner::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.15) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        .policy-section h4 {
+          margin-top: 1.5rem;
+        }
+        .policy-section ul {
+          padding-left: 1.25rem;
+          margin-top: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        .policy-section li {
+          margin-bottom: 0.4rem;
+          color: #4b5563;
+        }
+        .policy-section p {
+          color: #4b5563;
+          line-height: 1.6;
+        }
+      `}</style>
+      
       <Header />
 
-      <Container className="py-5 py-lg-7">
-
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-5"
-        >
-          <h1 className="fw-bold display-6 mb-3 mt-5" style={{ color: '#2f6eaa' }}>
-            Privacy Policy
-          </h1>
-          <p className="lead text-muted">
-            Last updated:{" "}
-            {new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
-            <div
-              className="py-4 px-4 text-white"
-              style={{
-                background: "linear-gradient(135deg, #2f6eaa, #1e4f7a)",
-              }}
-            >
-              <h2 className="fw-bold mb-0 h3">Your Privacy Matters</h2>
-              <p className="mb-0 mt-2 opacity-90">
-                We are committed to protecting your personal information
-              </p>
+      {/* Banner / Hero Section */}
+      <div className="bg-gradient-banner text-white py-5 text-center">
+        <Container className="py-4">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="fw-bold display-5 mb-3 mt-4">Privacy Policy</h1>
+            <p className="lead opacity-90 max-w-2xl mx-auto" style={{ maxWidth: '650px', margin: '0 auto' }}>
+              We value your trust. Read about how we collect, use, protect, and manage your data.
+            </p>
+            <div className="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-full mt-4 backdrop-blur-sm border border-white border-opacity-10">
+              <FiClock size={15} />
+              <span className="small">
+                Last updated:{" "}
+                {new Date().toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
             </div>
-            <Card.Body className="p-4 p-lg-5">
-              {policySections.map((section, index) => (
-                <motion.section
-                  key={index}
-                  className="mb-5"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="d-flex align-items-center gap-3 mb-4">
-                    <div
-                      className="p-3 rounded-3"
-                      style={{ backgroundColor: 'rgba(47, 110, 170, 0.1)' }}
-                    >
-                      <div style={{ color: '#2f6eaa' }}>{section.icon}</div>
-                    </div>
-                    <h3 className="fw-bold mb-0 h4" style={{ color: '#1e293b' }}>
-                      {section.title}
-                    </h3>
-                  </div>
+          </motion.div>
+        </Container>
+      </div>
 
-                  {section.subsections ? (
-                    section.subsections.map((subsection, subIndex) => (
-                      <div key={subIndex} className="mb-4 ps-5">
-                        <h4 className="fw-semibold mb-3 h5" style={{ color: '#2f6eaa' }}>
-                          {subsection.title}
-                        </h4>
-                        <div className="text-muted" style={{ color: '#6b7280' }}>
-                          {subsection.content}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-muted ps-5" style={{ color: '#6b7280' }}>
-                      {section.content}
+      {/* Content Section */}
+      <Container className="py-5">
+        <Row className="g-4">
+          {/* Sticky Sidebar Navigation */}
+          <Col lg={4} className="d-none d-lg-block">
+            <div className="sticky-sidebar bg-white p-4 rounded-4 shadow-sm border border-light">
+              <h5 className="fw-bold mb-4 text-secondary text-uppercase tracking-wider small" style={{ letterSpacing: '0.05em' }}>
+                Table of Contents
+              </h5>
+              <div className="d-flex flex-column gap-1">
+                {policySections.map((section, index) => {
+                  const displayTitle = section.title.replace(/^\d+\.\s*/, '');
+                  return (
+                    <div
+                      key={index}
+                      className={`sidebar-link ${activeSection === index ? 'active' : ''}`}
+                      onClick={() => scrollToSection(index)}
+                    >
+                      <span className="small fw-semibold">{index + 1}.</span>
+                      <span className="text-truncate">{displayTitle}</span>
                     </div>
-                  )}
-                </motion.section>
-              ))}
-            </Card.Body>
-          </Card>
-        </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </Col>
+
+          {/* Policy Body */}
+          <Col lg={8}>
+            <Card className="policy-card">
+              <Card.Body className="p-4 p-lg-5">
+                {policySections.map((section, index) => (
+                  <div
+                    key={index}
+                    id={`section-${index}`}
+                    className="policy-section"
+                  >
+                    <div className="d-flex align-items-center gap-3 mb-4">
+                      <div className="icon-wrapper rounded-3">
+                        {section.icon}
+                      </div>
+                      <h3 className="fw-bold mb-0 h5 text-dark">
+                        {section.title}
+                      </h3>
+                    </div>
+
+                    {section.subsections ? (
+                      <div className="ps-md-4">
+                        {section.subsections.map((subsection, subIndex) => (
+                          <div key={subIndex} className="mb-4">
+                            <h4 className="fw-bold mb-2 h6" style={{ color: '#2f6eaa' }}>
+                              {subsection.title}
+                            </h4>
+                            <div>
+                              {subsection.content}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="ps-md-4">
+                        {section.content}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
       </Container>
 
       <Footer />

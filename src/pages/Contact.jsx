@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
+import ParticlesBackground from '../components/common/ParticlesBackground';
 import {
   TextField,
   Button,
@@ -69,7 +70,7 @@ const Contact = () => {
       icon: <LocationOnIcon sx={{ fontSize: 22 }} />,
       title: 'Visit Us',
       content: 'Rukmini Nagar, Front Of Datta Mandir, 2103/47 E, Shahupuri, Kolhapur, Maharashtra 416005',
-      extra: 'Kolhapur HQ • Serving India-wide',
+      // extra: 'Kolhapur HQ • Serving India-wide',
       iconBg: `linear-gradient(135deg, ${alpha('#3b82f6', 0.15)}, ${alpha('#1d4ed8', 0.1)})`,
       iconColor: '#3b82f6',
     },
@@ -92,8 +93,7 @@ const Contact = () => {
   ];
 
   const reasons = [
-    'Request a live demo (15–25 min)',
-    'Ask for custom pricing',
+     'Ask for custom pricing',
     'Get technical / integration help',
   ];
 
@@ -136,116 +136,55 @@ const Contact = () => {
         <Header />
 
         {/* ── Hero ──────────────────────────────────────────────────────────── */}
-        <Box
-          sx={{
-            pt: { xs: 8, sm: 10, md: 12 },
-            pb: { xs: 5, sm: 6, md: 7 },
-            position: 'relative',
-            overflow: 'hidden',
-            background: `linear-gradient(150deg,
-              ${alpha(theme.palette.primary.main, 0.07)} 0%,
-              ${theme.palette.background.paper} 50%,
-              ${alpha(theme.palette.primary.light, 0.06)} 100%)`,
-          }}
-        >
-          {/* Floating orbs */}
-          <Box className="orb-a" sx={{
-            position: 'absolute', top: '8%', left: '4%',
-            width: { xs: 140, md: 260 }, height: { xs: 140, md: 260 },
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.1)}, transparent 70%)`,
-            pointerEvents: 'none',
-          }} />
-          <Box className="orb-b" sx={{
-            position: 'absolute', top: '5%', right: '6%',
-            width: { xs: 100, md: 200 }, height: { xs: 100, md: 200 },
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha('#06b6d4', 0.09)}, transparent 70%)`,
-            pointerEvents: 'none',
-          }} />
-          <Box className="orb-c" sx={{
-            position: 'absolute', bottom: '-5%', right: '30%',
-            width: { xs: 70, md: 130 }, height: { xs: 70, md: 130 },
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.08)}, transparent 70%)`,
-            pointerEvents: 'none',
-          }} />
+     <section 
+  className="min-h-[100vh] flex items-center relative overflow-hidden" 
+  style={{
+    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`
+  }}
+>
+  <ParticlesBackground />
 
-          {/* Dot grid texture */}
-          <Box sx={{
-            position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none',
-            backgroundImage: `radial-gradient(${theme.palette.primary.main} 1.5px, transparent 1.5px)`,
-            backgroundSize: '26px 26px',
-          }} />
-
-          <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 35 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Box sx={{ textAlign: 'center', maxWidth: '800px', mx: 'auto' }}>
-
-                {/* Live badge */}
-                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25, duration: 0.45 }}>
-                  <Box sx={{
-                    display: 'inline-flex', alignItems: 'center', gap: 1,
-                    px: 2, py: 0.55,
-                    borderRadius: 10,
-                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    mb: 2.5,
-                  }}>
-                    <Box className="live-dot" sx={{
-                      width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e',
-                    }} />
-                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 600, color: theme.palette.primary.main, letterSpacing: '0.07em' }}>
-                      USUALLY ONLINE WITHIN HOURS
-                    </Typography>
-                  </Box>
-                </motion.div>
-
-                <Typography
-                  variant="h1"
-                  sx={{
-                    fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem', lg: '2.8rem' },
-                    fontWeight: 800,
-                    lineHeight: 1.2,
-                    mb: 2,
-                    color: theme.palette.text.primary,
-                  }}
-                >
-                  Let's build{' '}
-                  <Box component="span" sx={{
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, #06b6d4)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block',
-                  }}>
-                    smarter field teams
-                  </Box>
-                  <br />
-                  together
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
-                    color: theme.palette.text.secondary,
-                    maxWidth: '600px',
-                    mx: 'auto',
-                    mb: 4,
-                    lineHeight: 1.6,
-                  }}
-                >
-                  Demo • Pricing • Integration • Support — whatever you need, we're usually online within hours.
-                </Typography>
-
-
-              </Box>
-            </motion.div>
-          </Container>
-        </Box>
+  <div className="container-custom relative z-10">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="text-center max-w-4xl mx-auto"
+    >
+      {/* Live badge */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }} 
+        animate={{ opacity: 1, scale: 1 }} 
+        transition={{ delay: 0.25, duration: 0.45 }}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-4"
+        style={{
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+        }}
+      >
+        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        <span className="text-xs font-semibold tracking-wide" style={{ color: theme.palette.primary.main }}>
+          USUALLY ONLINE WITHIN HOURS
+        </span>
+      </motion.div>
+      
+      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-6" style={{ color: theme.palette.text.primary }}>
+        Let's build{' '}
+        <span className="bg-gradient-to-r bg-clip-text text-transparent" style={{
+          backgroundImage: `linear-gradient(135deg, ${theme.palette.primary.main}, #06b6d4)`,
+        }}>
+          smarter field teams
+        </span>
+        <br />
+        together
+      </h1>
+      
+      <p className="text-base md:text-lg leading-relaxed max-w-2xl mx-auto" style={{ color: theme.palette.text.secondary }}>
+        Demo • Pricing • Integration • Support — whatever you need, we're usually online within hours.
+      </p>
+    </motion.div>
+  </div>
+</section>
 
         {/* ── Main Content ──────────────────────────────────────────────────── */}
         <Box id="form-section" sx={{ py: { xs: 4, sm: 5, md: 6 }, flexGrow: 1 }}>

@@ -20,6 +20,7 @@ import TargetIcon from '@mui/icons-material/TrackChanges';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import mobileImage from '../assets/About.png';
+import ParticlesBackground from '../components/common/ParticlesBackground';
 
 const About = () => {
   const theme = useTheme();
@@ -138,7 +139,7 @@ const About = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24" style={{
+      {/* <section className="pt-24 pb-16 md:pt-32 md:pb-24" style={{
         background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`
       }}>
         <div className="container-custom">
@@ -164,8 +165,42 @@ const About = () => {
             </p>
           </motion.div>
         </div>
-      </section>
+      </section> */}
+<section 
+  className="min-h-[100vh] flex items-center relative overflow-hidden" 
+  style={{
+    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`
+  }}
+>
+  {/* Background animation - Same as Home */}
+  <ParticlesBackground />
 
+  <div className="container-custom relative z-10">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="text-center max-w-4xl mx-auto"
+    >
+      <div className="inline-block font-semibold text-xs px-3 py-1.5 rounded-full mb-4" style={{
+        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+        color: theme.palette.primary.main
+      }}>
+        About Us
+      </div>
+      
+      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-6" style={{ color: theme.palette.text.primary }}>
+        About <span style={{ color: theme.palette.primary.main }}>Team Trackify</span>
+      </h1>
+      
+      <p className="text-base md:text-lg lg:text-xl leading-relaxed max-w-3xl mx-auto" style={{ color: theme.palette.text.secondary }}>
+        We're on a mission to revolutionize how businesses track and manage
+        their teams. With cutting-edge technology and a passion for innovation,
+        we're building the future of workforce management.
+      </p>
+    </motion.div>
+  </div>
+</section>
       {/* Story Section */}
       <section className="section-padding py-12 md:py-16" style={{ backgroundColor: theme.palette.background.paper }}>
         <div className="container-custom">

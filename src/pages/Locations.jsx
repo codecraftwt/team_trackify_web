@@ -6423,6 +6423,7 @@ const Locations = () => {
   const [loadingSessionsByDate, setLoadingSessionsByDate] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [mapZoom, setMapZoom] = useState(13);
   const [refreshSpinning, setRefreshSpinning] = useState(false);
   const [rootTop, setRootTop] = useState(0);
 
@@ -6739,53 +6740,6 @@ const Locations = () => {
   //     const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🚀</span><b style="font-size:13px;letter-spacing:0.5px">START POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(startPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Date:</b> ${fmtDate(startPoint.timestamp)}</div>${startPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${startPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${startPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
   //     const icon = startPoint.photo ? makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34) : makeStartIcon("#22c55e", fmtTime(startPoint.timestamp), false, 28);
   //     const m = L.marker([startPoint.lat, startPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-  //     markers.current.push(m); markerRefs.current.set("start", m);
-  //   } else if (validLocations.length > 0) {
-  //     const fb = validLocations[0];
-  //     const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#22c55e;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🚀 START POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(fb.timestamp)}</div></div>`;
-  //     const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
-  //     markers.current.push(m); markerRefs.current.set("start", m);
-  //   }
-
-  //   const isActive = checkIsActive(session);
-
-  //   if (isActive && validLocations.length > 0) {
-  //     const mostRecent = validLocations[validLocations.length - 1];
-  //     const ts = mostRecent.timestamp || mostRecent.time || mostRecent.createdAt;
-  //     const isOnline = mostRecent.isOnline === true;
-  //     const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isOnline ? '📍' : '📶'}</span><b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN (OFFLINE)'}</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Last Update:</b> ${fmtTime(ts)}</div><div style="font-size:12px;color:#666;"><b>Status:</b> ${isOnline ? '🟢 Online' : '⚫ Offline'}</div><div style="font-size:12px;color:#666;margin-top:4px;"><b>Address:</b> ${getAddress(mostRecent)}</div></div></div>`;
-  //     const markerColor = isOnline ? "#2196F3" : "#6c757d";
-  //     const m = L.marker([getLat(mostRecent), getLng(mostRecent)], { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-  //     markers.current.push(m); markerRefs.current.set("live", m);
-  //   } else if (!isActive) {
-  //     if (endPoint && hasValidCoordinates(endPoint)) {
-  //       const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">🏁</span><b style="font-size:13px;letter-spacing:0.5px">END POINT</b></div></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(endPoint.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:4px;"><b>Address:</b> ${endPoint.address || "Address not available"}</div>${endPoint.photo ? `<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><img src="${endPoint.photo}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${endPoint.photo}','_blank')"/></div>` : ""}</div></div>`;
-  //       const icon = endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28);
-  //       const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
-  //       markers.current.push(m); markerRefs.current.set("end", m);
-  //     } else if (validLocations.length > 1) {
-  //       const lastLoc = validLocations[validLocations.length - 1];
-  //       const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#ef4444;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
-  //       const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon("#ef4444", fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
-  //       markers.current.push(m); markerRefs.current.set("end", m);
-  //     }
-  //   }
-
-  //   if (showPhotos && session.photos && session.photos.length > 0) {
-  //     const sortedPhotos = [...session.photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  //     sortedPhotos.forEach((photo, idx) => {
-  //       if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
-  //       const lat = getLat(photo.location), lng = getLng(photo.location);
-  //       if (!isActive) {
-  //         if (startPoint && isSameLatLng(lat, lng, startPoint.lat, startPoint.lng)) return;
-  //         if (endPoint && isSameLatLng(lat, lng, endPoint.lat, endPoint.lng)) return;
-  //       }
-  //       const isFirst = isActive && idx === 0;
-  //       const isLast = isActive && idx === sortedPhotos.length - 1;
-  //       const markerKey = isFirst ? "start" : isLast ? "end" : `photo_${idx}`;
-  //       const label = isFirst ? "FIRST PHOTO" : isLast ? "LATEST PHOTO" : "ROUTE PHOTO";
-  //       const popup = `<div style="min-width:180px;max-width:240px;font-family:inherit;"><div style="background:linear-gradient(135deg,#FF9800,#F57C00);color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;"><b style="font-size:13px;letter-spacing:0.5px">📸 ${label}</b></div><div style="padding:4px 0;"><div style="font-size:12px;color:#666;margin-bottom:2px;"><b>Time:</b> ${fmtTime(photo.timestamp)}</div><div style="font-size:12px;color:#666;margin-bottom:6px;"><b>Remark:</b> ${photo.remark || "No remark"}</div><div style="margin-top:6px;"><img src="${photo.url}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${photo.url}','_blank')"/></div></div></div>`;
-  //       const m = L.marker([lat, lng], { icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28), zIndexOffset: 950 }).bindPopup(popup, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
   //       markers.current.push(m); markerRefs.current.set(markerKey, m);
   //     });
   //   }
@@ -6814,8 +6768,29 @@ const Locations = () => {
     const validLocations = getValidLocations(allLocations);
     if (validLocations.length === 0) return;
 
-    const totalSessionDistance = calcTotalDistance(validLocations);
-    const arrowDistanceInterval = totalSessionDistance > 1000 ? 500 : 100;
+    // Zoom-based arrow size and interval calculation
+    // Zoom >= 16 (closer, ~500m scale): arrow size 24px
+    // Zoom 14-15 (~1km - 2km scale): arrow size 18px
+    // Zoom < 14: arrow size 12px
+    let arrowSize = 18;
+    if (mapZoom >= 16) {
+      arrowSize = 24;
+    } else if (mapZoom < 14) {
+      arrowSize = 12;
+    }
+
+    // Adjust arrow interval based on zoom level
+    let arrowDistanceInterval = 500;
+    if (mapZoom >= 17) {
+      arrowDistanceInterval = 100;
+    } else if (mapZoom === 16) {
+      arrowDistanceInterval = 250;
+    } else if (mapZoom === 15) {
+      arrowDistanceInterval = 500;
+    } else {
+      arrowDistanceInterval = 1000;
+    }
+
     let accumulatedDistance = 0;
 
     for (let i = 0; i < validLocations.length - 1; i++) {
@@ -6829,7 +6804,7 @@ const Locations = () => {
       ).addTo(mapInstance.current);
       polylines.current.push(line);
 
-      // Add a backward-pointing open arrowhead (BACKWARD_OPEN_ARROW style) at specified distance intervals
+      // Add a forward-pointing Material-like open arrow at specified distance intervals
       const dist = calcDistance(p1[0], p1[1], p2[0], p2[1]);
       accumulatedDistance += dist;
 
@@ -6839,11 +6814,16 @@ const Locations = () => {
             {
               offset: '50%',
               repeat: 0,
-              symbol: L.Symbol.arrowHead({
-                pixelSize: 10,
-                headAngle: 60,
-                polygon: false,
-                pathOptions: { stroke: true, color, weight: 2, opacity: 0.9 }
+              symbol: L.Symbol.marker({
+                rotate: true,
+                markerOptions: {
+                  icon: L.divIcon({
+                    html: `<svg viewBox="0 0 24 24" width="${arrowSize}" height="${arrowSize}" style="display: block; filter: drop-shadow(0px 1px 1.5px rgba(0,0,0,0.75));"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="#FFFFFF"/></svg>`,
+                    iconSize: [arrowSize, arrowSize],
+                    iconAnchor: [arrowSize / 2, arrowSize / 2],
+                    className: ''
+                  })
+                }
               })
             }
           ]
@@ -7128,10 +7108,10 @@ const Locations = () => {
       mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
       lastFitBoundsSessionId.current = String(session.sessionId || session._id);
     }
-  }, [startPoint, endPoint, showPhotoMarkers]);
+  }, [startPoint, endPoint, showPhotoMarkers, mapZoom]);
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
-    const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13 });
+    const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13, minZoom: 3 });
     const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
     const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 16 });
     const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 16 });
@@ -7141,13 +7121,19 @@ const Locations = () => {
     googleRoadmap.addTo(map);
     L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
     mapInstance.current = map;
+
+    // Listen to zoom changes to adapt arrows size and distance intervals dynamically
+    map.on('zoomend', () => {
+      setMapZoom(map.getZoom());
+    });
+
     setIsMapInitialized(true);
     if (selectedSession) setTimeout(() => drawMapWithSession(selectedSession, showPhotoMarkers), 200);
   }, [isMapInitialized, selectedSession, showPhotoMarkers, drawMapWithSession]);
 
   useEffect(() => {
     if (mapInstance.current && selectedSession) setTimeout(() => drawMapWithSession(selectedSession, showPhotoMarkers), 100);
-  }, [selectedSession, showPhotoMarkers, startPoint, endPoint, drawMapWithSession]);
+  }, [selectedSession, showPhotoMarkers, startPoint, endPoint, mapZoom, drawMapWithSession]);
 
   useEffect(() => {
     const onResize = () => { if (mapInstance.current) setTimeout(() => mapInstance.current.invalidateSize(), 100); };
