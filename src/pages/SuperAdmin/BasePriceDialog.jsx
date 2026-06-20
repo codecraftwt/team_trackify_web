@@ -182,7 +182,8 @@ const BasePriceDialog = ({ open, onClose, basePriceData, onSave, loading }) => {
               </Box>
               
               <Typography variant="caption" sx={{ fontSize: "0.65rem", color: "text.secondary", display: "block", mt: 1.5 }}>
-                * Price is per user per month
+                {/* * Price is per user per month */}
+              Price is per user, per month — this is the rate users will see when creating their own custom plans.
               </Typography>
             </Box>
           </>
