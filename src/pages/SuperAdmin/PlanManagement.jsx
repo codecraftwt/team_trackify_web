@@ -477,6 +477,19 @@ const PlanManagement = () => {
     return theme.palette.text.secondary;
   };
 
+  const getPlanGradient = (planName) => {
+    if (planName?.includes("Enterprise")) {
+      return `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`;
+    }
+    if (planName?.includes("Premium")) {
+      return `linear-gradient(135deg, #22c55e 0%, #16a34a 100%)`;
+    }
+    if (planName?.includes("Standard")) {
+      return `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`;
+    }
+    return `linear-gradient(135deg, ${theme.palette.text.secondary} 0%, #4b5563 100%)`;
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -490,7 +503,7 @@ const PlanManagement = () => {
   // ── Card Grid View ────────────────────────────────────────────────────────
   const CardGridView = () => (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      <Grid container spacing={{ xs: 1, sm: 1.5, md: 2 }}>
+      <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
         <AnimatePresence>
           {filteredAndSortedPlans.map((plan, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={plan._id}>
@@ -506,38 +519,48 @@ const PlanManagement = () => {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: { xs: 1.5, sm: 2 },
+                    borderRadius: 3,
                     border: "1px solid",
-                    borderColor: alpha(theme.palette.primary.main, 0.1),
-                    transition: 'all 0.3s ease',
+                    borderColor: alpha(getPlanColor(plan.name), 0.15),
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: `0 4px 20px -10px rgba(0,0,0,0.08)`,
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: theme.shadows[4],
-                      borderColor: alpha(theme.palette.primary.main, 0.3),
+                      transform: 'translateY(-6px)',
+                      boxShadow: `0 20px 35px -10px ${alpha(getPlanColor(plan.name), 0.25)}`,
+                      borderColor: alpha(getPlanColor(plan.name), 0.4),
+                      '& .plan-icon-container': {
+                        transform: 'scale(1.1) rotate(5deg)',
+                        bgcolor: alpha(getPlanColor(plan.name), 0.15),
+                      }
                     },
                   }}
                 >
+                  <Box sx={{ height: 4, background: getPlanGradient(plan.name), width: '100%' }} />
+
                   <Box
                     sx={{
-                      p: { xs: 1.5, sm: 2 },
-                      bgcolor: alpha(getPlanColor(plan.name), 0.05),
-                      borderBottom: "1px solid",
-                      borderColor: alpha(theme.palette.primary.main, 0.1),
+                      p: 2.5,
+                      pb: 1.5,
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       justifyContent: "space-between",
-                      gap: 1,
+                      gap: 1.5,
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, minWidth: 0, flex: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0, flex: 1 }}>
                       <Avatar
+                        className="plan-icon-container"
                         sx={{
-                          width: { xs: 36, sm: 40 },
-                          height: { xs: 36, sm: 40 },
-                          bgcolor: alpha(getPlanColor(plan.name), 0.1),
+                          width: 42,
+                          height: 42,
+                          bgcolor: alpha(getPlanColor(plan.name), 0.08),
                           color: getPlanColor(plan.name),
-                          fontSize: { xs: '0.9rem', sm: '1rem' },
+                          border: `1px solid ${alpha(getPlanColor(plan.name), 0.2)}`,
+                          fontSize: "1.05rem",
                           flexShrink: 0,
+                          transition: "all 0.3s ease",
                         }}
                       >
                         {getPlanIcon(plan.name)}
@@ -545,46 +568,34 @@ const PlanManagement = () => {
                       <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Typography
                           variant="subtitle2"
-                          fontWeight={600}
+                          fontWeight={700}
                           sx={{
-                            fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
+                            fontSize: "0.95rem",
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
+                            color: 'text.primary',
                           }}
                         >
                           {plan.name}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' } }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", fontWeight: 500 }}>
                           {plan.duration}
                         </Typography>
                       </Box>
                     </Box>
-                    <Chip
-                      label={plan.status}
-                      size="small"
-                      icon={plan.status === "active" ? <FaCheckCircle size={12} /> : <FaTimesCircle size={12} />}
-                      sx={{
-                        bgcolor: plan.status === "active" ? alpha("#22c55e", 0.1) : alpha(theme.palette.text.secondary, 0.1),
-                        color: plan.status === "active" ? "#22c55e" : theme.palette.text.secondary,
-                        fontWeight: 600,
-                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                        height: { xs: 22, sm: 24 },
-                        flexShrink: 0,
-                      }}
-                    />
                   </Box>
 
-                  <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
-                    <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, fontWeight: 500, display: 'block', mb: 0.5 }}>
+                  <CardContent sx={{ flexGrow: 1, p: 2.5, pt: 0 }}>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: 600, display: 'block', mb: 0.5, letterSpacing: '0.5px' }}>
                         DESCRIPTION
                       </Typography>
                       <Typography
                         variant="body2"
                         sx={{
-                          fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-                          color: 'text.primary',
+                          fontSize: "0.78rem",
+                          color: 'text.secondary',
                           lineHeight: 1.4,
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
@@ -596,61 +607,71 @@ const PlanManagement = () => {
                       </Typography>
                     </Box>
 
-                    <Grid container spacing={{ xs: 1, sm: 1.5 }}>
-                      <Grid item xs={6}>
-                        <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: { xs: 0.8, sm: 1 }, borderRadius: 1.5 }}>
-                          <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, color: 'text.secondary', display: 'block', mb: 0.25 }}>
-                            Users Range
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' }, color: theme.palette.primary.main, wordBreak: 'break-word' }}>
+                    <Box sx={{ display: "flex", gap: 1.5, mb: 1 }}>
+                      <Box sx={{ flex: 1, bgcolor: alpha(getPlanColor(plan.name), 0.03), p: 1.2, borderRadius: 2, border: `1px solid ${alpha(getPlanColor(plan.name), 0.05)}` }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: 'block', mb: 0.5, fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                          Users Range
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <PeopleIcon sx={{ color: getPlanColor(plan.name), fontSize: 13 }} />
+                          <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.75rem", color: 'text.primary' }}>
                             {plan.minUsers} - {plan.maxUsers}
                           </Typography>
                         </Box>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: { xs: 0.8, sm: 1 }, borderRadius: 1.5 }}>
-                          <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, color: 'text.secondary', display: 'block', mb: 0.25 }}>
-                            Price
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700} sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' }, color: theme.palette.primary.main }}>
-                            ₹{plan.price}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
+                      </Box>
+                      <Box sx={{ flex: 1, bgcolor: alpha(getPlanColor(plan.name), 0.03), p: 1.2, borderRadius: 2, border: `1px solid ${alpha(getPlanColor(plan.name), 0.05)}` }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: 'block', mb: 0.5, fontWeight: 500, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                          Price
+                        </Typography>
+                        <Typography variant="body2" fontWeight={750} sx={{ fontSize: "0.85rem", color: getPlanColor(plan.name) }}>
+                          ₹{plan.price}
+                        </Typography>
+                      </Box>
+                    </Box>
                   </CardContent>
 
-                  <Box sx={{ p: { xs: 1.5, sm: 2 }, pt: 0, display: "flex", justifyContent: "flex-end", gap: 1 }}>
-                    <Tooltip title="Edit Plan">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEdit(plan)}
-                        sx={{
-                          color: theme.palette.primary.main,
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                          width: { xs: 28, sm: 32 },
-                          height: { xs: 28, sm: 32 },
-                          "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-                        }}
-                      >
-                        <EditIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete Plan">
-                      <IconButton
-                        size="small"
-                        onClick={() => confirmDelete(plan._id)}
-                        sx={{
-                          color: "#ef4444",
-                          bgcolor: alpha("#ef4444", 0.1),
-                          width: { xs: 28, sm: 32 },
-                          height: { xs: 28, sm: 32 },
-                          "&:hover": { bgcolor: alpha("#ef4444", 0.2) },
-                        }}
-                      >
-                        <DeleteIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
-                      </IconButton>
-                    </Tooltip>
+                  <Box 
+                    sx={{ 
+                      display: "flex", 
+                      width: "100%",
+                      borderTop: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                    }}
+                  >
+                    <Button
+                      fullWidth
+                      onClick={() => handleEdit(plan)}
+                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
+                      sx={{
+                        color: theme.palette.primary.main,
+                        py: 1.2,
+                        borderRadius: 0,
+                        borderRight: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        "&:hover": { 
+                          bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        },
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      fullWidth
+                      onClick={() => confirmDelete(plan._id)}
+                      startIcon={<DeleteIcon sx={{ fontSize: 14 }} />}
+                      sx={{
+                        color: theme.palette.error.main,
+                        py: 1.2,
+                        borderRadius: 0,
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        "&:hover": { 
+                          bgcolor: alpha(theme.palette.error.main, 0.05),
+                        },
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </Box>
                 </Card>
               </motion.div>
@@ -675,33 +696,36 @@ const PlanManagement = () => {
           >
             <Card
               sx={{
-                mb: { xs: 1, sm: 1.5 },
-                borderRadius: { xs: 1.5, sm: 2 },
+                mb: { xs: 1.5, sm: 2 },
+                borderRadius: 3,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.primary.main, 0.1),
-                overflow: "hidden",
+                borderColor: alpha(getPlanColor(plan.name), 0.15),
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: `0 4px 12px rgba(0,0,0,0.04)`,
               }}
             >
+              <Box sx={{ height: 4, background: getPlanGradient(plan.name), width: '100%' }} />
+
               <Box
                 sx={{
-                  p: { xs: 1, sm: 1.5 },
-                  bgcolor: alpha(getPlanColor(plan.name), 0.05),
-                  borderBottom: "1px solid",
-                  borderColor: alpha(theme.palette.primary.main, 0.1),
+                  p: { xs: 1.5, sm: 2 },
+                  pb: 1,
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   justifyContent: "space-between",
                   gap: 1,
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.75, sm: 1 }, minWidth: 0, flex: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0, flex: 1 }}>
                   <Avatar
                     sx={{
-                      width: { xs: 28, sm: 32 },
-                      height: { xs: 28, sm: 32 },
-                      bgcolor: alpha(getPlanColor(plan.name), 0.1),
+                      width: 36,
+                      height: 36,
+                      bgcolor: alpha(getPlanColor(plan.name), 0.08),
                       color: getPlanColor(plan.name),
-                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      border: `1px solid ${alpha(getPlanColor(plan.name), 0.2)}`,
+                      fontSize: "0.95rem",
                       flexShrink: 0,
                     }}
                   >
@@ -709,10 +733,10 @@ const PlanManagement = () => {
                   </Avatar>
                   <Box sx={{ minWidth: 0, flex: 1 }}>
                     <Typography
-                      variant="body2"
-                      fontWeight={600}
+                      variant="subtitle2"
+                      fontWeight={700}
                       sx={{
-                        fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                        fontSize: "0.85rem",
                         color: 'text.primary',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -721,104 +745,100 @@ const PlanManagement = () => {
                     >
                       {plan.name}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', sm: '0.6rem' }, color: 'text.secondary' }}>
+                    <Typography variant="caption" sx={{ fontSize: "0.65rem", color: 'text.secondary', fontWeight: 500 }}>
                       {plan.duration}
                     </Typography>
                   </Box>
                 </Box>
-                <Chip
-                  label={plan.status}
-                  size="small"
-                  icon={plan.status === "active" ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />}
-                  sx={{
-                    bgcolor: plan.status === "active" ? alpha("#22c55e", 0.1) : alpha(theme.palette.text.secondary, 0.1),
-                    color: plan.status === "active" ? "#22c55e" : theme.palette.text.secondary,
-                    fontWeight: 600,
-                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                    height: { xs: 20, sm: 22 },
-                    flexShrink: 0,
-                  }}
-                />
               </Box>
 
-              <CardContent sx={{ p: { xs: 1, sm: 1.5 } }}>
-                <Grid container spacing={{ xs: 0.75, sm: 1 }}>
-                  <Grid item xs={6}>
-                    <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: { xs: 0.6, sm: 0.8 }, borderRadius: 1.5 }}>
-                      <Typography variant="caption" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' }, color: 'text.secondary', display: 'block', mb: 0.25 }}>
-                        Users Range
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, color: theme.palette.primary.main }}>
+              <CardContent sx={{ p: { xs: 1.5, sm: 2 }, pt: 0, pb: 0 }}>
+                <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
+                  <Box sx={{ flex: 1, bgcolor: alpha(getPlanColor(plan.name), 0.03), p: 1, borderRadius: 1.5, border: `1px solid ${alpha(getPlanColor(plan.name), 0.05)}` }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem", display: 'block', mb: 0.25, fontWeight: 500, letterSpacing: '0.3px', textTransform: 'uppercase' }}>
+                      Users Range
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <PeopleIcon sx={{ color: getPlanColor(plan.name), fontSize: 12 }} />
+                      <Typography variant="body2" fontWeight={600} sx={{ fontSize: "0.7rem", color: 'text.primary' }}>
                         {plan.minUsers} - {plan.maxUsers}
                       </Typography>
                     </Box>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: { xs: 0.6, sm: 0.8 }, borderRadius: 1.5 }}>
-                      <Typography variant="caption" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' }, color: 'text.secondary', display: 'block', mb: 0.25 }}>
-                        Price
-                      </Typography>
-                      <Typography variant="body2" fontWeight={700} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, color: theme.palette.primary.main }}>
-                        ₹{plan.price}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: { xs: 0.6, sm: 0.8 }, borderRadius: 1.5 }}>
-                      <Typography variant="caption" sx={{ fontSize: { xs: '0.5rem', sm: '0.55rem' }, color: 'text.secondary', display: 'block', mb: 0.25 }}>
-                        Description
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                          color: 'text.primary',
-                          lineHeight: 1.3,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {plan.description}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
+                  </Box>
+                  <Box sx={{ flex: 1, bgcolor: alpha(getPlanColor(plan.name), 0.03), p: 1, borderRadius: 1.5, border: `1px solid ${alpha(getPlanColor(plan.name), 0.05)}` }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.55rem", display: 'block', mb: 0.25, fontWeight: 500, letterSpacing: '0.3px', textTransform: 'uppercase' }}>
+                      Price
+                    </Typography>
+                    <Typography variant="body2" fontWeight={750} sx={{ fontSize: "0.75rem", color: getPlanColor(plan.name) }}>
+                      ₹{plan.price}
+                    </Typography>
+                  </Box>
+                </Box>
 
-                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5, mt: { xs: 1, sm: 1.5 } }}>
-                  <Tooltip title="Edit Plan">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEdit(plan)}
-                      sx={{
-                        color: theme.palette.primary.main,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        width: { xs: 26, sm: 28 },
-                        height: { xs: 26, sm: 28 },
-                        "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
-                      }}
-                    >
-                      <EditIcon sx={{ fontSize: { xs: 13, sm: 14 } }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete Plan">
-                    <IconButton
-                      size="small"
-                      onClick={() => confirmDelete(plan._id)}
-                      sx={{
-                        color: "#ef4444",
-                        bgcolor: alpha("#ef4444", 0.1),
-                        width: { xs: 26, sm: 28 },
-                        height: { xs: 26, sm: 28 },
-                        "&:hover": { bgcolor: alpha("#ef4444", 0.2) },
-                      }}
-                    >
-                      <DeleteIcon sx={{ fontSize: { xs: 13, sm: 14 } }} />
-                    </IconButton>
-                  </Tooltip>
+                <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02), p: 1, borderRadius: 1.5, border: `1px solid ${alpha(theme.palette.divider, 0.05)}`, mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ fontSize: "0.55rem", color: 'text.secondary', display: 'block', mb: 0.25, fontWeight: 600, letterSpacing: '0.3px' }}>
+                    DESCRIPTION
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: "0.7rem",
+                      color: 'text.secondary',
+                      lineHeight: 1.3,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {plan.description}
+                  </Typography>
                 </Box>
               </CardContent>
+
+              <Box 
+                sx={{ 
+                  display: "flex", 
+                  width: "100%",
+                  borderTop: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                }}
+              >
+                <Button
+                  fullWidth
+                  onClick={() => handleEdit(plan)}
+                  startIcon={<EditIcon sx={{ fontSize: 13 }} />}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    py: 1,
+                    borderRadius: 0,
+                    borderRight: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    "&:hover": { 
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    },
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={() => confirmDelete(plan._id)}
+                  startIcon={<DeleteIcon sx={{ fontSize: 13 }} />}
+                  sx={{
+                    color: theme.palette.error.main,
+                    py: 1,
+                    borderRadius: 0,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    "&:hover": { 
+                      bgcolor: alpha(theme.palette.error.main, 0.05),
+                    },
+                  }}
+                >
+                  Delete
+                </Button>
+              </Box>
             </Card>
           </motion.div>
         ))}
