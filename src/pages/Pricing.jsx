@@ -166,13 +166,13 @@ const CouponSection = ({ theme }) => {
   useEffect(() => {
     let timer;
     if (isTearing) {
-      // 1. Tearing phase: wait for the drop animation to finish (1000ms), then reset the card
+      // 1. Tearing phase: wait for the drop animation to finish (2200ms), then reset the card
       timer = setTimeout(() => {
         setIsTearing(false);
         setCouponValue(10);
         setPromoCode(generateRandomPromoCode());
         setIsResetting(true);
-      }, 1000);
+      }, 2200);
     } else if (isResetting) {
       // 2. Resetting phase: wait for the entry animation of the new card to finish (600ms)
       timer = setTimeout(() => {
@@ -209,7 +209,7 @@ const CouponSection = ({ theme }) => {
       x: [0, -2, 2, -2, 2, -1, 1, -0.5, 0.5, 0],
       y: [0, -1, 1, -1, 1, -0.5, 0.5, -0.2, 0.2, 0],
       transition: {
-        duration: 0.3,
+        duration: 0.6,
         ease: "easeInOut"
       }
     },
@@ -228,7 +228,7 @@ const CouponSection = ({ theme }) => {
       rotateX: [0, 8, 20, 40],
       scale: [1, 0.99, 0.97, 0.85],
       transition: {
-        duration: 1.0,
+        duration: 2.2,
         times: [0, 0.25, 0.5, 1.0],
         ease: [0.45, 0, 0.55, 1]
       }
@@ -296,7 +296,7 @@ const CouponSection = ({ theme }) => {
               <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {[
                   { title: 'Available on All Plans', desc: 'From our Basic starter plan to fully customized Enterprise solutions, coupons apply to all options.' },
-                  { title: 'Stackable with Annual Discounts', desc: 'Combine any active coupon code with our 25% annual billing discount for ultimate savings.' },
+                  { title: 'Stackable with Discounts', desc: 'Choose your plan and select  billing at checkout – this automatically applies the best possible annual rate.' },
                   { title: 'Simple One-Click Activation', desc: 'Just enter your promo code at the checkout page. The discount updates your payment amount instantly.' },
                   { title: 'Risk-Free Guarantee', desc: 'All discounted plans still come with our standard 14-day free trial period and flexible cancellation policy.' }
                 ].map((point, index) => (

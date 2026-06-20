@@ -1134,6 +1134,15 @@ const PlanModal = ({
                   rows={2}
                   size="small"
                   disabled={loading}
+                  helperText="Mandatory: Start each feature item with a hyphen and a space '- ' (e.g., - 10 Users)"
+                  FormHelperTextProps={{
+                    sx: {
+                      fontSize: '0.72rem',
+                      fontWeight: 500,
+                      color: theme.palette.text.secondary,
+                      mt: 0.5,
+                    }
+                  }}
                   sx={{
                     '& .MuiInputLabel-root': {
                       fontSize: { xs: '0.8rem', sm: '0.85rem' },
