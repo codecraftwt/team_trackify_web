@@ -298,7 +298,6 @@ const CouponSection = ({ theme }) => {
                   { title: 'Available on All Plans', desc: 'From our Basic starter plan to fully customized Enterprise solutions, coupons apply to all options.' },
                   { title: 'Stackable with Discounts', desc: 'Choose your plan and select  billing at checkout – this automatically applies the best possible annual rate.' },
                   { title: 'Simple One-Click Activation', desc: 'Just enter your promo code at the checkout page. The discount updates your payment amount instantly.' },
-                  { title: 'Risk-Free Guarantee', desc: 'All discounted plans still come with our standard 14-day free trial period and flexible cancellation policy.' }
                 ].map((point, index) => (
                   <ListItem key={index} disableGutters sx={{ alignItems: 'flex-start', py: 0.25 }}>
                     <ListItemIcon sx={{ minWidth: 26, mt: 0.25 }}>
