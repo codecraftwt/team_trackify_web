@@ -38,7 +38,7 @@ const About = () => {
     },
     {
       icon: <FaRoute size={24} />,
-      title: 'Route History & Playback',
+      title: 'Route History ',
       description:
         'Replay the day. Analyze routes. Optimize performance.',
       gradient: 'from-purple-50 to-purple-100',
@@ -47,9 +47,9 @@ const About = () => {
     },
     {
       icon: <FaCamera size={24} />,
-      title: 'Geo-Tagged Photo Verification',
+      title: 'Add Stop with Photo Proof',
       description:
-        'On-site photos automatically stamped with exact location data. Proof that builds trust — internally and externally.',
+        'Capture and upload photos while completing each Task. Every image is linked to the specific task.',
       gradient: 'from-green-50 to-green-100',
       iconColor: '#22c55e',
       bgColor: alpha('#22c55e', 0.1),
@@ -91,7 +91,6 @@ const About = () => {
   const empowermentList = [
     'Monitor live employee locations',
     'Review exact routes followed during the day',
-    'Capture geo-verified photo proof of every visit',
     'Maintain accurate, tamper-resistant records',
     'Improve accountability without constant follow-ups',
   ];
