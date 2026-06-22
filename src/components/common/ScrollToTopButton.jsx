@@ -37,12 +37,15 @@ const ScrollToTopButton = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 
+          className="fixed bottom-4 sm:bottom-6 md:bottom-18 right-4 sm:right-6 md:right-8 z-50 
                      w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 
                      text-white rounded-full shadow-lg hover:shadow-xl 
                      transition-all duration-300 flex items-center justify-center 
                      focus:outline-none focus:ring-2 focus:ring-offset-2"
           style={{
+            position: 'fixed',
+            bottom: '90px',    
+            right: '30px', 
             background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
           }}
           onMouseEnter={(e) => {
