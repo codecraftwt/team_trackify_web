@@ -2477,7 +2477,7 @@ const handleSubmit = async (e) => {
       </DialogTitle>
       <DialogContent sx={{ px: 2, py: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Are you sure you want to reset the login count and device information for <strong>{formData.fullName}</strong>? This will allow the user to log in from a new device.
+          Are you sure you want to reset the login device information for <strong>{formData.fullName}</strong>? This will allow the user to log in from a new device.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
@@ -2510,7 +2510,7 @@ const handleSubmit = async (e) => {
           {resettingDevice ? (
             <CircularProgress size={14} sx={{ color: "white" }} />
           ) : (
-            "Yes, Reset"
+            "Confirm Reset"
           )}
         </Button>
       </DialogActions>
