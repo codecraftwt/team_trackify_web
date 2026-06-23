@@ -202,6 +202,28 @@ export const getImpersonationStatus = createAsyncThunk(
 
 // ========== END OF NEW IMPERSONATION CONTROLLERS ==========
 
+// Async thunk for resetting user device information (Admin only)
+export const resetUserDevice = createAsyncThunk(
+  'auth/resetUserDevice',
+  async (userId, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.put(
+        `${BASE_URL}/users/reset-device/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to reset device information');
+    }
+  }
+);
+
 
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
@@ -499,9 +521,26 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload?.message || 'Failed to get impersonation status';
         state.success = false;
-      });
+      })
     // ========== END OF NEW IMPERSONATION CASES ==========
 
+      // Reset User Device cases
+      .addCase(resetUserDevice.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(resetUserDevice.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.success = true;
+        state.message = action.payload?.message || 'Device and login count reset successfully';
+        state.error = null;
+      })
+      .addCase(resetUserDevice.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload?.message || 'Failed to reset device information';
+        state.success = false;
+      });
   },
 });
 

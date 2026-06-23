@@ -1408,6 +1408,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, updateUser, updateUserPermissions } from "../../../redux/slices/userSlice";
 import { toast } from "react-toastify";
+import { resetUserDevice } from "../../../redux/slices/authSlice";
 
 const AddUser = ({ open, onClose, editingUser = null }) => {
   const dispatch = useDispatch();
@@ -1424,6 +1425,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [resettingDevice, setResettingDevice] = useState(false);
 
   const isSuperAdmin = Number(role_id) === 2;
   const isAdmin = Number(role_id) === 1;
@@ -1456,6 +1459,8 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     if (!open) {
       setSubmitting(false);
       setServerError("");
+      setConfirmResetOpen(false);
+      setResettingDevice(false);
     }
   }, [open]);
 
@@ -1847,6 +1852,28 @@ const handleSubmit = async (e) => {
     if (!submitting) onClose(false);
   };
 
+  const handleResetDevice = async () => {
+    if (!editingUserId) return;
+    setResettingDevice(true);
+    try {
+      await dispatch(resetUserDevice(editingUserId)).unwrap();
+      toast.success("Device and login count reset successfully!");
+      setConfirmResetOpen(false);
+    } catch (error) {
+      let errorMessage = "Failed to reset device information.";
+      if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      toast.error(errorMessage);
+    } finally {
+      setResettingDevice(false);
+    }
+  };
+
   const getDialogProps = () => {
     if (isSmallMobile) return { fullScreen: true, maxWidth: false };
     if (isMobile) return { fullScreen: !isLandscape, maxWidth: "sm" };
@@ -1856,8 +1883,9 @@ const handleSubmit = async (e) => {
   const isLoading = submitting;
 
   return (
-    <Dialog
-      open={open}
+    <>
+      <Dialog
+        open={open}
       onClose={handleClose}
       {...getDialogProps()}
       fullWidth
@@ -2333,71 +2361,161 @@ const handleSubmit = async (e) => {
                   flexShrink: 0,
                   display: "flex",
                   flexDirection: { xs: "column-reverse", sm: "row" },
-                  justifyContent: { xs: "stretch", sm: "flex-end" },
+                  justifyContent: editingUser && isAdmin && !isEditingSelf ? "space-between" : "flex-end",
+                  alignItems: "center",
                   gap: { xs: 1, sm: 1.5 },
+                  width: "100%"
                 }}
               >
-                <Button
-                  variant="outlined"
-                  onClick={handleClose}
-                  size="small"
-                  disabled={isLoading}
-                  fullWidth={isMobile}
-                  sx={{
-                    minWidth: { sm: 100 },
-                    py: { xs: 0.8, sm: 0.8 },
-                    borderRadius: { xs: 1.5, sm: 2 },
-                    borderColor: alpha(theme.palette.divider, 0.5),
-                    color: "text.secondary",
-                    fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                    "&:hover": {
-                      borderColor: theme.palette.primary.main,
-                      color: theme.palette.primary.main,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
+                {editingUser && isAdmin && !isEditingSelf && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setConfirmResetOpen(true)}
+                    size="small"
+                    disabled={isLoading || resettingDevice}
+                    sx={{
+                      alignSelf: { xs: "stretch", sm: "center" },
+                      py: 0.8,
+                      borderRadius: { xs: 1.5, sm: 2 },
+                      borderColor: theme.palette.error.light,
+                      color: theme.palette.error.main,
+                      fontSize: "0.75rem",
+                      "&:hover": {
+                        borderColor: theme.palette.error.main,
+                        bgcolor: alpha(theme.palette.error.main, 0.05),
+                      },
+                    }}
+                  >
+                    Reset Logins & Device
+                  </Button>
+                )}
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isLoading}
-                  fullWidth={isMobile}
-                  size="small"
-                  sx={{
-                    minWidth: { sm: 130 },
-                    py: { xs: 0.8, sm: 0.8 },
-                    borderRadius: { xs: 1.5, sm: 2 },
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                    "&:hover": {
-                      background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                    },
-                    "&.Mui-disabled": {
-                      background: alpha(theme.palette.primary.main, 0.4),
-                      color: "white",
-                    },
-                  }}
-                >
-                  {isLoading ? (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CircularProgress size={14} sx={{ color: "white" }} />
-                      <span style={{ fontSize: "0.75rem" }}>{editingUser ? "Updating..." : "Saving..."}</span>
-                    </Box>
-                  ) : editingUser ? (
-                    isSuperAdmin ? "Update Admin" : "Update User"
-                  ) : (
-                    isSuperAdmin ? "Save Admin" : "Save User"
-                  )}
-                </Button>
+                <Box sx={{ 
+                  display: "flex", 
+                  flexDirection: { xs: "column-reverse", sm: "row" }, 
+                  gap: { xs: 1, sm: 1.5 },
+                  width: { xs: "100%", sm: "auto" }
+                }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleClose}
+                    size="small"
+                    disabled={isLoading || resettingDevice}
+                    fullWidth={isMobile}
+                    sx={{
+                      minWidth: { sm: 100 },
+                      py: { xs: 0.8, sm: 0.8 },
+                      borderRadius: { xs: 1.5, sm: 2 },
+                      borderColor: alpha(theme.palette.divider, 0.5),
+                      color: "text.secondary",
+                      fontSize: { xs: "0.75rem", sm: "0.75rem" },
+                      "&:hover": {
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={isLoading || resettingDevice}
+                    fullWidth={isMobile}
+                    size="small"
+                    sx={{
+                      minWidth: { sm: 130 },
+                      py: { xs: 0.8, sm: 0.8 },
+                      borderRadius: { xs: 1.5, sm: 2 },
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                      fontSize: { xs: "0.75rem", sm: "0.75rem" },
+                      "&:hover": {
+                        background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                      },
+                      "&.Mui-disabled": {
+                        background: alpha(theme.palette.primary.main, 0.4),
+                        color: "white",
+                      },
+                    }}
+                  >
+                    {isLoading ? (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <CircularProgress size={14} sx={{ color: "white" }} />
+                        <span style={{ fontSize: "0.75rem" }}>{editingUser ? "Updating..." : "Saving..."}</span>
+                      </Box>
+                    ) : editingUser ? (
+                      isSuperAdmin ? "Update Admin" : "Update User"
+                    ) : (
+                      isSuperAdmin ? "Save Admin" : "Save User"
+                    )}
+                  </Button>
+                </Box>
               </DialogActions>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
     </Dialog>
+
+    {/* Confirmation Dialog for Resetting Device/Logins */}
+    <Dialog
+      open={confirmResetOpen}
+      onClose={() => !resettingDevice && setConfirmResetOpen(false)}
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          p: 1.5,
+          maxWidth: "400px"
+        }
+      }}
+    >
+      <DialogTitle sx={{ fontWeight: 600, px: 2, py: 1.5 }}>
+        Confirm Reset
+      </DialogTitle>
+      <DialogContent sx={{ px: 2, py: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Are you sure you want to reset the login count and device information for <strong>{formData.fullName}</strong>? This will allow the user to log in from a new device.
+        </Typography>
+      </DialogContent>
+      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
+        <Button
+          variant="outlined"
+          onClick={() => setConfirmResetOpen(false)}
+          disabled={resettingDevice}
+          size="small"
+          sx={{ borderRadius: 1.5, fontSize: "0.75rem" }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleResetDevice}
+          disabled={resettingDevice}
+          size="small"
+          sx={{
+            borderRadius: 1.5,
+            fontSize: "0.75rem",
+            bgcolor: theme.palette.error.main,
+            "&.Mui-disabled": {
+              bgcolor: alpha(theme.palette.error.main, 0.4),
+              color: "white"
+            },
+            "&:hover": { bgcolor: theme.palette.error.dark }
+          }}
+        >
+          {resettingDevice ? (
+            <CircularProgress size={14} sx={{ color: "white" }} />
+          ) : (
+            "Yes, Reset"
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  </>
   );
 };
 
