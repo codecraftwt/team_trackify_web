@@ -4464,9 +4464,23 @@ const UserManagement = () => {
 
   // Sort users
   const sortedUsers = [...filterUsersByDateRange(usersList || [])].sort((a, b) => {
-    const dateA = new Date(a.createdAt || a.registeredDate || a.createdAt);
-    const dateB = new Date(b.createdAt || b.registeredDate || b.createdAt);
-    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    let dateA, dateB;
+    if (role_id === 2) {
+      dateA = a.planStartDate || a.registeredDate || a.createdAt ? new Date(a.planStartDate || a.registeredDate || a.createdAt) : null;
+      dateB = b.planStartDate || b.registeredDate || b.createdAt ? new Date(b.planStartDate || b.registeredDate || b.createdAt) : null;
+    } else {
+      dateA = a.lastStartTime ? new Date(a.lastStartTime) : null;
+      dateB = b.lastStartTime ? new Date(b.lastStartTime) : null;
+    }
+
+    const timeA = dateA && !isNaN(dateA.getTime()) ? dateA.getTime() : null;
+    const timeB = dateB && !isNaN(dateB.getTime()) ? dateB.getTime() : null;
+
+    if (timeA === null && timeB === null) return 0;
+    if (timeA === null) return 1;
+    if (timeB === null) return -1;
+
+    return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
   });
 
   // Filter by search
