@@ -6340,21 +6340,24 @@ const makeStartWithPhotoIcon = (photoUrl, time, size = 34) =>
     className: "", iconSize: [size, size + 28], iconAnchor: [size / 2, size + 15],
   });
 
-const makeEndWithPhotoIcon = (photoUrl, time, size = 34) =>
-  L.divIcon({
+const makeEndWithPhotoIcon = (photoUrl, time, color = "#ef4444", size = 34) => {
+  const gradientColor = color === "#22c55e" ? "linear-gradient(135deg,#22c55e,#15803d)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+  const overlayColor = color === "#22c55e" ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)";
+  return L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${gradientColor};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2;overflow:hidden;">
         <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;">
-          <span style="position:absolute;bottom:2px;right:2px;background:#ef4444;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;border:1px solid #fff;">🏁</span>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:${overlayColor};display:flex;align-items:center;justify-content:center;">
+          <span style="position:absolute;bottom:2px;right:2px;background:${color};border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;border:1px solid #fff;">🏁</span>
         </div>
       </div>
-      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:2px 6px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid #ef4444;z-index:1;font-weight:500;">
+      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:2px 6px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:500;">
         ${time} 🏁 END
       </div>
     </div>`,
     className: "", iconSize: [size, size + 28], iconAnchor: [size / 2, size + 15],
   });
+};
 
 const makeMovingIcon = (color = "#2196F3", time, size = 24) =>
   L.divIcon({
@@ -6375,6 +6378,23 @@ const makeMovingIcon = (color = "#2196F3", time, size = 24) =>
       </div>`,
     className: "", iconSize: [size, size + 30], iconAnchor: [size / 2, size / 2 + 3],
   });
+
+const animateMarker = (marker, startLatLng, endLatLng, duration = 1000) => {
+  const startTime = performance.now();
+  const step = (currentTime) => {
+    if (!marker || !marker._map) return;
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const t = progress * (2 - progress); // easeOutQuad
+    const lat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * t;
+    const lng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * t;
+    marker.setLatLng([lat, lng]);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  };
+  requestAnimationFrame(step);
+};
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 const Locations = () => {
@@ -6437,6 +6457,7 @@ const Locations = () => {
   const sessionDataCache = useRef(new Map());
   const isInitialLoad = useRef(true);
   const lastFitBoundsSessionId = useRef(null);
+  const lastDrawnSessionId = useRef(null);
   const flyToLiveAfterRefresh = useRef(false);
   const rootRef = useRef(null);
 
@@ -6686,6 +6707,43 @@ const Locations = () => {
     }
   }, [sessionDetails, selectedSessionId, userSessionsByDate, processSessionData]);
 
+  // Poll live session details every 2 seconds when open this page if the user is online and the session date is today
+  useEffect(() => {
+    const userId = metadata?.userId || metadata?.trackId;
+    if (!userId || !selectedSessionId || !isSelectedSessionActive) return;
+
+    // Get the most recent location's isOnline status
+    const stats = getSessionStats(selectedSession);
+    const validLocations = getValidLocations(stats.locations || []);
+    const mostRecent = validLocations[validLocations.length - 1];
+    const isOnline = mostRecent?.isOnline === true;
+
+    // Check if the session's start date is today
+    const today = new Date();
+    const sessionStartDate = stats.startTime ? new Date(stats.startTime) : null;
+    const isSameDate = sessionStartDate &&
+      today.getFullYear() === sessionStartDate.getFullYear() &&
+      today.getMonth() === sessionStartDate.getMonth() &&
+      today.getDate() === sessionStartDate.getDate();
+
+    // If not online OR the start date is not today, do not poll (call only first time, which is handled on mount/selection)
+    if (!isOnline || !isSameDate) return;
+
+    const poll = async () => {
+      try {
+        sessionDataCache.current.delete(String(selectedSessionId));
+        fetchedSessions.current.delete(String(selectedSessionId));
+        await dispatch(getSessionDetails({ userId, sessionId: String(selectedSessionId) }));
+        setLastRefreshed(new Date());
+      } catch (err) {
+        console.error("Auto-refresh failed:", err);
+      }
+    };
+
+    const intervalId = setInterval(poll, 2000);
+    return () => clearInterval(intervalId);
+  }, [selectedSessionId, isSelectedSessionActive, selectedSession, metadata?.userId, metadata?.trackId, dispatch]);
+
   useEffect(() => {
     if (allSessions.length > 0 && !selectedSessionId && !selectedSession) {
       let targetId = null;
@@ -6712,11 +6770,33 @@ const Locations = () => {
   }, [selectedSession, getStartEndFromPhotos, buildSessionPhotos]);
 
   // ── Map helpers ────────────────────────────────────────────────────────────
-  const clearMap = () => {
+  const clearMap = (keepLive = false) => {
     if (!mapInstance.current) return;
-    polylines.current.forEach((l) => mapInstance.current.removeLayer(l));
-    markers.current.forEach((m) => mapInstance.current.removeLayer(m));
-    polylines.current = []; markers.current = []; markerRefs.current.clear();
+    polylines.current.forEach((l) => {
+      try {
+        mapInstance.current.removeLayer(l);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+    markers.current.forEach((m) => {
+      if (keepLive && m === markerRefs.current.get("live")) return;
+      try {
+        mapInstance.current.removeLayer(m);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+    polylines.current = [];
+    if (keepLive && markerRefs.current.has("live")) {
+      const liveMarker = markerRefs.current.get("live");
+      markers.current = [liveMarker];
+      markerRefs.current.clear();
+      markerRefs.current.set("live", liveMarker);
+    } else {
+      markers.current = [];
+      markerRefs.current.clear();
+    }
   };
 
   // const drawMapWithSession = useCallback((session, showPhotos) => {
@@ -6764,7 +6844,10 @@ const Locations = () => {
     const stats = getSessionStats(session);
     const allLocations = stats.locations || [];
     if (!allLocations.length) return;
-    clearMap();
+    const sessionIdStr = String(session.sessionId || session._id);
+    const isSameSession = lastDrawnSessionId.current === sessionIdStr;
+    clearMap(isSameSession);
+    lastDrawnSessionId.current = sessionIdStr;
     const validLocations = getValidLocations(allLocations);
     if (validLocations.length === 0) return;
 
@@ -6931,14 +7014,28 @@ const Locations = () => {
   </div>`;
 
         const markerColor = isOnline ? "#22c55e" : "#9ca3af";
-        const m = L.marker([getLat(mostRecent), getLng(mostRecent)], {
-          icon: makeMovingIcon(markerColor, fmtTime(ts), 24),
-          zIndexOffset: 1100
-        }).bindPopup(popupContent, {
-          maxWidth: 220,
-          minWidth: 180,
-          className: 'clean-popup'
-        }).addTo(mapInstance.current);
+        const icon = makeMovingIcon(markerColor, fmtTime(ts), 24);
+        let m = markerRefs.current.get("live");
+        if (m) {
+          const oldLatLng = m.getLatLng();
+          const newLatLng = L.latLng(getLat(mostRecent), getLng(mostRecent));
+          if (oldLatLng.lat !== newLatLng.lat || oldLatLng.lng !== newLatLng.lng) {
+            animateMarker(m, oldLatLng, newLatLng, 1000);
+          }
+          m.setPopupContent(popupContent);
+          m.setIcon(icon);
+        } else {
+          m = L.marker([getLat(mostRecent), getLng(mostRecent)], {
+            icon,
+            zIndexOffset: 1100
+          }).bindPopup(popupContent, {
+            maxWidth: 220,
+            minWidth: 180,
+            className: 'clean-popup'
+          }).addTo(mapInstance.current);
+          markers.current.push(m);
+          markerRefs.current.set("live", m);
+        }
 
         // Clean popup styles
         if (!document.querySelector('#clean-popup-styles')) {
@@ -6967,14 +7064,23 @@ const Locations = () => {
       }
     } else if (!isActive) {
       if (endPoint && hasValidCoordinates(endPoint)) {
+        const isOnline = endPoint.isOnline === true;
+        const markerColor = isOnline ? "#22c55e" : "#ef4444";
+        const themeColor = isOnline ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+        const statusLabel = isOnline ? "Online" : "Journey completed";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation: pulse 1s infinite; margin-right: 4px;"></span>` : "";
+
         const popupContent = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #ef4444">
-      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid ${markerColor}">
+      <div style="width:32px;height:32px;border-radius:50%;background:${themeColor};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
         <span style="font-size:16px">🏁</span>
       </div>
       <div>
         <div style="font-size:13px;font-weight:700;color:#1f2937">End Point</div>
-        <div style="font-size:10px;color:#ef4444">Journey completed</div>
+        <div style="font-size:10px;color:${markerColor};display:flex;align-items:center;gap:4px">
+          ${statusDot}
+          ${statusLabel}
+        </div>
       </div>
     </div>
     <div style="padding:12px">
@@ -6997,7 +7103,7 @@ const Locations = () => {
     </div>
   </div>`;
 
-        const icon = endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28);
+        const icon = endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), markerColor, 34) : makeEndIcon(markerColor, fmtTime(endPoint.timestamp), false, 28);
         const m = L.marker([endPoint.lat, endPoint.lng], {
           icon,
           zIndexOffset: 1000
@@ -7011,8 +7117,14 @@ const Locations = () => {
         markerRefs.current.set("end", m);
       } else if (validLocations.length > 1) {
         const lastLoc = validLocations[validLocations.length - 1];
-        const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#ef4444;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
-        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon("#ef4444", fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+        const isOnline = lastLoc.isOnline === true;
+        const markerColor = isOnline ? "#22c55e" : "#ef4444";
+        const themeColor = isOnline ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+        const statusLabel = isOnline ? "Online" : "Journey completed";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation: pulse 1s infinite; margin-right:4px;"></span>` : "";
+
+        const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:${themeColor};color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px;display:flex;align-items:center;margin-bottom:4px;">${statusDot}<b>Status:</b> ${statusLabel}</div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
+        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon(markerColor, fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
         markers.current.push(m); markerRefs.current.set("end", m);
       }
     }
