@@ -5,6 +5,7 @@ import { SnackbarProvider } from 'notistack';
 import { theme } from './theme';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
+import ChatWidget from './components/common/ChatWidget';
 // Layout
 import DashboardLayout from './components/layout/DashboardLayout';
 
@@ -67,6 +68,7 @@ function App() {
             v7_relativeSplatPath: true,
           }}>
           <ScrollToTop />
+          <ChatWidget />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
