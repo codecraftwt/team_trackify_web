@@ -6278,6 +6278,17 @@ const isSameLatLng = (lat1, lng1, lat2, lng2) =>
 
 const checkIsActive = (session) => {
   if (!session) return false;
+  
+  if (session.remark === "Tracking ended") return false;
+  
+  const locations = session.locations || (session.stats && session.stats.locations) || [];
+  if (locations.length > 0) {
+    const lastLoc = locations[locations.length - 1];
+    if (lastLoc.remark === "Tracking ended") {
+      return false;
+    }
+  }
+
   return session.isActive === true || session.isActive === "true" || session.isActive === 1 || session.isActive === "1";
 };
 
@@ -6600,15 +6611,36 @@ const Locations = () => {
     // }
 
     // It Taking Add Photo as Photo stop
+    const deduplicatedPhotos = [];
+    const seenList = [];
+
+    rawPhotos.forEach(photo => {
+      if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
+      const lat = getLat(photo.location);
+      const lng = getLng(photo.location);
+      const ts = photo.timestamp || 0;
+      
+      // Check if we already have a photo at this exact lat/lng taken within 60 seconds
+      const isDuplicate = seenList.some(s => 
+        Math.abs(s.lat - lat) < 0.00001 && 
+        Math.abs(s.lng - lng) < 0.00001 &&
+        Math.abs(s.ts - ts) < 60000
+      );
+
+      if (!isDuplicate) {
+        seenList.push({ lat, lng, ts });
+        deduplicatedPhotos.push(photo);
+      }
+    });
+
     if (isActive) {
-      const validPhotos = rawPhotos.filter((p) => hasValidPhoto(p))
-        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const validPhotos = deduplicatedPhotos.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       return validPhotos.map((photo, idx) => {
-        const pLat = photo.location && hasValidCoordinates(photo.location) ? getLat(photo.location) : null;
-        const pLng = photo.location && hasValidCoordinates(photo.location) ? getLng(photo.location) : null;
-        const type = idx === 0 ? "start" : "route";           // ← changed
+        const pLat = getLat(photo.location);
+        const pLng = getLng(photo.location);
+        const type = idx === 0 ? "start" : "route";
         return {
-          key: type === "start" ? "start" : `photo_${idx}`,   // ← changed
+          key: type === "start" ? "start" : `photo_${idx}`,
           idx, url: photo.url, timestamp: photo.timestamp,
           address: photo.address || "Address not available",
           lat: pLat, lng: pLng, type
@@ -6628,7 +6660,7 @@ const Locations = () => {
         result.push({ key: "start", url: sp.photo, timestamp: sp.timestamp, address: sp.address, lat: sp.lat, lng: sp.lng, type: "start" });
       }
     }
-    rawPhotos.forEach((photo, idx) => {
+    deduplicatedPhotos.forEach((photo, idx) => {
       if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
       if (seenUrls.has(photo.url)) return;
       const pLat = getLat(photo.location), pLng = getLng(photo.location);
