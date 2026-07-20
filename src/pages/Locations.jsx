@@ -6292,6 +6292,30 @@ const checkIsActive = (session) => {
   return session.isActive === true || session.isActive === "true" || session.isActive === 1 || session.isActive === "1";
 };
 
+const getUniquePhotos = (photos) => {
+  if (!photos || !Array.isArray(photos)) return [];
+  const unique = [];
+  const seenList = [];
+  photos.forEach(photo => {
+    if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
+    const lat = getLat(photo.location);
+    const lng = getLng(photo.location);
+    const ts = photo.timestamp || 0;
+    
+    const isDuplicate = seenList.some(s => 
+      Math.abs(s.lat - lat) < 0.00001 && 
+      Math.abs(s.lng - lng) < 0.00001 &&
+      Math.abs(s.ts - ts) < 60000
+    );
+
+    if (!isDuplicate) {
+      seenList.push({ lat, lng, ts });
+      unique.push(photo);
+    }
+  });
+  return unique;
+};
+
 // ─── Marker factories ──────────────────────────────────────────────────────────
 const makeStartIcon = (color, time, hasPhoto = false, size = 28) =>
   L.divIcon({
@@ -6611,27 +6635,7 @@ const Locations = () => {
     // }
 
     // It Taking Add Photo as Photo stop
-    const deduplicatedPhotos = [];
-    const seenList = [];
-
-    rawPhotos.forEach(photo => {
-      if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
-      const lat = getLat(photo.location);
-      const lng = getLng(photo.location);
-      const ts = photo.timestamp || 0;
-      
-      // Check if we already have a photo at this exact lat/lng taken within 60 seconds
-      const isDuplicate = seenList.some(s => 
-        Math.abs(s.lat - lat) < 0.00001 && 
-        Math.abs(s.lng - lng) < 0.00001 &&
-        Math.abs(s.ts - ts) < 60000
-      );
-
-      if (!isDuplicate) {
-        seenList.push({ lat, lng, ts });
-        deduplicatedPhotos.push(photo);
-      }
-    });
+    const deduplicatedPhotos = getUniquePhotos(session.photos);
 
     if (isActive) {
       const validPhotos = deduplicatedPhotos.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -7161,8 +7165,9 @@ const Locations = () => {
       }
     }
 
-    if (showPhotos && session.photos && session.photos.length > 0) {
-      const sortedPhotos = [...session.photos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const uniqueMapPhotos = getUniquePhotos(session.photos);
+    if (showPhotos && uniqueMapPhotos && uniqueMapPhotos.length > 0) {
+      const sortedPhotos = [...uniqueMapPhotos].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       sortedPhotos.forEach((photo, idx) => {
         if (!hasValidPhoto(photo) || !photo.location || !hasValidCoordinates(photo.location)) return;
         const lat = getLat(photo.location), lng = getLng(photo.location);
