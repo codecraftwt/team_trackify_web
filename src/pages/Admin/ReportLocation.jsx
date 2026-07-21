@@ -2329,7 +2329,7 @@ const ReportLocation = () => {
     const [loading, setLoading] = useState(true);
     const [sessionDate, setSessionDate] = useState(null);
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [mapZoom, setMapZoom] = useState(13);
+    const [mapZoom, setMapZoom] = useState(16);
     const [draggingIndex, setDraggingIndex] = useState(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -2362,7 +2362,7 @@ const ReportLocation = () => {
         }
         
         // Fly to the location with animation
-        mapInstance.current.flyTo([lat, lng], 15.5, {
+        mapInstance.current.flyTo([lat, lng], 18, {
             animate: true,
             duration: 1.2
         });
@@ -2785,28 +2785,28 @@ const ReportLocation = () => {
     // Initialize Map
     useEffect(() => {
         if (!mapRef.current || isMapInitialized) return;
-        const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13, minZoom: 3 });
+        const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 16, minZoom: 3 });
 
         const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
 
         const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Maps",
-            maxZoom: 15.5,
+            maxZoom: 19,
         });
 
         const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Satellite",
-            maxZoom: 15.5,
+            maxZoom: 19,
         });
 
         const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Hybrid",
-            maxZoom: 15.5,
+            maxZoom: 19,
         });
 
         const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, {
             attribution: "&copy; Google Terrain",
-            maxZoom: 15.5,
+            maxZoom: 19,
         });
 
         const baseMaps = {
