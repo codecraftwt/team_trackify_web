@@ -6278,9 +6278,9 @@ const isSameLatLng = (lat1, lng1, lat2, lng2) =>
 
 const checkIsActive = (session) => {
   if (!session) return false;
-  
+
   if (session.remark === "Tracking ended") return false;
-  
+
   const locations = session.locations || (session.stats && session.stats.locations) || [];
   if (locations.length > 0) {
     const lastLoc = locations[locations.length - 1];
@@ -6301,9 +6301,9 @@ const getUniquePhotos = (photos) => {
     const lat = getLat(photo.location);
     const lng = getLng(photo.location);
     const ts = photo.timestamp || 0;
-    
-    const isDuplicate = seenList.some(s => 
-      Math.abs(s.lat - lat) < 0.00001 && 
+
+    const isDuplicate = seenList.some(s =>
+      Math.abs(s.lat - lat) < 0.00001 &&
       Math.abs(s.lng - lng) < 0.00001 &&
       Math.abs(s.ts - ts) < 60000
     );
@@ -6478,7 +6478,7 @@ const Locations = () => {
   const [loadingSessionsByDate, setLoadingSessionsByDate] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
-  const [mapZoom, setMapZoom] = useState(13);
+  const [mapZoom, setMapZoom] = useState(16);
   const [refreshSpinning, setRefreshSpinning] = useState(false);
   const [rootTop, setRootTop] = useState(0);
 
@@ -7249,7 +7249,7 @@ const Locations = () => {
     if (flyToLiveAfterRefresh.current && checkIsActive(session)) {
       flyToLiveAfterRefresh.current = false;
       const liveTarget = [...validLocations].reverse().find((l) => l.isOnline === true) ?? (validLocations.length > 0 ? validLocations[validLocations.length - 1] : null);
-      if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 16, { animate: true, duration: 1.0 }); return; }
+      if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 18, { animate: true, duration: 1.0 }); return; }
     }
 
     if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
@@ -7260,12 +7260,12 @@ const Locations = () => {
   }, [startPoint, endPoint, showPhotoMarkers, mapZoom]);
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
-    const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 13, minZoom: 3 });
+    const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 16, minZoom: 3 });
     const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
-    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 16 });
-    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 16 });
-    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 16 });
-    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 16 });
+    const googleRoadmap = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Maps", maxZoom: 19 });
+    const googleSatellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Satellite", maxZoom: 19 });
+    const googleHybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Hybrid", maxZoom: 19 });
+    const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 19 });
     const baseMaps = { "Roadmap": googleRoadmap, "Satellite": googleSatellite, "Hybrid": googleHybrid, "Terrain": googleTerrain };
     googleRoadmap.addTo(map);
     L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
@@ -7307,7 +7307,7 @@ const Locations = () => {
   const handlePhotoClick = (photo) => {
     if (!mapInstance.current) return;
     const flyAndOpen = (latLng, markerKey) => {
-      mapInstance.current.flyTo(latLng, 16, { animate: true, duration: 1.2 });
+      mapInstance.current.flyTo(latLng, 18, { animate: true, duration: 1.2 });
       if (markerKey && markerRefs.current.has(markerKey)) {
         const m = markerRefs.current.get(markerKey);
         mapInstance.current.once("moveend", () => m.openPopup());
@@ -7319,7 +7319,7 @@ const Locations = () => {
       const key = markerRefs.current.has("end") ? "end" : markerRefs.current.has("live") ? "live" : null;
       if (key) { const m = markerRefs.current.get(key); flyAndOpen(m.getLatLng(), key); return; }
     }
-    if (photo.lat && photo.lng) mapInstance.current.flyTo([photo.lat, photo.lng], 16, { animate: true, duration: 1.2 });
+    if (photo.lat && photo.lng) mapInstance.current.flyTo([photo.lat, photo.lng], 18, { animate: true, duration: 1.2 });
   };
 
   const handleDateSelection = (date) => {
