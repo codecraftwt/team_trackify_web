@@ -1,10 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Marker,
-  InfoWindow,
-} from "@react-google-maps/api";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import {
   Box,
   Container,
@@ -44,9 +40,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentLocationsOfActiveUsers } from "../../redux/slices/userSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const libraries = ["places"];
-
-const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
+const GOOGLE_MAPS_APIKEY = import.meta.env.VITE_GOOGLE_MAP_APIKEY || import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyBO02PT60O5rJxH4QuRQc_hmbtUjuTN3jI";
 
 // Helper function to decode JWT token
 const decodeToken = (token) => {
@@ -88,13 +82,13 @@ const getAdminId = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       const isSubAdmin = Number(parsedUser.role_id) === 3;
-      
+
       if (isSubAdmin) {
         // For sub-admin, get parent admin ID
         const rawAdminId = parsedUser.adminId;
         if (rawAdminId) {
-          return typeof rawAdminId === 'object' 
-            ? (rawAdminId._id || rawAdminId.id) 
+          return typeof rawAdminId === 'object'
+            ? (rawAdminId._id || rawAdminId.id)
             : rawAdminId;
         }
       } else {
@@ -143,18 +137,15 @@ const ActiveUserLocations = () => {
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
   const dispatch = useDispatch();
-  const { 
-    currentActiveLocations, 
+  const {
+    currentActiveLocations,
     currentActiveLocationsLoading,
-    currentActiveLocationsSummary 
+    currentActiveLocationsSummary
   } = useSelector((state) => state.user || {});
-  
+
   const adminId = location.state?.adminId || getAdminId();
 
   const [coordinates, setCoordinates] = useState([]);
-  const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 });
-  const [mapZoom, setMapZoom] = useState(5);
-  const [mapReady, setMapReady] = useState(false);
   const [selectedMarkerId, setSelectedMarkerId] = useState(null);
   const [showUserList, setShowUserList] = useState(!isMobile);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -163,20 +154,17 @@ const ActiveUserLocations = () => {
   const [isMapInitialized, setIsMapInitialized] = useState(false);
 
   const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markersRef = useRef(new Map());
 
   const handleBack = () => {
     navigate(-1);
   };
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: GOOGLE_MAPS_APIKEY,
-    libraries,
-  });
-
   const storedUser = getStoredUser();
   const isSubAdmin = Number(storedUser?.role_id) === 3;
-  const effectiveAdminId = adminId || (isSubAdmin 
-    ? (typeof storedUser?.adminId === 'object' ? storedUser?.adminId?._id || storedUser?.adminId?.id : storedUser?.adminId) 
+  const effectiveAdminId = adminId || (isSubAdmin
+    ? (typeof storedUser?.adminId === 'object' ? storedUser?.adminId?._id || storedUser?.adminId?.id : storedUser?.adminId)
     : (storedUser?._id || storedUser?.id));
 
   useEffect(() => {
@@ -194,17 +182,36 @@ const ActiveUserLocations = () => {
     setIsRefreshing(false);
   };
 
-  const handleMapLoad = useCallback((map) => {
-    mapRef.current = map;
-    setMapReady(true);
+  // Initialize Leaflet Map
+  useEffect(() => {
+    if (!mapRef.current || isMapInitialized) return;
+    const map = L.map(mapRef.current, { zoomControl: false, center: [20.5937, 78.9629], zoom: 5 });
+
+    L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_MAPS_APIKEY}`, {
+      attribution: "&copy; Google Maps",
+      maxZoom: 19,
+    }).addTo(map);
+
+    mapInstance.current = map;
     setIsMapInitialized(true);
-    setSelectedMarkerId(null);
-    setSelectedUser(null);
+  }, [isMapInitialized]);
+
+  // Clean up map on unmount
+  useEffect(() => {
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
   }, []);
 
   // Process user locations data from new API response
   useEffect(() => {
-    if (currentActiveLocations?.length > 0 && mapReady) {
+    if (currentActiveLocations?.length > 0 && isMapInitialized && mapInstance.current) {
+      markersRef.current.forEach(m => mapInstance.current.removeLayer(m));
+      markersRef.current.clear();
+
       const validLocations = currentActiveLocations.filter(
         (item) =>
           item.currentLocation &&
@@ -234,17 +241,56 @@ const ActiveUserLocations = () => {
       setSelectedMarkerId(null);
       setSelectedUser(null);
 
-      if (coords.length > 0 && mapRef.current && window.google && isMapInitialized) {
-        try {
-          const bounds = new window.google.maps.LatLngBounds();
-          coords.forEach((c) => bounds.extend(c));
-          mapRef.current.fitBounds(bounds);
-        } catch (error) {
-          console.error("Error setting map bounds:", error);
-        }
+      const bounds = L.latLngBounds();
+
+      coords.forEach((coord) => {
+        bounds.extend([coord.lat, coord.lng]);
+        const defaultImage = coord.image ? "https://cdn-icons-png.flaticon.com/512/447/447031.png" : "https://cdn-icons-png.flaticon.com/512/684/684908.png";
+
+        const m = L.marker([coord.lat, coord.lng], {
+          icon: L.icon({
+            iconUrl: defaultImage,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          })
+        }).addTo(mapInstance.current);
+
+        m.on('click', () => {
+          handleMarkerClick(coord);
+          const popupContent = `
+            <div style="max-width: 220px; width: 100%; padding: 6px; border-radius: 8px; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.1);">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; font-weight: 600; flex-shrink: 0;">
+                  ${coord.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div style="overflow: hidden;">
+                  <div style="font-size: 11px; font-weight: 700; color: #667eea; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${coord.name}</div>
+                  <div style="font-size: 9px; color: #6b7280; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <span style="width: 4px; height: 4px; border-radius: 50%; background: ${coord.isOnline !== false ? '#4ade80' : '#ef4444'}; display: inline-block; flex-shrink: 0;"></span>
+                    ${coord.email || 'User'}
+                  </div>
+                </div>
+              </div>
+              <hr style="margin: 4px 0; border: none; border-top: 1px solid rgba(102, 126, 234, 0.1);" />
+              <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 4px; font-size: 9px; font-weight: 500;">
+                <span style="color: #667eea;">🕒</span> ${formatDate(coord.timestamp)} • ${formatTime(coord.timestamp)}
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px; font-size: 9px; font-family: monospace;">
+                <span style="color: #667eea;">📍</span> ${coord.lat.toFixed(4)}, ${coord.lng.toFixed(4)}
+              </div>
+            </div>
+          `;
+          m.bindPopup(popupContent, { minWidth: 200, className: 'custom-popup' }).openPopup();
+        });
+
+        markersRef.current.set(coord.id, m);
+      });
+
+      if (coords.length > 0) {
+        mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
       }
     }
-  }, [currentActiveLocations, mapReady, isMapInitialized]);
+  }, [currentActiveLocations, isMapInitialized]);
 
   // Handle marker click - opens ONLY the clicked marker
   const handleMarkerClick = (marker) => {
@@ -273,8 +319,11 @@ const ActiveUserLocations = () => {
     setSelectedMarkerId(user.id);
 
     if (user.lat && user.lng && isValidCoordinates(user.lat, user.lng)) {
-      mapRef.current?.panTo({ lat: user.lat, lng: user.lng });
-      mapRef.current?.setZoom(16);
+      mapInstance.current?.setView([user.lat, user.lng], 16);
+      const marker = markersRef.current.get(user.id);
+      if (marker) {
+        marker.openPopup();
+      }
     }
 
     if (isMobile) {
@@ -283,18 +332,17 @@ const ActiveUserLocations = () => {
   };
 
   const handleZoomIn = () => {
-    mapRef.current?.setZoom((mapRef.current.getZoom() || 14) + 1);
+    mapInstance.current?.zoomIn();
   };
 
   const handleZoomOut = () => {
-    mapRef.current?.setZoom((mapRef.current.getZoom() || 14) - 1);
+    mapInstance.current?.zoomOut();
   };
 
   const handleFitBounds = () => {
-    if (coordinates.length > 0 && mapRef.current && window.google) {
-      const bounds = new window.google.maps.LatLngBounds();
-      coordinates.forEach((c) => bounds.extend(c));
-      mapRef.current.fitBounds(bounds);
+    if (coordinates.length > 0 && mapInstance.current) {
+      const bounds = L.latLngBounds(coordinates.map(c => [c.lat, c.lng]));
+      mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
     }
   };
 
@@ -696,42 +744,7 @@ const ActiveUserLocations = () => {
     </Box>
   );
 
-  if (loadError) {
-    return (
-      <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper, p: 1.5 }}>
-        <Container maxWidth="xl" sx={{ py: { xs: 3, sm: 6 } }}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2, sm: 4 },
-              borderRadius: { xs: 1.5, sm: 2.5 },
-              textAlign: "center",
-              border: "1px solid",
-              borderColor: alpha("#ef4444", 0.2),
-            }}
-          >
-            <LocationIcon sx={{ fontSize: { xs: 32, sm: 40 }, color: alpha("#ef4444", 0.3), mb: 1.5 }} />
-            <Typography variant="h6" color="#ef4444" gutterBottom sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-              Error loading maps
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
-              Please check your internet connection
-            </Typography>
-          </Paper>
-        </Container>
-      </Box>
-    );
-  }
 
-  if (!isLoaded) {
-    return (
-      <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper, p: 1.5 }}>
-        <Container maxWidth="xl" sx={{ py: { xs: 3, sm: 6 } }}>
-          <LoadingSpinner />
-        </Container>
-      </Box>
-    );
-  }
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: theme.palette.background.paper, display: 'flex', flexDirection: 'column' }}>
@@ -855,162 +868,7 @@ const ActiveUserLocations = () => {
 
           <MapControls />
 
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={mapCenter}
-            zoom={mapZoom}
-            onLoad={handleMapLoad}
-            options={{
-              streetViewControl: false,
-              mapTypeControl: false,
-              fullscreenControl: false,
-              zoomControl: false,
-              scaleControl: true,
-              styles: [
-                {
-                  featureType: "poi",
-                  elementType: "labels",
-                  stylers: [{ visibility: "off" }],
-                },
-              ],
-            }}
-          >
-            {!currentActiveLocationsLoading &&
-              coordinates.map((coord) => (
-                <Marker
-                  key={coord.id}
-                  position={coord}
-                  onClick={() => handleMarkerClick(coord)}
-                  icon={{
-                    url: coord.image
-                      ? "https://cdn-icons-png.flaticon.com/512/447/447031.png"
-                      : "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-                    scaledSize: new window.google.maps.Size(isSmallMobile ? 24 : 28, isSmallMobile ? 24 : 28),
-                  }}
-                >
-                  {selectedMarkerId === coord.id && (
-                    <InfoWindow onCloseClick={handleInfoWindowClose}>
-                      <Box
-                        sx={{
-                          maxWidth: 220,
-                          width: '100%',
-                          p: 0.8,
-                          borderRadius: 2,
-                          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-                          boxShadow: '0 8px 20px -4px rgba(0, 0, 0, 0.1)',
-                          backdropFilter: 'blur(8px)',
-                          position: 'relative',
-                        }}
-                      >
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.6,
-                          mb: 0.6,
-                          pr: 2.5,
-                        }}>
-                          <Avatar
-                            sx={{
-                              width: 28,
-                              height: 28,
-                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              color: 'white',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            }}
-                          >
-                            {coord.name?.charAt(0).toUpperCase()}
-                          </Avatar>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography
-                              variant="caption"
-                              fontWeight={700}
-                              sx={{
-                                fontSize: '0.7rem',
-                                lineHeight: 1.2,
-                                color: '#667eea',
-                                display: 'block',
-                              }}
-                            >
-                              {coord.name}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontSize: '0.55rem',
-                                color: 'text.secondary',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.3,
-                              }}
-                            >
-                              <Box component="span" sx={{
-                                width: 4,
-                                height: 4,
-                                borderRadius: '50%',
-                                bgcolor: coord.isOnline !== false ? '#4ade80' : '#ef4444',
-                                display: 'inline-block',
-                              }} />
-                              {coord.email || 'User'}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Divider sx={{
-                          my: 0.5,
-                          borderColor: alpha(theme.palette.primary.main, 0.1),
-                        }} />
-
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          mb: 0.5,
-                        }}>
-                          <TimeIcon sx={{
-                            color: theme.palette.primary.main,
-                            fontSize: 10
-                          }} />
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontSize: '0.55rem',
-                              color: 'text.primary',
-                              fontWeight: 500,
-                            }}
-                          >
-                            {formatDate(coord.timestamp)} • {formatTime(coord.timestamp)}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          mb: coord.image ? 0.5 : 0,
-                        }}>
-                          <LocationIcon sx={{
-                            color: theme.palette.primary.main,
-                            fontSize: 10
-                          }} />
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontSize: '0.55rem',
-                              color: 'text.primary',
-                              fontFamily: 'monospace',
-                            }}
-                          >
-                            {coord.lat.toFixed(4)}, {coord.lng.toFixed(4)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </InfoWindow>
-                  )}
-                </Marker>
-              ))}
-          </GoogleMap>
+          <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 1 }} />
 
           {currentActiveLocationsLoading && (
             <Box

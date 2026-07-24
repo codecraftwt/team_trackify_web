@@ -2332,6 +2332,7 @@ const ReportLocation = () => {
     const [mapZoom, setMapZoom] = useState(16);
     const [draggingIndex, setDraggingIndex] = useState(null);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isLegendOpen, setIsLegendOpen] = useState(true);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -3133,6 +3134,77 @@ const ReportLocation = () => {
                         <PhotoCarousel />
                     </Paper>
                 )}
+                
+                {/* Stylish Map Legend */}
+                <Paper elevation={0} sx={{
+                    position: "absolute", bottom: 20, left: 20,
+                    p: 1.5, borderRadius: "16px", zIndex: 500,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                    backdropFilter: "blur(16px)",
+                    bgcolor: isDarkMode ? "rgba(22, 22, 22, 0.75)" : "rgba(255, 255, 255, 0.8)",
+                    border: `1px solid ${isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.6)"}`,
+                    display: "flex", flexDirection: "column", gap: isLegendOpen ? 1.2 : 0,
+                    minWidth: 160,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
+                    }
+                }}>
+                    <Box 
+                      onClick={() => setIsLegendOpen(!isLegendOpen)}
+                      sx={{ 
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, 
+                        mb: isLegendOpen ? 0.5 : 0, 
+                        borderBottom: isLegendOpen ? `1px solid ${alpha(isDarkMode ? '#fff' : '#000', 0.1)}` : 'none', 
+                        pb: isLegendOpen ? 1 : 0, 
+                        cursor: 'pointer' 
+                      }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#2196F3', 0.15) }}>
+                                <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+                            </Box>
+                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: isDarkMode ? "#fff" : "text.primary", letterSpacing: "0.3px", textTransform: "uppercase" }}>
+                                Map Legend
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', color: isDarkMode ? "#aaa" : "text.secondary" }}>
+                            <NavigateNextIcon sx={{ fontSize: 18, transform: isLegendOpen ? "rotate(-90deg)" : "rotate(90deg)", transition: "transform 0.3s ease" }} />
+                        </Box>
+                    </Box>
+                    
+                    {isLegendOpen && (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2, mt: 0.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 4, bgcolor: '#3553ea', borderRadius: 2, boxShadow: "0 1px 3px rgba(53, 83, 234, 0.4)" }} />
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Online Route</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 4, bgcolor: '#ef4444', borderRadius: 2, boxShadow: "0 1px 3px rgba(239, 68, 68, 0.4)" }} />
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Offline Route</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 18, bgcolor: '#22c55e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                                <span style={{ fontSize: '9px' }}>🚀</span>
+                            </Box>
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Start Point</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 18, bgcolor: '#FF9800', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                                <span style={{ fontSize: '9px' }}>📸</span>
+                            </Box>
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Route Photo</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 18, bgcolor: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                                <span style={{ fontSize: '9px' }}>🏁</span>
+                            </Box>
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>End Point</Typography>
+                        </Box>
+                      </Box>
+                    )}
+                </Paper>
             </Box>
 
             {renderPhotoModal()}
