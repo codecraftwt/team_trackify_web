@@ -38,7 +38,7 @@ import {
   Redeem as RedeemIcon,
   Login as LoginIcon,
   ExitToApp as ExitToAppIcon,
-   CurrencyRupee as CurrencyRupeeIcon,
+  CurrencyRupee as CurrencyRupeeIcon,
 } from '@mui/icons-material';
 import { logout, logoutUser, stopImpersonation } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
@@ -150,16 +150,16 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   const isMediumMobile = useMediaQuery('(min-width:481px) and (max-width:600px)');
 
   const { user, role_id, isImpersonating } = useSelector((state) => state.auth);
-const { userInfo } = useSelector((state) => state.user);
+  const { userInfo } = useSelector((state) => state.user);
   // Check impersonation status on mount and when auth state changes
   useEffect(() => {
     // Check if we're in impersonation mode
     const isImpersonatingFromStorage = localStorage.getItem('isImpersonating') === 'true';
     const storedUser = localStorage.getItem('user');
-    
+
     if (isImpersonating || isImpersonatingFromStorage) {
       setImpersonating(true);
-      
+
       if (storedUser) {
         try {
           setImpersonatedUser(JSON.parse(storedUser));
@@ -213,30 +213,30 @@ const { userInfo } = useSelector((state) => state.user);
   const handleStopImpersonation = async () => {
     try {
       const result = await dispatch(stopImpersonation()).unwrap();
-      
+
       if (result.status === 1) {
         // Get the original token and user from sessionStorage
         const originalToken = sessionStorage.getItem('originalToken');
         const originalUserStr = sessionStorage.getItem('originalUser');
-        
+
         if (originalToken && originalUserStr) {
           const originalUser = JSON.parse(originalUserStr);
-          
+
           // Restore to localStorage
           localStorage.setItem('token', originalToken);
           localStorage.setItem('user', originalUserStr);
           localStorage.removeItem('isImpersonating');
-          
+
           // Clear sessionStorage
           sessionStorage.removeItem('originalToken');
           sessionStorage.removeItem('originalUser');
-          
+
           setImpersonating(false);
           setImpersonatedUser(null);
-          
+
           // Force a complete page reload to reset all state
-          window.location.href = originalUser?.role_id === 2 
-            ? '/super-admin/dashboard' 
+          window.location.href = originalUser?.role_id === 2
+            ? '/super-admin/dashboard'
             : '/admin/dashboard';
         } else {
           // If no original data, logout and redirect to login
@@ -272,13 +272,13 @@ const { userInfo } = useSelector((state) => state.user);
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/super-admin/dashboard' },
     { text: 'Organization Details', icon: <BusinessIcon />, path: '/user' },
     { text: 'Revenue Analytics', icon: <CurrencyRupeeIcon />, path: '/super-admin/revenue' },
-    { text: 'Coupon Management', icon: <RedeemIcon  />, path: '/super-admin/couponmanagment' },
+    { text: 'Coupon Management', icon: <RedeemIcon />, path: '/super-admin/couponmanagment' },
     { text: 'Plan Management', icon: <PlanIcon />, path: '/super-admin/plans' },
     { text: 'Contact List', icon: <ContactIcon />, path: '/super-admin/contacts' },
     { text: 'Profile Manager', icon: <PersonIcon />, path: '/profile' },
   ];
 
-  const filteredAdminMenuItems = Number(role_id) === 3 
+  const filteredAdminMenuItems = Number(role_id) === 3
     ? adminMenuItems.filter(item => item.text !== 'Payment Plans' && item.text !== 'Transaction History')
     : adminMenuItems;
 
@@ -309,7 +309,7 @@ const { userInfo } = useSelector((state) => state.user);
       }}
     >
       {/* Header / Logo */}
-      <Box
+      {/* <Box
         sx={{
           p: isMobile ? 1.5 : (collapsed ? 1.2 : 2),
           display: 'flex',
@@ -374,8 +374,91 @@ const { userInfo } = useSelector((state) => state.user);
             <ChevronLeftIcon sx={{ fontSize: 20 }} />
           </IconButton>
         )}
-      </Box>
+      </Box> */}
+      <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0,
+            marginLeft: 3,
+            marginTop: 2,
+            justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
+            width: collapsed && !isMobile ? '100%' : 'auto',
+          }}
+        >
+          {/* Your existing content remains exactly the same */}
 
+          <Avatar
+            src={logo}
+            variant="rounded"
+            sx={{
+              bgcolor: 'transparent',
+              width: isMobile ? 30 : (collapsed ? 30 : 32),
+              height: isMobile ? 30 : (collapsed ? 30 : 32),
+              borderRadius: '6px',
+              flexShrink: 0,
+              boxShadow: 'none',
+              border: 'none',
+              '& img': {
+                objectFit: 'contain',
+              },
+            }}
+          />
+
+          {(!collapsed || isMobile) && (
+            <>
+              <Box
+                sx={{
+                  width: '1px',
+                  height: isMobile ? 30 : 36,
+                  mx: isMobile ? 1 : 1.2,
+                  bgcolor: 'rgba(255,255,255,0.28)',
+                  flexShrink: 0,
+                }}
+              />
+
+              <Box>
+                <Typography
+                  variant="subtitle2"
+                  noWrap
+                  sx={{
+                    fontSize: isMobile ? '0.95rem' : '0.9rem',
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    color: '#FFFFFF',
+                  }}
+                >
+                  Team Trackify
+                </Typography>
+
+                <Typography
+                  variant="caption"
+                  sx={{
+                    mt: 0.3,
+                    fontSize: isMobile ? '0.6rem' : '0.65rem',
+                    color: 'rgba(255,255,255,0.65)',
+                    display: 'block',
+                  }}
+                >
+                  {roleName}
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Box>
+
+        {/* Bottom Line - 90% Width */}
+        <Box
+          sx={{
+            width: '90%',
+            height: '1px',
+            mx: 'auto',
+            mt: 1.5,
+            backgroundColor: 'rgba(255,255,255,0.15)',
+          }}
+        />
+      </Box>
 
       {/* User Info - Hide during impersonation to save space */}
       {(!impersonating || !collapsed || isMobile) && (!collapsed || isMobile) && (
@@ -413,7 +496,7 @@ const { userInfo } = useSelector((state) => state.user);
                 }}
               >
                 {/* {impersonating ? impersonatedUser?.name || 'Impersonated User' : (user?.name || 'Admin User')} */}
-              {impersonating ? impersonatedUser?.name || 'Impersonated User' : (userInfo?.name || user?.name || 'Admin User')}
+                {impersonating ? impersonatedUser?.name || 'Impersonated User' : (userInfo?.name || user?.name || 'Admin User')}
               </Typography>
               <Typography
                 variant="caption"
