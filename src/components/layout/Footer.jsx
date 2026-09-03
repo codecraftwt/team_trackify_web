@@ -27,7 +27,7 @@ const Footer = () => {
           {/* Column 1: Brand Info */}
           <div className="flex flex-col items-start">
             <Link to="/" className="flex items-center gap-3 decoration-transparent group mb-6">
-              <img src={logoImage} alt="Team Trackify Logo" className="h-9 w-auto rounded-xl object-contain transition-transform group-hover:scale-105" />
+              <img src={logoImage} alt="Team Trackify Logo" className="h-9 w-auto rounded-s object-contain transition-transform group-hover:scale-105" />
               <span className="text-2xl font-bold tracking-wide" style={{ color: theme.palette.text.primary }}>Team Trackify</span>
             </Link>
             <p className="text-[13px] md:text-sm leading-relaxed mb-6" style={{ color: theme.palette.text.secondary }}>

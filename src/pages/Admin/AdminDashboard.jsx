@@ -30,7 +30,9 @@ import {
   LocationOn as LocationIcon,
   Timeline as TimelineIcon,
   ShoppingBag as ShoppingBagIcon,
+  CalendarToday as CalendarIcon,
 } from "@mui/icons-material";
+import ShiftsPopup from "./component/ShiftsPopup";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUsers,
@@ -489,7 +491,7 @@ const StatsCards = ({ stats, loading }) => {
     </Grid>
   );
 };
-const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
+const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShifts }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -654,18 +656,30 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
               Current Plan
             </Typography>
           </Box>
-          {!isSubAdmin && (
-            <Button variant="outlined" size="small" onClick={onPurchasePlan}
-              startIcon={<ShoppingBagIcon sx={{ fontSize: 14 }} />}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button variant="outlined" size="small" onClick={onOpenShifts}
+              startIcon={<CalendarIcon sx={{ fontSize: 14 }} />}
               sx={{
-                borderColor: alpha(statusColor, 0.5), color: statusColor,
+                borderColor: alpha(theme.palette.primary.main, 0.5), color: theme.palette.primary.main,
                 fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: { xs: 26, sm: 28 },
-                '&:hover': { borderColor: statusColor, bgcolor: alpha(statusColor, 0.05) },
+                '&:hover': { borderColor: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.05) },
               }}
             >
-              Upgrade Plan
+              Shifts
             </Button>
-          )}
+            {!isSubAdmin && (
+              <Button variant="outlined" size="small" onClick={onPurchasePlan}
+                startIcon={<ShoppingBagIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  borderColor: alpha(statusColor, 0.5), color: statusColor,
+                  fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: { xs: 26, sm: 28 },
+                  '&:hover': { borderColor: statusColor, bgcolor: alpha(statusColor, 0.05) },
+                }}
+              >
+                Upgrade Plan
+              </Button>
+            )}
+          </Box>
         </Box>
 
         {/* ── Description ── */}
@@ -677,21 +691,21 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
         </Box>
 
         {/* ── Stats grid ── */}
-        <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
+        <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: { xs: 1, sm: 1.2 } }}>
           {[
             { label: "Duration", value: planData.duration || "N/A" },
             { label: "Amount", value: `₹${planData.amount || "0"}`, colored: true },
-            { label: "Currency", value: planData.currency || "INR" },
+            { label: "Max Users", value: planData.maxUser || planData.maxUsers || "0" },
           ].map(({ label, value, colored }) => (
             <Grid item xs={6} md={3} key={label}>
-              <Box sx={{ bgcolor: alpha(statusColor, 0.03), p: { xs: 0.8, sm: 1, md: 1.2 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.1), height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Box sx={{ bgcolor: alpha(statusColor, 0.03), p: { xs: 0.8, sm: 1 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.1), height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>{label}</Typography>
                 <Typography variant="body2" fontWeight={colored ? "700" : "600"} sx={{ fontSize: '0.7rem', color: colored ? statusColor : 'text.primary' }}>{value}</Typography>
               </Box>
             </Grid>
           ))}
           <Grid item xs={6} md={3}>
-            <Box sx={{ bgcolor: alpha(statusColor, 0.03), p: { xs: 0.8, sm: 1, md: 1.2 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.1), height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <Box sx={{ bgcolor: alpha(statusColor, 0.03), p: { xs: 0.8, sm: 1 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.1), height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Status</Typography>
               <Chip
                 label={planData.isActive ? "Active" : "Inactive"} size="small"
@@ -701,16 +715,15 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: { xs: 1.2, sm: 1.5 }, borderStyle: 'dashed', borderColor: alpha(statusColor, 0.2) }} />
+        <Divider sx={{ my: { xs: 1, sm: 1.2 }, borderStyle: 'dashed', borderColor: alpha(statusColor, 0.2) }} />
 
         {/* ── Dates ── */}
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', mb: { xs: 1.2, sm: 1.5 }, gap: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Created At</Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', mb: { xs: 1, sm: 1.2 }, gap: 2 }}>
+          <Box>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Started At</Typography>
             <Typography variant="body2" fontWeight="500" sx={{ fontSize: '0.7rem', color: 'text.primary' }}>{formatDateDDMMYYYY(planData.createdAt)}</Typography>
-
           </Box>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ textAlign: 'right' }}>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Expires At</Typography>
             <Typography variant="body2" fontWeight="500" sx={{ fontSize: '0.7rem', color: 'text.primary' }}>{formatDateDDMMYYYY(planData.expiresAt)}</Typography>
           </Box>
@@ -718,7 +731,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
 
         {/* ── Progress ── */}
         {planData.expiresAt && (
-          <Box sx={{ mb: { xs: 1.2, sm: 1.5 } }}>
+          <Box sx={{ mb: completedAddOns.length > 0 ? { xs: 1, sm: 1.2 } : 0 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Progress {Math.round(progress)}%</Typography>
               <Chip label={daysLeft <= 0 ? "Expired" : `${daysLeft} days left`} size="small"
@@ -728,21 +741,6 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin }) => {
               sx={{ height: { xs: 4, sm: 5 }, borderRadius: 2, bgcolor: alpha(statusColor, 0.1), "& .MuiLinearProgress-bar": { bgcolor: statusColor, borderRadius: 2 } }} />
           </Box>
         )}
-
-        {/* ── User Limits ── */}
-        <Grid container spacing={{ xs: 1, sm: 1.2, md: 1.5 }} sx={{ mb: completedAddOns.length > 0 ? { xs: 1.2, sm: 1.5 } : 0 }}>
-          {[
-            { label: "Min Users", value: planData.minUser || planData.minUsers || "0" },
-            { label: "Max Users", value: planData.maxUser || planData.maxUsers || "0" },
-          ].map(({ label, value }) => (
-            <Grid item xs={6} key={label}>
-              <Box sx={{ bgcolor: alpha(statusColor, 0.05), p: { xs: 0.8, sm: 1, md: 1.2 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.15) }}>
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>{label}</Typography>
-                <Typography variant={isSmallMobile ? "body2" : "body1"} fontWeight="700" sx={{ fontSize: '0.8rem', color: statusColor }}>{value}</Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
 
         {/* ── Add-Ons Section (Only Completed Add-Ons) ── */}
         {completedAddOns.length > 0 && (
@@ -1452,6 +1450,7 @@ const AdminDashboard = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isShiftsPopupOpen, setIsShiftsPopupOpen] = useState(false);
 
   const userState = useSelector((state) => state.user || {});
   const userData = userState.userInfo || {};
@@ -1860,7 +1859,9 @@ const AdminDashboard = () => {
           <StatsCards stats={userStats} loading={isLoading} />
 
           {/* Current Plan Section */}
-          <CurrentPlan planData={planData} loading={isLoading} onPurchasePlan={handlePurchasePlan} isSubAdmin={isSubAdmin} />
+          <CurrentPlan planData={planData} loading={isLoading} onPurchasePlan={handlePurchasePlan} isSubAdmin={isSubAdmin} onOpenShifts={() => setIsShiftsPopupOpen(true)} />
+
+          <ShiftsPopup open={isShiftsPopupOpen} onClose={() => setIsShiftsPopupOpen(false)} />
 
           {/* Recent Activities */}
           <RecentActivities users={lastTrackedUsers} loading={isLoading} />

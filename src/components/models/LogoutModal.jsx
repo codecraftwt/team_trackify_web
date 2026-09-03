@@ -121,6 +121,7 @@ const LogoutModal = ({ show, onHide, onConfirm, title = "Confirm Logout", messag
               <LogoutIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />
             </Box>
             <Typography 
+              component="span"
               variant={isMobile ? "subtitle1" : "h6"} 
               fontWeight={600} 
               color="white"

@@ -13,8 +13,8 @@ export const loginUser = createAsyncThunk(
       const user = response.data.user;
       const roleIdNum = (user?.role_id !== null && user?.role_id !== undefined) ? Number(user.role_id) : null;
       
-      if (roleIdNum === 0 || roleIdNum === 3) {
-        return rejectWithValue({ message: 'Access denied: Users with this role are not allowed to log in.' });
+      if (roleIdNum === 0) {
+        return rejectWithValue({ message: 'You do not have access to the web platform.' });
       }
 
       localStorage.setItem('token', response.data.token);

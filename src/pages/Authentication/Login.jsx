@@ -100,11 +100,11 @@ const Login = () => {
     }
 
     // Block role 0 and 3 users
-    if (roleIdNum === 0 || roleIdNum === 3) {
+    if (roleIdNum === 0) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       dispatch(logout());
-      toast.error('Access denied: Users with this role are not allowed to log in.');
+      toast.error('You do not have access to the web platform.');
       return;
     }
 
@@ -207,11 +207,28 @@ const Login = () => {
     };
   }, [dispatch]);
 
-  const onSubmit = async (data) => {
+  const getDeviceId = () => {
+    let deviceId = localStorage.getItem('deviceId');
+    
+    if (!deviceId) {
+      // Generate a unique ID (UUID)
+      deviceId = crypto.randomUUID ? crypto.randomUUID() : 'web-' + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('deviceId', deviceId);
+    }
+    
+    return deviceId;
+  };
+ const onSubmit = async (data) => {
     dispatch(clearError());
     dispatch(clearMessage());
     hasRedirected.current = false;
-    await dispatch(loginUser(data));
+
+    const loginData = {
+      ...data,
+      deviceId: getDeviceId()
+    };
+
+    await dispatch(loginUser(loginData));
   };
 
   return (
@@ -288,6 +305,7 @@ const Login = () => {
                   <TextField
                     fullWidth
                     type="email"
+                    autoComplete="email"
                     placeholder="you@example.com"
                     {...register('email', {
                       required: 'Email is required',
@@ -327,6 +345,7 @@ const Login = () => {
                   <TextField
                     fullWidth
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     placeholder="••••••••"
                     {...register('password', {
                       required: 'Password is required',

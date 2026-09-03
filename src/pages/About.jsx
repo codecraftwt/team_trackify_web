@@ -187,8 +187,8 @@ const About = () => {
                     S
                   </div>
                   <div className="text-[8px] sm:text-[10px] leading-tight">
-                    <span className="font-bold text-gray-800 block">Sarah Manager</span>
-                    <span className="text-gray-500">has assigned a new route</span>
+                    <span className="font-bold text-gray-800 block">Tracking Started</span>
+                    <span className="text-gray-500">Tracking session started. Shift ends at 04:00 PM</span>
                   </div>
                   <div className="absolute -right-2 -bottom-2 sm:-right-3 sm:-bottom-3 w-6 h-6 sm:w-8 sm:h-8 bg-[#ef4444] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
                     <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>

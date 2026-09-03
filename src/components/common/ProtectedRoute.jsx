@@ -16,8 +16,8 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   const rawRoleId = role_id ?? localUser?.role_id;
   const roleIdNum = Number(rawRoleId);
 
-  // Not authenticated or role is not allowed (0 or 3) → redirect to login
-  if (requireAuth && (!isAuth || roleIdNum === 0 || roleIdNum === 3)) {
+  // Not authenticated or role is not allowed (0) → redirect to login
+  if (requireAuth && (!isAuth || roleIdNum === 0)) {
     // console.log('Not authenticated or unauthorized role, redirecting to login');
     return <Navigate to="/login" replace />;
   }
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   if (!requireAuth && isAuth) {
     if (roleIdNum === 2) {
       return <Navigate to="/super-admin/dashboard" replace />;
-    } else if (roleIdNum === 1) {
+    } else if (roleIdNum === 1 || roleIdNum === 3) {
       // ✅ FIX 3: Check if there's a pending plan — if so, go to payments-plans
       const pendingPlan = sessionStorage.getItem('selectedPlan');
       if (pendingPlan) {

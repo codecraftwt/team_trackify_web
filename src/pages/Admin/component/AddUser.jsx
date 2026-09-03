@@ -43,6 +43,28 @@
 // import { registerUser, updateUser, updateUserPermissions } from "../../../redux/slices/userSlice";
 // import { toast } from "react-toastify";
 
+const formatTo12Hour = (timeStr) => {
+  if (!timeStr) return "";
+  const trimmed = timeStr.trim();
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (match) {
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2];
+    const period = match[3] ? match[3].toUpperCase() : null;
+    
+    if (period) {
+      if (hours === 0) hours = 12;
+      return `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
+    }
+    
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  }
+  return trimmed;
+};
+
 // const AddUser = ({ open, onClose, editingUser = null }) => {
 //   // console.log("Editing user data ------------------------>", editingUser);
 //   const dispatch = useDispatch();
@@ -349,10 +371,10 @@
 // //   setSubmitting(true);
 
 // //   const payload = new FormData();
-  
+
 // //   // Check if editing user has admin_panel permission (Sub Admin)
 // //   const isEditingSubAdmin = editingUser && editingUser.permissions?.includes("admin_panel");
-  
+
 // //   // For Sub Admin users, only allow specific fields to be updated
 // //   if (isEditingSubAdmin) {
 // //     // Sub Admin can only update these fields
@@ -361,7 +383,7 @@
 // //     payload.append("email", formData.email);
 // //     payload.append("address", formData.address);
 // //     payload.append("isActive", formData.status === "active");
-    
+
 // //     // Handle avatar
 // //     if (formData.avtar && formData.avtar instanceof File) {
 // //       payload.append("avtar", formData.avtar);
@@ -369,9 +391,9 @@
 // //     if (imageRemoved) {
 // //       payload.append("removeAvtar", "true");
 // //     }
-    
+
 // //     // Do NOT include email, role_id, permissions, etc.
-    
+
 // //   } else {
 // //     // Full update for regular users
 // //     payload.append("name", formData.fullName);
@@ -389,7 +411,7 @@
 // //         const rootAdminId = isSubAdmin 
 // //           ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
 // //           : creatorId;
-          
+
 // //         if (rootAdminId) {
 // //           payload.append("adminId", rootAdminId);
 // //         } else if (isSubAdmin) {
@@ -444,7 +466,7 @@
 // //       }
 
 // //       let result;
-      
+
 // //       // For Sub Admin, always use regular update (not permissions update)
 // //       if (isEditingSubAdmin) {
 // //         result = await dispatch(
@@ -502,7 +524,7 @@
 //   setSubmitting(true);
 
 //   const payload = new FormData();
-  
+
 //   // Always include basic fields
 //   payload.append("name", formData.fullName);
 //   payload.append("mobile_no", formData.mobile);
@@ -526,7 +548,7 @@
 //     // Check if this is a Sub Admin (has admin_panel permission)
 //     const isCurrentlySubAdmin = editingUser.permissions?.includes("admin_panel");
 //     const newIsSubAdmin = formData.adminPanelAccess;
-    
+
 //     // If permissions are changing OR we need to send full update
 //     if (isCurrentlySubAdmin !== newIsSubAdmin) {
 //       // Permission is changing - need to update role_id
@@ -559,7 +581,7 @@
 //         })
 //       ).unwrap();
 //     }
-    
+
 //     toast.success("User updated successfully!");
 //   } else {
 //     // NEW USER creation logic
@@ -570,7 +592,7 @@
 //       const rootAdminId = isSubAdmin 
 //         ? (userDataa?.adminId?._id || (typeof userDataa?.adminId === 'string' ? userDataa.adminId : null))
 //         : creatorId;
-        
+
 //       if (rootAdminId) payload.append("adminId", rootAdminId);
 //     }
 
@@ -586,11 +608,11 @@
 //     payload.append("permissions", JSON.stringify(permissions));
 //     payload.append("password", formData.password);
 //     payload.append("confirmPassword", formData.confirmPassword);
-    
+
 //     await dispatch(registerUser(payload)).unwrap();
 //     toast.success("User created successfully!");
 //   }
-  
+
 //   onClose(true);
 // };
 // const handleClose = () => {
@@ -1390,6 +1412,8 @@ import {
   useMediaQuery,
   useTheme,
   Checkbox,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -1403,10 +1427,12 @@ import {
   Close as CloseIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   Business as BusinessIcon,
+  AccessTime as AccessTimeIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, updateUser, updateUserPermissions } from "../../../redux/slices/userSlice";
+import { fetchShifts, assignShiftToUser } from "../../../redux/slices/shiftSlice";
 import { toast } from "react-toastify";
 import { resetUserDevice } from "../../../redux/slices/authSlice";
 
@@ -1422,6 +1448,13 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const role_id = userDataa?.role_id;
   const currentUserId = userDataa?._id || userDataa?.id || userDataa?.userId || userDataa?.user_id;
   const userData = useSelector((state) => state.user?.userInfo || {});
+  const { shifts } = useSelector((state) => state.shift || {});
+
+  // Combine fetched shifts with the user's current shift so the dropdown can always resolve the selected value
+  const availableShifts = [...(shifts || [])];
+  if (editingUser?.shift && !availableShifts.find(s => s._id === editingUser.shift._id)) {
+    availableShifts.push(editingUser.shift);
+  }
 
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -1431,7 +1464,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   const isSuperAdmin = Number(role_id) === 2;
   const isAdmin = Number(role_id) === 1;
   const isSubAdmin = Number(role_id) === 3;
-  
+
   const editingUserId = editingUser?._id || editingUser?.id || editingUser?.userId || editingUser?.user_id;
   const isEditingSelf = Boolean(currentUserId) && Boolean(editingUserId) && String(currentUserId) === String(editingUserId);
 
@@ -1446,6 +1479,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
     avtar: null,
     role_id: 0,
     adminPanelAccess: false,
+    shiftId: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -1463,6 +1497,10 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
       setResettingDevice(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    dispatch(fetchShifts());
+  }, [dispatch]);
 
   const getTitle = () => {
     if (isSuperAdmin) return editingUser ? "Edit Admin" : "Add New Admin";
@@ -1492,6 +1530,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         avtar: null,
         role_id: Number(editingUser.role_id) || 0,
         adminPanelAccess: editingUser.permissions ? editingUser.permissions.includes("admin_panel") : Number(editingUser.role_id) === 3,
+        shiftId: editingUser.shiftId || editingUser.shift?._id || "null",
       });
       setImageRemoved(false);
       if (editingUser.avtar) setPreviewImage(editingUser.avtar);
@@ -1507,6 +1546,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
         avtar: null,
         role_id: 0,
         adminPanelAccess: false,
+        shiftId: "null",
       });
       setPreviewImage(null);
       setErrors({});
@@ -1679,7 +1719,7 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
 
   //       // For Admin (role_id 1) updating users - send full update
   //       await dispatch(updateUser({ userId, formData: payload })).unwrap();
-        
+
   //       toast.success("User updated successfully!");
   //     } else {
   //       // NEW USER creation
@@ -1740,114 +1780,126 @@ const AddUser = ({ open, onClose, editingUser = null }) => {
   //     setSubmitting(false);
   //   }
   // };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-  if (submitting) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    if (submitting) return;
 
-  setSubmitting(true);
-  setServerError("");
+    setSubmitting(true);
+    setServerError("");
 
-  try {
-    const payload = new FormData();
+    try {
+      const payload = new FormData();
 
-    // Always include basic fields
-    payload.append("name", formData.fullName);
-    payload.append("mobile_no", formData.mobile);
-    payload.append("email", formData.email);
-    payload.append("address", formData.address);
-    payload.append("isActive", formData.status === "active");
+      // Always include basic fields
+      payload.append("name", formData.fullName);
+      payload.append("mobile_no", formData.mobile);
+      payload.append("email", formData.email);
+      payload.append("address", formData.address);
+      payload.append("isActive", formData.status === "active");
 
-    // Handle avatar
-    if (formData.avtar && formData.avtar instanceof File) {
-      payload.append("avtar", formData.avtar);
-    }
-    if (imageRemoved) {
-      payload.append("removeAvtar", "true");
-    }
-
-    if (editingUser) {
-      const userId = editingUser._id || editingUser.id;
-      if (!userId) throw new Error("User ID is missing");
-
-      // ✅ FIX: For Super Admin (role_id 2) - ONLY update basic info, NEVER send role_id or permissions
-      if (isSuperAdmin) {
-        // Super Admin should NOT change role_id or permissions
-        // Only send name, email, mobile, address, isActive, avatar
-        // DO NOT append role_id or permissions at all
-        await dispatch(updateUser({ userId, formData: payload })).unwrap();
-      } 
-      // For Admin (role_id 1) - can update role/permissions
-      else if (isAdmin) {
-        const newIsSubAdmin = formData.adminPanelAccess;
-        payload.append("role_id", newIsSubAdmin ? 3 : 0);
-        payload.append("permissions", JSON.stringify(newIsSubAdmin ? ["admin_panel"] : []));
-        await dispatch(updateUser({ userId, formData: payload })).unwrap();
+      // Handle avatar
+      if (formData.avtar && formData.avtar instanceof File) {
+        payload.append("avtar", formData.avtar);
       }
-      // For regular users editing their own profile
-      else {
-        await dispatch(updateUser({ userId, formData: payload })).unwrap();
-      }
-      
-      toast.success("User updated successfully!");
-    } else {
-      // NEW USER creation (same as before)
-      const creatorId = userDataa?._id || userData?._id;
-      payload.append("createdby", creatorId);
-
-      if (isSubAdmin || isAdmin) {
-        const rootAdminId = isSubAdmin
-          ? userDataa?.adminId?._id || (typeof userDataa?.adminId === "string" ? userDataa.adminId : null)
-          : creatorId;
-        if (rootAdminId) payload.append("adminId", rootAdminId);
+      if (imageRemoved) {
+        payload.append("removeAvtar", "true");
       }
 
-      // Set role_id based on who is creating
-      if (isAdmin) {
-        payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
-      } else if (isSuperAdmin) {
-        payload.append("role_id", 1);
+      if (editingUser) {
+        const userId = editingUser._id || editingUser.id;
+        if (!userId) throw new Error("User ID is missing");
+
+        // ✅ FIX: For Super Admin (role_id 2) - ONLY update basic info, NEVER send role_id or permissions
+        if (isSuperAdmin) {
+          // Super Admin should NOT change role_id or permissions
+          // Only send name, email, mobile, address, isActive, avatar
+          // DO NOT append role_id or permissions at all
+          await dispatch(updateUser({ userId, formData: payload })).unwrap();
+        }
+        // For Admin (role_id 1) - can update role/permissions
+        else if (isAdmin) {
+          const newIsSubAdmin = formData.adminPanelAccess;
+          payload.append("role_id", newIsSubAdmin ? 3 : 0);
+          payload.append("permissions", JSON.stringify(newIsSubAdmin ? ["admin_panel"] : []));
+          await dispatch(updateUser({ userId, formData: payload })).unwrap();
+        }
+        // For regular users editing their own profile
+        else {
+          await dispatch(updateUser({ userId, formData: payload })).unwrap();
+        }
+
+        const currentShiftId = editingUser.shiftId || editingUser.shift?._id || "null";
+        if (formData.shiftId && formData.shiftId !== currentShiftId) {
+          const shiftIdToAssign = formData.shiftId === "null" ? null : formData.shiftId;
+          await dispatch(assignShiftToUser({ userId, shiftId: shiftIdToAssign })).unwrap();
+        }
+
+        toast.success("User updated successfully!");
       } else {
-        payload.append("role_id", 0);
+        // NEW USER creation (same as before)
+        const creatorId = userDataa?._id || userData?._id;
+        payload.append("createdby", creatorId);
+
+        if (isSubAdmin || isAdmin) {
+          const rootAdminId = isSubAdmin
+            ? userDataa?.adminId?._id || (typeof userDataa?.adminId === "string" ? userDataa.adminId : null)
+            : creatorId;
+          if (rootAdminId) payload.append("adminId", rootAdminId);
+        }
+
+        // Set role_id based on who is creating
+        if (isAdmin) {
+          payload.append("role_id", formData.adminPanelAccess ? 3 : 0);
+        } else if (isSuperAdmin) {
+          payload.append("role_id", 1);
+        } else {
+          payload.append("role_id", 0);
+        }
+
+        payload.append("permissions", JSON.stringify(formData.adminPanelAccess ? ["admin_panel"] : []));
+        payload.append("password", formData.password);
+        payload.append("confirmPassword", formData.confirmPassword);
+
+        const result = await dispatch(registerUser(payload)).unwrap();
+        
+        const createdUserId = result?.data?._id || result?._id || result?.user?._id;
+        if (createdUserId && formData.shiftId && formData.shiftId !== "null") {
+          await dispatch(assignShiftToUser({ userId: createdUserId, shiftId: formData.shiftId })).unwrap();
+        }
+
+        toast.success("User created successfully!");
       }
 
-      payload.append("permissions", JSON.stringify(formData.adminPanelAccess ? ["admin_panel"] : []));
-      payload.append("password", formData.password);
-      payload.append("confirmPassword", formData.confirmPassword);
+      onClose(true);
+    } catch (error) {
+      let errorMessage = "Operation failed. Please try again.";
 
-      await dispatch(registerUser(payload)).unwrap();
-      toast.success("User created successfully!");
-    }
+      if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      }
 
-    onClose(true);
-  } catch (error) {
-    let errorMessage = "Operation failed. Please try again.";
-
-    if (typeof error === "string") {
-      errorMessage = error;
-    } else if (error?.message) {
-      errorMessage = error.message;
-    } else if (error?.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error?.data?.message) {
-      errorMessage = error.data.message;
-    }
-
-    if (errorMessage.toLowerCase().includes("duplicate") || 
+      if (errorMessage.toLowerCase().includes("duplicate") ||
         errorMessage.toLowerCase().includes("already exists") ||
         errorMessage.toLowerCase().includes("email") && errorMessage.toLowerCase().includes("taken")) {
-      errorMessage = "Email or mobile number already registered. Please use different credentials.";
-    }
+        errorMessage = "Email or mobile number already registered. Please use different credentials.";
+      }
 
-    setServerError(errorMessage);
-    toast.error(errorMessage, {
-      position: "top-right",
-      autoClose: 5000,
-    });
-  } finally {
-    setSubmitting(false);
-  }
-};
+      setServerError(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
   const handleClose = () => {
     if (!submitting) onClose(false);
   };
@@ -1886,636 +1938,688 @@ const handleSubmit = async (e) => {
     <>
       <Dialog
         open={open}
-      onClose={handleClose}
-      {...getDialogProps()}
-      fullWidth
-      disableEscapeKeyDown={isLoading}
-      PaperProps={{
-        sx: {
-          borderRadius: { xs: isSmallMobile ? 0 : 2, sm: 2.5, md: 3 },
-          overflow: "hidden",
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-          border: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.1),
-          m: { xs: 0, sm: 1.5, md: 2 },
-          height: { xs: isSmallMobile ? "100%" : "auto", sm: "auto" },
-          maxHeight: { xs: "100%", sm: "90vh" },
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}
-          >
-            {/* Header */}
-            <Box
-              sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                py: { xs: 1.5, sm: 1.75, md: 2 },
-                px: { xs: 1.5, sm: 2, md: 2.5 },
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                flexShrink: 0,
-              }}
+        onClose={handleClose}
+        {...getDialogProps()}
+        fullWidth
+        disableEscapeKeyDown={isLoading}
+        PaperProps={{
+          sx: {
+            borderRadius: { xs: isSmallMobile ? 0 : 2, sm: 2.5, md: 3 },
+            overflow: "hidden",
+            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            border: "1px solid",
+            borderColor: alpha(theme.palette.primary.main, 0.1),
+            m: { xs: 0, sm: 1.5, md: 2 },
+            height: { xs: isSmallMobile ? "100%" : "auto", sm: "auto" },
+            maxHeight: { xs: "100%", sm: "90vh" },
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+      >
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}>
-                <Avatar
+              {/* Header */}
+              <Box
+                sx={{
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                  py: { xs: 1.5, sm: 1.75, md: 2 },
+                  px: { xs: 1.5, sm: 2, md: 2.5 },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexShrink: 0,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 } }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: alpha("#ffffff", 0.2),
+                      color: "white",
+                      width: { xs: 28, sm: 32, md: 36 },
+                      height: { xs: 28, sm: 32, md: 36 },
+                    }}
+                  >
+                    {isSuperAdmin ? <BusinessIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} /> : <PersonIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />}
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant={isMobile ? "subtitle2" : "subtitle1"}
+                      fontWeight={600}
+                      color="white"
+                      sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1.1rem" } }}
+                    >
+                      {getTitle()}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: alpha("#ffffff", 0.8),
+                        fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
+                        display: { xs: isLandscape ? "none" : "block", sm: "block" },
+                      }}
+                    >
+                      {editingUser ? "Update the information below" : "Fill in the details to create a new account"}
+                    </Typography>
+                  </Box>
+                </Box>
+                <IconButton
+                  onClick={handleClose}
+                  size="small"
+                  disabled={isLoading}
                   sx={{
-                    bgcolor: alpha("#ffffff", 0.2),
                     color: "white",
-                    width: { xs: 28, sm: 32, md: 36 },
-                    height: { xs: 28, sm: 32, md: 36 },
+                    width: 28,
+                    height: 28,
+                    "&:hover": { bgcolor: alpha("#ffffff", 0.1) },
+                    "&.Mui-disabled": { opacity: 0.5 },
                   }}
                 >
-                  {isSuperAdmin ? <BusinessIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} /> : <PersonIcon sx={{ fontSize: { xs: 14, sm: 16, md: 18 } }} />}
-                </Avatar>
-                <Box>
-                  <Typography
-                    variant={isMobile ? "subtitle2" : "subtitle1"}
-                    fontWeight={600}
-                    color="white"
-                    sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1.1rem" } }}
-                  >
-                    {getTitle()}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: alpha("#ffffff", 0.8),
-                      fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
-                      display: { xs: isLandscape ? "none" : "block", sm: "block" },
-                    }}
-                  >
-                    {editingUser ? "Update the information below" : "Fill in the details to create a new account"}
-                  </Typography>
-                </Box>
+                  <CloseIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
+                </IconButton>
               </Box>
-              <IconButton
-                onClick={handleClose}
-                size="small"
-                disabled={isLoading}
-                sx={{
-                  color: "white",
-                  width: 28,
-                  height: 28,
-                  "&:hover": { bgcolor: alpha("#ffffff", 0.1) },
-                  "&.Mui-disabled": { opacity: 0.5 },
-                }}
-              >
-                <CloseIcon sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />
-              </IconButton>
-            </Box>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
-              <DialogContent
-                sx={{
-                  p: { xs: isLandscape ? 1.5 : 1.5, sm: 2, md: 2.5 },
-                  flex: 1,
-                  overflowY: "auto",
-                  "&::-webkit-scrollbar": { width: "6px" },
-                  "&::-webkit-scrollbar-thumb": {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
-                    borderRadius: "3px",
-                  },
-                }}
-              >
-                {/* Server Error Banner */}
-                {serverError && (
-                  <Alert
-                    severity="error"
-                    onClose={() => setServerError("")}
-                    sx={{
-                      mb: 2,
-                      borderRadius: 1.5,
-                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    }}
-                  >
-                    {serverError}
-                  </Alert>
-                )}
-
-                <Grid container spacing={{ xs: 1.5, sm: 1.5, md: 2 }}>
-                  {/* Full Name */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      name="fullName"
-                      label={getNameFieldLabel()}
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!errors.fullName && touched.fullName}
-                      helperText={touched.fullName && errors.fullName}
-                      required
-                      size="small"
-                      disabled={isLoading}
-                      InputProps={{
-                        startAdornment: <InputAdornment position="start">{getNameFieldIcon()}</InputAdornment>,
+              {/* Form */}
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+                <DialogContent
+                  sx={{
+                    p: { xs: isLandscape ? 1.5 : 1.5, sm: 2, md: 2.5 },
+                    flex: 1,
+                    overflowY: "auto",
+                    "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-thumb": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                      borderRadius: "3px",
+                    },
+                  }}
+                >
+                  {/* Server Error Banner */}
+                  {serverError && (
+                    <Alert
+                      severity="error"
+                      onClose={() => setServerError("")}
+                      sx={{
+                        mb: 2,
+                        borderRadius: 1.5,
+                        fontSize: { xs: "0.7rem", sm: "0.75rem" },
                       }}
-                    />
-                  </Grid>
-
-                  {/* Email */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      name="email"
-                      label="Email Address"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!errors.email && touched.email}
-                      helperText={touched.email && errors.email}
-                      required
-                      disabled={isLoading}
-                      size="small"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-
-                  {/* Password Fields - Only for new users */}
-                  {!editingUser && (
-                    <>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          name="password"
-                          label="Password"
-                          type={showPassword ? "text" : "password"}
-                          value={formData.password}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!errors.password && touched.password}
-                          helperText={touched.password && errors.password}
-                          required
-                          size="small"
-                          disabled={isLoading}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <LockIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" disabled={isLoading}>
-                                  {showPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          name="confirmPassword"
-                          label="Confirm Password"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={formData.confirmPassword}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!errors.confirmPassword && touched.confirmPassword}
-                          helperText={touched.confirmPassword && errors.confirmPassword}
-                          required
-                          size="small"
-                          disabled={isLoading}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <LockIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small" disabled={isLoading}>
-                                  {showConfirmPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </Grid>
-                    </>
+                    >
+                      {serverError}
+                    </Alert>
                   )}
 
-                  {/* Mobile Number */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      name="mobile"
-                      label="Mobile Number"
-                      value={formData.mobile}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!errors.mobile && touched.mobile}
-                      helperText={touched.mobile && errors.mobile}
-                      required
-                      size="small"
-                      disabled={isLoading}
-                      inputProps={{ maxLength: 10, pattern: "[0-9]*" }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-
-                  {/* Address */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      name="address"
-                      label="Address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!errors.address && touched.address}
-                      helperText={touched.address && errors.address}
-                      required
-                      size="small"
-                      disabled={isLoading}
-                      multiline
-                      rows={isLandscape ? 1 : 2}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <HomeIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-
-                  {/* Account Status - Only for editing and not self */}
-                  {!isEditingSelf && (
+                  <Grid container spacing={{ xs: 1.5, sm: 1.5, md: 2 }}>
+                    {/* Full Name */}
                     <Grid item xs={12} md={6}>
-                      <Box
-                        sx={{
-                          height: "100%",
-                          bgcolor: alpha(theme.palette.primary.main, 0.02),
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: alpha(theme.palette.primary.main, 0.05),
+                      <TextField
+                        fullWidth
+                        name="fullName"
+                        label={getNameFieldLabel()}
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={!!errors.fullName && touched.fullName}
+                        helperText={touched.fullName && errors.fullName}
+                        required
+                        size="small"
+                        disabled={isLoading}
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">{getNameFieldIcon()}</InputAdornment>,
                         }}
-                      >
-                        <FormControl component="fieldset" fullWidth>
-                          <FormLabel
-                            component="legend"
-                            sx={{ color: "text.primary", fontWeight: 500, mb: 0.5, fontSize: { xs: "0.70rem", sm: "0.75rem" } }}
-                          >
-                            Account Status
-                          </FormLabel>
-                          <RadioGroup row name="status" value={formData.status} onChange={handleChange} sx={{ flexWrap: "wrap", gap: { xs: 0.5, sm: 1 } }}>
-                            <FormControlLabel
-                              value="active"
-                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                              label={
-                                <Chip
-                                  label="Active"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: alpha("#22c55e", 0.1),
-                                    color: "#22c55e",
-                                    fontWeight: 600,
-                                    fontSize: { xs: "0.55rem", sm: "0.6rem" },
-                                    height: 20,
-                                  }}
-                                />
-                              }
-                            />
-                            <FormControlLabel
-                              value="inactive"
-                              control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
-                              label={
-                                <Chip
-                                  label="Inactive"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                                    color: theme.palette.text.secondary,
-                                    fontWeight: 600,
-                                    fontSize: { xs: "0.55rem", sm: "0.6rem" },
-                                    height: 20,
-                                  }}
-                                />
-                              }
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </Box>
+                      />
                     </Grid>
-                  )}
 
-                  {/* Admin Panel Access - Only for Admin users creating/editing */}
-                  {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
+                    {/* Email */}
                     <Grid item xs={12} md={6}>
-                      <Box
-                        onClick={() => !isLoading && setFormData((prev) => ({ ...prev, adminPanelAccess: !prev.adminPanelAccess, role_id: !prev.adminPanelAccess ? 3 : 0 }))}
-                        sx={{
-                          height: "95%",
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                          bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.08) : alpha(theme.palette.primary.main, 0.02),
-                          px: 2,
-                          py: { xs: 1.2, md: 1 },
-                          borderRadius: 2.5,
-                          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                          border: "2px solid",
-                          borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.08),
-                          boxShadow: formData.adminPanelAccess ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}` : "none",
+                      <TextField
+                        fullWidth
+                        name="email"
+                        label="Email Address"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={!!errors.email && touched.email}
+                        helperText={touched.email && errors.email}
+                        required
+                        disabled={isLoading}
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
+                            </InputAdornment>
+                          ),
                         }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
-                          <Avatar
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              bgcolor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.1),
-                              color: formData.adminPanelAccess ? "white" : theme.palette.primary.main,
-                            }}
-                          >
-                            <AdminPanelSettingsIcon sx={{ fontSize: 18 }} />
-                          </Avatar>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: formData.adminPanelAccess ? theme.palette.primary.main : "text.primary" }}>
-                              Admin Panel Access
-                            </Typography>
-                          </Box>
-                          <Checkbox
-                            checked={formData.adminPanelAccess}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 }))}
-                            disabled={isLoading}
+                      />
+                    </Grid>
+
+                    {/* Password Fields - Only for new users */}
+                    {!editingUser && (
+                      <>
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={!!errors.password && touched.password}
+                            helperText={touched.password && errors.password}
+                            required
                             size="small"
-                            sx={{ p: 0.5, color: alpha(theme.palette.primary.main, 0.3), "&.Mui-checked": { color: theme.palette.primary.main } }}
+                            disabled={isLoading}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <LockIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
+                                </InputAdornment>
+                              ),
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" disabled={isLoading}>
+                                    {showPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
                           />
-                        </Box>
-                      </Box>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            name="confirmPassword"
+                            label="Confirm Password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={!!errors.confirmPassword && touched.confirmPassword}
+                            helperText={touched.confirmPassword && errors.confirmPassword}
+                            required
+                            size="small"
+                            disabled={isLoading}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <LockIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
+                                </InputAdornment>
+                              ),
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small" disabled={isLoading}>
+                                    {showConfirmPassword ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+                      </>
+                    )}
+
+                    {/* Mobile Number */}
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        name="mobile"
+                        label="Mobile Number"
+                        value={formData.mobile}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={!!errors.mobile && touched.mobile}
+                        helperText={touched.mobile && errors.mobile}
+                        required
+                        size="small"
+                        disabled={isLoading}
+                        inputProps={{ maxLength: 10, pattern: "[0-9]*" }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
                     </Grid>
-                  )}
 
-                  {/* Profile Photo */}
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" gutterBottom sx={{ color: "text.primary", fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-                      Profile Photo
-                    </Typography>
+                    {/* Address */}
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        name="address"
+                        label="Address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={!!errors.address && touched.address}
+                        helperText={touched.address && errors.address}
+                        required
+                        size="small"
+                        disabled={isLoading}
+                        multiline
+                        rows={isLandscape ? 1 : 2}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <HomeIcon sx={{ color: theme.palette.primary.main, fontSize: isMobile ? 16 : 18 }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
 
-                    <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5, flexWrap: "wrap" }}>
-                      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "stretch", sm: "center" }, gap: 1, width: { xs: "100%", sm: "auto" } }}>
-                        <Button
-                          variant="outlined"
-                          component="label"
-                          startIcon={<CameraIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
-                          size="small"
-                          disabled={isLoading}
+                    {/* Account Status - Only for editing and not self */}
+                    {!isEditingSelf && (
+                      <Grid item xs={12} md={6}>
+                        <Box
                           sx={{
-                            borderColor: theme.palette.primary.main,
-                            color: theme.palette.primary.main,
-                            borderRadius: 1.5,
-                            width: { xs: "100%", sm: "auto" },
-                            py: { xs: 0.5, sm: 0.6 },
-                            fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                            "&:hover": { borderColor: theme.palette.primary.dark, bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                            height: "100%",
+                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                            p: 1.5,
+                            borderRadius: 2,
+                            border: "1px solid",
+                            borderColor: alpha(theme.palette.primary.main, 0.05),
                           }}
                         >
-                          Upload Photo
-                          <input type="file" hidden accept="image/jpeg,image/png,image/gif" onChange={handleImageChange} disabled={isLoading} />
-                        </Button>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, alignSelf: "center" }}>
-                          JPG, PNG, GIF up to 5MB
-                        </Typography>
-                      </Box>
+                          <FormControl component="fieldset" fullWidth>
+                            <FormLabel
+                              component="legend"
+                              sx={{ color: "text.primary", fontWeight: 500, mb: 0.5, fontSize: { xs: "0.70rem", sm: "0.75rem" } }}
+                            >
+                              Account Status
+                            </FormLabel>
+                            <RadioGroup row name="status" value={formData.status} onChange={handleChange} sx={{ flexWrap: "wrap", gap: { xs: 0.5, sm: 1 } }}>
+                              <FormControlLabel
+                                value="active"
+                                control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                                label={
+                                  <Chip
+                                    label="Active"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: alpha("#22c55e", 0.1),
+                                      color: "#22c55e",
+                                      fontWeight: 600,
+                                      fontSize: { xs: "0.55rem", sm: "0.6rem" },
+                                      height: 20,
+                                    }}
+                                  />
+                                }
+                              />
+                              <FormControlLabel
+                                value="inactive"
+                                control={<Radio size="small" sx={{ color: theme.palette.primary.main }} disabled={isLoading} />}
+                                label={
+                                  <Chip
+                                    label="Inactive"
+                                    size="small"
+                                    sx={{
+                                      bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                                      color: theme.palette.text.secondary,
+                                      fontWeight: 600,
+                                      fontSize: { xs: "0.55rem", sm: "0.6rem" },
+                                      height: 20,
+                                    }}
+                                  />
+                                }
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </Box>
+                      </Grid>
+                    )}
 
-                      {(previewImage || (editingUser?.avtar && !imageRemoved)) && (
-                        <Box sx={{ position: "relative", display: "inline-block", mt: { xs: 1, sm: 0 }, ml: { xs: 0, sm: 1 } }}>
-                          <Avatar
-                            src={previewImage || editingUser?.avtar}
-                            sx={{
-                              width: { xs: 50, sm: 60, md: 70 },
-                              height: { xs: 50, sm: 60, md: 70 },
-                              border: "2px solid",
-                              borderColor: theme.palette.primary.main,
-                              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
-                            }}
-                          />
-                          <IconButton
+                    {/* Shift Time Dropdown */}
+                    {!isSuperAdmin && (
+                      <Grid item xs={12} md={6}>
+                        <Box
+                          sx={{
+                            height: "100%",
+                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                            p: 1.5,
+                            borderRadius: 2,
+                            border: "1px solid",
+                            borderColor: alpha(theme.palette.primary.main, 0.05),
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                            <AccessTimeIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "text.primary", fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
+                              Shift Time *
+                            </Typography>
+                          </Box>
+                          <Select
+                            fullWidth
                             size="small"
-                            onClick={removeImage}
+                            name="shiftId"
+                            value={formData.shiftId || ""}
+                            onChange={handleChange}
+                            displayEmpty
                             disabled={isLoading}
                             sx={{
-                              position: "absolute",
-                              top: -6,
-                              right: -6,
-                              bgcolor: "#ef4444",
-                              color: "white",
-                              width: { xs: 18, sm: 20 },
-                              height: { xs: 18, sm: 20 },
-                              "&:hover": { bgcolor: "#dc2626" },
-                              "&.Mui-disabled": { opacity: 0.5 },
+                              bgcolor: "background.paper",
+                              borderRadius: 1.5,
+                              "& .MuiSelect-select": {
+                                fontSize: "0.8rem",
+                                py: 1,
+                              }
                             }}
                           >
-                            <CloseIcon sx={{ fontSize: { xs: 12, sm: 14 } }} />
-                          </IconButton>
+                            <MenuItem value="null">
+                              <em style={{ fontSize: "0.8rem", color: theme.palette.text.secondary, fontStyle: "normal" }}>Free Time</em>
+                            </MenuItem>
+                            {availableShifts.map((shift) => (
+                              <MenuItem key={shift._id} value={shift._id} disabled={shift.isActive === false} sx={{ fontSize: "0.8rem" }}>
+                                {shift.shiftName} ({formatTo12Hour(shift.shiftStartTime)} - {formatTo12Hour(shift.shiftEndTime)}) {shift.isActive === false && "(Inactive)"}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5, ml: 0.5, fontSize: "0.65rem" }}>
+                            Select and assign a shift time to the user.
+                          </Typography>
                         </Box>
-                      )}
-                    </Box>
-
-                    {errors.avtar && (
-                      <Alert severity="error" sx={{ mt: 1.5, borderRadius: 1.5, fontSize: { xs: "0.65rem", sm: "0.7rem" }, py: 0.5 }} icon={<CloseIcon fontSize="small" />}>
-                        {errors.avtar}
-                      </Alert>
+                      </Grid>
                     )}
-                  </Grid>
-                </Grid>
-              </DialogContent>
 
-              {/* Dialog Actions */}
-              <DialogActions
-                sx={{
-                  p: { xs: 1.5, sm: 2, md: 2.5 },
-                  pt: { xs: 1, sm: 1.5 },
-                  borderTop: "1px solid",
-                  borderColor: alpha(theme.palette.primary.main, 0.1),
-                  flexShrink: 0,
-                  display: "flex",
-                  flexDirection: { xs: "column-reverse", sm: "row" },
-                  justifyContent: editingUser && isAdmin && !isEditingSelf ? "space-between" : "flex-end",
-                  alignItems: "center",
-                  gap: { xs: 1, sm: 1.5 },
-                  width: "100%"
-                }}
-              >
-                {editingUser && isAdmin && !isEditingSelf && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setConfirmResetOpen(true)}
-                    size="small"
-                    disabled={isLoading || resettingDevice}
-                    sx={{
-                      alignSelf: { xs: "stretch", sm: "center" },
-                      py: 0.8,
-                      borderRadius: { xs: 1.5, sm: 2 },
-                      borderColor: theme.palette.error.light,
-                      color: theme.palette.error.main,
-                      fontSize: "0.75rem",
-                      "&:hover": {
-                        borderColor: theme.palette.error.main,
-                        bgcolor: alpha(theme.palette.error.main, 0.05),
-                      },
-                    }}
-                  >
-                    Reset Logins & Device
-                  </Button>
-                )}
+                    {/* Admin Panel Access - Only for Admin users creating/editing */}
+                    {isAdmin && (Number(formData.role_id) === 0 || Number(formData.role_id) === 3) && (
+                      <Grid item xs={12} md={6}>
+                        <Box
+                          onClick={() => !isLoading && setFormData((prev) => ({ ...prev, adminPanelAccess: !prev.adminPanelAccess, role_id: !prev.adminPanelAccess ? 3 : 0 }))}
+                          sx={{
+                            height: "95%",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            bgcolor: formData.adminPanelAccess ? alpha(theme.palette.primary.main, 0.08) : alpha(theme.palette.primary.main, 0.02),
+                            px: 2,
+                            py: { xs: 1.2, md: 1 },
+                            borderRadius: 2.5,
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                            border: "2px solid",
+                            borderColor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.08),
+                            boxShadow: formData.adminPanelAccess ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.3)}` : "none",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
+                            <Avatar
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                bgcolor: formData.adminPanelAccess ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.1),
+                                color: formData.adminPanelAccess ? "white" : theme.palette.primary.main,
+                              }}
+                            >
+                              <AdminPanelSettingsIcon sx={{ fontSize: 18 }} />
+                            </Avatar>
+                            <Box sx={{ flex: 1 }}>
+                              <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: formData.adminPanelAccess ? theme.palette.primary.main : "text.primary" }}>
+                                Admin Panel Access
+                              </Typography>
+                            </Box>
+                            <Checkbox
+                              checked={formData.adminPanelAccess}
+                              onChange={(e) => setFormData((prev) => ({ ...prev, adminPanelAccess: e.target.checked, role_id: e.target.checked ? 3 : 0 }))}
+                              disabled={isLoading}
+                              size="small"
+                              sx={{ p: 0.5, color: alpha(theme.palette.primary.main, 0.3), "&.Mui-checked": { color: theme.palette.primary.main } }}
+                            />
+                          </Box>
+                        </Box>
+                      </Grid>
+                    )}
 
-                <Box sx={{ 
-                  display: "flex", 
-                  flexDirection: { xs: "column-reverse", sm: "row" }, 
-                  gap: { xs: 1, sm: 1.5 },
-                  width: { xs: "100%", sm: "auto" }
-                }}>
-                  <Button
-                    variant="outlined"
-                    onClick={handleClose}
-                    size="small"
-                    disabled={isLoading || resettingDevice}
-                    fullWidth={isMobile}
-                    sx={{
-                      minWidth: { sm: 100 },
-                      py: { xs: 0.8, sm: 0.8 },
-                      borderRadius: { xs: 1.5, sm: 2 },
-                      borderColor: alpha(theme.palette.divider, 0.5),
-                      color: "text.secondary",
-                      fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                      "&:hover": {
-                        borderColor: theme.palette.primary.main,
-                        color: theme.palette.primary.main,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      },
-                    }}
-                  >
-                    Cancel
-                  </Button>
+                    {/* Profile Photo */}
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" gutterBottom sx={{ color: "text.primary", fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
+                        Profile Photo
+                      </Typography>
 
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isLoading || resettingDevice}
-                    fullWidth={isMobile}
-                    size="small"
-                    sx={{
-                      minWidth: { sm: 130 },
-                      py: { xs: 0.8, sm: 0.8 },
-                      borderRadius: { xs: 1.5, sm: 2 },
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                      fontSize: { xs: "0.75rem", sm: "0.75rem" },
-                      "&:hover": {
-                        background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                      },
-                      "&.Mui-disabled": {
-                        background: alpha(theme.palette.primary.main, 0.4),
-                        color: "white",
-                      },
-                    }}
-                  >
-                    {isLoading ? (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <CircularProgress size={14} sx={{ color: "white" }} />
-                        <span style={{ fontSize: "0.75rem" }}>{editingUser ? "Updating..." : "Saving..."}</span>
+                      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5, flexWrap: "wrap" }}>
+                        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "stretch", sm: "center" }, gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                          <Button
+                            variant="outlined"
+                            component="label"
+                            startIcon={<CameraIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                            size="small"
+                            disabled={isLoading}
+                            sx={{
+                              borderColor: theme.palette.primary.main,
+                              color: theme.palette.primary.main,
+                              borderRadius: 1.5,
+                              width: { xs: "100%", sm: "auto" },
+                              py: { xs: 0.5, sm: 0.6 },
+                              fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                              "&:hover": { borderColor: theme.palette.primary.dark, bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                            }}
+                          >
+                            Upload Photo
+                            <input type="file" hidden accept="image/jpeg,image/png,image/gif" onChange={handleImageChange} disabled={isLoading} />
+                          </Button>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, alignSelf: "center" }}>
+                            JPG, PNG, GIF up to 5MB
+                          </Typography>
+                        </Box>
+
+                        {(previewImage || (editingUser?.avtar && !imageRemoved)) && (
+                          <Box sx={{ position: "relative", display: "inline-block", mt: { xs: 1, sm: 0 }, ml: { xs: 0, sm: 1 } }}>
+                            <Avatar
+                              src={previewImage || editingUser?.avtar}
+                              sx={{
+                                width: { xs: 50, sm: 60, md: 70 },
+                                height: { xs: 50, sm: 60, md: 70 },
+                                border: "2px solid",
+                                borderColor: theme.palette.primary.main,
+                                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={removeImage}
+                              disabled={isLoading}
+                              sx={{
+                                position: "absolute",
+                                top: -6,
+                                right: -6,
+                                bgcolor: "#ef4444",
+                                color: "white",
+                                width: { xs: 18, sm: 20 },
+                                height: { xs: 18, sm: 20 },
+                                "&:hover": { bgcolor: "#dc2626" },
+                                "&.Mui-disabled": { opacity: 0.5 },
+                              }}
+                            >
+                              <CloseIcon sx={{ fontSize: { xs: 12, sm: 14 } }} />
+                            </IconButton>
+                          </Box>
+                        )}
                       </Box>
-                    ) : editingUser ? (
-                      isSuperAdmin ? "Update Admin" : "Update User"
-                    ) : (
-                      isSuperAdmin ? "Save Admin" : "Save User"
-                    )}
-                  </Button>
-                </Box>
-              </DialogActions>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Dialog>
 
-    {/* Confirmation Dialog for Resetting Device/Logins */}
-    <Dialog
-      open={confirmResetOpen}
-      onClose={() => !resettingDevice && setConfirmResetOpen(false)}
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-          p: 1.5,
-          maxWidth: "400px"
-        }
-      }}
-    >
-      <DialogTitle sx={{ fontWeight: 600, px: 2, py: 1.5 }}>
-        Confirm Reset
-      </DialogTitle>
-      <DialogContent sx={{ px: 2, py: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          Are you sure you want to reset the login device information for <strong>{formData.fullName}</strong>? This will allow the user to log in from a new device.
-        </Typography>
-      </DialogContent>
-      <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
-        <Button
-          variant="outlined"
-          onClick={() => setConfirmResetOpen(false)}
-          disabled={resettingDevice}
-          size="small"
-          sx={{ borderRadius: 1.5, fontSize: "0.75rem" }}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={handleResetDevice}
-          disabled={resettingDevice}
-          size="small"
-          sx={{
-            borderRadius: 1.5,
-            fontSize: "0.75rem",
-            bgcolor: theme.palette.error.main,
-            "&.Mui-disabled": {
-              bgcolor: alpha(theme.palette.error.main, 0.4),
-              color: "white"
-            },
-            "&:hover": { bgcolor: theme.palette.error.dark }
-          }}
-        >
-          {resettingDevice ? (
-            <CircularProgress size={14} sx={{ color: "white" }} />
-          ) : (
-            "Confirm Reset"
+                      {errors.avtar && (
+                        <Alert severity="error" sx={{ mt: 1.5, borderRadius: 1.5, fontSize: { xs: "0.65rem", sm: "0.7rem" }, py: 0.5 }} icon={<CloseIcon fontSize="small" />}>
+                          {errors.avtar}
+                        </Alert>
+                      )}
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+
+                {/* Dialog Actions */}
+                <DialogActions
+                  sx={{
+                    p: { xs: 1.5, sm: 2, md: 2.5 },
+                    pt: { xs: 1, sm: 1.5 },
+                    borderTop: "1px solid",
+                    borderColor: alpha(theme.palette.primary.main, 0.1),
+                    flexShrink: 0,
+                    display: "flex",
+                    flexDirection: { xs: "column-reverse", sm: "row" },
+                    justifyContent: editingUser && isAdmin && !isEditingSelf ? "space-between" : "flex-end",
+                    alignItems: "center",
+                    gap: { xs: 1, sm: 1.5 },
+                    width: "100%"
+                  }}
+                >
+                  {editingUser && isAdmin && !isEditingSelf && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => setConfirmResetOpen(true)}
+                      size="small"
+                      disabled={isLoading || resettingDevice}
+                      sx={{
+                        alignSelf: { xs: "stretch", sm: "center" },
+                        py: 0.8,
+                        borderRadius: { xs: 1.5, sm: 2 },
+                        borderColor: theme.palette.error.light,
+                        color: theme.palette.error.main,
+                        fontSize: "0.75rem",
+                        "&:hover": {
+                          borderColor: theme.palette.error.main,
+                          bgcolor: alpha(theme.palette.error.main, 0.05),
+                        },
+                      }}
+                    >
+                      Reset Logins & Device
+                    </Button>
+                  )}
+
+                  <Box sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column-reverse", sm: "row" },
+                    gap: { xs: 1, sm: 1.5 },
+                    width: { xs: "100%", sm: "auto" }
+                  }}>
+                    <Button
+                      variant="outlined"
+                      onClick={handleClose}
+                      size="small"
+                      disabled={isLoading || resettingDevice}
+                      fullWidth={isMobile}
+                      sx={{
+                        minWidth: { sm: 100 },
+                        py: { xs: 0.8, sm: 0.8 },
+                        borderRadius: { xs: 1.5, sm: 2 },
+                        borderColor: alpha(theme.palette.divider, 0.5),
+                        color: "text.secondary",
+                        fontSize: { xs: "0.75rem", sm: "0.75rem" },
+                        "&:hover": {
+                          borderColor: theme.palette.primary.main,
+                          color: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        },
+                      }}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={isLoading || resettingDevice}
+                      fullWidth={isMobile}
+                      size="small"
+                      sx={{
+                        minWidth: { sm: 130 },
+                        py: { xs: 0.8, sm: 0.8 },
+                        borderRadius: { xs: 1.5, sm: 2 },
+                        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                        fontSize: { xs: "0.75rem", sm: "0.75rem" },
+                        "&:hover": {
+                          background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                        },
+                        "&.Mui-disabled": {
+                          background: alpha(theme.palette.primary.main, 0.4),
+                          color: "white",
+                        },
+                      }}
+                    >
+                      {isLoading ? (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <CircularProgress size={14} sx={{ color: "white" }} />
+                          <span style={{ fontSize: "0.75rem" }}>{editingUser ? "Updating..." : "Saving..."}</span>
+                        </Box>
+                      ) : editingUser ? (
+                        isSuperAdmin ? "Update Admin" : "Update User"
+                      ) : (
+                        isSuperAdmin ? "Save Admin" : "Save User"
+                      )}
+                    </Button>
+                  </Box>
+                </DialogActions>
+              </form>
+            </motion.div>
           )}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  </>
+        </AnimatePresence>
+      </Dialog>
+
+      {/* Confirmation Dialog for Resetting Device/Logins */}
+      <Dialog
+        open={confirmResetOpen}
+        onClose={() => !resettingDevice && setConfirmResetOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            p: 1.5,
+            maxWidth: "400px"
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, px: 2, py: 1.5 }}>
+          Confirm Reset
+        </DialogTitle>
+        <DialogContent sx={{ px: 2, py: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            Are you sure you want to reset the login device information for <strong>{formData.fullName}</strong>? This will allow the user to log in from a new device.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 2, py: 1.5, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setConfirmResetOpen(false)}
+            disabled={resettingDevice}
+            size="small"
+            sx={{ borderRadius: 1.5, fontSize: "0.75rem" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleResetDevice}
+            disabled={resettingDevice}
+            size="small"
+            sx={{
+              borderRadius: 1.5,
+              fontSize: "0.75rem",
+              bgcolor: theme.palette.error.main,
+              "&.Mui-disabled": {
+                bgcolor: alpha(theme.palette.error.main, 0.4),
+                color: "white"
+              },
+              "&:hover": { bgcolor: theme.palette.error.dark }
+            }}
+          >
+            {resettingDevice ? (
+              <CircularProgress size={14} sx={{ color: "white" }} />
+            ) : (
+              "Confirm Reset"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

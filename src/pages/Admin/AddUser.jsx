@@ -49,7 +49,7 @@ const AddUser = () => {
 
   const editingUser = location.state?.user || null;
   const profileEditing = location.state?.profileEditing || false;
-  
+
   const { loading } = useSelector((state) => state.user || {});
 
   const [formData, setFormData] = useState({
@@ -633,7 +633,7 @@ const AddUser = () => {
                     <Typography variant="subtitle2" gutterBottom sx={{ color: "#1e293b", fontWeight: 600, fontSize: "0.9rem" }}>
                       Profile Photo
                     </Typography>
-                    
+
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
                       <Button
                         variant="outlined"
@@ -658,7 +658,7 @@ const AddUser = () => {
                           onChange={handleImageChange}
                         />
                       </Button>
-                      
+
                       <Typography variant="caption" color="text.secondary">
                         JPG, PNG, GIF up to 5MB
                       </Typography>
