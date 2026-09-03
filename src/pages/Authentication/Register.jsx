@@ -21,6 +21,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import axios from 'axios';
 import { resendEmailOTP, verifyEmailOTP } from '../../redux/slices/authSlice';
 import Logo from '../../assets/logo31.png';
+import { FaFacebookF } from 'react-icons/fa';
+import AuthLayoutLeft from './AuthLayoutLeft';
 import { ToastContainer, toast } from 'react-toastify';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api';
@@ -98,11 +100,42 @@ const Register = () => {
     if (activeStep === 1 && timer > 0 && !canResend) {
       interval = setInterval(() => setTimer(prev => prev - 1), 1000);
     } else if (timer === 0) setCanResend(true);
+    const inputStyles = {
+      '& .MuiInputBase-root': {
+        backgroundColor: '#f3f4f6',
+        borderRadius: '12px',
+        border: '1px solid transparent',
+        transition: 'all 0.3s ease',
+        paddingRight: '12px',
+        '&.Mui-focused': {
+          backgroundColor: '#ffffff',
+          borderColor: theme.palette.primary.main,
+          boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
+        },
+        '&:hover': {
+          backgroundColor: '#e5e7eb',
+        },
+      },
+      '& .MuiOutlinedInput-notchedOutline': {
+        border: 'none',
+      },
+      '& .MuiInputBase-input': {
+        padding: '16px 14px',
+        fontSize: '0.95rem',
+        fontWeight: 500,
+        color: '#1f2937',
+        '&::placeholder': {
+          color: '#9ca3af',
+          opacity: 1,
+        },
+      },
+    };
+
     return () => clearInterval(interval);
   }, [timer, canResend, activeStep]);
 
   const onSubmit = async (data) => {
-  
+
 
     setError('');
     setLoading(true);
@@ -306,7 +339,7 @@ const Register = () => {
   }, [activeStep]);
 
   return (
-    <Box sx={{ minHeight: '100vh', background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', py: { xs: 2, sm: 3 }, px: { xs: 1, sm: 2 } }}>
+    <div className="h-screen flex w-full bg-white font-sans overflow-hidden">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -319,310 +352,323 @@ const Register = () => {
         pauseOnHover
         theme="light"
       />
-      <Box sx={{ maxWidth: 700, width: '100%' }}>
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Link to="/" style={{ textDecoration: 'none' }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box component="img" src={Logo} alt="Company Logo" sx={{ height: { xs: '28px', sm: '32px', md: '36px' }, width: 'auto', objectFit: 'contain', display: 'block', borderRadius: 0.8 }} />
-                <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main, fontSize: { xs: '1.1rem', sm: '1.2rem' } }}>Team Trackify</Typography>
-              </Box>
-            </Link>
+      {/* Left Column (Graphics) */}
+      <AuthLayoutLeft />
 
-            {/* Enhanced Plan Selection Alert */}
-            {selectedPlan && activeStep === 0 && (
-              <Alert
-                severity="info"
-                icon={<CheckCircleIcon sx={{ fontSize: 18 }} />}
-                sx={{
-                  mb: 2,
-                  borderRadius: 1.5,
-                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                  '& .MuiAlert-message': { width: '100%' }
-                }}
-              >
-                <Box>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 0.5 }}>
-                    🎯 You're registering to purchase:
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main }}>
-                    {selectedPlan.name}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
-                    <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                      💰 Price: {selectedPlan.isCustom ? 'Variable' : `₹${selectedPlan.price}`}
+      {/* Right Column (Form) */}
+      <div className="w-1/2 flex flex-col items-center overflow-y-auto h-full bg-white py-8">
+        <Box sx={{ maxWidth: 560, width: '100%', px: { xs: 3, sm: 5, lg: 6 }, py: { xs: 4, sm: 5 }, my: 'auto' }}>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+
+              {/* Enhanced Plan Selection Alert */}
+              {selectedPlan && activeStep === 0 && (
+                <Alert
+                  severity="info"
+                  icon={<CheckCircleIcon sx={{ fontSize: 18 }} />}
+                  sx={{
+                    mb: 2,
+                    borderRadius: 1.5,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                    '& .MuiAlert-message': { width: '100%' }
+                  }}
+                >
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 0.5 }}>
+                      🎯 You're registering to purchase:
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                      📅 Duration: {selectedPlan.duration}
+                    <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.main }}>
+                      {selectedPlan.name}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                      👥 Users: {selectedPlan.isCustom ? 'Custom Limits' : `${selectedPlan.minUsers} - ${selectedPlan.maxUsers}`}
+                    <Box sx={{ display: 'flex', gap: 2, mt: 0.5, flexWrap: 'wrap' }}>
+                      <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                        💰 Price: {selectedPlan.isCustom ? 'Variable' : `₹${selectedPlan.price}`}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                        📅 Duration: {selectedPlan.duration}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                        👥 Users: {selectedPlan.isCustom ? 'Custom Limits' : `${selectedPlan.minUsers} - ${selectedPlan.maxUsers}`}
+                      </Typography>
+                    </Box>
+                    <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', display: 'block', mt: 0.5 }}>
+                      After registration, you'll be redirected to login and complete your purchase
                     </Typography>
                   </Box>
-                  <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                    After registration, you'll be redirected to login and complete your purchase
-                  </Typography>
-                </Box>
-              </Alert>
-            )}
-
-            <Stepper activeStep={activeStep} alternativeLabel={!isSmallMobile} sx={{ mb: 3, mt: 1 }}>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel StepIconProps={{ sx: { '& .MuiStepIcon-text': { fontSize: '0.75rem' }, '&.Mui-active': { color: theme.palette.primary.main }, '&.Mui-completed': { color: theme.palette.primary.main } } }}>
-                    <Typography sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>{label}</Typography>
-                  </StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-            <Typography variant="h5" fontWeight="700" sx={{ color: 'text.primary', mb: 0.5, fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>
-              {activeStep === 0 ? 'Create Admin Account' : 'Verify Your Email'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
-              {activeStep === 0
-                ? 'Register as an administrator to manage your team'
-                : `We've sent a verification code to ${registeredEmail}`}
-            </Typography>
-          </Box>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <Card sx={{ p: { xs: 2, sm: 3 }, boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`, borderRadius: { xs: 2, sm: 2.5 } }}>
-            <AnimatePresence mode="wait">
-              {activeStep === 0 && (
-                <motion.div key="registration" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
-                  {success && <Alert severity="success" sx={{ mb: 2.5, borderRadius: 1.5 }}>Registration successful! Redirecting to verification...</Alert>}
-                  {error && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 1.5 }}>{error}</Alert>}
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <Grid container spacing={2.5}>
-                      <Grid item xs={12} sm={6}>
-                        <TextField fullWidth label="Full Name" {...register('fullName', { required: 'Full name is required' })} error={!!errors.fullName} helperText={errors.fullName?.message} variant="outlined" size="small" disabled={loading || success} InputProps={{ startAdornment: <InputAdornment position="start"><PersonIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="Email Address"
-                          type="email"
-                          {...register('email', {
-                            required: 'Email is required',
-                            pattern: {
-                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                              message: 'Invalid email address'
-                            },
-                            validate: {
-                              noDisposableEmail: (value) => {
-                                const disposableDomains = [
-                                  'yopmail.com', 'yopmail.fr', 'yopmail.net', 'yopmail.org', 'yopmail.co', 'yopmail.co.uk', 'yopmail.de', 'yopmail.io', 'yopmail.me', 'yopmail.us', 'yopmail.biz', 'yopmail.info', 'yopmail.name', 'yopmail.pro', 'yopmail.xyz', 'nodemailer.com', 'nodemailer.org', 'nodemailer.net', 'mailinator.com', 'mailinator.net', 'mailinator.org', 'guerrillamail.com', 'guerrillamail.net', 'guerrillamail.org', 'guerrillamail.biz', 'guerrillamail.de', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'tempmail.com', 'tempmail.net', 'tempmail.org', 'temp-mail.org', 'temp-mail.com', '10minutemail.com', '10minutemail.net', '10minutemail.org', 'throwawaymail.com', 'throwawaymail.net', 'throwawaymail.org', 'dispostable.com', 'dispostable.net', 'dispostable.org', 'fakeinbox.com', 'fakeinbox.net', 'fakeinbox.org', 'getnada.com', 'getnada.net', 'getnada.org', 'mailnator.com', 'mailnator.net', 'mailnator.org', 'spambox.us', 'spambox.com', 'spambox.net', 'trashmail.com', 'trashmail.net', 'trashmail.org', 'trashmail.ws', 'maildrop.cc', 'maildrop.com', 'maildrop.net', 'maildrop.org', 'emailondeck.com', 'emailondeck.net', 'emailondeck.org', 'mailcatch.com', 'mailcatch.net', 'mailcatch.org', 'tempinbox.com', 'tempinbox.net', 'tempinbox.org', 'tempemail.net', 'tempemail.com', 'tempemail.org', 'mytrashmail.com', 'mytrashmail.net', 'mytrashmail.org', 'trash2009.com', 'trash2009.net', 'trash2009.org', 'spambog.com', 'spambog.net', 'spambog.org', 'spamhere.com', 'spamhere.net', 'spamhere.org', 'spamthis.com', 'spamthis.net', 'spamthis.org', 'deadaddress.com', 'deadaddress.net', 'deadaddress.org', 'mailmetrash.com', 'mailmetrash.net', 'mailmetrash.org', 'mailzilla.com', 'mailzilla.net', 'mailzilla.org', 'mintemail.com', 'mintemail.net', 'mintemail.org', 'mt2009.com', 'mt2009.net', 'mt2009.org', 'nada.ltd', 'pookmail.com', 'pookmail.net', 'pookmail.org', 'rcpt.at', 'rcpt.net', 'rcpt.org', 'sogetthis.com', 'sogetthis.net', 'sogetthis.org', 'spamfree24.com', 'spamfree24.net', 'spamfree24.org', 'spamfree24.de', 'spamfree24.eu', 'spamfree24.info', 'spamfree24.pro', 'spamfree24.xyz', 'tempinbox.co.uk', 'tempinbox.co', 'tempinbox.io', 'tempinbox.me', 'tempinbox.us', 'tempinbox.biz', 'tempinbox.info', 'tempinbox.pro', 'tempinbox.xyz', 'xagloo.com', 'xagloo.net', 'xagloo.org', 'xagloo.co', 'xagloo.io', 'xagloo.me', 'xagloo.us', 'xagloo.biz', 'xagloo.info', 'xagloo.pro', 'xagloo.xyz', 'guerrillamail.co', 'guerrillamail.io', 'guerrillamail.me', 'guerrillamail.us', 'guerrillamail.biz', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'mailinator.co', 'mailinator.io', 'mailinator.me', 'mailinator.us', 'mailinator.biz', 'mailinator.info', 'mailinator.pro', 'mailinator.xyz'
-                                ];
-                                const emailDomain = value?.split('@')[1]?.toLowerCase();
-                                if (disposableDomains.includes(emailDomain)) {
-                                  return 'Please use a valid email address. Temporary/disposable email addresses are not allowed';
-                                }
-                                if (emailDomain?.includes('yopmail') || emailDomain?.includes('nodemailer')) {
-                                  return 'Please use a valid email address. Email addresses from this domain are not allowed';
-                                }
-                                return true;
-                              }
-                            }
-                          })}
-                          error={!!errors.email}
-                          helperText={errors.email?.message}
-                          variant="outlined"
-                          size="small"
-                          disabled={loading || success}
-                          InputProps={{
-                            startAdornment: <InputAdornment position="start"><EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment>
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField fullWidth label="Phone Number" type="tel" {...register('phone', { required: 'Phone number is required', pattern: { value: /^[0-9]{10}$/, message: 'Enter exactly 10 digits only' } })} error={!!errors.phone} helperText={errors.phone?.message} variant="outlined" size="small" disabled={loading || success} inputProps={{ maxLength: 10, inputMode: 'numeric' }} onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, ''); }} InputProps={{ startAdornment: <InputAdornment position="start"><PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField fullWidth label="Address" {...register('address', { required: 'Address is required', minLength: { value: 5, message: 'Address must be at least 5 characters' } })} error={!!errors.address} helperText={errors.address?.message} variant="outlined" size="small" disabled={loading || success} InputProps={{ startAdornment: <InputAdornment position="start"><LocationOnIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment> }} />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <Box>
-                          <TextField
-                            fullWidth
-                            label="Password"
-                            type={showPassword ? 'text' : 'password'}
-                            {...register('password', {
-                              required: 'Password is required',
-                              minLength: { value: 6, message: 'Password must be at least 6 characters' },
-                              validate: {
-                                hasUpperCase: (v) => /[A-Z]/.test(v) || 'Must contain at least one uppercase letter',
-                                hasNumber: (v) => /[0-9]/.test(v) || 'Must contain at least one number',
-                                hasSpecialChar: (v) => /[^A-Za-z0-9]/.test(v) || 'Must contain at least one special character'
-                              }
-                            })}
-                            error={!!errors.password}
-                            helperText={errors.password?.message}
-                            variant="outlined"
-                            size="small"
-                            disabled={loading || success}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment>,
-                              endAdornment: <InputAdornment position="end">
-                                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
-                                  {showPassword ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
-                                </IconButton>
-                              </InputAdornment>
-                            }}
-                          />
-                          {password && !success && <Box sx={{ mt: 1 }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}><Box sx={{ flex: 1, height: 4, bgcolor: alpha(theme.palette.divider, 0.2), borderRadius: 2, display: 'flex', gap: 0.5 }}>{[1, 2, 3, 4].map((level) => (<Box key={level} sx={{ flex: 1, height: '100%', borderRadius: 2, bgcolor: level <= passwordStrength.score ? passwordStrength.color : 'transparent', transition: 'background-color 0.3s ease' }} />))}</Box><Typography variant="caption" sx={{ fontSize: '0.65rem', color: passwordStrength.color, fontWeight: 500 }}>{passwordStrength.label}</Typography></Box><Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>Use at least 6 characters with uppercase, number & special character</Typography></Box>}
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="Confirm Password"
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          {...register('confirmPassword', {
-                            required: 'Please confirm your password',
-                            validate: (v) => v === password || 'Passwords do not match'
-                          })}
-                          error={!!errors.confirmPassword}
-                          helperText={errors.confirmPassword?.message}
-                          variant="outlined"
-                          size="small"
-                          disabled={loading || success}
-                          InputProps={{
-                            startAdornment: <InputAdornment position="start"><LockIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} /></InputAdornment>,
-                            endAdornment: <InputAdornment position="end">
-                              <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small">
-                                {showConfirmPassword ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
-                              </IconButton>
-                            </InputAdornment>
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 1.5, borderRadius: 1.5, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
-                          <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>Account Type</Typography>
-                          <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.8rem', color: theme.palette.primary.main }}>Administrator</Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <motion.div whileHover={{ scale: loading || success ? 1 : 1.02 }} whileTap={{ scale: loading || success ? 1 : 0.98 }}>
-                          <Button type="submit" variant="contained" size="small" fullWidth disabled={loading || success} endIcon={loading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <PersonAddIcon sx={{ fontSize: 16 }} />} sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, color: 'white', py: { xs: 1, sm: 1.2 }, borderRadius: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.8rem', sm: '0.85rem' }, '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` }, '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.5) } }}>
-                            {loading ? 'Creating account...' : success ? 'Registration successful!' : 'Create Admin Account'}
-                          </Button>
-                        </motion.div>
-                      </Grid>
-                    </Grid>
-                  </form>
-                </motion.div>
+                </Alert>
               )}
 
-              {activeStep === 1 && (
-                <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                  {otpSuccess ? (
-                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                      <VerifiedIcon sx={{ fontSize: 60, color: '#10b981', mb: 2 }} />
-                      <Typography variant="h6" sx={{ fontSize: '1rem', mb: 1, color: 'text.primary' }}>Email Verified Successfully!</Typography>
-                      <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: 2 }}>
-                        {selectedPlan
-                          ? `✅ Registration complete! Redirecting to login to purchase ${selectedPlan.name}...`
-                          : '✅ Registration complete! Redirecting to login page...'}
-                      </Typography>
-                      <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
-                    </Box>
-                  ) : (
-                    <>
-                      {otpError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 1.5 }} onClose={() => setOtpError('')}>{otpError}</Alert>}
-                      <Box sx={{ textAlign: 'center', mb: 3 }}>
-                        <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: 1 }}>Enter the 6-digit verification code sent to</Typography>
-                        <Typography variant="body1" fontWeight={600} sx={{ fontSize: '0.9rem', color: theme.palette.primary.main }}>{registeredEmail}</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 0.5, sm: 1 }, mb: 3 }}>
-                        {otp.map((digit, index) => (
-                          <Paper key={index} elevation={0} sx={{ width: { xs: 40, sm: 48 }, height: { xs: 48, sm: 56 }, border: `1px solid ${otpError ? '#ef4444' : alpha(theme.palette.primary.main, 0.2)}`, borderRadius: 1.5, overflow: 'hidden' }}>
-                            <input
-                              id={`otp-${index}`}
-                              type="text"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleOtpChange(index, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                              onPaste={index === 0 ? handleOtpPaste : undefined}
-                              disabled={otpVerifying}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                textAlign: 'center',
-                                fontSize: isMobile ? '1rem' : '1.2rem',
-                                fontWeight: 600,
-                                border: 'none',
-                                outline: 'none',
-                                backgroundColor: 'transparent',
-                                color: theme.palette.text.primary
-                              }}
+              <Stepper activeStep={activeStep} alternativeLabel={!isSmallMobile} sx={{ mb: 3, mt: 1 }}>
+                {steps.map((label) => (
+                  <Step key={label}>
+                    <StepLabel StepIconProps={{ sx: { '& .MuiStepIcon-text': { fontSize: '0.75rem' }, '&.Mui-active': { color: theme.palette.primary.main }, '&.Mui-completed': { color: theme.palette.primary.main } } }}>
+                      <Typography sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>{label}</Typography>
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+              <Typography variant="h5" fontWeight="800" sx={{ color: '#111827', mb: 0.5, fontSize: { xs: '1.3rem', sm: '1.5rem' }, letterSpacing: '-0.5px' }}>
+                {activeStep === 0 ? 'Create Admin Account' : 'Verify Your Email'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: { xs: '0.82rem', sm: '0.88rem' }, lineHeight: 1.6 }}>
+                {activeStep === 0
+                  ? 'Register as an administrator to manage your team'
+                  : `We've sent a verification code to ${registeredEmail}`}
+              </Typography>
+            </Box>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+            <div className="w-full mt-4">
+              <AnimatePresence mode="wait">
+                {activeStep === 0 && (
+                  <motion.div key="registration" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
+                    {success && <Alert severity="success" sx={{ mb: 2.5, borderRadius: 1.5 }}>Registration successful! Redirecting to verification...</Alert>}
+                    {error && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 1.5 }}>{error}</Alert>}
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                      <Grid container spacing={2.5}>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Full Name</Typography>
+                            <TextField fullWidth placeholder="John Doe" {...register('fullName', { required: 'Full name is required' })} error={!!errors.fullName} helperText={errors.fullName?.message} variant="outlined" disabled={loading || success} sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }} />
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Email Address</Typography>
+                            <TextField
+                              fullWidth
+                              type="email"
+                              placeholder="you@example.com"
+                              {...register('email', {
+                                required: 'Email is required',
+                                pattern: {
+                                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                  message: 'Invalid email address'
+                                },
+                                validate: {
+                                  noDisposableEmail: (value) => {
+                                    const disposableDomains = [
+                                      'yopmail.com', 'yopmail.fr', 'yopmail.net', 'yopmail.org', 'yopmail.co', 'yopmail.co.uk', 'yopmail.de', 'yopmail.io', 'yopmail.me', 'yopmail.us', 'yopmail.biz', 'yopmail.info', 'yopmail.name', 'yopmail.pro', 'yopmail.xyz', 'nodemailer.com', 'nodemailer.org', 'nodemailer.net', 'mailinator.com', 'mailinator.net', 'mailinator.org', 'guerrillamail.com', 'guerrillamail.net', 'guerrillamail.org', 'guerrillamail.biz', 'guerrillamail.de', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'tempmail.com', 'tempmail.net', 'tempmail.org', 'temp-mail.org', 'temp-mail.com', '10minutemail.com', '10minutemail.net', '10minutemail.org', 'throwawaymail.com', 'throwawaymail.net', 'throwawaymail.org', 'dispostable.com', 'dispostable.net', 'dispostable.org', 'fakeinbox.com', 'fakeinbox.net', 'fakeinbox.org', 'getnada.com', 'getnada.net', 'getnada.org', 'mailnator.com', 'mailnator.net', 'mailnator.org', 'spambox.us', 'spambox.com', 'spambox.net', 'trashmail.com', 'trashmail.net', 'trashmail.org', 'trashmail.ws', 'maildrop.cc', 'maildrop.com', 'maildrop.net', 'maildrop.org', 'emailondeck.com', 'emailondeck.net', 'emailondeck.org', 'mailcatch.com', 'mailcatch.net', 'mailcatch.org', 'tempinbox.com', 'tempinbox.net', 'tempinbox.org', 'tempemail.net', 'tempemail.com', 'tempemail.org', 'mytrashmail.com', 'mytrashmail.net', 'mytrashmail.org', 'trash2009.com', 'trash2009.net', 'trash2009.org', 'spambog.com', 'spambog.net', 'spambog.org', 'spamhere.com', 'spamhere.net', 'spamhere.org', 'spamthis.com', 'spamthis.net', 'spamthis.org', 'deadaddress.com', 'deadaddress.net', 'deadaddress.org', 'mailmetrash.com', 'mailmetrash.net', 'mailmetrash.org', 'mailzilla.com', 'mailzilla.net', 'mailzilla.org', 'mintemail.com', 'mintemail.net', 'mintemail.org', 'mt2009.com', 'mt2009.net', 'mt2009.org', 'nada.ltd', 'pookmail.com', 'pookmail.net', 'pookmail.org', 'rcpt.at', 'rcpt.net', 'rcpt.org', 'sogetthis.com', 'sogetthis.net', 'sogetthis.org', 'spamfree24.com', 'spamfree24.net', 'spamfree24.org', 'spamfree24.de', 'spamfree24.eu', 'spamfree24.info', 'spamfree24.pro', 'spamfree24.xyz', 'tempinbox.co.uk', 'tempinbox.co', 'tempinbox.io', 'tempinbox.me', 'tempinbox.us', 'tempinbox.biz', 'tempinbox.info', 'tempinbox.pro', 'tempinbox.xyz', 'xagloo.com', 'xagloo.net', 'xagloo.org', 'xagloo.co', 'xagloo.io', 'xagloo.me', 'xagloo.us', 'xagloo.biz', 'xagloo.info', 'xagloo.pro', 'xagloo.xyz', 'guerrillamail.co', 'guerrillamail.io', 'guerrillamail.me', 'guerrillamail.us', 'guerrillamail.biz', 'guerrillamail.info', 'guerrillamail.pro', 'guerrillamail.xyz', 'mailinator.co', 'mailinator.io', 'mailinator.me', 'mailinator.us', 'mailinator.biz', 'mailinator.info', 'mailinator.pro', 'mailinator.xyz'
+                                    ];
+                                    const emailDomain = value?.split('@')[1]?.toLowerCase();
+                                    if (disposableDomains.includes(emailDomain)) {
+                                      return 'Please use a valid email address. Temporary/disposable email addresses are not allowed';
+                                    }
+                                    if (emailDomain?.includes('yopmail') || emailDomain?.includes('nodemailer')) {
+                                      return 'Please use a valid email address. Email addresses from this domain are not allowed';
+                                    }
+                                    return true;
+                                  }
+                                }
+                              })}
+                              error={!!errors.email}
+                              helperText={errors.email?.message}
+                              variant="outlined"
+                              disabled={loading || success}
+                              sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }}
                             />
-                          </Paper>
-                        ))}
-                      </Box>
-                      <Box sx={{ textAlign: 'center', mb: 3 }}>
-                        {!canResend ?
-                          <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
-                            Resend code in <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{timer}s</span>
-                          </Typography> :
-                          <Button variant="text" size="small" onClick={handleResendOtp} disabled={otpVerifying} sx={{ color: theme.palette.primary.main, fontSize: '0.7rem', textTransform: 'none', '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) } }}>
-                            Resend OTP
-                          </Button>
-                        }
-                      </Box>
-                      <Grid container spacing={1}>
-                        <Grid item xs={6}>
-                          <Button fullWidth variant="outlined" size="small" onClick={handleBackToRegistration} disabled={otpVerifying} sx={{ py: { xs: 1, sm: 1.2 }, borderRadius: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, borderColor: alpha(theme.palette.primary.main, 0.3), color: theme.palette.primary.main, '&:hover': { borderColor: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.05) } }}>
-                            Back
-                          </Button>
+                          </Box>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Button fullWidth variant="contained" size="small" onClick={handleVerifyOtp} disabled={otpVerifying || otp.join('').length !== 6} endIcon={otpVerifying ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <SendIcon sx={{ fontSize: 14 }} />} sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, color: 'white', py: { xs: 1, sm: 1.2 }, borderRadius: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` }, '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.5) } }}>
-                            {otpVerifying ? 'Verifying...' : 'Verify OTP'}
-                          </Button>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Phone Number</Typography>
+                            <TextField fullWidth type="tel" placeholder="(555) 000-0000" {...register('phone', { required: 'Phone number is required', pattern: { value: /^[0-9]{10}$/, message: 'Enter exactly 10 digits only' } })} error={!!errors.phone} helperText={errors.phone?.message} variant="outlined" disabled={loading || success} inputProps={{ maxLength: 10, inputMode: 'numeric' }} onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, ''); }} sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }} />
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Address</Typography>
+                            <TextField fullWidth placeholder="123 Business Ave" {...register('address', { required: 'Address is required', minLength: { value: 5, message: 'Address must be at least 5 characters' } })} error={!!errors.address} helperText={errors.address?.message} variant="outlined" disabled={loading || success} sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }} />
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Password</Typography>
+                            <TextField
+                              fullWidth
+                              type={showPassword ? 'text' : 'password'}
+                              placeholder="••••••••"
+                              {...register('password', {
+                                required: 'Password is required',
+                                minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                                validate: {
+                                  hasUpperCase: (v) => /[A-Z]/.test(v) || 'Must contain at least one uppercase letter',
+                                  hasNumber: (v) => /[0-9]/.test(v) || 'Must contain at least one number',
+                                  hasSpecialChar: (v) => /[^A-Za-z0-9]/.test(v) || 'Must contain at least one special character'
+                                }
+                              })}
+                              error={!!errors.password}
+                              helperText={errors.password?.message}
+                              variant="outlined"
+                              disabled={loading || success}
+                              InputProps={{
+                                endAdornment: <InputAdornment position="end">
+                                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" sx={{ color: '#9ca3af', '&:hover': { color: theme.palette.primary.main }, mr: -0.5 }}>
+                                    {showPassword ? <VisibilityOffIcon sx={{ fontSize: 19 }} /> : <VisibilityIcon sx={{ fontSize: 19 }} />}
+                                  </IconButton>
+                                </InputAdornment>
+                              }}
+                              sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }}
+                            />
+                            {password && !success && <Box sx={{ mt: 1 }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}><Box sx={{ flex: 1, height: 4, bgcolor: alpha(theme.palette.divider, 0.2), borderRadius: 2, display: 'flex', gap: 0.5 }}>{[1, 2, 3, 4].map((level) => (<Box key={level} sx={{ flex: 1, height: '100%', borderRadius: 2, bgcolor: level <= passwordStrength.score ? passwordStrength.color : 'transparent', transition: 'background-color 0.3s ease' }} />))}</Box><Typography variant="caption" sx={{ fontSize: '0.65rem', color: passwordStrength.color, fontWeight: 500 }}>{passwordStrength.label}</Typography></Box><Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>Use at least 6 characters with uppercase, number & special character</Typography></Box>}
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Confirm Password</Typography>
+                            <TextField
+                              fullWidth
+                              type={showConfirmPassword ? 'text' : 'password'}
+                              placeholder="••••••••"
+                              {...register('confirmPassword', {
+                                required: 'Please confirm your password',
+                                validate: (v) => v === password || 'Passwords do not match'
+                              })}
+                              error={!!errors.confirmPassword}
+                              helperText={errors.confirmPassword?.message}
+                              variant="outlined"
+                              disabled={loading || success}
+                              InputProps={{
+                                endAdornment: <InputAdornment position="end">
+                                  <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small" sx={{ color: '#9ca3af', '&:hover': { color: theme.palette.primary.main }, mr: -0.5 }}>
+                                    {showConfirmPassword ? <VisibilityOffIcon sx={{ fontSize: 19 }} /> : <VisibilityIcon sx={{ fontSize: 19 }} />}
+                                  </IconButton>
+                                </InputAdornment>
+                              }}
+                              sx={{ '& .MuiInputBase-input': { fontSize: '1rem', fontWeight: 400, color: '#1a1a1a', padding: '14px 16px', '&::placeholder': { color: '#b3b3b3', opacity: 1 } }, '& .MuiOutlinedInput-root': { borderRadius: '6px', bgcolor: '#ffffff', transition: 'all 0.2s ease', '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' }, '&:hover fieldset': { borderColor: '#d1d5db' }, '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' } }, '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 } }}
+                            />
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 1.5, borderRadius: 1.5, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
+                            <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>Account Type</Typography>
+                            <Typography variant="body2" fontWeight={600} sx={{ fontSize: '0.8rem', color: theme.palette.primary.main }}>Administrator</Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <motion.div whileHover={{ scale: loading || success ? 1 : 1.02 }} whileTap={{ scale: loading || success ? 1 : 0.98 }}>
+                            <Button type="submit" variant="contained" fullWidth disabled={loading || success} endIcon={loading && <CircularProgress size={16} sx={{ color: 'white' }} />} sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`, color: '#ffffff', py: 1.4, borderRadius: '10px', fontSize: '0.9rem', fontWeight: 600, letterSpacing: '0.3px', boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`, textTransform: 'none', transition: 'all 0.25s ease', '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.45)}` }, '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.45), color: '#ffffff' } }}>
+                              {loading ? 'Creating account...' : success ? 'Registration successful!' : 'Create Admin Account'}
+                            </Button>
+                          </motion.div>
                         </Grid>
                       </Grid>
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    </form>
+                  </motion.div>
+                )}
 
-            {activeStep === 0 && (
-              <>
-                <Divider sx={{ my: { xs: 2, sm: 2.5 }, borderColor: alpha(theme.palette.primary.main, 0.1) }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', px: 1, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>OR</Typography>
-                </Divider>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-                    Already have an account?{' '}
-                    {/* <Link to={selectedPlan ? `/login` : "/login"} state={{ selectedPlan: selectedPlan }} style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600 }}>
-                      Sign in
-                    </Link> */}
-                    <Link
-                      to="/login"
-                      onClick={handleSignInClick}
-                      style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600 }}
-                    >
-                      Sign in
-                    </Link>
-                  </Typography>
-                </Box>
-              </>
-            )}
-          </Card>
-          <Box sx={{ mt: 2.5, textAlign: 'center' }}>
-            <Link to="/" style={{ color: theme.palette.text.secondary, textDecoration: 'none', fontSize: isMobile ? '0.7rem' : '0.75rem', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = theme.palette.primary.main} onMouseLeave={(e) => e.currentTarget.style.color = theme.palette.text.secondary}>
-              ← Back to home
-            </Link>
-          </Box>
-        </motion.div>
-      </Box>
-    </Box>
+                {activeStep === 1 && (
+                  <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+                    {otpSuccess ? (
+                      <Box sx={{ textAlign: 'center', py: 3 }}>
+                        <VerifiedIcon sx={{ fontSize: 60, color: '#10b981', mb: 2 }} />
+                        <Typography variant="h6" sx={{ fontSize: '1rem', mb: 1, color: 'text.primary' }}>Email Verified Successfully!</Typography>
+                        <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: 2 }}>
+                          {selectedPlan
+                            ? `✅ Registration complete! Redirecting to login to purchase ${selectedPlan.name}...`
+                            : '✅ Registration complete! Redirecting to login page...'}
+                        </Typography>
+                        <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
+                      </Box>
+                    ) : (
+                      <>
+                        {otpError && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 1.5 }} onClose={() => setOtpError('')}>{otpError}</Alert>}
+                        <Box sx={{ textAlign: 'center', mb: 3 }}>
+                          <Typography variant="body2" sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: 1 }}>Enter the 6-digit verification code sent to</Typography>
+                          <Typography variant="body1" fontWeight={600} sx={{ fontSize: '0.9rem', color: theme.palette.primary.main }}>{registeredEmail}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 0.5, sm: 1 }, mb: 3 }}>
+                          {otp.map((digit, index) => (
+                            <Paper key={index} elevation={0} sx={{ width: { xs: 40, sm: 48 }, height: { xs: 48, sm: 56 }, border: `1px solid ${otpError ? '#ef4444' : alpha(theme.palette.primary.main, 0.2)}`, borderRadius: 1.5, overflow: 'hidden' }}>
+                              <input
+                                id={`otp-${index}`}
+                                type="text"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(index, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                onPaste={index === 0 ? handleOtpPaste : undefined}
+                                disabled={otpVerifying}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  textAlign: 'center',
+                                  fontSize: isMobile ? '1rem' : '1.2rem',
+                                  fontWeight: 600,
+                                  border: 'none',
+                                  outline: 'none',
+                                  backgroundColor: 'transparent',
+                                  color: theme.palette.text.primary
+                                }}
+                              />
+                            </Paper>
+                          ))}
+                        </Box>
+                        <Box sx={{ textAlign: 'center', mb: 3 }}>
+                          {!canResend ?
+                            <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                              Resend code in <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{timer}s</span>
+                            </Typography> :
+                            <Button variant="text" size="small" onClick={handleResendOtp} disabled={otpVerifying} sx={{ color: theme.palette.primary.main, fontSize: '0.7rem', textTransform: 'none', '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.05) } }}>
+                              Resend OTP
+                            </Button>
+                          }
+                        </Box>
+                        <Grid container spacing={1}>
+                          <Grid item xs={6}>
+                            <Button fullWidth variant="outlined" size="small" onClick={handleBackToRegistration} disabled={otpVerifying} sx={{ py: { xs: 1, sm: 1.2 }, borderRadius: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, borderColor: alpha(theme.palette.primary.main, 0.3), color: theme.palette.primary.main, '&:hover': { borderColor: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.05) } }}>
+                              Back
+                            </Button>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Button fullWidth variant="contained" size="small" onClick={handleVerifyOtp} disabled={otpVerifying || otp.join('').length !== 6} endIcon={otpVerifying ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <SendIcon sx={{ fontSize: 14 }} />} sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, color: 'white', py: { xs: 1, sm: 1.2 }, borderRadius: { xs: 1.5, sm: 2 }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` }, '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.5) } }}>
+                              {otpVerifying ? 'Verifying...' : 'Verify OTP'}
+                            </Button>
+                          </Grid>
+                        </Grid>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {activeStep === 0 && (
+                <>
+                  <Divider sx={{ my: 3, '&::before, &::after': { borderColor: '#e5e7eb' } }}>
+                    <Typography variant="caption" sx={{ color: '#9ca3af', px: 1.5, fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.5px' }}>OR</Typography>
+                  </Divider>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                      Already have an account?{' '}
+                      <Link
+                        to="/login"
+                        onClick={handleSignInClick}
+                        style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600 }}
+                      >
+                        Sign in
+                      </Link>
+                    </Typography>
+                  </Box>
+                </>
+              )}
+            </div>
+            <Box sx={{ mt: 2.5, textAlign: 'center' }}>
+              <Link
+                to="/"
+                style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '0.78rem', transition: 'color 0.2s' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = theme.palette.primary.main)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+              >
+                ← Back to home
+              </Link>
+            </Box>
+          </motion.div>
+        </Box>
+      </div>
+    </div>
   );
 };
 

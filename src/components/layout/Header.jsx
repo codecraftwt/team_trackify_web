@@ -6,7 +6,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 // import logoImage from '../../assets/Team-Trackify-logo.png';
 // import logoImage from '../../assets/logo31.png';
-import logoImage from '../../assets/logo31_animated.gif';
+import logoImage from '../../assets/logo31.png'; 
 
 const Header = ({ onMenuClick }) => {
   const theme = useTheme();
@@ -55,18 +55,17 @@ const Header = ({ onMenuClick }) => {
       style={{
         backgroundColor: scrolled
           ? alpha(theme.palette.background.paper, 0.95)
-          : alpha(theme.palette.background.paper, 0.8),
-        backdropFilter: 'blur(8px)',
-        borderBottom: scrolled
-          ? `1px solid ${alpha(theme.palette.divider, 0.5)}`
-          : '1px solid transparent',
+          : 'transparent',
+        backdropFilter: scrolled ? 'blur(8px)' : 'none',
+        borderBottom: 'none',
         boxShadow: scrolled ? `0 4px 6px ${alpha(theme.palette.common.black, 0.05)}` : 'none',
       }}
     >
-      <nav className="container-custom mx-auto px-4 md:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 md:h-16 lg:h-18">
+      <nav className="container-custom mx-auto px-4 md:px-6 lg:px-8 pt-3 md:pt-4">
+        <div className="flex items-center justify-between h-14 md:h-16 lg:h-18 relative">
           {/* Logo */}
           <motion.div
+            className="flex-1"
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
@@ -93,18 +92,17 @@ const Header = ({ onMenuClick }) => {
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1 lg:gap-2">
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center justify-center gap-4 lg:gap-6 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className="relative px-3 py-2 text-xs lg:text-sm font-medium transition-all duration-200"
+                className="relative px-3 py-2 text-sm font-semibold uppercase tracking-wider transition-all duration-200"
                 style={{
                   color: isActive(item.path)
-                    ? theme.palette.primary.dark
-                    : theme.palette.text.secondary,
-                  fontWeight: isActive(item.path) ? 600 : 500,
+                    ? theme.palette.primary.main
+                    : theme.palette.text.primary,
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive(item.path)) {
@@ -113,7 +111,7 @@ const Header = ({ onMenuClick }) => {
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive(item.path)) {
-                    e.currentTarget.style.color = theme.palette.text.secondary;
+                    e.currentTarget.style.color = theme.palette.text.primary;
                   }
                 }}
               >
@@ -130,46 +128,47 @@ const Header = ({ onMenuClick }) => {
                 )}
               </Link>
             ))}
-
-            {/* Login/Dashboard Button - Only text changes, click behavior stays the same */}
-            <motion.button
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/login')}
-              className="ml-3 lg:ml-4 px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs lg:text-sm text-white shadow-md transition-all duration-200"
-              style={{
-                backgroundColor: theme.palette.primary.main,
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.palette.primary.dark}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.palette.primary.main}
-            >
-              {isAuthenticated ? 'Dashboard' : 'Login'}
-            </motion.button>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen);
-              onMenuClick?.();
-            }}
-            className="md:hidden p-2 -mr-2 transition-colors"
-            style={{ color: theme.palette.text.secondary }}
-            onMouseEnter={(e) => e.currentTarget.style.color = theme.palette.primary.main}
-            onMouseLeave={(e) => e.currentTarget.style.color = theme.palette.text.secondary}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-          >
-            <motion.div
-              animate={{ rotate: mobileMenuOpen ? 90 : 0 }}
-              transition={{ duration: 0.3 }}
+          {/* Right Side - CTA & Mobile Toggle */}
+          <div className="flex-1 flex justify-end items-center">
+            <motion.button
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/login')}
+              className="hidden md:block ml-3 lg:ml-4 px-8 py-3.5 rounded-md font-bold text-base text-white transition-shadow duration-300"
+              style={{
+                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                boxShadow: `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
+              }}
             >
-              {mobileMenuOpen ? (
-                <CloseIcon sx={{ fontSize: 24 }} />
-              ) : (
-                <MenuIcon sx={{ fontSize: 24 }} />
-              )}
-            </motion.div>
-          </button>
+              Sign In
+            </motion.button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                onMenuClick?.();
+              }}
+              className="md:hidden p-2 -mr-2 transition-colors"
+              style={{ color: theme.palette.text.secondary }}
+              onMouseEnter={(e) => e.currentTarget.style.color = theme.palette.primary.main}
+              onMouseLeave={(e) => e.currentTarget.style.color = theme.palette.text.secondary}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              <motion.div
+                animate={{ rotate: mobileMenuOpen ? 90 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {mobileMenuOpen ? (
+                  <CloseIcon sx={{ fontSize: 24 }} />
+                ) : (
+                  <MenuIcon sx={{ fontSize: 24 }} />
+                )}
+              </motion.div>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -218,21 +217,20 @@ const Header = ({ onMenuClick }) => {
                 </Link>
               ))}
 
-              {/* Mobile button - Only text changes */}
+              {/* Mobile button */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   navigate('/login');
                   setMobileMenuOpen(false);
                 }}
-                className="mt-3 px-5 py-3 rounded-lg font-semibold text-sm text-white shadow-md transition-all duration-200"
+                className="mt-3 px-5 py-3 rounded-md font-bold text-sm text-white transition-shadow duration-300"
                 style={{
-                  backgroundColor: theme.palette.primary.main,
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                  boxShadow: `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.palette.primary.dark}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.palette.primary.main}
               >
-                {isAuthenticated ? 'Go to Dashboard' : 'Login to Dashboard'}
+                Sign In
               </motion.button>
             </div>
           </motion.div>

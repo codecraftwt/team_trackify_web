@@ -26,6 +26,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { toast, ToastContainer } from 'react-toastify';
 import { loginUser, clearError, clearMessage, logout } from '../../redux/slices/authSlice';
 import Logo from '../../assets/logo31.png';
+import { FaFacebookF } from 'react-icons/fa';
+import AuthLayoutLeft from './AuthLayoutLeft';
 
 const Login = () => {
   const theme = useTheme();
@@ -162,6 +164,37 @@ const Login = () => {
       const timer = setTimeout(() => {
         dispatch(clearError());
       }, 5000);
+      const inputStyles = {
+        '& .MuiInputBase-root': {
+          backgroundColor: '#f3f4f6',
+          borderRadius: '12px',
+          border: '1px solid transparent',
+          transition: 'all 0.3s ease',
+          paddingRight: '12px',
+          '&.Mui-focused': {
+            backgroundColor: '#ffffff',
+            borderColor: theme.palette.primary.main,
+            boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
+          },
+          '&:hover': {
+            backgroundColor: '#e5e7eb',
+          },
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          border: 'none',
+        },
+        '& .MuiInputBase-input': {
+          padding: '16px 14px',
+          fontSize: '0.95rem',
+          fontWeight: 500,
+          color: '#1f2937',
+          '&::placeholder': {
+            color: '#9ca3af',
+            opacity: 1,
+          },
+        },
+      };
+
       return () => clearTimeout(timer);
     }
   }, [error, dispatch]);
@@ -182,17 +215,7 @@ const Login = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        py: { xs: 2, sm: 3 },
-        px: { xs: 1, sm: 2 },
-      }}
-    >
+    <div className="h-screen flex w-full bg-white font-sans overflow-hidden">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -226,134 +249,173 @@ const Login = () => {
         </Alert>
       )}
 
-      <Box sx={{ maxWidth: 400, width: '100%' }}>
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Link to="/" style={{ textDecoration: 'none' }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box
-                  component="img"
-                  src={Logo}
-                  alt="Company Logo"
-                  sx={{
-                    height: { xs: '28px', sm: '32px', md: '36px' },
-                    width: 'auto',
-                    objectFit: 'contain',
-                    display: 'block',
-                    borderRadius: 0.8
-                  }}
-                />
-                <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main, fontSize: { xs: '1.1rem', sm: '1.2rem' } }}>
-                  Team Trackify
-                </Typography>
-              </Box>
-            </Link>
-            <Typography variant="h5" fontWeight="700" sx={{ color: 'text.primary', mb: 0.5, fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>
-              Welcome Back
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
-              Sign in to your account to continue
-            </Typography>
-          </Box>
-        </motion.div>
+      {/* Left Column (Graphics) */}
+      <AuthLayoutLeft />
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <Card sx={{
-            p: { xs: 2, sm: 2.5 },
-            boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
-            border: '1px solid',
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-            borderRadius: { xs: 2, sm: 2.5 },
-          }}>
+      {/* Right Column (Form) */}
+      <div className="w-1/2 flex flex-col items-center overflow-y-auto h-full bg-white py-8">
+        <Box sx={{ maxWidth: 420, width: '100%', px: { xs: 3, sm: 5, lg: 6 }, py: { xs: 4, sm: 5 }, my: 'auto' }}>
+
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+
+
+              <Typography
+                variant="h4"
+                fontWeight="800"
+                sx={{ color: '#111827', mb: 1, fontSize: { xs: '1.5rem', sm: '1.75rem' }, letterSpacing: '-0.5px', lineHeight: 1.2 }}
+              >
+                Log in to Team Trackify.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: '#6b7280', fontSize: { xs: '0.82rem', sm: '0.88rem' }, lineHeight: 1.6, maxWidth: '85%', mx: 'auto' }}
+              >
+                Welcome back! Login with your data that you entered during registration.
+              </Typography>
+            </Box>
+          </motion.div>
+
+          {/* Form */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' },
-                  })}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                  variant="outlined"
-                  disabled={isLoading}
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiInputLabel-root': { fontSize: { xs: '0.8rem', sm: '0.85rem' } },
-                    '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.85rem' } },
-                    '& .MuiFormHelperText-root': { fontSize: { xs: '0.65rem', sm: '0.7rem' } },
-                    '& .MuiOutlinedInput-root': { borderRadius: 1.5, '&:hover fieldset': { borderColor: theme.palette.primary.main } },
-                  }}
-                />
 
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: { value: 4, message: 'Password must be at least 4 characters' },
-                  })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  variant="outlined"
-                  disabled={isLoading}
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading} sx={{ color: theme.palette.primary.main }} size="small">
-                          {showPassword ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiInputLabel-root': { fontSize: { xs: '0.8rem', sm: '0.85rem' } },
-                    '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.85rem' } },
-                    '& .MuiFormHelperText-root': { fontSize: { xs: '0.65rem', sm: '0.7rem' } },
-                    '& .MuiOutlinedInput-root': { borderRadius: 1.5, '&:hover fieldset': { borderColor: theme.palette.primary.main } },
-                  }}
-                />
+                {/* Email */}
+                <Box>
+                  <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Email Address</Typography>
+                  <TextField
+                    fullWidth
+                    type="email"
+                    placeholder="you@example.com"
+                    {...register('email', {
+                      required: 'Email is required',
+                      pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' },
+                    })}
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                    variant="outlined"
+                    disabled={isLoading}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontSize: '1rem',
+                        fontWeight: 400,
+                        color: '#1a1a1a',
+                        padding: '14px 16px',
+                        '&::placeholder': {
+                          color: '#b3b3b3',
+                          opacity: 1,
+                        }
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '6px',
+                        bgcolor: '#ffffff',
+                        transition: 'all 0.2s ease',
+                        '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' },
+                        '&:hover fieldset': { borderColor: '#d1d5db' },
+                        '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' },
+                      },
+                      '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 },
+                    }}
+                  />
+                </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  </Box>
-                  <Link to="/forgot-password" style={{ color: theme.palette.primary.main, textDecoration: 'none', fontSize: isMobile ? '0.7rem' : '0.75rem', fontWeight: 500 }}>
+                {/* Password */}
+                <Box>
+                  <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>Password</Typography>
+                  <TextField
+                    fullWidth
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...register('password', {
+                      required: 'Password is required',
+                      minLength: { value: 4, message: 'Password must be at least 4 characters' },
+                    })}
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    variant="outlined"
+                    disabled={isLoading}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            disabled={isLoading}
+                            sx={{ color: '#9ca3af', '&:hover': { color: theme.palette.primary.main }, mr: -0.5 }}
+                            size="small"
+                          >
+                            {showPassword ? <VisibilityOffIcon sx={{ fontSize: 19 }} /> : <VisibilityIcon sx={{ fontSize: 19 }} />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontSize: '1rem',
+                        fontWeight: 400,
+                        color: '#1a1a1a',
+                        padding: '14px 16px',
+                        '&::placeholder': {
+                          color: '#b3b3b3',
+                          opacity: 1,
+                        }
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '6px',
+                        bgcolor: '#ffffff',
+                        transition: 'all 0.2s ease',
+                        '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' },
+                        '&:hover fieldset': { borderColor: '#d1d5db' },
+                        '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' },
+                      },
+                      '& .MuiFormHelperText-root': { fontSize: '0.75rem', mt: 0.5, mx: 0 },
+                    }}
+                  />
+                </Box>
+
+                {/* Forgot Password */}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
+                  <Link
+                    to="/forgot-password"
+                    style={{
+                      color: theme.palette.primary.main,
+                      textDecoration: 'none',
+                      fontSize: '0.85rem',
+                      fontWeight: 500,
+                    }}
+                  >
                     Forgot password?
                   </Link>
                 </Box>
 
-                <motion.div whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
+                {/* Sign In Button */}
+                <motion.div whileHover={{ scale: isLoading ? 1 : 1.015 }} whileTap={{ scale: isLoading ? 1 : 0.985 }}>
                   <Button
                     type="submit"
                     variant="contained"
-                    size="small"
                     fullWidth
                     disabled={isLoading}
-                    endIcon={<LoginIcon sx={{ fontSize: 16 }} />}
                     sx={{
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                      color: 'white',
-                      py: { xs: 1, sm: 1.2 },
-                      borderRadius: { xs: 1.5, sm: 2 },
-                      fontSize: { xs: '0.8rem', sm: '0.85rem' },
-                      '&:hover': { background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})` },
-                      '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.5) },
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      color: '#ffffff',
+                      py: 1.4,
+                      borderRadius: '10px',
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.3px',
+                      boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`,
+                      textTransform: 'none',
+                      transition: 'all 0.25s ease',
+                      '&:hover': {
+                        background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                        boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.45)}`,
+                      },
+                      '&.Mui-disabled': {
+                        background: alpha(theme.palette.primary.main, 0.45),
+                        color: '#ffffff',
+                      },
                     }}
                   >
                     {isLoading ? 'Signing in...' : 'Sign In'}
@@ -362,38 +424,55 @@ const Login = () => {
               </Box>
             </form>
 
-            <Divider sx={{ my: { xs: 2, sm: 2.5 }, borderColor: alpha(theme.palette.primary.main, 0.1) }}>
-              <Typography variant="caption" sx={{ color: 'text.secondary', px: 1, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>OR</Typography>
+            {/* OR Divider */}
+            <Divider sx={{ my: 3, '&::before, &::after': { borderColor: '#e5e7eb' } }}>
+              <Typography variant="caption" sx={{ color: '#9ca3af', px: 1.5, fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.5px' }}>
+                OR
+              </Typography>
             </Divider>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+            {/* Sign Up Link */}
+            <Box sx={{ textAlign: 'center', mb: 2 }}>
+              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.82rem' }}>
                 Don't have an account?{' '}
                 <Link
-                  to={returnUrl ? `/register?returnUrl=${encodeURIComponent(returnUrl)}` : "/register"}
+                  to={returnUrl ? `/register?returnUrl=${encodeURIComponent(returnUrl)}` : '/register'}
                   state={{ selectedPlan: pendingPlan, fromPricing: fromPricing }}
-                  style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                  style={{
+                    color: theme.palette.primary.main,
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
                 >
-                  <PersonAddIcon sx={{ fontSize: 14 }} />
+                  {/* <PersonAddIcon sx={{ fontSize: 14 }} /> */}
                   Sign up now
                 </Link>
               </Typography>
             </Box>
-          </Card>
 
-          <Box sx={{ mt: 2.5, textAlign: 'center' }}>
-            <Link
-              to="/"
-              style={{ color: theme.palette.text.secondary, textDecoration: 'none', fontSize: isMobile ? '0.7rem' : '0.75rem', transition: 'color 0.2s' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = theme.palette.primary.main}
-              onMouseLeave={(e) => e.currentTarget.style.color = theme.palette.text.secondary}
-            >
-              ← Back to home
-            </Link>
-          </Box>
-        </motion.div>
-      </Box>
-    </Box>
+            {/* Back to Home */}
+            <Box sx={{ textAlign: 'center' }}>
+              <Link
+                to="/"
+                style={{
+                  color: '#9ca3af',
+                  textDecoration: 'none',
+                  fontSize: '0.78rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = theme.palette.primary.main)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+              >
+                ← Back to home
+              </Link>
+            </Box>
+          </motion.div>
+        </Box>
+      </div>
+    </div>
   );
 };
 

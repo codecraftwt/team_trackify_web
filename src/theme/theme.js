@@ -23,7 +23,7 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
+    fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
     h1: {
       fontSize: '3rem',
       fontWeight: 700,
