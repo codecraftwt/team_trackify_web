@@ -131,7 +131,7 @@ const ImpersonationBanner = ({ onStopImpersonation, impersonatedUser }) => {
         display: 'flex',
         alignItems: 'center',
         gap: 2,
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+        boxShadow: 3,
         border: '1px solid',
         borderColor: alpha(theme.palette.warning.dark, 0.3),
         maxWidth: { xs: '90%', sm: 'auto' },
@@ -417,8 +417,7 @@ const UserCard = ({
           transition: 'all 0.2s ease',
           height: '100%',
           '&:hover': {
-            transform: !isMobile ? 'translateY(-2px)' : 'none',
-            boxShadow: !isMobile ? `0 8px 20px -8px ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
+            boxShadow: !isMobile ? `0 4px 12px rgba(0,0,0,0.05)` : 'none',
             borderColor: theme.palette.primary.main,
           },
         }}
@@ -1943,9 +1942,7 @@ const UserManagement = () => {
               fontWeight="700"
               gutterBottom
               sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "text.primary",
                 fontSize: {
                   xs: '1rem',
                   sm: '1.2rem',
@@ -1996,9 +1993,7 @@ const UserManagement = () => {
               fontWeight="700"
               gutterBottom
               sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "text.primary",
                 fontSize: {
                   xs: '1rem',
                   sm: '1.2rem',
@@ -2047,9 +2042,7 @@ const UserManagement = () => {
             fontWeight="700"
             gutterBottom
             sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: "text.primary",
               fontSize: {
                 xs: '1rem',
                 sm: '1.2rem',
@@ -2212,12 +2205,12 @@ const UserManagement = () => {
             disabled={role_id === 1 && isSubscriptionExpired === true}
             size={isMobile ? "small" : "small"}
             sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              bgcolor: 'primary.main',
               fontSize: { xs: '0.65rem', sm: '0.7rem' },
               height: 34,
               opacity: role_id === 1 && isSubscriptionExpired === true ? 0.5 : 1,
               '&:hover': {
-                background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                bgcolor: 'primary.dark',
               },
             }}
           >
@@ -2339,7 +2332,7 @@ const UserManagement = () => {
             p: 2,
             width: { xs: 240, sm: 270 },
             borderRadius: { xs: 2, sm: 3 },
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            boxShadow: 3,
             border: '1px solid',
             borderColor: alpha(theme.palette.primary.main, 0.1),
           },
@@ -2519,13 +2512,12 @@ const UserManagement = () => {
                   lineHeight: 1,
                   textTransform: 'none',
                   borderRadius: '8px',
-                  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+                  boxShadow: 1,
                   bgcolor: theme.palette.primary.main,
                   color: theme.palette.primary.contrastText,
                   '&:hover': {
                     bgcolor: theme.palette.primary.dark,
-                    boxShadow: '0 5px 14px rgba(0,0,0,0.22)',
-                    transform: 'translateY(-1px)',
+                    boxShadow: 2,
                   },
                   transition: 'all 0.15s ease',
                 }}

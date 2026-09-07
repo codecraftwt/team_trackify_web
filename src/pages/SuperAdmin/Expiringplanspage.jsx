@@ -254,9 +254,7 @@ const ExpiringPlansPage = () => {
             <Typography
               fontWeight={700}
               sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "text.primary",
                 fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" },
               }}
             >
@@ -438,15 +436,17 @@ const ExpiringPlansPage = () => {
         <Box
           sx={{
             px: 2,
-            py: 1,
-            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+            py: 1.5,
+            bgcolor: "background.paper",
+            borderBottom: "1px solid",
+            borderColor: "divider",
             display: "flex",
             alignItems: "center",
             gap: 1,
           }}
         >
-          <WarningIcon sx={{ fontSize: "1rem", color: "#fbbf24" }} />
-          <Typography sx={{ fontSize: "0.8rem", fontWeight: 700, color: "white" }}>
+          <WarningIcon sx={{ fontSize: "1.1rem", color: "#fbbf24" }} />
+          <Typography sx={{ fontSize: "0.85rem", fontWeight: 600, color: "text.primary" }}>
             {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""} found
             {filterStatus !== "all" && ` (Filter: ${getFilterButtonText()})`}
           </Typography>

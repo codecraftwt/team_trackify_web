@@ -119,14 +119,14 @@ const AdminCard = ({
           position: 'relative',
           borderRadius: 3,
           border: '1px solid',
-          borderColor: isSelected ? '#0f766e' : alpha('#e2e8f0', 0.5),
-          boxShadow: isSelected ? '0 8px 20px -8px #0f766e' : '0 2px 10px rgba(0,0,0,0.03)',
+          borderColor: isSelected ? theme.palette.primary.main : alpha('#e2e8f0', 0.5),
+          boxShadow: isSelected ? '0 8px 20px -8px theme.palette.primary.main' : '0 2px 10px rgba(0,0,0,0.03)',
           transition: 'all 0.3s ease',
           height: '100%',
           '&:hover': {
             transform: !isMobile ? 'translateY(-4px)' : 'none',
             boxShadow: !isMobile ? '0 20px 30px -10px rgba(15, 118, 110, 0.2)' : 'none',
-            borderColor: '#0f766e',
+            borderColor: theme.palette.primary.main,
           },
         }}
       >
@@ -137,9 +137,9 @@ const AdminCard = ({
               onChange={() => onSelect(user._id)}
               size={isMobile ? "small" : "medium"}
               sx={{
-                color: '#0f766e',
+                color: theme.palette.primary.main,
                 '&.Mui-checked': {
-                  color: '#0f766e',
+                  color: theme.palette.primary.main,
                 },
               }}
             />
@@ -153,10 +153,10 @@ const AdminCard = ({
               sx={{
                 width: { xs: 48, sm: 56 },
                 height: { xs: 48, sm: 56 },
-                bgcolor: alpha('#0f766e', 0.1),
-                color: '#0f766e',
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
                 border: '2px solid',
-                borderColor: alpha('#0f766e', 0.2),
+                borderColor: alpha(theme.palette.primary.main, 0.2),
               }}
             >
               {user?.name?.charAt(0) || 'A'}
@@ -196,8 +196,8 @@ const AdminCard = ({
                 label={user.role_id === 1 ? "Admin" : "User"}
                 size="small"
                 sx={{
-                  bgcolor: user.role_id === 1 ? alpha('#0f766e', 0.1) : alpha('#64748b', 0.1),
-                  color: user.role_id === 1 ? '#0f766e' : '#64748b',
+                  bgcolor: user.role_id === 1 ? alpha(theme.palette.primary.main, 0.1) : alpha('#64748b', 0.1),
+                  color: user.role_id === 1 ? theme.palette.primary.main : '#64748b',
                   fontWeight: 600,
                   fontSize: { xs: '0.6rem', sm: '0.7rem' },
                   height: { xs: 18, sm: 20 },
@@ -222,8 +222,8 @@ const AdminCard = ({
                 size="small"
                 onClick={() => onView(user)}
                 sx={{
-                  color: '#0f766e',
-                  '&:hover': { bgcolor: alpha('#0f766e', 0.1) },
+                  color: theme.palette.primary.main,
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
                   width: { xs: 28, sm: 32 },
                   height: { xs: 28, sm: 32 },
                 }}
@@ -294,13 +294,13 @@ const ResponsiveTable = ({
         height: '6px',
       },
       '&::-webkit-scrollbar-thumb': {
-        backgroundColor: alpha('#0f766e', 0.3),
+        backgroundColor: alpha(theme.palette.primary.main, 0.3),
         borderRadius: '3px',
       },
     }}>
       <Table sx={{ minWidth: isMobile ? 600 : isTablet ? 700 : 800 }}>
         <TableHead>
-          <TableRow sx={{ bgcolor: alpha('#0f766e', 0.05) }}>
+          <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
             {isBulkMode && <TableCell padding="checkbox" sx={{ pl: 2 }}></TableCell>}
             <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' } }}>
               Admin
@@ -337,7 +337,7 @@ const ResponsiveTable = ({
                 style={{ cursor: 'pointer' }}
                 onMouseEnter={(e) => {
                   if (!isMobile) {
-                    e.currentTarget.style.backgroundColor = alpha('#0f766e', 0.05);
+                    e.currentTarget.style.backgroundColor = alpha(theme.palette.primary.main, 0.05);
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -352,7 +352,7 @@ const ResponsiveTable = ({
                       checked={selectedUsers.includes(user._id)}
                       onChange={() => handleSelectUser(user._id)}
                       size={isMobile ? "small" : "medium"}
-                      sx={{ color: '#0f766e' }}
+                      sx={{ color: theme.palette.primary.main }}
                     />
                   </TableCell>
                 )}
@@ -363,8 +363,8 @@ const ResponsiveTable = ({
                       sx={{
                         width: { xs: 28, sm: 32, md: 40 },
                         height: { xs: 28, sm: 32, md: 40 },
-                        bgcolor: alpha('#0f766e', 0.1),
-                        color: '#0f766e',
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
                       }}
                     >
                       {user.name?.charAt(0)}
@@ -396,8 +396,8 @@ const ResponsiveTable = ({
                     size="small"
                     icon={user.role_id === 1 ? <AdminIcon sx={{ fontSize: { xs: 10, sm: 12, md: 14 } }} /> : <PersonIcon sx={{ fontSize: { xs: 10, sm: 12, md: 14 } }} />}
                     sx={{
-                      bgcolor: user.role_id === 1 ? alpha('#0f766e', 0.1) : alpha('#64748b', 0.1),
-                      color: user.role_id === 1 ? '#0f766e' : '#64748b',
+                      bgcolor: user.role_id === 1 ? alpha(theme.palette.primary.main, 0.1) : alpha('#64748b', 0.1),
+                      color: user.role_id === 1 ? theme.palette.primary.main : '#64748b',
                       fontWeight: 600,
                       fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
                       height: { xs: 18, sm: 20, md: 24 },
@@ -414,7 +414,7 @@ const ResponsiveTable = ({
                         size="small"
                         onClick={() => handleView(user)}
                         sx={{ 
-                          color: '#0f766e',
+                          color: theme.palette.primary.main,
                           width: { xs: 24, sm: 28, md: 32 },
                           height: { xs: 24, sm: 28, md: 32 },
                         }}
@@ -682,17 +682,16 @@ const OrganizationDetails = () => {
       }}>
         <Box>
           <Typography 
-            variant="h4" 
-            fontWeight="700" 
+            variant="h6" 
+            fontWeight="600" 
             sx={{ 
-              color: '#0f766e', 
-              mb: 1,
-              fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
+              color: 'text.primary', 
+              fontSize: { xs: '1rem', md: '1.2rem' }
             }}
           >
             Admin Management
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' } }}>
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' } }}>
             Manage all administrators and their access
           </Typography>
         </Box>
@@ -710,8 +709,8 @@ const OrganizationDetails = () => {
               disabled={isRefreshing}
               size={isMobile ? "small" : "medium"}
               sx={{
-                color: '#0f766e',
-                '&:hover': { bgcolor: alpha('#0f766e', 0.1) },
+                color: theme.palette.primary.main,
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
               }}
             >
               <RefreshIcon sx={{ 
@@ -726,8 +725,8 @@ const OrganizationDetails = () => {
               onClick={() => setViewMode(viewMode === 'table' ? 'card' : 'table')}
               size={isMobile ? "small" : "medium"}
               sx={{
-                color: '#0f766e',
-                '&:hover': { bgcolor: alpha('#0f766e', 0.1) },
+                color: theme.palette.primary.main,
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
               }}
             >
               {viewMode === 'table' ? <GridViewIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} /> : <TableRowsIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} />}
@@ -739,8 +738,8 @@ const OrganizationDetails = () => {
               onClick={handleDownloadPDF}
               size={isMobile ? "small" : "medium"}
               sx={{
-                color: '#0f766e',
-                '&:hover': { bgcolor: alpha('#0f766e', 0.1) },
+                color: theme.palette.primary.main,
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) },
               }}
             >
               <DownloadIcon sx={{ fontSize: { xs: 18, sm: 20, md: 24 } }} />
@@ -783,12 +782,12 @@ const OrganizationDetails = () => {
               onClick={() => setIsBulkMode(true)}
               size={isMobile ? "small" : "medium"}
               sx={{
-                borderColor: '#0f766e',
-                color: '#0f766e',
+                borderColor: theme.palette.primary.main,
+                color: theme.palette.primary.main,
                 fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
                 '&:hover': {
                   borderColor: '#0a5c55',
-                  bgcolor: alpha('#0f766e', 0.1),
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
                 },
               }}
             >
@@ -802,7 +801,7 @@ const OrganizationDetails = () => {
             onClick={() => navigate("/add-admin")}
             size={isMobile ? "small" : "medium"}
             sx={{
-              bgcolor: '#0f766e',
+              bgcolor: theme.palette.primary.main,
               fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
               '&:hover': { bgcolor: '#0a5c55' },
             }}
@@ -834,14 +833,14 @@ const OrganizationDetails = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#0f766e', fontSize: { xs: 18, sm: 20 } }} />
+                    <SearchIcon sx={{ color: theme.palette.primary.main, fontSize: { xs: 18, sm: 20 } }} />
                   </InputAdornment>
                 ),
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: { xs: 2, sm: 3 },
-                  bgcolor: alpha('#0f766e', 0.05),
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
                   fontSize: { xs: '0.8rem', sm: '0.9rem' },
                 },
               }}
@@ -866,8 +865,8 @@ const OrganizationDetails = () => {
                   color: '#64748b',
                   fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
                   '&:hover': {
-                    borderColor: '#0f766e',
-                    color: '#0f766e',
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
                   },
                 }}
               >
@@ -885,8 +884,8 @@ const OrganizationDetails = () => {
                   color: '#64748b',
                   fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
                   '&:hover': {
-                    borderColor: '#0f766e',
-                    color: '#0f766e',
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
                   },
                 }}
               >
@@ -971,10 +970,10 @@ const OrganizationDetails = () => {
                 px: { xs: 1, sm: 2 },
               },
               '& .Mui-selected': {
-                color: '#0f766e !important',
+                color: 'theme.palette.primary.main !important',
               },
               '& .MuiTabs-indicator': {
-                bgcolor: '#0f766e',
+                bgcolor: theme.palette.primary.main,
               },
             }}
           >
@@ -1029,7 +1028,7 @@ const OrganizationDetails = () => {
                   indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
                   onChange={handleSelectAll}
                   size={isMobile ? "small" : "medium"}
-                  sx={{ color: '#0f766e' }}
+                  sx={{ color: theme.palette.primary.main }}
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
                   {selectedUsers.length} selected
@@ -1096,7 +1095,7 @@ const OrganizationDetails = () => {
                   indeterminate={selectedUsers.length > 0 && selectedUsers.length < paginatedUsers.length}
                   onChange={handleSelectAll}
                   size={isMobile ? "small" : "medium"}
-                  sx={{ color: '#0f766e' }}
+                  sx={{ color: theme.palette.primary.main }}
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
                   {selectedUsers.length} selected
@@ -1132,12 +1131,12 @@ const OrganizationDetails = () => {
                   disabled={(page + 1) * rowsPerPage >= currentUsers.length}
                   size={isMobile ? "small" : "medium"}
                   sx={{
-                    borderColor: '#0f766e',
-                    color: '#0f766e',
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
                     fontSize: { xs: '0.7rem', sm: '0.8rem' },
                     '&:hover': {
                       borderColor: '#0a5c55',
-                      bgcolor: alpha('#0f766e', 0.1),
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
                     },
                   }}
                 >

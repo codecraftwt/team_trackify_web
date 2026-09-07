@@ -297,14 +297,14 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
     <Box
       sx={{
         height: '100%',
-        width: isMobile ? getMobileWidth() : (collapsed ? 72 : 240),
+        width: isMobile ? getMobileWidth() : (collapsed ? 72 : 270), // Slightly wider sidebar for premium feel
         display: 'flex',
         flexDirection: 'column',
-        background: 'linear-gradient(135deg, #2f6eaa, #1e4f7a)',
-        color: 'white',
-        transition: 'width 0.3s ease',
+        background: 'linear-gradient(180deg, #123456 0%, #081525 100%)', // More elegant dark rich blue gradient
+        color: '#f8fafc',
+        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         overflowX: 'hidden',
-        boxShadow: '2px 0 12px rgba(0,0,0,0.15)',
+        boxShadow: '4px 0 24px rgba(0,0,0,0.15)', // Softer, wider shadow
         borderRadius: 0,
       }}
     >
@@ -381,7 +381,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
             display: 'flex',
             alignItems: 'center',
             gap: 0,
-            marginLeft: 3,
+            marginLeft: collapsed && !isMobile ? 0 : 3,
             marginTop: 2,
             justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
             width: collapsed && !isMobile ? '100%' : 'auto',
@@ -418,15 +418,17 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                 }}
               />
 
-              <Box>
+              <Box sx={{ ml: 0.5 }}>
                 <Typography
-                  variant="subtitle2"
+                  variant="subtitle1"
                   noWrap
                   sx={{
-                    fontSize: isMobile ? '0.95rem' : '0.9rem',
-                    fontWeight: 700,
+                    fontSize: isMobile ? '1.05rem' : '1.15rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.5px',
                     lineHeight: 1.2,
                     color: '#FFFFFF',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   }}
                 >
                   Team Trackify
@@ -435,9 +437,12 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                 <Typography
                   variant="caption"
                   sx={{
-                    mt: 0.3,
-                    fontSize: isMobile ? '0.6rem' : '0.65rem',
-                    color: 'rgba(255,255,255,0.65)',
+                    mt: 0.2,
+                    fontSize: isMobile ? '0.65rem' : '0.7rem',
+                    fontWeight: 500,
+                    color: 'secondary.main',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
                     display: 'block',
                   }}
                 >
@@ -448,14 +453,15 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
           )}
         </Box>
 
-        {/* Bottom Line - 90% Width */}
+        {/* Bottom Line - 85% Width */}
         <Box
           sx={{
-            width: '90%',
+            width: '85%',
             height: '1px',
             mx: 'auto',
-            mt: 1.5,
-            backgroundColor: 'rgba(255,255,255,0.15)',
+            mt: 2.5,
+            mb: 1,
+            background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)',
           }}
         />
       </Box>
@@ -468,46 +474,57 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
               display: 'flex',
               alignItems: 'center',
               gap: isMobile ? 1.2 : 1.5,
-              bgcolor: 'rgba(255,255,255,0.08)',
+              bgcolor: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
               p: isMobile ? 1 : 1.2,
-              borderRadius: 1.5,
+              borderRadius: 2,
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.06)',
+                borderColor: 'rgba(255,255,255,0.12)',
+              },
             }}
           >
             <Avatar
-              // src={user?.avtar}
               src={userInfo?.avtar || user?.avtar}
               sx={{
                 bgcolor: 'secondary.main',
-                width: isMobile ? 28 : 32,
-                height: isMobile ? 28 : 32,
-                fontSize: isMobile ? '0.7rem' : '0.8rem',
+                width: isMobile ? 32 : 40,
+                height: isMobile ? 32 : 40,
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                border: '2px solid rgba(255,255,255,0.1)',
               }}
             >
               {user?.name?.charAt(0) || 'A'}
             </Avatar>
             <Box sx={{ minWidth: 0 }}>
               <Typography
-                variant="caption"
-                fontWeight={500}
+                variant="subtitle2"
+                fontWeight={600}
                 noWrap
                 sx={{
-                  fontSize: isMobile ? '0.7rem' : '0.75rem',
+                  fontSize: isMobile ? '0.8rem' : '0.9rem',
                   lineHeight: 1.2,
+                  letterSpacing: '0.3px',
                 }}
               >
-                {/* {impersonating ? impersonatedUser?.name || 'Impersonated User' : (user?.name || 'Admin User')} */}
                 {impersonating ? impersonatedUser?.name || 'Impersonated User' : (userInfo?.name || user?.name || 'Admin User')}
               </Typography>
               <Typography
                 variant="caption"
                 sx={{
-                  opacity: 0.75,
-                  fontSize: isMobile ? '0.6rem' : '0.65rem',
+                  opacity: 0.6,
+                  fontSize: isMobile ? '0.65rem' : '0.7rem',
                   display: 'block',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  maxWidth: isMobile ? 130 : 150,
+                  maxWidth: isMobile ? 130 : 160,
+                  mt: 0.2,
                 }}
               >
                 {impersonating ? impersonatedUser?.email || 'user@example.com' : (user?.email || 'admin@trackify.in')}
@@ -553,42 +570,49 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                 <ListItemButton
                   onClick={() => handleNavigation(item.path)}
                   sx={{
-                    minHeight: isMobile ? 36 : (collapsed ? 40 : 42),
-                    borderRadius: 1,
+                    minHeight: isMobile ? 40 : (collapsed ? 44 : 46),
+                    borderRadius: 2,
+                    mx: 1,
                     justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
-                    px: collapsed && !isMobile ? 0 : (isMobile ? 1.2 : 2),
-                    py: isMobile ? 0.6 : 0.8,
-                    bgcolor: active ? 'rgba(245, 158, 11, 0.25)' : 'transparent',
+                    px: collapsed && !isMobile ? 0 : (isMobile ? 1.5 : 2),
+                    py: isMobile ? 0.8 : 1,
+                    bgcolor: active ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                    border: active ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent',
+                    boxShadow: active ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
                     '&:hover': {
                       bgcolor: active
-                        ? 'rgba(245, 158, 11, 0.35)'
-                        : 'rgba(245, 158, 11, 0.15)',
+                        ? 'rgba(255, 255, 255, 0.15)'
+                        : 'rgba(255, 255, 255, 0.05)',
+                      transform: 'translateX(4px)',
                     },
                     position: 'relative',
-                    transition: 'all 0.18s ease',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
                   {active && !collapsed && !isMobile && (
                     <Box
                       sx={{
                         position: 'absolute',
-                        left: 0,
+                        left: -8,
                         top: '50%',
                         transform: 'translateY(-50%)',
                         width: 4,
-                        height: '65%',
+                        height: '50%',
                         bgcolor: 'secondary.main',
                         borderRadius: '0 4px 4px 0',
+                        boxShadow: '0 0 8px rgba(245, 158, 11, 0.5)',
                       }}
                     />
                   )}
 
                   <ListItemIcon
                     sx={{
-                      minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 28 : 32),
-                      color: active ? 'secondary.main' : 'inherit',
+                      minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 32 : 36),
+                      color: active ? 'secondary.main' : 'rgba(255,255,255,0.7)',
+                      transition: 'color 0.3s ease',
                       '& svg': {
-                        fontSize: isMobile ? '1rem' : '1.1rem',
+                        fontSize: isMobile ? '1.1rem' : '1.25rem',
+                        filter: active ? 'drop-shadow(0px 2px 4px rgba(0,0,0,0.3))' : 'none',
                       },
                       display: 'flex',
                       justifyContent: 'center',
@@ -601,11 +625,12 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
-                        fontWeight: active ? 600 : 400,
-                        fontSize: isMobile ? '0.7rem' : '0.8rem',
-                        color: active ? 'secondary.main' : 'white',
+                        fontWeight: active ? 700 : 500,
+                        fontSize: isMobile ? '0.75rem' : '0.85rem',
+                        color: active ? '#FFFFFF' : 'rgba(255,255,255,0.85)',
+                        letterSpacing: '0.3px',
                       }}
-                      sx={{ ml: isMobile ? 0.5 : 0.8 }}
+                      sx={{ ml: isMobile ? 0.5 : 0.5 }}
                     />
                   )}
                 </ListItemButton>
@@ -617,9 +642,9 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
 
       <Divider
         sx={{
-          borderColor: 'rgba(255,255,255,0.08)',
-          mx: isMobile ? 1 : (collapsed ? 1 : 1.5),
-          my: collapsed && !isMobile ? 1.5 : 0,
+          borderColor: 'rgba(255,255,255,0.05)',
+          mx: isMobile ? 2 : (collapsed ? 1 : 2.5),
+          my: collapsed && !isMobile ? 1.5 : 1,
         }}
       />
 
@@ -660,26 +685,33 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
           <ListItemButton
             onClick={handleLogoutClick}
             sx={{
-              borderRadius: 1,
+              borderRadius: 2,
+              mx: 1,
               justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
-              px: collapsed && !isMobile ? 0 : (isMobile ? 1.2 : 2),
-              py: isMobile ? 0.6 : 0.8,
-              mx: collapsed && !isMobile ? 'auto' : 0,
-              width: collapsed && !isMobile ? 'auto' : '100%',
+              px: collapsed && !isMobile ? 0 : (isMobile ? 1.5 : 2),
+              py: isMobile ? 0.8 : 1,
+              width: collapsed && !isMobile ? 'auto' : 'auto',
               display: 'flex',
               alignItems: 'center',
-              '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.25)' },
+              border: '1px solid transparent',
+              transition: 'all 0.3s ease',
+              '&:hover': { 
+                bgcolor: 'rgba(244, 67, 54, 0.1)', 
+                borderColor: 'rgba(244, 67, 54, 0.2)',
+                transform: 'translateX(4px)',
+              },
             }}
           >
             <ListItemIcon
               sx={{
-                minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 28 : 32),
+                minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 32 : 36),
                 '& svg': {
-                  fontSize: isMobile ? '1rem' : '1.1rem',
+                  fontSize: isMobile ? '1.1rem' : '1.25rem',
                 },
                 display: 'flex',
                 justifyContent: 'center',
-                color: 'secondary.main',
+                color: '#f87171', // Reddish tint for logout
+                transition: 'color 0.3s ease',
               }}
             >
               <LogoutIcon />
@@ -689,9 +721,12 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
               <ListItemText
                 primary="Logout"
                 primaryTypographyProps={{
-                  fontSize: isMobile ? '0.7rem' : '0.8rem',
-                  color: 'secondary.main',
+                  fontWeight: 600,
+                  fontSize: isMobile ? '0.75rem' : '0.85rem',
+                  color: '#f87171',
+                  letterSpacing: '0.3px',
                 }}
+                sx={{ ml: 0.5 }}
               />
             )}
           </ListItemButton>

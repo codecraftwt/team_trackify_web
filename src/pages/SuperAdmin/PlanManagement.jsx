@@ -1146,10 +1146,14 @@ const PlanManagement = () => {
                   color={theme.palette.primary.main}
                   gutterBottom
                   sx={{
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem', lg: '1.5rem', xl: '1.7rem' },
+                    color: 'text.primary',
+                    fontSize: {
+                      xs: '1rem',
+                      sm: '1.2rem',
+                      md: '1.4rem',
+                      lg: '1.6rem',
+                      xl: '1.8rem'
+                    },
                   }}
                 >
                   Plan Management
@@ -1360,7 +1364,29 @@ const PlanManagement = () => {
           </motion.div>
 
           {/* ── Plans table / card grid ── */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} style={{ marginBottom: isMobile ? 20 : 30 }}>
+            <Box sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              mb: { xs: 1, sm: 1.5, md: 2 },
+            }}>
+              <ViewModuleIcon style={{
+                color: theme.palette.text.secondary,
+                fontSize: isMobile ? 16 : 20
+              }} />
+              <Typography
+                variant={isMobile ? "body2" : "body1"}
+                fontWeight="600"
+                color="text.primary"
+                sx={{
+                  fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }
+                }}
+              >
+                Plans Overview
+              </Typography>
+            </Box>
+
             <Paper
               elevation={0}
               sx={{
@@ -1368,51 +1394,14 @@ const PlanManagement = () => {
                 border: "1px solid",
                 borderColor: alpha(theme.palette.primary.main, 0.1),
                 overflow: "hidden",
+                bgcolor: "background.paper",
               }}
             >
-              <Box
-                sx={{
-                  p: { xs: 1.5, sm: 2, md: 2.5 },
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                  color: "white",
-                  display: "flex",
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  alignItems: { xs: 'flex-start', sm: 'center' },
-                  justifyContent: "space-between",
-                  gap: { xs: 1, sm: 1.5 },
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant={isMobile ? "subtitle2" : "subtitle1"}
-                    fontWeight={600}
-                    color="white"
-                    sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.1rem' } }}
-                  >
-                    Plans Overview
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: alpha("#ffffff", 0.8), fontSize: { xs: '0.55rem', sm: '0.65rem' } }}
-                  >
-                    {!isMobile && (viewMode === 'list' ? 'List view' : 'Card view')} • Sorted by {getSortButtonText()} • {filteredAndSortedPlans.length} plans found
-                  </Typography>
-                </Box>
-                <Chip
-                  label={filteredAndSortedPlans.length}
-                  size="small"
-                  icon={<PeopleIcon sx={{ fontSize: 12 }} />}
-                  sx={{
-                    bgcolor: "white",
-                    color: theme.palette.primary.main,
-                    fontWeight: 600,
-                    fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                    height: { xs: 24, sm: 28 },
-                    "& .MuiChip-icon": { color: theme.palette.primary.main, fontSize: 12 },
-                  }}
-                />
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2, pr: 2 }}>
+                <Typography variant="caption" color="text.secondary">
+                  {!isMobile && (viewMode === 'list' ? 'List view' : 'Card view')} • Sorted by {getSortButtonText()} • {filteredAndSortedPlans.length} plans found
+                </Typography>
               </Box>
-
               {loading || isRefreshing ? (
                 <Box sx={{ display: "flex", justifyContent: "center", py: { xs: 3, sm: 4, md: 6 } }}>
                   <CircularProgress size={28} sx={{ color: theme.palette.primary.main }} />
