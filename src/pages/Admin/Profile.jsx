@@ -24,35 +24,41 @@ import {
   Badge,
 } from "@mui/material";
 import {
-  Edit as EditIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  LocationOn as LocationIcon,
-  Logout as LogoutIcon,
-  LockReset as ResetPasswordIcon,
-  Person as PersonIcon,
-  AdminPanelSettings as AdminIcon,
-  VerifiedUser as SuperAdminIcon,
-  CameraAlt as CameraIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon,
-  Key as KeyIcon,
-  Mail as MailIcon,
-  VpnKey as VpnKeyIcon,
-  Refresh as RefreshIcon,
-  Delete as DeleteIcon,
-  CalendarToday as CalendarIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  CheckCircle as CheckCircleIcon,
-  ErrorOutline as ErrorOutlineIcon,
-  SupervisorAccount as SubAdminIcon,
-  // Cancel as CancelIcon,
+  EditRounded as EditIcon,
+  EmailRounded as EmailIcon,
+  PhoneRounded as PhoneIcon,
+  LocationOnRounded as LocationIcon,
+  LogoutRounded as LogoutIcon,
+  LockResetRounded as ResetPasswordIcon,
+  PersonRounded as PersonIcon,
+  AdminPanelSettingsRounded as AdminIcon,
+  VerifiedUserRounded as SuperAdminIcon,
+  CameraAltRounded as CameraIcon,
+  SaveRounded as SaveIcon,
+  CancelRounded as CancelIcon,
+  KeyRounded as KeyIcon,
+  MailRounded as MailIcon,
+  VpnKeyRounded as VpnKeyIcon,
+  RefreshRounded as RefreshIcon,
+  DeleteRounded as DeleteIcon,
+  CalendarTodayRounded as CalendarIcon,
+  VisibilityRounded as VisibilityIcon,
+  VisibilityOffRounded as VisibilityOffIcon,
+  CheckCircleRounded as CheckCircleIcon,
+  ErrorOutlineRounded as ErrorOutlineIcon,
+  SupervisorAccountRounded as SubAdminIcon,
+  ShieldRounded as ShieldIcon,
+  LockRounded as LockIcon,
+  AccountBalanceRounded as OrganizationIcon,
+  RadioButtonCheckedRounded as StatusIcon,
+  ChevronRightRounded as ChevronRightIcon,
+  ContentCopyRounded as CopyIcon,
+  PaymentRounded as PaymentIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logout, logoutUser, stopImpersonation } from "../../redux/slices/authSlice";
+import { logout, logoutUser } from "../../redux/slices/authSlice";
 import {
   updateUser,
   getUserById,
@@ -66,76 +72,17 @@ import { jwtDecode } from "jwt-decode";
 
 // ── animations ────────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 18 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.42, delay, ease: [0.22, 1, 0.36, 1] } },
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] } },
 });
-const stagger = { animate: { transition: { staggerChildren: 0.06 } } };
+const stagger = { animate: { transition: { staggerChildren: 0.05 } } };
 
-// ── TabPanel ──────────────────────────────────────────────────────────────────
-function TabPanel({ children, value, index }) {
-  return (
-    <div role="tabpanel" hidden={value !== index}>
-      <AnimatePresence mode="wait">
-        {value === index && (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" } }}
-            exit={{ opacity: 0, y: -4, transition: { duration: 0.16 } }}
-          >
-            <Box sx={{ py: { xs: 1.5, sm: 2 } }}>{children}</Box>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ── InfoBlock ─────────────────────────────────────────────────────────────────
-const InfoBlock = ({ icon, label, value }) => {
-  const theme = useTheme();
-  return (
-    <Box sx={{
-      display: "flex", alignItems: "center", gap: 1.2,
-      px: 1.2, py: 0.9,
-      borderRadius: 1.5,
-      border: `1px solid ${alpha(theme.palette.primary.main, 0.07)}`,
-      bgcolor: alpha(theme.palette.primary.main, 0.018),
-      transition: "all 0.18s ease",
-      "&:hover": {
-        bgcolor: alpha(theme.palette.primary.main, 0.045),
-        borderColor: alpha(theme.palette.primary.main, 0.18),
-        transform: "translateX(3px)",
-      },
-    }}>
-      <Box sx={{
-        width: 28, height: 28, borderRadius: 1.2, flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.13)}, ${alpha(theme.palette.primary.light, 0.06)})`,
-        color: theme.palette.primary.main,
-      }}>
-        {React.cloneElement(icon, { sx: { fontSize: 14 } })}
-      </Box>
-      <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Typography variant="overline" color="text.secondary"
-          sx={{ display: "block", lineHeight: 1.1, letterSpacing: 0.5, fontSize: "0.58rem" }}>
-          {label}
-        </Typography>
-        <Typography variant="body2" fontWeight={600} color="text.primary"
-          sx={{ wordBreak: "break-all", lineHeight: 1.3, fontSize: "0.72rem" }}>
-          {value || "Not provided"}
-        </Typography>
-      </Box>
-    </Box>
-  );
-};
-// ── ConfigField ───────────────────────────────────────────────────────────────
+// ── ConfigField Component (for SuperAdmin tab) ────────────────────────────────
 const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editValue, onChange, showSecretKeys, onToggleSecret }) => {
-  const theme = useTheme();
   const isVisible = showSecretKeys[fieldName];
   const [localValue, setLocalValue] = useState(editValue || "");
+  const [copied, setCopied] = useState(false);
 
-  // Update local value when editValue changes from parent
   useEffect(() => {
     setLocalValue(editValue || "");
   }, [editValue]);
@@ -143,7 +90,7 @@ const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editV
   const handleChange = (e) => {
     const newValue = e.target.value;
     setLocalValue(newValue);
-    onChange(e); // Pass the event to parent
+    onChange(e);
   };
 
   const handleClear = () => {
@@ -151,12 +98,18 @@ const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editV
     onChange({ target: { name: fieldName, value: "" } });
   };
 
-  // For display mode
+  const handleCopy = (text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success(`${label} copied to clipboard`);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const getDisplayValue = () => {
     if (!value) return "Not configured";
     if (isSecret && !isVisible) {
-      // Show dots but don't limit the length
-      return "•".repeat(value.length);
+      return "••••••••••••••••••••••••";
     }
     return value;
   };
@@ -165,88 +118,127 @@ const ConfigField = ({ label, value, icon, isSecret, isEditing, fieldName, editV
   const hasValue = Boolean(value);
 
   return (
-    <TextField
-      fullWidth
-      name={fieldName}
-      label={label}
-      value={isEditing ? localValue : getDisplayValue()}
-      onChange={isEditing ? handleChange : undefined}
-      disabled={!isEditing}
-      size="small"
-      helperText={isEditing && isSecret ? "Leave empty to keep current" : ""}
-      sx={{
-        "& .MuiInputLabel-root": { fontSize: "0.68rem" },
-        "& .MuiInputBase-input": {
-          fontSize: "0.7rem",
-          py: "5px",
-          fontFamily: isSecret && !isVisible && hasValue ? "monospace" : "inherit",
-          letterSpacing: isSecret && !isVisible && hasValue ? "0.1em" : "normal",
-        },
-        "& .MuiFormHelperText-root": { fontSize: "0.58rem", mt: 0.2 },
-        "& .MuiOutlinedInput-root": {
-          borderRadius: 1.2,
-          bgcolor: !isEditing ? alpha(theme.palette.primary.main, 0.015) : "transparent",
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: isEditing ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.22),
-          },
-          "&.Mui-focused": { boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.12)}` },
-        },
-        "& .Mui-disabled": {
-          WebkitTextFillColor: isEmpty && !isEditing
-            ? `${theme.palette.text.disabled} !important`
-            : `${theme.palette.text.primary} !important`,
-        },
-      }}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            {React.cloneElement(icon, {
-              sx: {
-                color: isEmpty && !isEditing ? theme.palette.text.disabled : theme.palette.primary.main,
-                fontSize: 14
-              }
-            })}
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            {isEditing && localValue && (
-              <IconButton
-                onClick={handleClear}
-                edge="end"
-                size="small"
-                sx={{
-                  p: 0.3,
-                  mr: 0.5,
-                  color: theme.palette.text.secondary,
-                  "&:hover": { color: theme.palette.error.main }
-                }}
-              >
-                <CancelIcon sx={{ fontSize: 14 }} />
-              </IconButton>
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.6 }}>
+        <Typography sx={{ fontSize: "0.78rem", fontWeight: 700, color: "#334155" }}>
+          {label}
+        </Typography>
+        {isSecret && (
+          <Typography sx={{ fontSize: "0.68rem", fontWeight: 600, color: "#64748b", bgcolor: "#f1f5f9", px: 0.8, py: 0.2, borderRadius: "6px" }}>
+            Secret Key
+          </Typography>
+        )}
+      </Box>
+
+      {isEditing ? (
+        <TextField
+          fullWidth
+          name={fieldName}
+          type={isSecret && !isVisible ? "password" : "text"}
+          placeholder={`Enter ${label.toLowerCase()}`}
+          value={localValue}
+          onChange={handleChange}
+          size="small"
+          helperText={isSecret ? "Leave empty to keep current saved secret" : ""}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "10px",
+              bgcolor: "#ffffff",
+              fontSize: "0.86rem",
+              borderColor: "#e2e8f0",
+              transition: "all 0.2s ease",
+              "&:hover fieldset": { borderColor: "#102c4a" },
+              "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
+            },
+            "& .MuiFormHelperText-root": { fontSize: "0.7rem", mt: 0.4, color: "#64748b" },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Box sx={{ color: "#102c4a", display: "flex", alignItems: "center" }}>
+                  {React.cloneElement(icon, { sx: { fontSize: 18 } })}
+                </Box>
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                {localValue && (
+                  <IconButton onClick={handleClear} edge="end" size="small" sx={{ color: "#94a3b8", mr: isSecret ? 0.5 : 0 }}>
+                    <CancelIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                )}
+                {isSecret && (
+                  <Tooltip title={isVisible ? "Hide secret" : "Show secret"}>
+                    <IconButton onClick={() => onToggleSecret(fieldName)} edge="end" size="small" sx={{ color: "#94a3b8" }}>
+                      {isVisible ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </InputAdornment>
+            ),
+          }}
+        />
+      ) : (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            p: "9px 12px",
+            borderRadius: "10px",
+            bgcolor: "#f8fafc",
+            border: "1px solid #e2e8f0",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              bgcolor: "#f1f5f9",
+              borderColor: "#cbd5e1",
+            },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, minWidth: 0, flex: 1, pr: 1 }}>
+            <Box sx={{ color: hasValue ? "#102c4a" : "#94a3b8", display: "flex", alignItems: "center", flexShrink: 0 }}>
+              {React.cloneElement(icon, { sx: { fontSize: 18 } })}
+            </Box>
+            <Typography
+              sx={{
+                fontSize: "0.85rem",
+                color: hasValue ? "#0f172a" : "#94a3b8",
+                fontFamily: isSecret && !isVisible && hasValue ? "monospace" : "inherit",
+                fontWeight: hasValue ? 500 : 400,
+                fontStyle: hasValue ? "normal" : "italic",
+                letterSpacing: isSecret && !isVisible && hasValue ? "0.12em" : "normal",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {getDisplayValue()}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.4, flexShrink: 0 }}>
+            {isSecret && hasValue && (
+              <Tooltip title={isVisible ? "Hide value" : "Reveal value"}>
+                <IconButton onClick={() => onToggleSecret(fieldName)} size="small" sx={{ color: "#64748b", p: 0.5, "&:hover": { color: "#102c4a" } }}>
+                  {isVisible ? <VisibilityOffIcon sx={{ fontSize: 17 }} /> : <VisibilityIcon sx={{ fontSize: 17 }} />}
+                </IconButton>
+              </Tooltip>
             )}
-            {isSecret && hasValue && !isEditing && (
-              <IconButton
-                onClick={() => onToggleSecret(fieldName)}
-                edge="end"
-                size="small"
-                sx={{
-                  color: theme.palette.primary.main,
-                  opacity: 0.6,
-                  p: 0.3,
-                  "&:hover": { opacity: 1 }
-                }}
-              >
-                {isVisible ? <VisibilityOffIcon sx={{ fontSize: 14 }} /> : <VisibilityIcon sx={{ fontSize: 14 }} />}
-              </IconButton>
+            {hasValue && (
+              <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
+                <IconButton onClick={() => handleCopy(value)} size="small" sx={{ color: copied ? "#16a34a" : "#64748b", p: 0.5, "&:hover": { color: "#102c4a" } }}>
+                  <CopyIcon sx={{ fontSize: 17 }} />
+                </IconButton>
+              </Tooltip>
             )}
-          </InputAdornment>
-        ),
-      }}
-    />
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 };
-// ── Main ──────────────────────────────────────────────────────────────────────
+
+// ── Main Profile Component ───────────────────────────────────────────────────
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -260,28 +252,17 @@ const Profile = () => {
     useSelector((state) => state.user || {});
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const handleConfirmLogout = async () => {
-    try {
-      await dispatch(logoutUser()).unwrap();
-    } catch (err) {
-      console.error("Logout API failed:", err);
-    }
-    dispatch(logout());
-    navigate("/login");
-  };
   const [isEditing, setIsEditing] = useState(false);
   const [isConfigEditing, setIsConfigEditing] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSecretKeys, setShowSecretKeys] = useState({});
 
-  // Get user from auth slice FIRST (like Sidebar)
-  const { user, role_id, isImpersonating } = useSelector((state) => state.auth);
+  const { user, role_id } = useSelector((state) => state.auth);
 
-  // Get stored user for fallback only
   const getStoredUser = () => {
     try {
-      const stored = localStorage.getItem('user');
+      const stored = localStorage.getItem("user");
       return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
@@ -289,21 +270,22 @@ const Profile = () => {
   };
 
   const storedUser = getStoredUser();
-
-  // PRIORITIZE Redux auth user FIRST (like Sidebar), then fallback to storedUser or userData
-  // const effectiveUser = user || storedUser || userData;
   const effectiveUser = userData || user || storedUser;
   const effectiveRoleId = userData?.role_id || user?.role_id || storedUser?.role_id || role_id;
-  // const effectiveRoleId = user?.role_id || storedUser?.role_id || userData?.role_id || role_id;
 
   const isSuperAdmin = Number(effectiveRoleId) === 2;
   const isAdmin = Number(effectiveRoleId) === 1;
   const isSubAdmin = Number(effectiveRoleId) === 3;
 
-  // Check if impersonating
-  const isImpersonatingActive = isImpersonating || localStorage.getItem('isImpersonating') === 'true';
+  const emptyConfig = {
+    razorpayKeyId: "",
+    razorpayKeySecret: "",
+    razorpayWebhookSecret: "",
+    gmailUser: "",
+    gmailAppPass: "",
+    emailFrom: "",
+  };
 
-  const emptyConfig = { razorpayKeyId: "", razorpayKeySecret: "", razorpayWebhookSecret: "", gmailUser: "", gmailAppPass: "", emailFrom: "" };
   const [formData, setFormData] = useState({ fullName: "", email: "", mobile: "", address: "", avtar: null });
   const [configFormData, setConfigFormData] = useState(emptyConfig);
   const [configViewData, setConfigViewData] = useState(emptyConfig);
@@ -314,21 +296,22 @@ const Profile = () => {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [avatarKey, setAvatarKey] = useState(0);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FIX: Use ONLY Redux token (authState.token), never localStorage directly.
-  // localStorage can lag behind Redux during role switches / impersonation,
-  // causing jwtDecode to get the old user's ID and fetch the wrong profile.
-  // The `cancelled` flag prevents a slow in-flight request from overwriting
-  // a newer fetch if the token changes while the first is still pending.
-  // ─────────────────────────────────────────────────────────────────────────────
+  const handleConfirmLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    }
+    dispatch(logout());
+    navigate("/login");
+  };
+
   useEffect(() => {
     let cancelled = false;
 
     const fetchUserData = async () => {
       try {
-        // Only use Redux token — it is always the authoritative, up-to-date value
         const token = authState?.token;
-
         if (!token) {
           navigate("/login");
           return;
@@ -344,11 +327,8 @@ const Profile = () => {
           return;
         }
 
-        console.log("Fetching user data for ID:", userId);
         await dispatch(getUserById(userId)).unwrap();
 
-        // Guard: if the token changed while this request was in-flight (i.e. the
-        // component re-ran the effect with a new token), don't touch local state.
         if (!cancelled) {
           setInitialDataLoaded(true);
           setAvatarKey((prev) => prev + 1);
@@ -368,14 +348,11 @@ const Profile = () => {
 
     fetchUserData();
 
-    // Cleanup: mark any pending fetch from this effect run as stale
     return () => {
       cancelled = true;
     };
-    // Re-run whenever the Redux token changes (covers login, logout, impersonation, role switch)
   }, [dispatch, navigate, authState?.token]);
 
-  // Effect to handle navigation state for opening config tab
   useEffect(() => {
     if (location.state?.openConfigTab && isSuperAdmin) {
       setTabValue(1);
@@ -406,9 +383,7 @@ const Profile = () => {
     }
   }, [config]);
 
-  // Update form data when effectiveUser or userData changes
   useEffect(() => {
-    // Use effectiveUser for display data
     const displayUser = effectiveUser || userData;
 
     if (displayUser?._id) {
@@ -427,10 +402,8 @@ const Profile = () => {
           avatarUrl = `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/${cleanPath}`;
         }
         avatarUrl = `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
-        console.log("Setting avatar URL for user:", displayUser._id, avatarUrl);
         setPreviewImage(avatarUrl);
       } else {
-        console.log("No avatar for user:", displayUser._id);
         setPreviewImage(null);
       }
     }
@@ -480,6 +453,7 @@ const Profile = () => {
     setErrors(newErrors);
     return !Object.values(newErrors).some(Boolean);
   };
+
   const handleSave = async () => {
     if (!validateForm()) return;
 
@@ -498,7 +472,6 @@ const Profile = () => {
       await dispatch(updateUser({ userId: userData._id, formData: payload })).unwrap();
       const refreshed = await dispatch(getUserById(userData._id)).unwrap();
 
-      // ✅ Instantly sync to navbar and sidebar
       if (refreshed?.user) {
         dispatch({ type: "user/setUserInfo", payload: refreshed.user });
       }
@@ -518,6 +491,7 @@ const Profile = () => {
       }
     }
   };
+
   const handleCancel = () => {
     const displayUser = effectiveUser || userData;
     setFormData({
@@ -547,23 +521,17 @@ const Profile = () => {
 
   const handleConfigChange = (e) => {
     const { name, value } = e.target;
-    setConfigFormData(prev => ({
+    setConfigFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
- const handleSaveConfig = async () => {
-    const payload = {};
-    // Include ALL fields, even empty ones, to allow clearing
-    Object.entries(configFormData).forEach(([k, v]) => {
-      payload[k] = v || ""; // Send empty string if value is falsy
-    });
 
-    // Remove this check if you want to allow clearing all fields
-    // if (!Object.keys(payload).length) {
-    //   toast.error("Fill at least one field");
-    //   return;
-    // }
+  const handleSaveConfig = async () => {
+    const payload = {};
+    Object.entries(configFormData).forEach(([k, v]) => {
+      payload[k] = v || "";
+    });
 
     try {
       await dispatch(createOrUpdateConfig(payload)).unwrap();
@@ -576,6 +544,7 @@ const Profile = () => {
       toast.error("Failed to save configuration");
     }
   };
+
   const handleDeleteConfig = async () => {
     try {
       await dispatch(deleteConfig()).unwrap();
@@ -600,23 +569,23 @@ const Profile = () => {
 
   const getRoleInfo = () => {
     const id = effectiveRoleId;
-    if (id === 2) return { icon: <SuperAdminIcon />, label: "Super Admin", color: theme.palette.secondary.main };
-    if (id === 1) return { icon: <AdminIcon />, label: "Admin", color: theme.palette.primary.main };
-    if (id === 3) return { icon: <SubAdminIcon />, label: "Sub Admin", color: theme.palette.info.main };
-    return { icon: <PersonIcon />, label: "User", color: theme.palette.text.secondary };
+    if (id === 2) return { icon: <SuperAdminIcon />, label: "Super Administrator" };
+    if (id === 1) return { icon: <ShieldIcon />, label: "Administrator" };
+    if (id === 3) return { icon: <SubAdminIcon />, label: "Sub Administrator" };
+    return { icon: <PersonIcon />, label: "User" };
   };
+
   const roleInfo = getRoleInfo();
 
-  const editSx = {
-    "& .MuiInputLabel-root": { fontSize: "0.68rem" },
-    "& .MuiInputBase-input": { fontSize: "0.7rem", py: "5px" },
-    "& .MuiFormHelperText-root": { fontSize: "0.58rem", mt: 0.2 },
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 1.2,
-      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-      "&.Mui-focused": { boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.12)}` },
-    },
-    "& .Mui-disabled": { WebkitTextFillColor: `${theme.palette.text.secondary} !important` },
+  const formatMemberSince = (dateStr) => {
+    if (!dateStr) return "Apr 2026";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "Apr 2026";
+      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    } catch {
+      return "Apr 2026";
+    }
   };
 
   const configuredCount = Object.values(configViewData).filter(Boolean).length;
@@ -624,53 +593,51 @@ const Profile = () => {
 
   const configSections = [
     {
-      title: "Payment",
-      icon: <KeyIcon />,
+      title: "Payment Gateway",
+      subtitle: "Razorpay API credentials & webhook keys",
+      icon: <PaymentIcon />,
       fields: [
         { name: "razorpayKeyId", label: "Razorpay Key ID", icon: <KeyIcon />, secret: false },
-        { name: "razorpayKeySecret", label: "Key Secret", icon: <VpnKeyIcon />, secret: true },
-        { name: "razorpayWebhookSecret", label: "Webhook Secret", icon: <VpnKeyIcon />, secret: true },
+        { name: "razorpayKeySecret", label: "Razorpay Key Secret", icon: <VpnKeyIcon />, secret: true },
+        { name: "razorpayWebhookSecret", label: "Webhook Secret", icon: <ShieldIcon />, secret: true },
       ],
     },
     {
-      title: "Gmail",
+      title: "Email Service",
+      subtitle: "Gmail SMTP & platform outgoing mail settings",
       icon: <MailIcon />,
       fields: [
-        { name: "gmailUser", label: "Gmail User", icon: <MailIcon />, secret: false },
-        { name: "gmailAppPass", label: "App Password", icon: <VpnKeyIcon />, secret: true },
-        { name: "emailFrom", label: "Email From", icon: <EmailIcon />, secret: false },
+        { name: "gmailUser", label: "Gmail Account User", icon: <MailIcon />, secret: false },
+        { name: "gmailAppPass", label: "Gmail App Password", icon: <VpnKeyIcon />, secret: true },
+        { name: "emailFrom", label: "Sender 'From' Header", icon: <EmailIcon />, secret: false },
       ],
     },
   ];
 
-  // Show loading state while fetching initial data
   if (!initialDataLoaded && !userData?._id) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <CircularProgress sx={{ color: theme.palette.primary.main }} />
+        <CircularProgress sx={{ color: "#102c4a" }} />
       </Box>
     );
   }
+
+  const memberSinceText = formatMemberSince(effectiveUser?.createdAt || userData?.createdAt);
+  const organizationName = effectiveUser?.organization || effectiveUser?.companyName || effectiveUser?.name || userData?.name || "WalstarCC";
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+        background: "#f8fafc",
         width: "100%",
         overflowX: "hidden",
         position: "relative",
-        py: isMobile ? 1.5 : 2,
-        px: { xs: 0, sm: 0, md: 0 },
+        py: { xs: 2, sm: 3, md: 3.5 },
+        px: { xs: 1.5, sm: 2.5, md: 3.5 },
       }}
     >
-      <Container
-        maxWidth="xl"
-        disableGutters={isMobile}
-        sx={{
-          px: isMobile ? 1 : 2,
-        }}
-      >
+      <Container maxWidth="xl" disableGutters>
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -683,620 +650,1219 @@ const Profile = () => {
           pauseOnHover
           theme="light"
         />
+
         <motion.div variants={stagger} initial="initial" animate="animate">
+          {/* ── Page Header ── */}
+          <motion.div {...fadeUp(0)}>
+            <Box sx={{ mb: { xs: 2.5, sm: 3 }, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+              <Box>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    fontSize: { xs: "1.35rem", sm: "1.65rem", md: "1.85rem" },
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  My Profile
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "#64748b",
+                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    mt: 0.3,
+                  }}
+                >
+                  Manage your account information and settings
+                </Typography>
+              </Box>
 
-        {/* ── Header ── */}
-        <motion.div {...fadeUp(0)}>
-          <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-            <Typography
-              variant={isMobile ? "body1" : "h6"}
-              fontWeight="800"
-              color={theme.palette.primary.main}
-              gutterBottom
-              sx={{
-                color: 'text.primary',
-                fontSize: {
-                  xs: '1rem',
-                  sm: '1.2rem',
-                  md: '1.4rem',
-                  lg: '1.6rem',
-                  xl: '1.8rem'
-                },
-              }}
-            >
-              My Profile
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{
-              display: "flex", alignItems: "center", flexWrap: "wrap",
-              fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
-              mt: -0.5
-            }}>
-              Manage your account information and settings
-            </Typography>
-          </Box>
-        </motion.div>
+              {/* Tabs toggle (Profile Overview | Security | Configuration) */}
+              <Box
+                sx={{
+                  bgcolor: "#ffffff",
+                  p: 0.5,
+                  borderRadius: "14px",
+                  border: "1px solid #e2e8f0",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                }}
+              >
+                <Tabs
+                  value={tabValue}
+                  onChange={(_, v) => setTabValue(v)}
+                  sx={{
+                    minHeight: 36,
+                    "& .MuiTab-root": {
+                      textTransform: "none",
+                      fontWeight: 600,
+                      minHeight: 36,
+                      py: 0.5,
+                      px: 2,
+                      borderRadius: "10px",
+                      fontSize: "0.82rem",
+                      color: "#64748b",
+                      transition: "all 0.2s",
+                    },
+                    "& .Mui-selected": {
+                      color: "#ffffff !important",
+                      bgcolor: "#102c4a",
+                    },
+                    "& .MuiTabs-indicator": { display: "none" },
+                  }}
+                >
+                  <Tab label="Profile Overview" />
+                  <Tab label="Security" />
+                  {isSuperAdmin && <Tab label="Configuration" />}
+                </Tabs>
+              </Box>
+            </Box>
+          </motion.div>
 
-        {/* ── Main Content Row ── */}
-        <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="stretch">
-
-          {/* ── LEFT: Profile card ── */}
-          <Grid item xs={12} md={4}>
-            <motion.div {...fadeUp(0.06)} style={{ height: "100%" }}>
-              <Paper elevation={0} sx={{
-                borderRadius: 2.5,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                overflow: "hidden",
-                boxShadow: `0 4px 20px ${alpha(theme.palette.primary.dark, 0.07)}`,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}>
-                {/* Banner */}
-                <Box sx={{
-                  height: { xs: 60, sm: 70 },
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 65%, #0f2d4a 100%)`,
-                  position: "relative",
-                  overflow: "hidden",
-                  flexShrink: 0,
-                }}>
-                  {[{ s: 80, t: -25, r: -8 }, { s: 50, t: 8, r: 45 }, { s: 35, t: -10, l: 20 }].map((c, i) => (
-                    <Box key={i} sx={{
-                      position: "absolute", width: c.s, height: c.s, borderRadius: "50%",
-                      border: `1.5px solid ${alpha("#fff", 0.15)}`,
-                      bgcolor: alpha("#fff", 0.05),
-                      top: c.t, right: c.r, left: c.l,
-                    }} />
-                  ))}
-                </Box>
-
-                {/* Avatar + info */}
-                <Box sx={{
-                  display: "flex", flexDirection: "column", alignItems: "center",
-                  px: 2.5, pb: 2.5, mt: { xs: -4, sm: -5 }, flex: 1,
-                }}>
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    badgeContent={isEditing && (
-                      <Tooltip title="Change Photo">
-                        <IconButton size="small" component="label" sx={{
-                          bgcolor: theme.palette.primary.main, color: "white",
-                          width: 22, height: 22,
-                          "&:hover": { bgcolor: theme.palette.primary.dark },
-                        }}>
-                          <CameraIcon sx={{ fontSize: 12 }} />
-                          <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  >
-                    <Box sx={{
-                      p: "2px", borderRadius: "50%",
-                      background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.main})`,
-                      boxShadow: `0 4px 14px ${alpha(theme.palette.primary.dark, 0.2)}`,
-                    }}>
-                      {previewImage ? (
-                        <Avatar
-                          key={`avatar-${effectiveUser?._id || userData?._id}-${avatarKey}`}
-                          src={previewImage}
-                          sx={{
-                            width: { xs: 70, sm: 80 }, height: { xs: 70, sm: 80 },
-                            border: `2px solid ${theme.palette.background.paper}`,
-                          }}
-                          imgProps={{
-                            onError: (e) => {
-                              console.error("Avatar failed to load:", previewImage);
-                              e.target.src = "";
-                              setPreviewImage(null);
-                            },
-                          }}
-                        />
-                      ) : (
-                        <Avatar
-                          key={`default-avatar-${effectiveUser?._id || userData?._id}-${avatarKey}`}
-                          sx={{
-                            width: { xs: 70, sm: 80 }, height: { xs: 70, sm: 80 },
-                            bgcolor: alpha(theme.palette.primary.main, 0.1),
-                            color: theme.palette.primary.main,
-                            border: `2px solid ${theme.palette.background.paper}`,
-                          }}
-                        >
-                          {(effectiveUser?.name || userData?.name)?.charAt(0)?.toUpperCase() || <PersonIcon sx={{ fontSize: { xs: 30, sm: 36 } }} />}
-                        </Avatar>
-                      )}
-                    </Box>
-                  </Badge>
-
-                  <Typography fontWeight={800} sx={{
-                    mt: 1, textAlign: "center", letterSpacing: -0.3,
-                    fontSize: "0.82rem", lineHeight: 1.2,
-                  }}>
-                    {effectiveUser?.name || userData?.name || "User Name"}
-                  </Typography>
-
-                  <Chip
-                    icon={React.cloneElement(roleInfo.icon, { sx: { fontSize: "11px !important", color: `${roleInfo.color} !important` } })}
-                    label={roleInfo.label}
-                    size="small"
-                    sx={{
-                      mt: 0.5, height: 20, fontWeight: 700, fontSize: "0.58rem",
-                      bgcolor: alpha(roleInfo.color, 0.1), color: roleInfo.color,
-                      border: `1px solid ${alpha(roleInfo.color, 0.2)}`,
-                      "& .MuiChip-icon": { ml: "4px" },
-                    }}
-                  />
-
-                  <Divider sx={{ width: "100%", my: 1, borderColor: alpha(theme.palette.primary.main, 0.07) }} />
-
-                  <Stack spacing={0.8} sx={{ width: "100%", mb: 2 }}>
-                    {[
-                      (effectiveUser?.email || userData?.email) && { icon: <EmailIcon />, val: effectiveUser?.email || userData?.email },
-                      (effectiveUser?.mobile_no || userData?.mobile_no) && { icon: <PhoneIcon />, val: effectiveUser?.mobile_no || userData?.mobile_no },
-                      (effectiveUser?.createdAt || userData?.createdAt) && { icon: <CalendarIcon />, val: `Since ${new Date(effectiveUser?.createdAt || userData?.createdAt).toLocaleDateString()}` },
-                    ].filter(Boolean).map(({ icon, val, mono }, i) => (
-                      <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {React.cloneElement(icon, { sx: { fontSize: 14, color: "text.secondary" } })}
-                        <Typography variant="caption" color="text.secondary" noWrap sx={{
-                          fontSize: "0.75rem",
-                          fontFamily: mono ? "monospace" : "inherit",
-                          fontWeight: mono ? 500 : 400,
-                        }}>
-                          {val}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-
-                  <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 0.7, mt: "auto" }}>
-                    <Button
-                      fullWidth variant="outlined" size="small"
-                      startIcon={<ResetPasswordIcon sx={{ fontSize: 12 }} />}
-                      onClick={() => navigate("/reset-password-profile")}
+          {/* ── Tab 0: Profile View ── */}
+          {tabValue === 0 && (
+            <Box>
+              {/* Top Row: Equal Height Profile & Personal Information Cards */}
+              <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} alignItems="stretch">
+                {/* ── TOP ROW - LEFT: Profile Info Card ── */}
+                <Grid item xs={12} md={4.5} lg={4} sx={{ display: "flex" }}>
+                  <motion.div {...fadeUp(0.05)} style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+                    <Paper
+                      elevation={0}
                       sx={{
-                        height: 30, borderRadius: 1.5, fontWeight: 700, fontSize: "0.62rem",
-                        borderColor: alpha(theme.palette.primary.main, 0.35),
-                        color: theme.palette.primary.main,
+                        borderRadius: "22px",
+                        bgcolor: "#ffffff",
+                        border: "1px solid #edf2f7",
+                        boxShadow: "0 4px 24px rgba(15, 23, 42, 0.04)",
+                        display: "flex",
+                        flexDirection: "column",
+                        flex: 1,
+                        minHeight: { xs: "auto", md: 380, lg: 410 },
+                        p: { xs: 3, sm: 3.5, md: 4 },
                       }}
                     >
-                      Reset Password
-                    </Button>
-                    <Button
-                      fullWidth variant="outlined" size="small"
-                      startIcon={<LogoutIcon sx={{ fontSize: 12 }} />}
-                      onClick={() => setShowLogoutModal(true)}
-                      sx={{
-                        height: 30, borderRadius: 1.5, fontWeight: 700, fontSize: "0.62rem",
-                        color: "#ef4444", borderColor: alpha("#ef4444", 0.35),
-                        "&:hover": { bgcolor: alpha("#ef4444", 0.05) },
-                      }}
-                    >
-                      Log Out
-                    </Button>
-                  </Box>
-                </Box>
-              </Paper>
-            </motion.div>
-          </Grid>
-
-          {/* ── RIGHT: Tabs panel ── */}
-          <Grid item xs={12} md={8}>
-            <motion.div {...fadeUp(0.1)} style={{ height: "100%" }}>
-              <Paper elevation={0} sx={{
-                borderRadius: 2.5,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                overflow: "hidden",
-                boxShadow: `0 4px 20px ${alpha(theme.palette.primary.dark, 0.07)}`,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}>
-                {/* Tab bar */}
-                <Box sx={{
-                  borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                  bgcolor: alpha(theme.palette.primary.main, 0.016),
-                  display: "flex", alignItems: "center", pr: 0.5, flexShrink: 0,
-                }}>
-                  <Tabs
-                    value={tabValue}
-                    onChange={(_, v) => setTabValue(v)}
-                    variant={isMobile ? "fullWidth" : "standard"}
-                    sx={{
-                      flex: 1, px: { xs: 0, sm: 0.5 }, minHeight: 38,
-                      "& .MuiTab-root": {
-                        textTransform: "none", fontWeight: 600, minHeight: 38,
-                        py: 0.8, fontSize: "0.68rem", color: "text.secondary",
-                      },
-                      "& .Mui-selected": { color: `${theme.palette.primary.main} !important`, fontWeight: 700 },
-                      "& .MuiTabs-indicator": {
-                        height: 2, borderRadius: "2px 2px 0 0",
-                        background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
-                      },
-                    }}
-                  >
-                    <Tab label="Personal Information" />
-                    {isSuperAdmin && <Tab label="Configuration" />}
-                  </Tabs>
-                  {isSuperAdmin && tabValue === 1 && (
-                    <Tooltip title="Refresh">
-                      <IconButton
-                        size="small"
-                        onClick={() => dispatch(getConfig())}
-                        disabled={configLoading}
-                        sx={{ color: theme.palette.primary.main, p: 0.5 }}
+                      {/* Top Header: Avatar on Left, Name & Role on Right */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2.2,
+                          mb: 0.5,
+                        }}
                       >
-                        <RefreshIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                </Box>
-
-                {/* ── Personal Info ── */}
-                <TabPanel value={tabValue} index={0}>
-                  <Box sx={{ px: { xs: 1.5, sm: 2 } }}>
-                    <AnimatePresence mode="wait">
-                      {isEditing ? (
-                        <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <Grid container spacing={1.5}>
-                            <Grid item xs={12}>
-                              <TextField
-                                fullWidth name="fullName" label="Full Name"
-                                value={formData.fullName}
-                                onChange={handleChange} onBlur={handleBlur}
-                                error={!!errors.fullName && touched.fullName}
-                                helperText={touched.fullName && errors.fullName}
-                                size="small" sx={editSx}
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      <PersonIcon sx={{ color: theme.palette.primary.main, fontSize: 15 }} />
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth name="email" label="Email"
-                                value={formData.email} disabled size="small" sx={editSx}
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      <EmailIcon sx={{ color: theme.palette.primary.main, fontSize: 15 }} />
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                fullWidth name="mobile" label="Mobile Number"
-                                value={formData.mobile}
-                                onChange={handleChange} onBlur={handleBlur}
-                                error={!!errors.mobile && touched.mobile}
-                                helperText={touched.mobile && errors.mobile}
-                                size="small" sx={editSx}
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      <PhoneIcon sx={{ color: theme.palette.primary.main, fontSize: 15 }} />
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <TextField
-                                fullWidth name="address" label="Address"
-                                value={formData.address}
-                                onChange={handleChange} onBlur={handleBlur}
-                                error={!!errors.address && touched.address}
-                                helperText={touched.address && errors.address}
-                                size="small" multiline rows={2} sx={editSx}
-                                InputProps={{
-                                  startAdornment: (
-                                    <InputAdornment position="start">
-                                      <LocationIcon sx={{ color: theme.palette.primary.main, fontSize: 15 }} />
-                                    </InputAdornment>
-                                  ),
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-                                <Button
-                                  variant="outlined" onClick={handleCancel} size="small"
-                                  startIcon={<CancelIcon sx={{ fontSize: 13 }} />}
+                        {/* Avatar with Metallic Gold Dual-Ring Border */}
+                        <Badge
+                          overlap="circular"
+                          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                          badgeContent={
+                            isEditing && (
+                              <Tooltip title="Change Photo">
+                                <IconButton
+                                  size="small"
+                                  component="label"
                                   sx={{
-                                    height: 30, borderRadius: 1.5, fontWeight: 700, fontSize: "0.65rem",
-                                    borderColor: alpha(theme.palette.divider, 0.6), color: "text.secondary",
+                                    bgcolor: "#102c4a",
+                                    color: "white",
+                                    width: 26,
+                                    height: 26,
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                                    "&:hover": { bgcolor: "#1e4f7a" },
                                   }}
                                 >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="contained" onClick={handleSave} disabled={loading} size="small"
-                                  startIcon={loading ? null : <SaveIcon sx={{ fontSize: 13 }} />}
-                                  sx={{
-                                    height: 30, borderRadius: 1.5, fontWeight: 700, fontSize: "0.65rem",
-                                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                    boxShadow: `0 3px 10px ${alpha(theme.palette.primary.main, 0.28)}`,
-                                  }}
-                                >
-                                  {loading ? (
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                                      <CircularProgress size={11} sx={{ color: "white" }} />
-                                      <span>Saving...</span>
-                                    </Box>
-                                  ) : "Save Changes"}
-                                </Button>
-                              </Box>
-                            </Grid>
-                          </Grid>
-                        </motion.div>
-                      ) : (
-                        <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <Stack spacing={1.2} sx={{ mb: 2 }}>
-                            <InfoBlock icon={<PersonIcon />} label="Full Name" value={effectiveUser?.name || userData?.name} />
-                            <Box sx={{ display: "flex", gap: 0.9, flexDirection: { xs: "column", sm: "row" } }}>
-                              <Box sx={{ flex: 1 }}>
-                                <InfoBlock icon={<EmailIcon />} label="Email Address" value={effectiveUser?.email || userData?.email} />
-                              </Box>
-                              <Box sx={{ flex: 1 }}>
-                                <InfoBlock icon={<PhoneIcon />} label="Mobile Number" value={effectiveUser?.mobile_no || userData?.mobile_no} />
-                              </Box>
-                            </Box>
-                            <InfoBlock icon={<LocationIcon />} label="Address" value={effectiveUser?.address || userData?.address} />
-                          </Stack>
-
-                          <Divider sx={{ mb: 2, borderColor: alpha(theme.palette.primary.main, 0.07) }} />
-
-                          <Button
-                            variant="contained"
-                            startIcon={<EditIcon sx={{ fontSize: 13 }} />}
-                            onClick={() => setIsEditing(true)}
-                            size="small"
+                                  <CameraIcon sx={{ fontSize: 14 }} />
+                                  <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                                </IconButton>
+                              </Tooltip>
+                            )
+                          }
+                        >
+                          <Box
                             sx={{
-                              height: 30, borderRadius: 1.5, fontWeight: 700, fontSize: "0.65rem",
-                              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                              boxShadow: `0 3px 10px ${alpha(theme.palette.primary.main, 0.28)}`,
-                              alignSelf: "flex-start",
+                              p: "2.8px",
+                              borderRadius: "50%",
+                              background: "linear-gradient(135deg, #e6ca65 0%, #caa038 50%, #9e7518 100%)",
+                              boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                p: "2px",
+                                borderRadius: "50%",
+                                bgcolor: "#ffffff",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {previewImage ? (
+                                <Avatar
+                                  key={`avatar-${effectiveUser?._id || userData?._id}-${avatarKey}`}
+                                  src={previewImage}
+                                  sx={{
+                                    width: 76,
+                                    height: 76,
+                                    bgcolor: "#ffffff",
+                                  }}
+                                  imgProps={{
+                                    onError: () => {
+                                      setPreviewImage(null);
+                                    },
+                                  }}
+                                />
+                              ) : (
+                                <Avatar
+                                  key={`default-avatar-${effectiveUser?._id || userData?._id}-${avatarKey}`}
+                                  sx={{
+                                    width: 76,
+                                    height: 76,
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    fontWeight: 800,
+                                    fontSize: "1.6rem",
+                                  }}
+                                >
+                                  {(effectiveUser?.name || userData?.name)?.charAt(0)?.toUpperCase() || (
+                                    <PersonIcon sx={{ fontSize: 38 }} />
+                                  )}
+                                </Avatar>
+                              )}
+                            </Box>
+                          </Box>
+                        </Badge>
+
+                        {/* Name & Role on the Right Side */}
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: { xs: "1.15rem", sm: "1.25rem" },
+                              color: "#0f172a",
+                              letterSpacing: "-0.01em",
+                              lineHeight: 1.25,
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {effectiveUser?.name || userData?.name || "User Name"}
+                          </Typography>
+
+                          {/* Role Pill Badge */}
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.6,
+                              mt: 0.9,
+                              px: 1.5,
+                              py: 0.4,
+                              borderRadius: "20px",
+                              bgcolor: "#eef4fa",
+                              color: "#102c4a",
+                              fontWeight: 700,
+                              fontSize: "0.78rem",
+                            }}
+                          >
+                            <ShieldIcon sx={{ fontSize: 14, color: "#102c4a" }} />
+                            <span>{roleInfo.label}</span>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Full-Width Soft Line Divider */}
+                      <Box
+                        sx={{
+                          height: "1.5px",
+                          my: 2,
+                          mx: { xs: -3, sm: -3.5, md: -4 },
+                          background: "linear-gradient(90deg, rgba(16,44,74,0.12) 0%, rgba(16,44,74,0.25) 50%, rgba(16,44,74,0.12) 100%)",
+                        }}
+                      />
+
+                      {/* Quick Info Rows Distributed Evenly */}
+                      <Box
+                        sx={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-evenly",
+                          width: "100%",
+                          py: 0.5,
+                        }}
+                      >
+                        {/* Email */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                          <Box
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: "50%",
+                              bgcolor: "#eef4fa",
+                              color: "#102c4a",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <EmailIcon sx={{ fontSize: 20 }} />
+                          </Box>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                              Email Address
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: "0.88rem",
+                                color: "#0f172a",
+                                fontWeight: 700,
+                                mt: 0.3,
+                                wordBreak: "break-all",
+                              }}
+                            >
+                              {effectiveUser?.email || userData?.email || "Not provided"}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Mobile */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                          <Box
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: "50%",
+                              bgcolor: "#eef4fa",
+                              color: "#102c4a",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <PhoneIcon sx={{ fontSize: 20 }} />
+                          </Box>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                              Mobile Number
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: "0.88rem",
+                                color: "#0f172a",
+                                fontWeight: 700,
+                                mt: 0.3,
+                              }}
+                            >
+                              {effectiveUser?.mobile_no || userData?.mobile_no || "Not provided"}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Member Since */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                          <Box
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: "50%",
+                              bgcolor: "#eef4fa",
+                              color: "#102c4a",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <CalendarIcon sx={{ fontSize: 20 }} />
+                          </Box>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                              Member Since
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: "0.88rem",
+                                color: "#0f172a",
+                                fontWeight: 700,
+                                mt: 0.3,
+                              }}
+                            >
+                              {memberSinceText}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  </motion.div>
+                </Grid>
+
+                {/* ── TOP ROW - RIGHT: Personal Information Card ── */}
+                <Grid item xs={12} md={7.5} lg={8} sx={{ display: "flex" }}>
+                  <motion.div {...fadeUp(0.1)} style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        borderRadius: "22px",
+                        bgcolor: "#ffffff",
+                        border: "1px solid #edf2f7",
+                        boxShadow: "0 4px 24px rgba(15, 23, 42, 0.04)",
+                        p: { xs: 3, sm: 3.5, md: 4 },
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        flex: 1,
+                        minHeight: { xs: "auto", md: 380, lg: 410 },
+                      }}
+                    >
+                      {/* Card Header */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          mb: 0.5,
+                          flexWrap: "wrap",
+                          gap: 1.5,
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                          <ShieldIcon sx={{ fontSize: 24, color: "#102c4a" }} />
+                          <Typography sx={{ fontWeight: 800, fontSize: { xs: "1.1rem", sm: "1.2rem" }, color: "#0f172a" }}>
+                            Personal Information
+                          </Typography>
+                        </Box>
+
+                        {!isEditing && (
+                          <Button
+                            variant="outlined"
+                            startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+                            onClick={() => setIsEditing(true)}
+                            sx={{
+                              height: 38,
+                              borderRadius: "10px",
+                              fontWeight: 700,
+                              fontSize: "0.82rem",
+                              textTransform: "none",
+                              color: "#102c4a",
+                              borderColor: "#cbd5e1",
+                              px: 2.2,
+                              "&:hover": {
+                                borderColor: "#102c4a",
+                                bgcolor: alpha("#102c4a", 0.05),
+                              },
                             }}
                           >
                             Edit Profile
                           </Button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </Box>
-                </TabPanel>
+                        )}
+                      </Box>
 
-                {/* ── Configuration ── */}
-                {isSuperAdmin && (
-                  <TabPanel value={tabValue} index={1}>
-                    <Box sx={{ px: { xs: 1.5, sm: 2 } }}>
-                      {configLoading ? (
-                        <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-                          <CircularProgress size={22} sx={{ color: theme.palette.primary.main }} />
+                      {/* Full-Width Soft Line Divider */}
+                      <Box
+                        sx={{
+                          height: "1.5px",
+                          my: 2,
+                          mx: { xs: -3, sm: -3.5, md: -4 },
+                          background: "linear-gradient(90deg, rgba(16,44,74,0.12) 0%, rgba(16,44,74,0.25) 50%, rgba(16,44,74,0.12) 100%)",
+                        }}
+                      />
+
+                      {/* Content: View Mode vs Edit Mode */}
+                      <AnimatePresence mode="wait">
+                        {isEditing ? (
+                          <motion.div
+                            key="edit-form"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}
+                          >
+                            <Grid container spacing={2.5}>
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  name="fullName"
+                                  label="Full Name"
+                                  value={formData.fullName}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  error={!!errors.fullName && touched.fullName}
+                                  helperText={touched.fullName && errors.fullName}
+                                  size="small"
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                  }}
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <PersonIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  name="email"
+                                  label="Email Address"
+                                  value={formData.email}
+                                  disabled
+                                  size="small"
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                  }}
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <EmailIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  name="mobile"
+                                  label="Mobile Number"
+                                  value={formData.mobile}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  error={!!errors.mobile && touched.mobile}
+                                  helperText={touched.mobile && errors.mobile}
+                                  size="small"
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                  }}
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <PhoneIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  fullWidth
+                                  name="address"
+                                  label="Address"
+                                  value={formData.address}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  error={!!errors.address && touched.address}
+                                  helperText={touched.address && errors.address}
+                                  size="small"
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                  }}
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <LocationIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              <Grid item xs={12}>
+                                <Box sx={{ display: "flex", gap: 1.2, justifyContent: "flex-end", mt: 1.5 }}>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={handleCancel}
+                                    sx={{
+                                      height: 38,
+                                      borderRadius: "10px",
+                                      fontWeight: 700,
+                                      fontSize: "0.82rem",
+                                      borderColor: "#e2e8f0",
+                                      color: "#64748b",
+                                      textTransform: "none",
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    onClick={handleSave}
+                                    disabled={loading}
+                                    sx={{
+                                      height: 38,
+                                      borderRadius: "10px",
+                                      fontWeight: 700,
+                                      fontSize: "0.82rem",
+                                      textTransform: "none",
+                                      bgcolor: "#0284c7",
+                                      "&:hover": { bgcolor: "#0369a1" },
+                                    }}
+                                  >
+                                    {loading ? "Saving..." : "Save Changes"}
+                                  </Button>
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="view-grid"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={{ flex: 1, display: "flex", flexDirection: "column" }}
+                          >
+                            {/* 4 Items in One Column distributed evenly */}
+                            <Box
+                              sx={{
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-evenly",
+                                width: "100%",
+                                py: 0.5,
+                              }}
+                            >
+                              {/* Full Name */}
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                                <Box
+                                  sx={{
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: "50%",
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <PersonIcon sx={{ fontSize: 20 }} />
+                                </Box>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                  <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                                    Full Name
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.88rem",
+                                      color: "#0f172a",
+                                      fontWeight: 700,
+                                      mt: 0.3,
+                                    }}
+                                  >
+                                    {effectiveUser?.name || userData?.name || "Not provided"}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* Email Address */}
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                                <Box
+                                  sx={{
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: "50%",
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <EmailIcon sx={{ fontSize: 20 }} />
+                                </Box>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                  <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                                    Email Address
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.88rem",
+                                      color: "#0f172a",
+                                      fontWeight: 700,
+                                      mt: 0.3,
+                                      wordBreak: "break-all",
+                                    }}
+                                  >
+                                    {effectiveUser?.email || userData?.email || "Not provided"}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* Mobile Number */}
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                                <Box
+                                  sx={{
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: "50%",
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <PhoneIcon sx={{ fontSize: 20 }} />
+                                </Box>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                  <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                                    Mobile Number
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.88rem",
+                                      color: "#0f172a",
+                                      fontWeight: 700,
+                                      mt: 0.3,
+                                    }}
+                                  >
+                                    {effectiveUser?.mobile_no || userData?.mobile_no || "Not provided"}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* Address */}
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.6 }}>
+                                <Box
+                                  sx={{
+                                    width: 42,
+                                    height: 42,
+                                    borderRadius: "50%",
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <LocationIcon sx={{ fontSize: 20 }} />
+                                </Box>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                  <Typography sx={{ fontSize: "0.74rem", color: "#64748b", fontWeight: 500, lineHeight: 1.1 }}>
+                                    Address
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.88rem",
+                                      color: "#0f172a",
+                                      fontWeight: 700,
+                                      mt: 0.3,
+                                      lineHeight: 1.4,
+                                    }}
+                                  >
+                                    {effectiveUser?.address || userData?.address || "Not provided"}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Paper>
+                  </motion.div>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          {/* ── Tab 1: Security View ── */}
+          {tabValue === 1 && (
+            <motion.div {...fadeUp(0.05)}>
+              <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+                {/* Password & Credentials Card */}
+                <Grid item xs={12} md={6} lg={5}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      borderRadius: "20px",
+                      bgcolor: "#ffffff",
+                      border: "1px solid #edf2f7",
+                      boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+                      p: { xs: 2.5, sm: 3.5 },
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1 }}>
+                        <ShieldIcon sx={{ fontSize: 22, color: "#102c4a" }} />
+                        <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", color: "#0f172a" }}>
+                          Security & Credentials
+                        </Typography>
+                      </Box>
+                      <Typography sx={{ color: "#64748b", fontSize: "0.83rem", mb: 3 }}>
+                        Update your account password and authentication credentials.
+                      </Typography>
+
+                      <Stack spacing={1.5} sx={{ width: "100%" }}>
+                        {/* Reset Password Button */}
+                        <Button
+                          fullWidth
+                          onClick={() => navigate("/reset-password-profile")}
+                          sx={{
+                            height: 44,
+                            borderRadius: "12px",
+                            fontWeight: 700,
+                            fontSize: "0.84rem",
+                            textTransform: "none",
+                            bgcolor: "#102c4a",
+                            color: "#ffffff",
+                            px: 2.2,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            boxShadow: "0 3px 10px rgba(16, 44, 74, 0.2)",
+                            "&:hover": {
+                              bgcolor: "#1e4f7a",
+                            },
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                            <KeyIcon sx={{ fontSize: 18 }} />
+                            <span>Reset Password</span>
+                          </Box>
+                          <ChevronRightIcon sx={{ fontSize: 18 }} />
+                        </Button>
+
+                        {/* Change Password Action */}
+                        <Button
+                          fullWidth
+                          onClick={() => navigate("/reset-password-profile")}
+                          sx={{
+                            height: 44,
+                            borderRadius: "12px",
+                            fontWeight: 700,
+                            fontSize: "0.84rem",
+                            textTransform: "none",
+                            bgcolor: "#ffffff",
+                            color: "#ef4444",
+                            border: "1px solid #fecaca",
+                            px: 2.2,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            "&:hover": {
+                              bgcolor: "#fff5f5",
+                              borderColor: "#f87171",
+                            },
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                            <ShieldIcon sx={{ fontSize: 18 }} />
+                            <span>Change Password</span>
+                          </Box>
+                          <ChevronRightIcon sx={{ fontSize: 18 }} />
+                        </Button>
+                      </Stack>
+                    </Box>
+                  </Paper>
+                </Grid>
+
+                {/* Account Protection Info Card */}
+                <Grid item xs={12} md={6} lg={7}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      borderRadius: "20px",
+                      bgcolor: "#ffffff",
+                      border: "1px solid #edf2f7",
+                      boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+                      p: { xs: 2.5, sm: 3.5 },
+                      height: "100%",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1 }}>
+                      <LockIcon sx={{ fontSize: 22, color: "#102c4a" }} />
+                      <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", color: "#0f172a" }}>
+                        Account Protection
+                      </Typography>
+                    </Box>
+                    <Typography sx={{ color: "#64748b", fontSize: "0.83rem", mb: 2.5 }}>
+                      Security recommendations and current protection status for your account.
+                    </Typography>
+
+                    <Stack spacing={2}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: "14px",
+                          bgcolor: "#f0fdf4",
+                          border: "1px solid #bbf7d0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                        }}
+                      >
+                        <CheckCircleIcon sx={{ fontSize: 22, color: "#16a34a" }} />
+                        <Box>
+                          <Typography sx={{ fontWeight: 700, fontSize: "0.85rem", color: "#166534" }}>
+                            Account Status: Active & Protected
+                          </Typography>
+                          <Typography sx={{ fontSize: "0.78rem", color: "#15803d", mt: 0.2 }}>
+                            Your session is secured using token-based authentication.
+                          </Typography>
                         </Box>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: "14px",
+                          bgcolor: "#f8fafc",
+                          border: "1px solid #e2e8f0",
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 700, fontSize: "0.82rem", color: "#334155", mb: 0.6 }}>
+                          Password Best Practices
+                        </Typography>
+                        <Typography sx={{ fontSize: "0.78rem", color: "#64748b", lineHeight: 1.6 }}>
+                          • Use a strong password with letters, numbers, and special symbols.<br />
+                          • Avoid reusing passwords across different systems.<br />
+                          • Regularly update your password to maintain high security.
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </motion.div>
+          )}
+
+          {/* ── Tab 2: System Configuration (For Super Admin) ── */}
+          {tabValue === 2 && isSuperAdmin && (
+            <motion.div {...fadeUp(0.05)}>
+              {configLoading ? (
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 10 }}>
+                  <CircularProgress size={32} sx={{ color: "#102c4a" }} />
+                </Box>
+              ) : (
+                <Box>
+                  {/* Top Bar with Status & Actions */}
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 2, sm: 2.5 },
+                      mb: 3,
+                      borderRadius: "18px",
+                      bgcolor: "#ffffff",
+                      border: "1px solid #edf2f7",
+                      boxShadow: "0 4px 20px rgba(15, 23, 42, 0.03)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 2,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          px: 1.8,
+                          py: 0.7,
+                          borderRadius: "12px",
+                          bgcolor: configuredCount === totalConfig ? "#f0fdf4" : "#eef4fa",
+                          border: `1px solid ${configuredCount === totalConfig ? "#bbf7d0" : "#cbd5e1"}`,
+                        }}
+                      >
+                        {configuredCount === totalConfig ? (
+                          <CheckCircleIcon sx={{ fontSize: 18, color: "#16a34a" }} />
+                        ) : (
+                          <ErrorOutlineIcon sx={{ fontSize: 18, color: "#102c4a" }} />
+                        )}
+                        <Typography
+                          sx={{
+                            fontSize: "0.82rem",
+                            fontWeight: 700,
+                            color: configuredCount === totalConfig ? "#16a34a" : "#102c4a",
+                          }}
+                        >
+                          {configuredCount}/{totalConfig} Keys Configured
+                        </Typography>
+                      </Box>
+                      <Typography sx={{ color: "#64748b", fontSize: "0.82rem", display: { xs: "none", sm: "block" } }}>
+                        All keys are encrypted and secured on the server.
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Tooltip title="Refresh Configuration">
+                        <IconButton
+                          size="small"
+                          onClick={() => dispatch(getConfig())}
+                          disabled={configLoading}
+                          sx={{
+                            color: "#102c4a",
+                            p: 0.9,
+                            bgcolor: "#eef4fa",
+                            borderRadius: "10px",
+                            "&:hover": { bgcolor: alpha("#102c4a", 0.12) },
+                          }}
+                        >
+                          <RefreshIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Tooltip>
+
+                      {!isConfigEditing ? (
+                        <Button
+                          variant="contained"
+                          startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+                          onClick={() => setIsConfigEditing(true)}
+                          sx={{
+                            height: 38,
+                            borderRadius: "10px",
+                            fontWeight: 700,
+                            fontSize: "0.82rem",
+                            bgcolor: "#102c4a",
+                            textTransform: "none",
+                            px: 2,
+                            boxShadow: "0 2px 8px rgba(16, 44, 74, 0.2)",
+                            "&:hover": { bgcolor: "#1e4f7a" },
+                          }}
+                        >
+                          Edit Configuration
+                        </Button>
                       ) : (
-                        <>
-                          {/* Status + toolbar row */}
-                          <Box sx={{
-                            display: "flex", alignItems: "center", gap: 1, mb: 1.5,
-                            flexWrap: "wrap", flexShrink: 0,
-                          }}>
-                            <Box sx={{
-                              display: "flex", alignItems: "center", gap: 0.6, flex: 1, minWidth: 150,
-                              px: 1, py: 0.4, borderRadius: 1.5,
-                              bgcolor: alpha(configuredCount === totalConfig ? "#22c55e" : theme.palette.primary.main, 0.06),
-                              border: `1px solid ${alpha(configuredCount === totalConfig ? "#22c55e" : theme.palette.primary.main, 0.14)}`,
-                            }}>
-                              {configuredCount === totalConfig
-                                ? <CheckCircleIcon sx={{ fontSize: 12, color: "#22c55e" }} />
-                                : <ErrorOutlineIcon sx={{ fontSize: 12, color: theme.palette.primary.main }} />}
-                              <Typography sx={{
-                                fontSize: "0.6rem", fontWeight: 700,
-                                color: configuredCount === totalConfig ? "#16a34a" : theme.palette.primary.main,
-                              }}>
-                                {configuredCount}/{totalConfig} configured
-                              </Typography>
-                              <Box sx={{
-                                flex: 1, height: 3, borderRadius: 2,
-                                bgcolor: alpha(theme.palette.primary.main, 0.1), overflow: "hidden",
-                              }}>
-                                <Box sx={{
-                                  height: "100%", borderRadius: 2,
-                                  width: `${(configuredCount / totalConfig) * 100}%`,
-                                  background: configuredCount === totalConfig
-                                    ? "linear-gradient(90deg, #22c55e, #16a34a)"
-                                    : `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
-                                  transition: "width 0.4s ease",
-                                }} />
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<DeleteIcon sx={{ fontSize: 16 }} />}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={configDeleteLoading || configUpdateLoading}
+                            sx={{ height: 38, borderRadius: "10px", fontWeight: 700, fontSize: "0.8rem", textTransform: "none" }}
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            onClick={handleCancelConfig}
+                            disabled={configUpdateLoading}
+                            sx={{
+                              height: 38,
+                              borderRadius: "10px",
+                              fontWeight: 700,
+                              fontSize: "0.8rem",
+                              borderColor: "#e2e8f0",
+                              color: "#64748b",
+                              textTransform: "none",
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="contained"
+                            startIcon={<SaveIcon sx={{ fontSize: 16 }} />}
+                            onClick={handleSaveConfig}
+                            disabled={configUpdateLoading}
+                            sx={{
+                              height: 38,
+                              borderRadius: "10px",
+                              fontWeight: 700,
+                              fontSize: "0.8rem",
+                              bgcolor: "#102c4a",
+                              textTransform: "none",
+                              "&:hover": { bgcolor: "#1e4f7a" },
+                            }}
+                          >
+                            {configUpdateLoading ? "Saving..." : "Save Config"}
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
+                  </Paper>
+
+                  {/* Delete Confirmation Alert */}
+                  <AnimatePresence>
+                    {showDeleteConfirm && (
+                      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+                        <Paper
+                          sx={{
+                            p: 2,
+                            mb: 3,
+                            bgcolor: "#fef2f2",
+                            border: "1px solid #fecaca",
+                            borderRadius: "14px",
+                          }}
+                        >
+                          <Typography sx={{ display: "block", mb: 1.2, color: "#991b1b", fontSize: "0.85rem", fontWeight: 600 }}>
+                            Delete entire configuration? This will remove all payment and email keys.
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={handleDeleteConfig}
+                              disabled={configDeleteLoading}
+                              sx={{
+                                borderRadius: "8px",
+                                fontWeight: 700,
+                                fontSize: "0.78rem",
+                                bgcolor: "#ef4444",
+                                textTransform: "none",
+                                "&:hover": { bgcolor: "#dc2626" },
+                              }}
+                            >
+                              {configDeleteLoading ? "Deleting..." : "Yes, Delete"}
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => setShowDeleteConfirm(false)}
+                              sx={{ borderRadius: "8px", fontWeight: 700, fontSize: "0.78rem", textTransform: "none" }}
+                            >
+                              Cancel
+                            </Button>
+                          </Box>
+                        </Paper>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Configuration Cards Grid */}
+                  <Grid container spacing={{ xs: 2.5, md: 3 }} alignItems="stretch">
+                    {configSections.map((section) => {
+                      const sectionConfiguredCount = section.fields.filter(f => configViewData[f.name]).length;
+                      const isAllConfigured = sectionConfiguredCount === section.fields.length;
+
+                      return (
+                        <Grid item xs={12} md={6} key={section.title} sx={{ display: "flex" }}>
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              width: "100%",
+                              borderRadius: "20px",
+                              bgcolor: "#ffffff",
+                              border: "1px solid #edf2f7",
+                              boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+                              p: { xs: 2.5, sm: 3.5 },
+                              display: "flex",
+                              flexDirection: "column",
+                            }}
+                          >
+                            {/* Card Header */}
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                <Box
+                                  sx={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: "14px",
+                                    bgcolor: "#eef4fa",
+                                    color: "#102c4a",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    boxShadow: "0 4px 12px rgba(16, 44, 74, 0.12)",
+                                  }}
+                                >
+                                  {React.cloneElement(section.icon, { sx: { fontSize: 22 } })}
+                                </Box>
+                                <Box>
+                                  <Typography sx={{ fontWeight: 800, fontSize: "1.05rem", color: "#0f172a" }}>
+                                    {section.title}
+                                  </Typography>
+                                  <Typography sx={{ color: "#64748b", fontSize: "0.78rem" }}>
+                                    {section.subtitle}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* Section Status Badge */}
+                              <Box
+                                sx={{
+                                  px: 1.2,
+                                  py: 0.4,
+                                  borderRadius: "8px",
+                                  bgcolor: isAllConfigured ? "#f0fdf4" : "#fff7ed",
+                                  border: `1px solid ${isAllConfigured ? "#bbf7d0" : "#fed7aa"}`,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.6,
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    width: 7,
+                                    height: 7,
+                                    borderRadius: "50%",
+                                    bgcolor: isAllConfigured ? "#16a34a" : "#f97316",
+                                  }}
+                                />
+                                <Typography
+                                  sx={{
+                                    fontSize: "0.74rem",
+                                    fontWeight: 700,
+                                    color: isAllConfigured ? "#16a34a" : "#ea580c",
+                                  }}
+                                >
+                                  {sectionConfiguredCount}/{section.fields.length} Active
+                                </Typography>
                               </Box>
                             </Box>
 
-                            {!isConfigEditing ? (
-                              <Button
-                                variant="contained"
-                                startIcon={<EditIcon sx={{ fontSize: 12 }} />}
-                                onClick={() => setIsConfigEditing(true)}
-                                size="small"
-                                sx={{
-                                  height: 28, borderRadius: 1.5, fontWeight: 700, fontSize: "0.6rem",
-                                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                }}
-                              >
-                                Edit
-                              </Button>
-                            ) : (
-                              <Box sx={{ display: "flex", gap: 0.6 }}>
-                                <Button
-                                  variant="outlined" color="error"
-                                  startIcon={<DeleteIcon sx={{ fontSize: 11 }} />}
-                                  onClick={() => setShowDeleteConfirm(true)}
-                                  disabled={configDeleteLoading || configUpdateLoading}
-                                  size="small"
-                                  sx={{ height: 28, borderRadius: 1.5, fontWeight: 700, fontSize: "0.55rem" }}
-                                >
-                                  Delete
-                                </Button>
-                                <Button
-                                  variant="outlined" onClick={handleCancelConfig}
-                                  disabled={configUpdateLoading} size="small"
-                                  sx={{
-                                    height: 28, borderRadius: 1.5, fontWeight: 700, fontSize: "0.55rem",
-                                    borderColor: alpha(theme.palette.divider, 0.6), color: "text.secondary",
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  startIcon={<SaveIcon sx={{ fontSize: 11 }} />}
-                                  onClick={handleSaveConfig}
-                                  disabled={configUpdateLoading}
-                                  size="small"
-                                  sx={{
-                                    height: 28, borderRadius: 1.5, fontWeight: 700, fontSize: "0.55rem",
-                                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                  }}
-                                >
-                                  {configUpdateLoading
-                                    ? <CircularProgress size={10} sx={{ color: "white" }} />
-                                    : "Save"}
-                                </Button>
-                              </Box>
-                            )}
-                          </Box>
+                            {/* Full-width soft divider */}
+                            <Box
+                              sx={{
+                                height: "1.5px",
+                                my: 2.5,
+                                mx: { xs: -2.5, sm: -3.5 },
+                                background: "linear-gradient(90deg, rgba(16,44,74,0.12) 0%, rgba(16,44,74,0.25) 50%, rgba(16,44,74,0.12) 100%)",
+                              }}
+                            />
 
-                          {/* Delete confirm */}
-                          <AnimatePresence>
-                            {showDeleteConfirm && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -5 }}
-                              >
-                                <Paper sx={{
-                                  p: 1.2, mb: 1.5,
-                                  bgcolor: alpha("#ef4444", 0.05),
-                                  border: `1px solid ${alpha("#ef4444", 0.2)}`,
-                                  borderRadius: 1.5,
-                                }}>
-                                  <Typography variant="caption" sx={{
-                                    display: "block", mb: 0.6,
-                                    color: theme.palette.error.dark, fontSize: "0.6rem",
-                                  }}>
-                                    Delete entire configuration? This cannot be undone.
-                                  </Typography>
-                                  <Box sx={{ display: "flex", gap: 0.7 }}>
-                                    <Button
-                                      variant="contained" size="small"
-                                      onClick={handleDeleteConfig}
-                                      disabled={configDeleteLoading}
-                                      sx={{
-                                        height: 24, borderRadius: 1.2, fontWeight: 700, fontSize: "0.55rem",
-                                        bgcolor: "#ef4444", "&:hover": { bgcolor: "#dc2626" },
-                                      }}
-                                    >
-                                      {configDeleteLoading
-                                        ? <CircularProgress size={10} sx={{ color: "white" }} />
-                                        : "Yes, Delete"}
-                                    </Button>
-                                    <Button
-                                      variant="outlined" size="small"
-                                      onClick={() => setShowDeleteConfirm(false)}
-                                      sx={{ height: 24, borderRadius: 1.2, fontWeight: 700, fontSize: "0.55rem" }}
-                                    >
-                                      Cancel
-                                    </Button>
-                                  </Box>
-                                </Paper>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-
-                          {/* Two-column config sections */}
-                          <Box sx={{ display: "flex", flexDirection: "row", gap: 2.5, flexWrap: "wrap" }}>
-                            {configSections.map((section) => (
-                              <Box key={section.title} sx={{ flex: { xs: "1 1 100%", sm: "1 1 calc(50% - 12px)" } }}>
-                                <Card elevation={0} sx={{
-                                  borderRadius: 2.5,
-                                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                                  overflow: "hidden", height: "100%",
-                                  display: "flex", flexDirection: "column",
-                                }}>
-                                  <Box sx={{
-                                    px: 2, py: 1.2,
-                                    bgcolor: alpha(theme.palette.primary.main, 0.03),
-                                    borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                                    display: "flex", alignItems: "center", gap: 1, flexShrink: 0,
-                                  }}>
-                                    <Box sx={{
-                                      width: 26, height: 26, borderRadius: 1, flexShrink: 0,
-                                      display: "flex", alignItems: "center", justifyContent: "center",
-                                      background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.14)}, ${alpha(theme.palette.primary.light, 0.07)})`,
-                                      color: theme.palette.primary.main,
-                                    }}>
-                                      {React.cloneElement(section.icon, { sx: { fontSize: 14 } })}
-                                    </Box>
-                                    <Typography sx={{ fontWeight: 700, fontSize: "0.75rem" }} color="text.primary">
-                                      {section.title}
-                                    </Typography>
-                                    <Box sx={{ ml: "auto", display: "flex", gap: 0.5 }}>
-                                      {section.fields.map(({ name }) => (
-                                        <Tooltip key={name} title={configViewData[name] ? "Configured" : "Not configured"}>
-                                          <Box sx={{
-                                            width: 6, height: 6, borderRadius: "50%",
-                                            bgcolor: configViewData[name] ? "#22c55e" : alpha(theme.palette.text.disabled, 0.3),
-                                          }} />
-                                        </Tooltip>
-                                      ))}
-                                    </Box>
-                                  </Box>
-                                  <Box sx={{ p: 1.8, flex: 1 }}>
-                                    <Stack spacing={1.5}>
-                                      {section.fields.map(({ name, label, icon, secret }) => (
-                                        <ConfigField
-                                          key={name}
-                                          label={label}
-                                          icon={icon}
-                                          isSecret={secret}
-                                          isEditing={isConfigEditing}
-                                          fieldName={name}
-                                          value={configViewData[name]}
-                                          editValue={configFormData[name]}
-                                          onChange={handleConfigChange}
-                                          showSecretKeys={showSecretKeys}
-                                          onToggleSecret={toggleSecretKey}
-                                        />
-                                      ))}
-                                    </Stack>
-                                  </Box>
-                                </Card>
-                              </Box>
-                            ))}
-                          </Box>
-                        </>
-                      )}
-                    </Box>
-                  </TabPanel>
-                )}
-              </Paper>
+                            {/* Form Fields Stack */}
+                            <Stack spacing={2} sx={{ flex: 1, justifyContent: "space-evenly" }}>
+                              {section.fields.map(({ name, label, icon, secret }) => (
+                                <ConfigField
+                                  key={name}
+                                  label={label}
+                                  icon={icon}
+                                  isSecret={secret}
+                                  isEditing={isConfigEditing}
+                                  fieldName={name}
+                                  value={configViewData[name]}
+                                  editValue={configFormData[name]}
+                                  onChange={handleConfigChange}
+                                  showSecretKeys={showSecretKeys}
+                                  onToggleSecret={toggleSecretKey}
+                                />
+                              ))}
+                            </Stack>
+                          </Paper>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
+              )}
             </motion.div>
-          </Grid>
-        </Grid>
+          )}
+        </motion.div>
 
-      </motion.div>
-
-      <LogoutModal
-        show={showLogoutModal}
-        onHide={() => setShowLogoutModal(false)}
-        onConfirm={handleConfirmLogout}
-        title="Sign Out"
-        message="Are you sure you want to sign out?"
-        subMessage="You will be redirected to the login page."
-      />
+        {/* Sign Out Modal */}
+        <LogoutModal
+          show={showLogoutModal}
+          onHide={() => setShowLogoutModal(false)}
+          onConfirm={handleConfirmLogout}
+          title="Sign Out"
+          message="Are you sure you want to sign out?"
+          subMessage="You will be redirected to the login page."
+        />
       </Container>
     </Box>
   );

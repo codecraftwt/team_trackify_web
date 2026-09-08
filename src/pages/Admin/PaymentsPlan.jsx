@@ -104,56 +104,103 @@ const PlanCardSkeleton = () => {
   const theme = useTheme();
   return (
     <Grid item xs={12} md={6} lg={4} sx={{ display: "flex" }}>
-      <Card elevation={0} sx={{
+      <Card
+        elevation={0}
+        sx={{
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           borderRadius: 2.5,
-          border: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.1),
+          border: "2px solid",
+          borderColor: alpha(theme.palette.divider, 0.6),
+          bgcolor: "#ffffff",
+          boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
         }}
       >
-        <Box
-          sx={{
-            bgcolor: theme.palette.primary.main,
-            py: 2,
-            px: 2.5,
-            borderTopLeftRadius: 10,
-            borderTopRightRadius: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Skeleton variant="circular" width={36} height={36} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
-            <Box>
-              <Skeleton variant="text" width={100} height={22} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
-              <Skeleton variant="text" width={70} height={14} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
-            </Box>
-          </Box>
-          <Skeleton variant="rounded" width={55} height={22} sx={{ bgcolor: alpha("#ffffff", 0.2), borderRadius: 2 }} />
-        </Box>
-        <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-          <Skeleton variant="text" width="90%" height={18} sx={{ mb: 1, bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
-          <Skeleton variant="text" width="60%" height={18} sx={{ mb: 2.5, bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
-          <Box sx={{ textAlign: "center", mb: 2.5 }}>
-            <Skeleton variant="text" width={90} height={40} sx={{ mx: "auto", mb: 1, bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
-            <Skeleton variant="text" width={70} height={14} sx={{ mx: "auto", bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
-          </Box>
-          <Stack direction="row" spacing={1.5} sx={{ mb: 2.5 }}>
-            <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="60%" height={14} sx={{ mb: 1, bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={14} height={14} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
-                <Skeleton variant="text" width={25} height={18} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }} />
+        <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+          {/* Header Row: Icon Avatar + Title/Subtitle + Duration Chip */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Skeleton
+                variant="rounded"
+                width={40}
+                height={40}
+                sx={{ borderRadius: "50%", bgcolor: alpha(theme.palette.primary.main, 0.08) }}
+              />
+              <Box>
+                <Skeleton variant="text" width={110} height={24} sx={{ borderRadius: "4px" }} />
+                <Skeleton variant="text" width={65} height={16} sx={{ borderRadius: "4px", mt: 0.3 }} />
               </Box>
             </Box>
-          </Stack>
+            <Skeleton
+              variant="rounded"
+              width={65}
+              height={24}
+              sx={{ borderRadius: "12px", bgcolor: alpha(theme.palette.primary.main, 0.08) }}
+            />
+          </Box>
+
+          {/* Price & Duration */}
+          <Box sx={{ mb: 2.5 }}>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+              <Skeleton variant="rounded" width={110} height={38} sx={{ borderRadius: "6px" }} />
+              <Skeleton variant="text" width={48} height={20} />
+            </Box>
+          </Box>
+
+          {/* Users Allowed Container */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              mb: 2.5,
+              p: 1.5,
+              bgcolor: "background.default",
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: alpha(theme.palette.divider, 0.4),
+            }}
+          >
+            <Skeleton variant="circular" width={18} height={18} sx={{ flexShrink: 0 }} />
+            <Skeleton variant="text" width="65%" height={18} />
+          </Box>
+
+          <Divider sx={{ mb: 2.5, borderColor: alpha(theme.palette.divider, 0.5) }} />
+
+          {/* Features Section */}
+          <Box sx={{ flexGrow: 1 }}>
+            <Skeleton variant="text" width={100} height={18} sx={{ mb: 1.5, fontWeight: 700 }} />
+            <Stack spacing={1.2}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="85%" height={16} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="70%" height={16} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="90%" height={16} />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="60%" height={16} />
+              </Box>
+            </Stack>
+          </Box>
         </CardContent>
-        <CardActions sx={{ p: 2.5, pt: 0 }}>
-          <Skeleton variant="rounded" width="100%" height={42} sx={{ borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.1) }} />
+
+        {/* Action Button */}
+        <CardActions sx={{ p: 3, pt: 0 }}>
+          <Skeleton
+            variant="rounded"
+            width="100%"
+            height={42}
+            sx={{ borderRadius: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.12) }}
+          />
         </CardActions>
       </Card>
     </Grid>
@@ -1238,7 +1285,7 @@ const PaymentPlans = () => {
               </Box>
             )}
 
-            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+             <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 40, height: 40 }}>
@@ -1316,46 +1363,41 @@ const PaymentPlans = () => {
                 {renderPlanDescription(plan.description)}
               </Box>
 
-              {/* ✅ "Active Plan" badge only shown when truly active (not expired) */}
+              {/* Active / Expired badge */}
               {isActivePlan && (
-                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5 }}>
-                  <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, display: "block", textAlign: "center" }}>
-                    ✓ Active Plan
+                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
+                  <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600 }}>
+                    ✓ Active Subscription
                   </Typography>
-                  {subscriptionExpiry && (
-                    <Typography variant="caption" sx={{ color: theme.palette.success.main, display: "block", textAlign: "center", mt: 0.5, fontSize: "0.68rem", opacity: 0.85 }}>
-                      Expires on {moment(subscriptionExpiry).format("MMMM Do YYYY")}
-                    </Typography>
-                  )}
                 </Box>
               )}
 
-              {/* ✅ Show "Expired" badge when this is the current plan but expired */}
               {isCurrentPlan && isSubscriptionExpired && (
-                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.5 }}>
-                  <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600, display: "block", textAlign: "center" }}>
-                    ⚠ Subscription Expired
+                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
+                  <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600 }}>
+                    ⚠ Subscription Expired — Please renew
                   </Typography>
-                  {subscriptionExpiry && (
-                    <Typography variant="caption" sx={{ color: theme.palette.warning.main, display: "block", textAlign: "center", mt: 0.5, fontSize: "0.68rem", opacity: 0.85 }}>
-                      Expired on {moment(subscriptionExpiry).format("MMMM Do YYYY")}
-                    </Typography>
-                  )}
                 </Box>
               )}
             </CardContent>
 
             <CardActions sx={{ p: 2.5, pt: 0 }}>
-              {!isAddOn && isActivePlan ? (
+              {isActivePlan ? (
                 <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                  {/* <Button
+                  <Button
                     fullWidth
                     variant="contained"
                     color="success"
                     disabled
                     startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
                     size="small"
-                    sx={{ py: 1.2, borderRadius: 1.5, bgcolor: "#22c55e", color: "white", fontSize: "0.7rem" }}
+                    sx={{
+                      py: 1.2,
+                      borderRadius: 1.5,
+                      bgcolor: theme.palette.success.main,
+                      color: "white",
+                      fontSize: "0.7rem",
+                    }}
                   >
                     Active Plan
                   </Button>
@@ -1374,19 +1416,22 @@ const PaymentPlans = () => {
                       fontSize: "0.65rem",
                       minWidth: "auto",
                       px: 1.5,
-                      "&:hover": { borderColor: theme.palette.error.main, bgcolor: alpha(theme.palette.error.main, 0.05) },
+                      "&:hover": {
+                        borderColor: theme.palette.error.main,
+                        bgcolor: alpha(theme.palette.error.main, 0.05),
+                      },
                     }}
                   >
                     Cancel
-                  </Button> */}
+                  </Button>
                 </Box>
-              ) : !isAddOn && isCurrentPlan && isSubscriptionExpired ? (
+              ) : isCurrentPlan && isSubscriptionExpired ? (
                 <Button
                   fullWidth
                   variant="contained"
-                  onClick={() => { setSelectedPlanForCoupon(plan); setCouponPopupOpen(true); }}
-                  disabled={orderLoading || processingPlanId === plan._id}
-                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} sx={{ color: "white" }} /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
+                  onClick={() => handleOpenCouponModal(plan)}
+                  disabled={processingPlanId === plan._id}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
                   size="small"
                   sx={{
                     py: 1.2,
@@ -1394,37 +1439,17 @@ const PaymentPlans = () => {
                     bgcolor: theme.palette.primary.main,
                     fontSize: "0.7rem",
                     "&:hover": { bgcolor: theme.palette.primary.dark },
-                    "&.Mui-disabled": { background: alpha(theme.palette.primary.main, 0.3) },
                   }}
                 >
                   Renew Plan
                 </Button>
-              ) : !isAddOn && hasActiveSubscription && !isCurrentPlan ? (
-                // ✅ Other plan while user has an ACTIVE subscription → disabled
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  disabled
-                  startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
-                  size="small"
-                  sx={{ py: 1.2, borderRadius: 1.5, borderColor: alpha(theme.palette.divider, 0.5), color: "text.disabled", fontSize: "0.7rem" }}
-                >
-                  Subscribe Now
-                </Button>
-              ) : (
-                // ✅ Default: no active subscription (or expired) → Subscribe Now / Upgrade Now
+              ) : isAddOn ? (
                 <Button
                   fullWidth
                   variant="contained"
-                  onClick={() => { setSelectedPlanForCoupon(plan); setCouponPopupOpen(true); }}
-                  disabled={orderLoading || addOnOrderLoading || processingPlanId === plan._id || isDisabled}
-                  startIcon={
-                    processingPlanId === plan._id
-                      ? <CircularProgress size={14} sx={{ color: "white" }} />
-                      : isAddOn
-                        ? <ArrowUpIcon sx={{ fontSize: 16 }} />
-                        : <CreditCardIcon sx={{ fontSize: 16 }} />
-                  }
+                  onClick={() => handleOpenCouponModal(plan)}
+                  disabled={isDisabled || processingPlanId === plan._id}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <AddIcon sx={{ fontSize: 16 }} />}
                   size="small"
                   sx={{
                     py: 1.2,
@@ -1432,10 +1457,36 @@ const PaymentPlans = () => {
                     bgcolor: theme.palette.primary.main,
                     fontSize: "0.7rem",
                     "&:hover": { bgcolor: theme.palette.primary.dark },
-                    "&.Mui-disabled": { background: alpha(theme.palette.primary.main, 0.3) },
+                    "&.Mui-disabled": { bgcolor: alpha(theme.palette.primary.main, 0.3) },
                   }}
                 >
-                  {isAddOn ? "Upgrade Now" : "Subscribe Now"}
+                  {processingPlanId === plan._id ? "Processing..." : "Upgrade"}
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant={isRecommended ? "contained" : "outlined"}
+                  onClick={() => handleOpenCouponModal(plan)}
+                  disabled={isDisabled || processingPlanId === plan._id}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
+                  size="small"
+                  sx={{
+                    py: 1.2,
+                    borderRadius: 1.5,
+                    bgcolor: isRecommended ? theme.palette.primary.main : "transparent",
+                    color: isRecommended ? "white" : theme.palette.primary.main,
+                    borderColor: theme.palette.primary.main,
+                    fontSize: "0.7rem",
+                    "&:hover": {
+                      bgcolor: isRecommended ? theme.palette.primary.dark : alpha(theme.palette.primary.main, 0.05),
+                    },
+                    "&.Mui-disabled": {
+                      bgcolor: isRecommended ? alpha(theme.palette.primary.main, 0.3) : "transparent",
+                      borderColor: alpha(theme.palette.primary.main, 0.3),
+                    },
+                  }}
+                >
+                  {processingPlanId === plan._id ? "Processing..." : "Subscribe"}
                 </Button>
               )}
             </CardActions>
@@ -1461,12 +1512,17 @@ const PaymentPlans = () => {
                 Choose the perfect plan for your team
               </Typography>
             </Box>
-            <Skeleton variant="rounded" width={100} height={36} sx={{ borderRadius: 2 }} />
+            <Skeleton variant="rounded" width={130} height={36} sx={{ borderRadius: 2 }} />
           </Box>
+
           <Box sx={{ mb: 5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-              <Skeleton variant="circular" width={32} height={32} />
-              <Skeleton variant="text" width={180} height={28} />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
+                <CreditCardIcon sx={{ fontSize: 18 }} />
+              </Avatar>
+              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+                Subscription Plans
+              </Typography>
             </Box>
             <Grid container spacing={2.5} alignItems="stretch">
               <PlanCardSkeleton />
@@ -1474,10 +1530,15 @@ const PaymentPlans = () => {
               <PlanCardSkeleton />
             </Grid>
           </Box>
+
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-              <Skeleton variant="circular" width={32} height={32} />
-              <Skeleton variant="text" width={180} height={28} />
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
+                <AddIcon sx={{ fontSize: 18 }} />
+              </Avatar>
+              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+                Add-on Plans
+              </Typography>
             </Box>
             <Grid container spacing={2.5} alignItems="stretch">
               <PlanCardSkeleton />
@@ -1489,7 +1550,7 @@ const PaymentPlans = () => {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Main render
+// Main render
   // ─────────────────────────────────────────────────────────────
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 3 }}>
