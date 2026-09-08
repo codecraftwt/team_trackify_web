@@ -160,7 +160,7 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => isEligible && !isApplying && onUse(code)}
         sx={{
-          px: 1.5, py: 1.1,
+          p: 2,
           borderRadius: 2,
           border: `1.5px solid`,
           borderColor: isEligible && isHovered ? accent : T.border,
@@ -190,13 +190,13 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
             {isPopular && (
               <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.2,
-                px: 0.5, py: 0.1, borderRadius: 0.8,
+                display: 'flex', alignItems: 'center', gap: 0.4,
+                px: 1, py: 0.3, borderRadius: 1,
                 bgcolor: alpha(T.gold, 0.12),
                 border: `1px solid ${alpha(T.gold, 0.3)}`,
               }}>
-                <SafeIcon icon={BoltIcon} sx={iconStyle} color={T.gold} />
-                <Typography sx={{ fontSize: '0.48rem', fontWeight: 800, color: T.gold, letterSpacing: 0.3 }}>HOT</Typography>
+                <SafeIcon icon={BoltIcon} sx={{ fontSize: 10 }} color={T.gold} />
+                <Typography sx={{ fontSize: '0.55rem', fontWeight: 800, color: T.gold, letterSpacing: 0.3 }}>HOT</Typography>
               </Box>
             )}
             
@@ -212,13 +212,13 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
             )}
 
             <Box sx={{
-              display: 'flex', alignItems: 'center', gap: 0.4,
-              px: 0.8, py: 0.3, borderRadius: 1,
+              display: 'flex', alignItems: 'center', gap: 0.6,
+              px: 1, py: 0.5, borderRadius: 1.5,
               bgcolor: alpha(accent, 0.08),
               border: `1px solid ${alpha(accent, 0.2)}`,
             }}>
-              <SafeIcon icon={LocalOfferIcon} sx={iconStyle} color={accent} />
-              <Typography sx={{ fontSize: '0.6rem', fontWeight: 800, color: accent, letterSpacing: 0.8 }}>
+              <SafeIcon icon={LocalOfferIcon} sx={{ fontSize: 12 }} color={accent} />
+              <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: accent, letterSpacing: 0.8 }}>
                 {code}
               </Typography>
             </Box>
@@ -246,34 +246,34 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
           </Box>
 
           <Box sx={{
-            display: 'flex', alignItems: 'center', gap: 0.2,
-            px: 0.7, py: 0.2, borderRadius: 0.8,
+            display: 'flex', alignItems: 'center', gap: 0.4,
+            px: 1, py: 0.4, borderRadius: 1,
             bgcolor: accentPale,
             border: `1px solid ${alpha(accent, 0.2)}`,
           }}>
             {isPercent
-              ? <SafeIcon icon={PercentIcon} sx={smallIconStyle} color={accentLight} />
-              : <SafeIcon icon={CurrencyRupeeIcon} sx={smallIconStyle} color={accentLight} />}
-            <Typography sx={{ fontSize: '0.55rem', fontWeight: 800, color: accent }}>
+              ? <SafeIcon icon={PercentIcon} sx={{ fontSize: 12 }} color={accentLight} />
+              : <SafeIcon icon={CurrencyRupeeIcon} sx={{ fontSize: 12 }} color={accentLight} />}
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 800, color: accent }}>
               {isPercent ? `${discountValue}%` : `₹${discountValue}`} OFF
             </Typography>
           </Box>
         </Box>
 
         <Typography sx={{
-          fontSize: '0.6rem', color: T.textSub,
-          mt: 0.5, lineHeight: 1.3,
+          fontSize: '0.65rem', color: T.textSub,
+          mt: 1, lineHeight: 1.4,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           maxWidth: '90%',
         }}>
           {description}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.5, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
           {minAmount > 0 && (
             <Typography sx={{
-              fontSize: '0.5rem', color: T.textMuted,
-              px: 0.5, py: 0.1, borderRadius: 0.6,
+              fontSize: '0.55rem', color: T.textMuted,
+              px: 0.8, py: 0.2, borderRadius: 1,
               bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
             }}>
               Min ₹{minAmount}
@@ -283,12 +283,12 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
           {!isUnlimited && remainingUses !== null && remainingUses > 0 && (
             <Tooltip title={`${remainingUses} uses left`}>
               <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.3,
-                px: 0.5, py: 0.1, borderRadius: 0.6,
+                display: 'flex', alignItems: 'center', gap: 0.4,
+                px: 0.8, py: 0.2, borderRadius: 1,
                 bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
               }}>
-                <SafeIcon icon={PeopleIcon} sx={smallIconStyle} color={T.textMuted} />
-                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
+                <SafeIcon icon={PeopleIcon} sx={{ fontSize: 10 }} color={T.textMuted} />
+                <Typography sx={{ fontSize: '0.55rem', color: T.textMuted }}>
                   {remainingUses} left
                 </Typography>
               </Box>
@@ -542,8 +542,8 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
               <Box sx={{ textAlign: 'right' }}>
                 <Typography sx={{ fontSize: '0.5rem', color: T.textMuted, mb: 0.1 }}>one-time</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.2 }}>
-                  <Typography sx={{ fontSize: '0.7rem', color: T.gold, fontWeight: 700 }}>₹</Typography>
-                  <Typography sx={{ fontSize: '1.35rem', fontWeight: 900, color: T.gold, letterSpacing: -0.8, lineHeight: 1 }}>
+                  <Typography sx={{ fontSize: '0.7rem', color: T.indigo, fontWeight: 700 }}>₹</Typography>
+                  <Typography sx={{ fontSize: '1.35rem', fontWeight: 900, color: T.indigo, letterSpacing: -0.8, lineHeight: 1 }}>
                     {planPrice || 0}
                   </Typography>
                 </Box>
@@ -767,11 +767,11 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
               <Button fullWidth onClick={handleDirectPayment} disabled={isDirectPayment}
                 endIcon={<ArrowForwardIcon sx={{ fontSize: 13 }} />}
                 sx={{
-                  mt: 1.2, py: 0.9, borderRadius: 1.8,
-                  border: `1px dashed ${T.borderStrong}`,
-                  color: T.textSub, fontSize: '0.65rem', fontWeight: 600,
+                  mt: 1.2, py: 1, borderRadius: 1.8,
+                  border: `1px solid ${T.indigo}`,
+                  color: T.indigo, fontSize: '0.65rem', fontWeight: 700,
                   bgcolor: 'transparent',
-                  '&:hover': { border: `1px dashed ${T.indigo}`, bgcolor: T.indigoPale, color: T.indigo },
+                  '&:hover': { border: `1px solid ${T.indigo}`, bgcolor: alpha(T.indigo, 0.05), color: T.indigo },
                   transition: 'all 0.18s ease',
                 }}>
                 Continue without coupon — ₹{planPrice || 0}

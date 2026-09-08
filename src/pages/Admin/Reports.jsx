@@ -142,14 +142,14 @@ const SummaryCards = ({ summary, loading }) => {
               borderRadius: isMobile ? 2 : 3,
               border: "1px solid",
               borderColor: alpha(card.color, 0.2),
-              background: `linear-gradient(135deg, ${alpha(card.color, 0.05)}, ${alpha(card.color, 0.02)})`,
+              bgcolor: "background.paper",
               transition: "all 0.3s ease",
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
               "&:hover": {
-                transform: isMobile ? "translateY(-2px)" : "translateY(-4px)",
-                boxShadow: `0 ${isMobile ? 4 : 8}px ${isMobile ? 12 : 20}px ${alpha(card.color, 0.15)}`,
+                borderColor: card.color,
+                boxShadow: "none"
               },
             }}
           >
@@ -908,9 +908,7 @@ const Reports = () => {
               fontWeight={700}
               gutterBottom
               sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "text.primary",
                 fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.8rem' }
               }}
           >
@@ -928,10 +926,11 @@ const Reports = () => {
           disabled={loading || isDownloading}
           size="small"
           sx={{
-            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+            bgcolor: theme.palette.primary.main,
             fontSize: { xs: '0.65rem', sm: '0.7rem' },
             height: 34,
             minWidth: { xs: '100%', sm: 120 },
+            "&:hover": { bgcolor: theme.palette.primary.dark }
           }}
         >
           {isDownloading ? "Downloading..." : "Download PDF"}

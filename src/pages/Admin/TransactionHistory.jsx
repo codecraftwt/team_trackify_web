@@ -149,7 +149,6 @@ const TypeBadge = ({ type }) => {
       bgcolor: isAddon ? alpha("#8b5cf6", 0.1) : alpha("#3b82f6", 0.1),
       border: "1px solid", borderColor: isAddon ? alpha("#8b5cf6", 0.3) : alpha("#3b82f6", 0.3),
     }}>
-      {isAddon ? <AddonIcon sx={{ fontSize: 10, color: "#8b5cf6" }} /> : <ReceiptIcon sx={{ fontSize: 10, color: "#3b82f6" }} />}
       <Typography sx={{ fontSize: "0.58rem", fontWeight: 700, color: isAddon ? "#8b5cf6" : "#3b82f6", textTransform: "uppercase", letterSpacing: 0.4 }}>
         {isAddon ? "Add-on" : "Plan"}
       </Typography>
@@ -434,7 +433,7 @@ const TransactionHistory = () => {
                   <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
                 </Avatar>
                 <Box>
-                  <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
+                  <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom sx={{ color: "text.primary", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
                     Transaction History
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>View all your payment transactions</Typography>
@@ -506,18 +505,15 @@ const TransactionHistory = () => {
 
   // ── Main Render ───────────────────────────────────────────────────────────
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
       {/* Header */}
       <Paper elevation={0} sx={{ py: { xs: 0.8, sm: 1, md: 1.2 }, px: { xs: 1.5, sm: 2, md: 2.5 }, borderRadius: 0, bgcolor: "transparent" }}>
         <Container maxWidth="xl" disableGutters={isMobile}>
           <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 1.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: { xs: 36, sm: 40, md: 44 }, height: { xs: 36, sm: 40, md: 44 } }}>
-                <HistoryIcon sx={{ fontSize: { xs: 18, sm: 20, md: 22 } }} />
-              </Avatar>
               <Box>
                 <Typography variant={isMobile ? "h6" : "h5"} fontWeight="700" gutterBottom
-                  sx={{ marginTop: 2, background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
+                  sx={{ marginTop: 2, color: "text.primary", fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" } }}>
                   Transaction History
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" } }}>
@@ -796,7 +792,7 @@ const TransactionHistory = () => {
                         <Paper elevation={0} sx={{
                           p: { xs: 1.5, sm: 2 }, borderRadius: { xs: 1.5, sm: 2 }, border: "1px solid",
                           borderColor: alpha(theme.palette.primary.main, 0.1), transition: "all 0.2s ease",
-                          "&:hover": { borderColor: theme.palette.primary.main, boxShadow: `0 6px 15px -6px ${alpha(theme.palette.primary.main, 0.3)}` },
+                          "&:hover": { borderColor: theme.palette.primary.main, boxShadow: "none" },
                         }}>
                           {/* Card content */}
                           <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, mb: 1.5, gap: 0.8 }}>
