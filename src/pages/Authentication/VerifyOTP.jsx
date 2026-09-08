@@ -6,7 +6,6 @@ import {
   Button,
   Typography,
   Alert,
-  Card,
   Divider,
   Box,
   Paper,
@@ -18,8 +17,8 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { verifyOTP, clearError, clearMessage, forgotPassword } from '../../redux/slices/authSlice';
-import Logo from '../../assets/logo31.png';
-import { ToastContainer,toast  } from 'react-toastify';
+import AuthLayoutLeft from './AuthLayoutLeft';
+import { ToastContainer, toast } from 'react-toastify';
 
 const VerifyOTP = () => {
   const theme = useTheme();
@@ -33,81 +32,41 @@ const VerifyOTP = () => {
   const [email, setEmail] = useState('');
   const inputRefs = useRef([]);
 
-  // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isSmallMobile = useMediaQuery('(max-width:480px)');
 
-  // Get auth state from Redux
-  const { isLoading, error, success, message, otpVerified } = useSelector((state) => state.auth);
+  const { isLoading, error, success, message } = useSelector((state) => state.auth);
 
-  // Get email from location state
   useEffect(() => {
     const stateEmail = location.state?.email;
     if (stateEmail) {
       setEmail(stateEmail);
     } else {
-      // If no email in state, redirect back to forgot password
       navigate('/forgot-password', { replace: true });
     }
   }, [location, navigate]);
 
-  // Timer for resend OTP
   useEffect(() => {
     let interval;
     if (timer > 0 && !canResend) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
     } else if (timer === 0) {
       setCanResend(true);
     }
     return () => clearInterval(interval);
   }, [timer, canResend]);
 
-  // Handle OTP verification success
-  // useEffect(() => {
-  //   if (success && message) {
-  //     setOpenSuccessAlert(true);
-
-  //     const timer = setTimeout(() => {
-  //       setOpenSuccessAlert(false);
-  //       dispatch(clearMessage());
-
-  //       // Navigate to reset password with email and OTP in state
-  //       navigate('/reset-password', {
-  //         state: {
-  //           email: email,
-  //           otp: otp.join('')
-  //         },
-  //         replace: true
-  //       });
-  //     }, 1500);
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [success, message, email, otp, dispatch, navigate]);
-  // Handle OTP verification success
   useEffect(() => {
     if (success && message) {
       setOpenSuccessAlert(true);
-
-      const timer = setTimeout(() => {
+      const t = setTimeout(() => {
         setOpenSuccessAlert(false);
         dispatch(clearMessage());
-
-        navigate('/reset-password', {
-          state: {
-            email: email,
-            otp: otp.join('')
-          },
-          replace: true
-        });
+        navigate('/reset-password', { state: { email, otp: otp.join('') }, replace: true });
       }, 1500);
-
-      return () => clearTimeout(timer);
+      return () => clearTimeout(t);
     }
   }, [success, message, email, otp, dispatch, navigate]);
-  // Clear messages on unmount
+
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -115,50 +74,32 @@ const VerifyOTP = () => {
     };
   }, [dispatch]);
 
-  // Show error toast when error occurs
   useEffect(() => {
     if (error) {
       toast.error(typeof error === 'string' ? error : error?.message || 'Verification failed');
     }
   }, [error]);
-  const handleChange = (index, value) => {
-    // Allow only numbers
-    if (isNaN(value)) return;
 
+  const handleChange = (index, value) => {
+    if (isNaN(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      inputRefs.current[index + 1].focus();
-    }
+    if (value && index < 5) inputRefs.current[index + 1].focus();
   };
 
   const handleKeyDown = (index, e) => {
-    // Move to previous input on backspace if current field is empty
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
+    if (e.key === 'Backspace' && !otp[index] && index > 0) inputRefs.current[index - 1].focus();
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text/plain').slice(0, 6);
     if (!/^\d+$/.test(pastedData)) return;
-
     const pastedOtp = pastedData.split('');
     const newOtp = [...otp];
-
-    pastedOtp.forEach((value, index) => {
-      if (index < 6) {
-        newOtp[index] = value;
-      }
-    });
-
+    pastedOtp.forEach((value, index) => { if (index < 6) newOtp[index] = value; });
     setOtp(newOtp);
-
-    // Focus the next empty input or last input
     const lastFilledIndex = Math.min(pastedOtp.length, 5);
     inputRefs.current[lastFilledIndex].focus();
   };
@@ -168,7 +109,6 @@ const VerifyOTP = () => {
       dispatch(clearError());
       dispatch(clearMessage());
       toast.info('Resending verification code...');
-
       const result = await dispatch(forgotPassword(email));
       if (forgotPassword.fulfilled.match(result)) {
         toast.success('New OTP sent to your email');
@@ -181,215 +121,85 @@ const VerifyOTP = () => {
     }
   };
 
-  // const handleSubmit = async () => {
-  //   const otpString = otp.join('');
-  //   if (otpString.length !== 6) {
-  //      toast.error('Please enter complete 6-digit OTP');
-  //     return;
-  //   }
-
-  //   dispatch(clearError());
-  //   dispatch(clearMessage());
-  //     toast.info('Verifying OTP...');
-
-
-  //   await dispatch(verifyOTP({
-  //     email: email,
-  //     otp: otpString
-  //   }));
-  // };
   const handleSubmit = async () => {
     const otpString = otp.join('');
     if (otpString.length !== 6) {
       toast.error('Please enter complete 6-digit OTP');
       return;
     }
-
     dispatch(clearError());
     dispatch(clearMessage());
     toast.info('Verifying OTP...');
-
-    const result = await dispatch(verifyOTP({
-      email: email,
-      otp: otpString
-    }));
-
+    const result = await dispatch(verifyOTP({ email, otp: otpString }));
     if (verifyOTP.fulfilled.match(result)) {
       toast.success('OTP verified successfully! Redirecting...');
     } else {
       toast.error(result.payload?.message || 'Invalid OTP. Please try again.');
     }
   };
+
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 50%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        py: { xs: 2, sm: 3 },
-        px: { xs: 1, sm: 2 },
-      }}
-    >
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-      {/* Success Snackbar */}
-      <Snackbar
-        open={openSuccessAlert}
-        autoHideDuration={1500}
-        onClose={() => setOpenSuccessAlert(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ mt: { xs: 7, sm: 8 } }}
-      >
-        <Alert
-          severity="success"
-          variant="filled"
-          onClose={() => setOpenSuccessAlert(false)}
-          sx={{
-            width: '100%',
-            boxShadow: 3,
-            fontSize: { xs: '0.75rem', sm: '0.8rem' },
-            py: 0.5,
-          }}
-        >
+    <div className="h-screen flex w-full bg-white font-sans overflow-hidden">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
+
+      <Snackbar open={openSuccessAlert} autoHideDuration={1500} onClose={() => setOpenSuccessAlert(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} sx={{ mt: { xs: 7, sm: 8 } }}>
+        <Alert severity="success" variant="filled" onClose={() => setOpenSuccessAlert(false)} sx={{ width: '100%', boxShadow: 3, fontSize: { xs: '0.75rem', sm: '0.8rem' }, py: 0.5 }}>
           {message || 'OTP verified! Redirecting...'}
         </Alert>
       </Snackbar>
 
-      {/* Error Alert */}
-      {error && (
-        <Alert
-          severity="error"
-          onClose={() => dispatch(clearError())}
-          sx={{
-            position: 'fixed',
-            top: { xs: '70px', sm: '80px' },
-            right: { xs: '10px', sm: '20px' },
-            zIndex: 9999,
-            border: '1px solid',
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-            fontSize: { xs: '0.75rem', sm: '0.8rem' },
-            py: 0.5,
-            maxWidth: { xs: '90%', sm: '400px' },
-          }}
-        >
-          {typeof error === 'string' ? error : error?.message || 'Verification failed'}
-        </Alert>
-      )}
+      {/* Left Column */}
+      <AuthLayoutLeft />
 
-      <Box sx={{ maxWidth: 400, width: '100%' }}>
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <Link to="/" style={{ textDecoration: 'none' }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box
-                  component="img"
-                  src={Logo}
-                  alt="Company Logo"
-                  sx={{
-                    height: { xs: '28px', sm: '32px', md: '36px' },
-                    width: 'auto',
-                    objectFit: 'contain',
-                    display: 'block',
-                    borderRadius: 0.8
-                  }}
-                />
-                <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main, fontSize: { xs: '1.1rem', sm: '1.2rem' } }}>
-                  Team Trackify
+      {/* Right Column (Form) */}
+      <div className="w-1/2 flex flex-col items-center overflow-y-auto h-full bg-white py-8">
+        <Box sx={{ maxWidth: 420, width: '100%', px: { xs: 3, sm: 5, lg: 6 }, py: { xs: 4, sm: 5 }, my: 'auto' }}>
+
+          {/* Header */}
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Typography variant="h4" fontWeight="800" sx={{ color: '#111827', mb: 1, fontSize: { xs: '1.5rem', sm: '1.75rem' }, letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+                Verify OTP
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: { xs: '0.82rem', sm: '0.88rem' }, lineHeight: 1.6, maxWidth: '85%', mx: 'auto' }}>
+                Enter the 6-digit code sent to
+              </Typography>
+              {email && (
+                <Typography variant="body2" fontWeight="600" sx={{ color: theme.palette.primary.main, mt: 0.5, fontSize: '0.85rem', wordBreak: 'break-all' }}>
+                  {email}
                 </Typography>
-              </Box>
-            </Link>
-            <Typography
-              variant="h5"
-              fontWeight="700"
-              sx={{
-                color: 'text.primary',
-                mb: 0.5,
-                fontSize: { xs: '1.3rem', sm: '1.5rem' }
-              }}
-            >
-              Verify OTP
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                fontSize: { xs: '0.75rem', sm: '0.8rem' }
-              }}
-            >
-              Enter the 6-digit code sent to
-            </Typography>
-            <Typography
-              variant="body2"
-              fontWeight="500"
-              sx={{
-                color: theme.palette.primary.main,
-                mt: 0.5,
-                fontSize: { xs: '0.8rem', sm: '0.85rem' },
-                wordBreak: 'break-all',
-              }}
-            >
-              {email}
-            </Typography>
-          </Box>
-        </motion.div>
+              )}
+            </Box>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card sx={{
-            p: { xs: 2, sm: 2.5 },
-            boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
-            border: '1px solid',
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-            borderRadius: { xs: 2, sm: 2.5 },
-          }}>
+          {/* Form */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              {/* OTP Input Boxes */}
+
+              {/* OTP Boxes */}
               <Box>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                    mb: 1.5,
-                    textAlign: 'center',
-                    fontSize: { xs: '0.75rem', sm: '0.8rem' }
-                  }}
-                >
+                <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a1a1a', mb: 1, display: 'block', fontSize: '0.9rem', textAlign: 'left' }}>
                   Enter 6-digit OTP
                 </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 0.8, sm: 1 } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 1, sm: 1.5 } }}>
                   {otp.map((digit, index) => (
                     <Paper
                       key={index}
                       elevation={0}
                       sx={{
-                        width: { xs: 40, sm: 44 },
-                        height: { xs: 48, sm: 52 },
-                        border: '2px solid',
-                        borderColor: error ? 'error.main' : alpha(theme.palette.primary.main, 0.2),
-                        borderRadius: 1.5,
+                        width: { xs: 44, sm: 52 },
+                        height: { xs: 52, sm: 60 },
+                        border: '1px solid',
+                        borderColor: error ? '#ef4444' : '#e5e7eb',
+                        borderRadius: '6px',
                         overflow: 'hidden',
-                        transition: 'border-color 0.2s',
+                        transition: 'all 0.2s ease',
+                        backgroundColor: '#ffffff',
+                        '&:hover': {
+                          borderColor: error ? '#ef4444' : '#d1d5db',
+                        },
                         '&:focus-within': {
-                          borderColor: theme.palette.primary.main,
+                          borderColor: '#0b163f',
                         },
                       }}
                     >
@@ -407,10 +217,10 @@ const VerifyOTP = () => {
                           height: '100%',
                           textAlign: 'center',
                           fontSize: isMobile ? '1.2rem' : '1.3rem',
-                          fontWeight: 600,
+                          fontWeight: 500,
                           outline: 'none',
                           border: 'none',
-                          color: theme.palette.text.primary,
+                          color: '#1a1a1a',
                           backgroundColor: 'transparent',
                         }}
                       />
@@ -419,17 +229,12 @@ const VerifyOTP = () => {
                 </Box>
               </Box>
 
-              {/* Timer and Resend */}
+              {/* Timer / Resend */}
               <Box sx={{ textAlign: 'center' }}>
                 {!canResend ? (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      fontSize: { xs: '0.7rem', sm: '0.75rem' }
-                    }}
-                  >
-                    Resend OTP in <Box component="span" sx={{ color: theme.palette.primary.main, fontWeight: 500, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{timer}s</Box>
+                  <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.8rem' }}>
+                    Resend OTP in{' '}
+                    <Box component="span" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>{timer}s</Box>
                   </Typography>
                 ) : (
                   <Button
@@ -438,12 +243,10 @@ const VerifyOTP = () => {
                     disabled={isLoading}
                     sx={{
                       color: theme.palette.primary.main,
-                      '&:hover': {
-                        backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                      },
+                      '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.05) },
                       textTransform: 'none',
-                      fontWeight: 500,
-                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
                       py: 0.5,
                     }}
                   >
@@ -453,25 +256,28 @@ const VerifyOTP = () => {
               </Box>
 
               {/* Verify Button */}
-              <motion.div whileHover={{ scale: isLoading ? 1 : 1.02 }} whileTap={{ scale: isLoading ? 1 : 0.98 }}>
+              <motion.div whileHover={{ scale: isLoading ? 1 : 1.015 }} whileTap={{ scale: isLoading ? 1 : 0.985 }}>
                 <Button
                   variant="contained"
-                  size="small"
                   fullWidth
                   onClick={handleSubmit}
                   disabled={isLoading || otp.join('').length !== 6 || openSuccessAlert}
                   sx={{
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    color: 'white',
-                    py: { xs: 1, sm: 1.2 },
-                    borderRadius: { xs: 1.5, sm: 2 },
-                    fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                    color: '#ffffff',
+                    py: 1.4,
+                    borderRadius: '10px',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.3px',
+                    boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`,
+                    textTransform: 'none',
+                    transition: 'all 0.25s ease',
                     '&:hover': {
-                      background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                      background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+                      boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.45)}`,
                     },
-                    '&.Mui-disabled': {
-                      background: alpha(theme.palette.primary.main, 0.5),
-                    },
+                    '&.Mui-disabled': { background: alpha(theme.palette.primary.main, 0.45), color: '#ffffff' },
                   }}
                 >
                   {isLoading ? (
@@ -484,30 +290,14 @@ const VerifyOTP = () => {
               </motion.div>
             </Box>
 
-            <Divider sx={{
-              my: { xs: 2, sm: 2.5 },
-              borderColor: alpha(theme.palette.primary.main, 0.1)
-            }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                  px: 1,
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' }
-                }}
-              >
-                OR
-              </Typography>
+            {/* OR Divider */}
+            <Divider sx={{ my: 3, '&::before, &::after': { borderColor: '#e5e7eb' } }}>
+              <Typography variant="caption" sx={{ color: '#9ca3af', px: 1.5, fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.5px' }}>OR</Typography>
             </Divider>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: { xs: '0.7rem', sm: '0.75rem' }
-                }}
-              >
+            {/* Didn't receive code */}
+            <Box sx={{ textAlign: 'center', mb: 2 }}>
+              <Typography variant="body2" sx={{ color: '#6b7280', fontSize: '0.82rem' }}>
                 Didn't receive the code?{' '}
                 <Box
                   component="button"
@@ -520,42 +310,32 @@ const VerifyOTP = () => {
                     font: 'inherit',
                     cursor: canResend && !isLoading ? 'pointer' : 'not-allowed',
                     fontWeight: 600,
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                    color: canResend && !isLoading ? theme.palette.primary.main : theme.palette.text.disabled,
-                    '&:hover': {
-                      color: canResend && !isLoading ? theme.palette.primary.dark : theme.palette.text.disabled,
-                      textDecoration: canResend && !isLoading ? 'underline' : 'none',
-                    },
+                    fontSize: '0.82rem',
+                    color: canResend && !isLoading ? theme.palette.primary.main : '#9ca3af',
+                    '&:hover': { textDecoration: canResend && !isLoading ? 'underline' : 'none' },
                   }}
                 >
                   Resend
                 </Box>
               </Typography>
             </Box>
-          </Card>
 
-          <Box sx={{ mt: 2.5, textAlign: 'center' }}>
-            <Link
-              to="/forgot-password"
-              style={{
-                color: theme.palette.text.secondary,
-                textDecoration: 'none',
-                fontSize: isMobile ? '0.7rem' : '0.75rem',
-                transition: 'color 0.2s',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = theme.palette.primary.main}
-              onMouseLeave={(e) => e.currentTarget.style.color = theme.palette.text.secondary}
-            >
-              <ArrowBackIcon sx={{ fontSize: 14 }} />
-              Back to Forgot Password
-            </Link>
-          </Box>
-        </motion.div>
-      </Box>
-    </Box>
+            {/* Back link */}
+            <Box sx={{ textAlign: 'center' }}>
+              <Link
+                to="/forgot-password"
+                style={{ color: '#9ca3af', textDecoration: 'none', fontSize: '0.78rem', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = theme.palette.primary.main)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+              >
+                <ArrowBackIcon sx={{ fontSize: 14 }} />
+                Back to Forgot Password
+              </Link>
+            </Box>
+          </motion.div>
+        </Box>
+      </div>
+    </div>
   );
 };
 

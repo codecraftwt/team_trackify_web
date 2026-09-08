@@ -653,35 +653,63 @@ const Profile = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 1.5, sm: 2, md: 2.5 } }}>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <motion.div variants={stagger} initial="initial" animate="animate">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+        width: "100%",
+        overflowX: "hidden",
+        position: "relative",
+        py: isMobile ? 1.5 : 2,
+        px: { xs: 0, sm: 0, md: 0 },
+      }}
+    >
+      <Container
+        maxWidth="xl"
+        disableGutters={isMobile}
+        sx={{
+          px: isMobile ? 1 : 2,
+        }}
+      >
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+        <motion.div variants={stagger} initial="initial" animate="animate">
 
         {/* ── Header ── */}
         <motion.div {...fadeUp(0)}>
           <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-            <Typography variant="h5" fontWeight={800} sx={{
-              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" },
-            }}>
+            <Typography
+              variant={isMobile ? "body1" : "h6"}
+              fontWeight="800"
+              color={theme.palette.primary.main}
+              gutterBottom
+              sx={{
+                color: 'text.primary',
+                fontSize: {
+                  xs: '1rem',
+                  sm: '1.2rem',
+                  md: '1.4rem',
+                  lg: '1.6rem',
+                  xl: '1.8rem'
+                },
+              }}
+            >
               My Profile
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{
               display: "flex", alignItems: "center", flexWrap: "wrap",
               fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
+              mt: -0.5
             }}>
               Manage your account information and settings
             </Typography>
@@ -1269,7 +1297,8 @@ const Profile = () => {
         message="Are you sure you want to sign out?"
         subMessage="You will be redirected to the login page."
       />
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

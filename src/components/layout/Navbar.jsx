@@ -552,6 +552,7 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                 mr: 2,
               }}>
                 <Typography
+                  component="div"
                   variant="body1"
                   fontWeight={600}
                   sx={{

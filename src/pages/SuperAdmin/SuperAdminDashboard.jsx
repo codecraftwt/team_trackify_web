@@ -42,19 +42,14 @@ import {
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   BarChart as BarChartIcon,
+  Group as GroupIcon,
+  Person as PersonIcon,
+  PersonOff as PersonOffIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  Timeline as TimelineIcon,
+  CurrencyRupee as CurrencyRupeeIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
-import {
-  FaUsers,
-  FaUserCheck,
-  FaUserTimes,
-  FaUserShield,
-  FaChartLine,
-  FaRupeeSign,
-  FaArrowDown,
-  FaCalendarAlt,
-  FaArrowUp,
-} from "react-icons/fa";
 import { getUserCounts } from "../../redux/slices/userSlice";
 import { getUsersWithExpiringPlans, getPopularPlans } from "../../redux/slices/planSlice";
 import { getRevenueSummary } from "../../redux/slices/paymentSlice";
@@ -79,61 +74,25 @@ const StatsCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
       <Paper
         elevation={0}
         sx={{
-          p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-          borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-          background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+          p: isSmallMobile ? 1.5 : isMobile ? 2 : 2.5,
+          borderRadius: 2,
+          bgcolor: 'background.paper',
           border: "1px solid",
-          borderColor: alpha(theme.palette.primary.main, 0.1),
+          borderColor: "divider",
           height: '100%',
           minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          position: "relative",
-          overflow: "hidden",
         }}
       >
-        <Box sx={{ position: "relative", zIndex: 1 }}>
-          <Box sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexDirection: isSmallMobile ? "column" : "row",
-            textAlign: isSmallMobile ? "center" : "left",
-            gap: isSmallMobile ? 0.5 : 0,
-          }}>
-            <Box>
-              <Skeleton
-                variant="text"
-                width={isSmallMobile ? 45 : isMobile ? 50 : isTablet ? 55 : 60}
-                height={isSmallMobile ? 20 : isMobile ? 22 : isTablet ? 24 : 26}
-                sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), mb: 0.5 }}
-              />
-              <Skeleton
-                variant="text"
-                width={isSmallMobile ? 60 : isMobile ? 65 : isTablet ? 70 : 75}
-                height={isSmallMobile ? 10 : isMobile ? 11 : isTablet ? 12 : 13}
-                sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1) }}
-              />
-            </Box>
-            <Skeleton
-              variant="circular"
-              width={isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38}
-              height={isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38}
-              sx={{ bgcolor: alpha(theme.palette.primary.main, 0.2) }}
-            />
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box>
+            <Skeleton variant="text" width={60} height={28} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width={80} height={14} />
           </Box>
+          <Skeleton variant="circular" width={40} height={40} />
         </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: 2.5,
-            background: alpha(theme.palette.primary.main, 0.1),
-          }}
-        />
       </Paper>
     </Grid>
   );
@@ -147,12 +106,11 @@ const RevenueCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
     <Paper
       elevation={0}
       sx={{
-        p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-        borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-        color: "white",
-        position: "relative",
-        overflow: "hidden",
+        p: isSmallMobile ? 1.5 : isMobile ? 2 : 2.5,
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
         height: '100%',
         minHeight: isSmallMobile ? 120 : isMobile ? 130 : isTablet ? 140 : 150,
         display: 'flex',
@@ -160,107 +118,23 @@ const RevenueCardSkeleton = ({ isSmallMobile, isMobile, isTablet }) => {
         justifyContent: 'space-between',
       }}
     >
-      {/* Header Section Skeleton */}
-      <Box sx={{
-        display: "flex",
-        flexDirection: (isMobile || isTablet) ? "column" : "row",
-        justifyContent: "space-between",
-        alignItems: (isMobile || isTablet) ? "flex-start" : "center",
-        mb: (isMobile || isTablet) ? 0.8 : 1.5,
-        gap: (isMobile || isTablet) ? 0.5 : 0,
-      }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Box>
-          <Skeleton
-            variant="text"
-            width={70}
-            height={isSmallMobile ? 9 : isMobile ? 10 : isTablet ? 11 : 12}
-            sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 0.5 }}
-          />
-          <Skeleton
-            variant="text"
-            width={isSmallMobile ? 90 : isMobile ? 100 : isTablet ? 110 : 120}
-            height={isSmallMobile ? 18 : isMobile ? 19 : isTablet ? 20 : 22}
-            sx={{ bgcolor: alpha("#ffffff", 0.2) }}
-          />
-        </Box>
-        <Box sx={{ textAlign: (isMobile || isTablet) ? "left" : "right" }}>
-          <Skeleton
-            variant="rounded"
-            width={50}
-            height={18}
-            sx={{
-              bgcolor: alpha("#ffffff", 0.2),
-              borderRadius: 2,
-              mb: 0.5
-            }}
-          />
-          <Skeleton
-            variant="text"
-            width={45}
-            height={isSmallMobile ? 7 : isMobile ? 8 : isTablet ? 9 : 10}
-            sx={{ bgcolor: alpha("#ffffff", 0.2) }}
-          />
+          <Skeleton variant="text" width={80} height={14} sx={{ mb: 1 }} />
+          <Skeleton variant="text" width={120} height={32} />
         </Box>
       </Box>
-
-      {/* Monthly Summary Section Skeleton */}
-      <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
+      <Grid container spacing={2}>
         <Grid item xs={6}>
-          <Box
-            sx={{
-              p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-              borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-              background: alpha("#ffffff", 0.08),
-              height: '100%',
-              minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-              <Box>
-                <Skeleton
-                  variant="text"
-                  width={isSmallMobile ? 35 : isMobile ? 40 : isTablet ? 45 : 50}
-                  height={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15}
-                  sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 0.3 }}
-                />
-                <Skeleton
-                  variant="text"
-                  width={isSmallMobile ? 25 : isMobile ? 28 : isTablet ? 30 : 32}
-                  height={isSmallMobile ? 7 : isMobile ? 8 : isTablet ? 9 : 10}
-                  sx={{ bgcolor: alpha("#ffffff", 0.2) }}
-                />
-              </Box>
-              <Skeleton variant="circular" width={14} height={14} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
-            </Box>
+          <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: alpha(theme.palette.divider, 0.05) }}>
+            <Skeleton variant="text" width={60} height={14} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width={50} height={20} />
           </Box>
         </Grid>
         <Grid item xs={6}>
-          <Box
-            sx={{
-              p: isSmallMobile ? 0.8 : isMobile ? 0.8 : isTablet ? 1 : 1.2,
-              borderRadius: isSmallMobile ? 1 : isMobile ? 1 : isTablet ? 1.5 : 2,
-              background: alpha("#ffffff", 0.08),
-              height: '100%',
-              minHeight: isSmallMobile ? 45 : isMobile ? 48 : isTablet ? 50 : 52,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: '100%' }}>
-              <Box>
-                <Skeleton
-                  variant="text"
-                  width={isSmallMobile ? 35 : isMobile ? 40 : isTablet ? 45 : 50}
-                  height={isSmallMobile ? 12 : isMobile ? 13 : isTablet ? 14 : 15}
-                  sx={{ bgcolor: alpha("#ffffff", 0.2), mb: 0.3 }}
-                />
-                <Skeleton
-                  variant="text"
-                  width={isSmallMobile ? 25 : isMobile ? 28 : isTablet ? 30 : 32}
-                  height={isSmallMobile ? 7 : isMobile ? 8 : isTablet ? 9 : 10}
-                  sx={{ bgcolor: alpha("#ffffff", 0.2) }}
-                />
-              </Box>
-              <Skeleton variant="circular" width={14} height={14} sx={{ bgcolor: alpha("#ffffff", 0.2) }} />
-            </Box>
+          <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: alpha(theme.palette.divider, 0.05) }}>
+            <Skeleton variant="text" width={60} height={14} sx={{ mb: 0.5 }} />
+            <Skeleton variant="text" width={50} height={20} />
           </Box>
         </Grid>
       </Grid>
@@ -367,12 +241,6 @@ const PopularPlansChart = ({ data, isMobile }) => {
             borderRadius: "50%",
             bgcolor: alpha(theme.palette.primary.main, 0.08),
             color: theme.palette.primary.main,
-            animation: "pulsePopularPlans 2.5s infinite ease-in-out",
-            "@keyframes pulsePopularPlans": {
-              "0%": { transform: "scale(0.95)", boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0.2)}` },
-              "70%": { transform: "scale(1)", boxShadow: `0 0 0 10px ${alpha(theme.palette.primary.main, 0)}` },
-              "100%": { transform: "scale(0.95)", boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}` }
-            }
           }}
         >
           <BarChartIcon sx={{ fontSize: 36 }} />
@@ -670,7 +538,7 @@ const SuperAdminDashboard = () => {
       key: "activeAdmins",
       label: "Active Admins",
       count: userCounts?.activeAdmins || 0,
-      icon: <FaUserShield />,
+      icon: <AdminPanelSettingsIcon />,
       bgColor: alpha(theme.palette.primary.main, 0.1),
       iconColor: theme.palette.primary.main,
     },
@@ -678,7 +546,7 @@ const SuperAdminDashboard = () => {
       key: "inactiveAdmins",
       label: "Inactive Admins",
       count: userCounts?.inactiveAdmins || 0,
-      icon: <FaUserTimes />,
+      icon: <AdminPanelSettingsIcon />,
       bgColor: alpha(theme.palette.text.secondary, 0.1),
       iconColor: theme.palette.text.secondary,
     },
@@ -686,7 +554,7 @@ const SuperAdminDashboard = () => {
       key: "allActiveUsers",
       label: "All Active Users",
       count: userCounts?.allActiveUsers || 0,
-      icon: <FaUserCheck />,
+      icon: <PersonIcon />,
       bgColor: alpha("#22C55E", 0.1),
       iconColor: "#22C55E",
     },
@@ -694,7 +562,7 @@ const SuperAdminDashboard = () => {
       key: "allInactiveUsers",
       label: "All Inactive Users",
       count: userCounts?.allInactiveUsers || 0,
-      icon: <FaUsers />,
+      icon: <PersonOffIcon />,
       bgColor: alpha(theme.palette.secondary.main, 0.1),
       iconColor: theme.palette.secondary.main,
     },
@@ -752,97 +620,62 @@ const SuperAdminDashboard = () => {
             <Paper
               elevation={0}
               sx={{
-                p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-                borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-                background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+                p: isSmallMobile ? 1.5 : isMobile ? 2 : 2.5,
+                borderRadius: 2,
+                bgcolor: 'background.paper',
                 border: "1px solid",
-                borderColor: alpha(stat.iconColor, 0.2),
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                borderColor: "divider",
+                transition: "box-shadow 0.2s ease-in-out",
                 position: "relative",
-                overflow: "hidden",
                 height: '100%',
                 minHeight: isSmallMobile ? 80 : isMobile ? 85 : isTablet ? 90 : 95,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "100%",
-                  background: `linear-gradient(135deg, ${alpha(stat.iconColor, 0.05)} 0%, transparent 100%)`,
-                  zIndex: 0,
-                },
                 "&:hover": {
-                  transform: !isMobile ? "translateY(-2px) scale(1.01)" : "none",
-                  boxShadow: !isMobile ? `0 12px 20px -8px ${alpha(stat.iconColor, 0.3)}` : "none",
-                  borderColor: stat.iconColor,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                 },
               }}
             >
-              <Box sx={{ position: "relative", zIndex: 1 }}>
-                <Box sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexDirection: isSmallMobile ? "column" : "row",
-                  textAlign: isSmallMobile ? "center" : "left",
-                  gap: isSmallMobile ? 0.5 : 0,
-                }}>
-                  <Box>
-                    <Typography
-                      variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
-                      fontWeight="700"
-                      sx={{
-                        mb: 0.15,
-                        color: 'text.primary',
-                        fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {stat.count}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        fontWeight: 500,
-                        fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
-                      }}
-                    >
-                      {stat.label}
-                    </Typography>
-                  </Box>
-                  <Avatar
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Box>
+                  <Typography
+                    variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
+                    fontWeight="700"
                     sx={{
-                      bgcolor: alpha(stat.iconColor, 0.1),
-                      color: stat.iconColor,
-                      width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                      height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
-                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                      boxShadow: `0 4px 8px -3px ${alpha(stat.iconColor, 0.2)}`,
-                      '& svg': {
-                        fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
-                      },
+                      mb: 0.15,
+                      color: 'text.primary',
+                      fontSize: isSmallMobile ? '1.3rem' : isMobile ? '1.5rem' : isTablet ? '1.7rem' : '1.9rem',
+                      lineHeight: 1.2,
                     }}
                   >
-                    {stat.icon}
-                  </Avatar>
+                    {stat.count}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+                    }}
+                  >
+                    {stat.label}
+                  </Typography>
                 </Box>
+                <Avatar
+                  sx={{
+                    bgcolor: alpha(stat.iconColor, 0.1),
+                    color: stat.iconColor,
+                    width: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                    height: isSmallMobile ? 32 : isMobile ? 34 : isTablet ? 36 : 38,
+                    '& svg': {
+                      fontSize: isSmallMobile ? '0.9rem' : isMobile ? '1rem' : isTablet ? '1.1rem' : '1.2rem',
+                    },
+                  }}
+                >
+                  {stat.icon}
+                </Avatar>
               </Box>
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  width: "100%",
-                  height: 2.5,
-                  background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
-                  opacity: 0.8,
-                }}
-              />
             </Paper>
           </Grid>
         ))}
@@ -959,28 +792,16 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
     <Paper
       elevation={0}
       sx={{
-        p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 1.5 : 2,
-        borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
-        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-        color: "white",
-        position: "relative",
-        overflow: "hidden",
+        p: isSmallMobile ? 1.5 : isMobile ? 2 : 2.5,
+        borderRadius: 2,
+        bgcolor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
         height: '100%',
         minHeight: isSmallMobile ? 120 : isMobile ? 130 : isTablet ? 140 : 150,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
-          height: isSmallMobile ? "80px" : isMobile ? "90px" : isTablet ? "100px" : "110px",
-          background: `radial-gradient(circle, ${alpha("#ffffff", 0.2)} 0%, transparent 70%)`,
-          borderRadius: "50%",
-          transform: "translate(50%, -50%)",
-        },
       }}
     >
       {/* Header Section */}
@@ -989,16 +810,17 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
         flexDirection: (isMobile || isTablet) ? "column" : "row",
         justifyContent: "space-between",
         alignItems: (isMobile || isTablet) ? "flex-start" : "center",
-        mb: (isMobile || isTablet) ? 0.8 : 1.5,
-        gap: (isMobile || isTablet) ? 0.5 : 0,
+        mb: (isMobile || isTablet) ? 1 : 2,
+        gap: (isMobile || isTablet) ? 1 : 0,
       }}>
         <Box>
           <Typography
             variant="caption"
             sx={{
-              color: alpha("#ffffff", 0.7),
+              color: 'text.secondary',
               mb: 0.5,
-              fontSize: isSmallMobile ? '0.55rem' : isMobile ? '0.6rem' : isTablet ? '0.65rem' : '0.7rem',
+              fontWeight: 500,
+              fontSize: isSmallMobile ? '0.6rem' : isMobile ? '0.65rem' : isTablet ? '0.7rem' : '0.75rem',
             }}
           >
             Total Revenue
@@ -1006,8 +828,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
           <Typography
             variant={isSmallMobile ? "body1" : isMobile ? "h6" : isTablet ? "h5" : "h5"}
             fontWeight="700"
+            color="text.primary"
             sx={{
-              fontSize: isSmallMobile ? '1rem' : isMobile ? '1.2rem' : isTablet ? '1.4rem' : '1.6rem',
+              fontSize: isSmallMobile ? '1.2rem' : isMobile ? '1.4rem' : isTablet ? '1.6rem' : '1.8rem',
               lineHeight: 1.2,
             }}
           >
@@ -1015,48 +838,29 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
               : "₹0"}
           </Typography>
-          <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', mt: 0.3, display: 'block' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6rem', mt: 0.3, display: 'block' }}>
             Discount: ₹{revenueSummary?.totalDiscount?.toLocaleString() || 0}
           </Typography>
         </Box>
-        {/* <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 0.5,
-          bgcolor: alpha("#ffffff", 0.15),
-          px: 1,
-          py: 0.5,
-          borderRadius: 2,
-        }}>
-          {revenueSummary?.growthPercentage >= 0 ? (
-            <TrendingUpIcon sx={{ fontSize: 14, color: "#22c55e" }} />
-          ) : (
-            <TrendingDownIcon sx={{ fontSize: 14, color: "#ef4444" }} />
-          )}
-          <Typography variant="caption" fontWeight="600" sx={{ fontSize: '0.65rem' }}>
-            {revenueSummary?.growthPercentage >= 0 ? '+' : ''}{revenueSummary?.growthPercentage || 0}%
-          </Typography>
-        </Box> */}
       </Box>
 
       {/* Monthly Summary Section */}
-      <Grid container spacing={isSmallMobile ? 0.5 : isMobile ? 0.8 : isTablet ? 0.8 : 1}>
+      <Grid container spacing={isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 1.5 : 2}>
         <Grid item xs={6}>
           <Box
             sx={{
-              p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
-              borderRadius: isSmallMobile ? 0.8 : 1,
-              background: alpha("#ffffff", 0.05),
-              border: `1px solid ${alpha("#22c55e", 0.2)}`,
+              p: 1.5,
+              borderRadius: 1,
+              bgcolor: alpha(theme.palette.divider, 0.05),
             }}
           >
-            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6rem', display: 'block', mb: 0.5 }}>
               Current Month
             </Typography>
-            <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+            <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ fontSize: '0.85rem' }}>
               ₹{revenueSummary?.currentMonthRevenue?.toLocaleString() || 0}
             </Typography>
-            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.5), fontSize: '0.5rem', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.55rem', display: 'block' }}>
               Disc: ₹{revenueSummary?.currentMonthDiscount?.toLocaleString() || 0}
             </Typography>
           </Box>
@@ -1064,19 +868,18 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
         <Grid item xs={6}>
           <Box
             sx={{
-              p: isSmallMobile ? 0.6 : isMobile ? 0.6 : isTablet ? 0.8 : 1,
-              borderRadius: isSmallMobile ? 0.8 : 1,
-              background: alpha("#ffffff", 0.05),
-              border: `1px solid ${alpha("#F59E0B", 0.2)}`,
+              p: 1.5,
+              borderRadius: 1,
+              bgcolor: alpha(theme.palette.divider, 0.05),
             }}
           >
-            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.6), fontSize: '0.55rem', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6rem', display: 'block', mb: 0.5 }}>
               Last Month
             </Typography>
-            <Typography variant="body2" fontWeight="600" sx={{ fontSize: '0.75rem' }}>
+            <Typography variant="body2" fontWeight="600" color="text.primary" sx={{ fontSize: '0.85rem' }}>
               ₹{revenueSummary?.lastMonthRevenue?.toLocaleString() || 0}
             </Typography>
-            <Typography variant="caption" sx={{ color: alpha("#ffffff", 0.5), fontSize: '0.5rem', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.55rem', display: 'block' }}>
               Disc: ₹{revenueSummary?.lastMonthDiscount?.toLocaleString() || 0}
             </Typography>
           </Box>
@@ -1121,15 +924,13 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               color={theme.palette.primary.main}
               gutterBottom
               sx={{
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "text.primary",
                 fontSize: {
-                  xs: '0.9rem',      // 14px on mobile
-                  sm: '1.1rem',       // 18px on small tablets
-                  md: '1.3rem',       // 21px on tablets
-                  lg: '1.5rem',       // 24px on desktops
-                  xl: '1.7rem'        // 27px on large screens
+                  xs: '1rem',
+                  sm: '1.2rem',
+                  md: '1.4rem',
+                  lg: '1.6rem',
+                  xl: '1.8rem'
                 },
               }}
             >
@@ -1154,9 +955,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               px: isSmallMobile ? 0.5 : 0,
             }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <FaChartLine style={{
-                  color: theme.palette.primary.main,
-                  fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+                <TimelineIcon style={{
+                  color: theme.palette.text.secondary,
+                  fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20
                 }} />
                 <Typography
                   variant={isSmallMobile ? "caption" : "body2"}
@@ -1199,9 +1000,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               mb: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
               px: isSmallMobile ? 0.5 : 0,
             }}>
-              <FaRupeeSign style={{
-                color: theme.palette.primary.main,
-                fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+              <CurrencyRupeeIcon style={{
+                color: theme.palette.text.secondary,
+                fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20
               }} />
               <Typography
                 variant={isSmallMobile ? "caption" : "body2"}
@@ -1292,15 +1093,13 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
                 color={theme.palette.primary.main}
                 gutterBottom
                 sx={{
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  color: 'text.primary',
                   fontSize: {
-                    xs: '0.9rem',      // 14px on mobile
-                    sm: '1.1rem',       // 18px on small tablets
-                    md: '1.3rem',       // 21px on tablets
-                    lg: '1.5rem',       // 24px on desktops
-                    xl: '1.7rem'        // 27px on large screens
+                    xs: '1rem',
+                    sm: '1.2rem',
+                    md: '1.4rem',
+                    lg: '1.6rem',
+                    xl: '1.8rem'
                   },
                 }}
               >
@@ -1332,9 +1131,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               px: isSmallMobile ? 0.5 : 0,
             }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <FaChartLine style={{
-                  color: theme.palette.primary.main,
-                  fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+                <TimelineIcon style={{
+                  color: theme.palette.text.secondary,
+                  fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20
                 }} />
                 <Typography
                   variant={isSmallMobile ? "caption" : "body2"}
@@ -1401,9 +1200,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
                 alignItems: "center",
                 gap: 0.5,
               }}>
-                <FaRupeeSign style={{
-                  color: theme.palette.primary.main,
-                  fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+                <CurrencyRupeeIcon style={{
+                  color: theme.palette.text.secondary,
+                  fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20
                 }} />
                 <Typography
                   variant={isSmallMobile ? "caption" : "body2"}
@@ -1442,9 +1241,9 @@ const RevenueCard = memo(({ revenueSummary, isSmallMobile, isMobile, isTablet })
               mb: isSmallMobile ? 1 : isMobile ? 1.5 : isTablet ? 2 : 2,
               px: isSmallMobile ? 0.5 : 0,
             }}>
-              <FaChartLine style={{
-                color: theme.palette.primary.main,
-                fontSize: isSmallMobile ? 12 : isMobile ? 14 : isTablet ? 16 : 18
+              <TimelineIcon style={{
+                color: theme.palette.text.secondary,
+                fontSize: isSmallMobile ? 14 : isMobile ? 16 : isTablet ? 18 : 20
               }} />
               <Typography
                 variant={isSmallMobile ? "caption" : "body2"}

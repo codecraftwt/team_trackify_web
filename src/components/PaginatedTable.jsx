@@ -162,11 +162,9 @@ const PaginatedTable = ({
       <Box
         sx={{
           p: { xs: 1.2, sm: 1.5, md: 2 },
-          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor === "#2563EB"
-            ? theme.palette.primary.dark
-            : "#0a5c55"
-            })`,
-          color: "white",
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "flex-start", sm: "center" },
@@ -186,8 +184,8 @@ const PaginatedTable = ({
           {icon && (
             <Avatar
               sx={{
-                bgcolor: alpha("#ffffff", 0.2),
-                color: "white",
+                bgcolor: alpha(primaryColor, 0.1),
+                color: primaryColor,
                 width: { xs: 28, sm: 32, md: 36 },
                 height: { xs: 28, sm: 32, md: 36 },
                 "& svg": { fontSize: { xs: 14, sm: 16, md: 18 } },
@@ -200,15 +198,15 @@ const PaginatedTable = ({
             <Typography
               variant={isMobile ? "body2" : "subtitle1"}
               fontWeight={600}
-              color="white"
+              color="text.primary"
               sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1.1rem" } }}
             >
               {title}
             </Typography>
             <Typography
               variant="caption"
+              color="text.secondary"
               sx={{
-                color: alpha("#ffffff", 0.8),
                 fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
                 display: { xs: "none", sm: "block" },
               }}
@@ -230,20 +228,20 @@ const PaginatedTable = ({
           {showDateFilter && (
             <Tooltip title="Date Filter">
               <Button
-                variant="contained"
+                variant="outlined"
                 size="small"
                 startIcon={<FilterIcon sx={{ fontSize: 14 }} />}
                 onClick={handleDateFilterClick}
                 fullWidth={isMobile}
                 sx={{
-                  bgcolor: "white",
+                  borderColor: alpha(primaryColor, 0.3),
                   color: primaryColor,
                   fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
                   py: { xs: 0.4, sm: 0.5 },
                   px: { xs: 1, sm: 1.2 },
                   height: 30,
                   position: "relative",
-                  "&:hover": { bgcolor: alpha("#ffffff", 0.9) },
+                  "&:hover": { borderColor: primaryColor, bgcolor: alpha(primaryColor, 0.05) },
                 }}
               >
                 Date Filter
@@ -268,19 +266,19 @@ const PaginatedTable = ({
           {showExportPdf && (
             <Tooltip title="Export PDF">
               <Button
-                variant="contained"
+                variant="outlined"
                 size="small"
                 startIcon={<PdfIcon sx={{ fontSize: 14 }} />}
                 onClick={onExportPdf}
                 fullWidth={isMobile}
                 sx={{
-                  bgcolor: "white",
+                  borderColor: alpha(primaryColor, 0.3),
                   color: primaryColor,
                   fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
                   py: { xs: 0.4, sm: 0.5 },
                   px: { xs: 1, sm: 1.2 },
                   height: 30,
-                  "&:hover": { bgcolor: alpha("#ffffff", 0.9) },
+                  "&:hover": { borderColor: primaryColor, bgcolor: alpha(primaryColor, 0.05) },
                 }}
               >
                 PDF
@@ -294,8 +292,8 @@ const PaginatedTable = ({
             label={`${totalCount || data.length}`}
             size="small"
             sx={{
-              bgcolor: alpha("#ffffff", 0.2),
-              color: "white",
+              bgcolor: alpha(primaryColor, 0.1),
+              color: primaryColor,
               fontWeight: 600,
               fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.7rem" },
               height: { xs: 22, sm: 24 },

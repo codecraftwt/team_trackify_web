@@ -60,8 +60,8 @@ const DashboardLayout = () => {
       <Box
         sx={{
           flexGrow: 1,
-          ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '240px'), // ← updated from 64px/220px to match new sidebar widths
-          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 240}px)`, // ← updated from 64/220 to match new sidebar widths
+          ml: isMobile ? 0 : (sidebarCollapsed ? '72px' : '270px'), // ← updated from 64px/220px to match new sidebar widths
+          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? 72 : 270}px)`, // ← updated from 64/220 to match new sidebar widths
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',

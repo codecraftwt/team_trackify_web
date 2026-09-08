@@ -167,16 +167,7 @@ const StatsCardSkeleton = memo(({ isSmallMobile, isMobile, isTablet }) => {
                         />
                     </Box>
                 </Box>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        width: "100%",
-                        height: 2.5,
-                        background: alpha(theme.palette.primary.main, 0.1),
-                    }}
-                />
+                
             </Paper>
         </Grid>
     );
@@ -239,37 +230,37 @@ const StatsCards = memo(({ stats, isSmallMobile, isMobile, isTablet, theme }) =>
             label: "Active",
             count: stats?.activeCoupons || 0,
             icon: <FaCheckCircle />,
-            bgColor: alpha("#22C55E", 0.1),
-            iconColor: "#22C55E",
+            bgColor: alpha(theme.palette.primary.main, 0.1),
+            iconColor: theme.palette.primary.main,
         },
         {
             label: "Inactive",
             count: stats?.inactiveCoupons || 0,
             icon: <FaClock />,
-            bgColor: alpha("#F59E0B", 0.1),
-            iconColor: "#F59E0B",
+            bgColor: alpha(theme.palette.primary.main, 0.1),
+            iconColor: theme.palette.primary.main,
         },
         {
             label: "Expired",
             count: stats?.expiredCoupons || 0,
             icon: <FaExclamationCircle />,
-            bgColor: alpha("#EF4444", 0.1),
-            iconColor: "#EF4444",
+            bgColor: alpha(theme.palette.primary.main, 0.1),
+            iconColor: theme.palette.primary.main,
         },
         {
             label: "Total Used",
             count: stats?.totalUsedCount || 0,
             icon: <FaCalendarAlt />,
-            bgColor: alpha(theme.palette.info.main, 0.1),
-            iconColor: theme.palette.info.main,
+            bgColor: alpha(theme.palette.primary.main, 0.1),
+            iconColor: theme.palette.primary.main,
         },
         {
             label: "Active Rate",
             count: stats?.totalCoupons ? Math.round((stats.activeCoupons / stats.totalCoupons) * 100) : 0,
             suffix: "%",
             icon: <FaChartLine />,
-            bgColor: alpha(theme.palette.secondary.main, 0.1),
-            iconColor: theme.palette.secondary.main,
+            bgColor: alpha(theme.palette.primary.main, 0.1),
+            iconColor: theme.palette.primary.main,
         },
     ], [stats, theme]);
 
@@ -377,17 +368,7 @@ const StatsCards = memo(({ stats, isSmallMobile, isMobile, isTablet, theme }) =>
                                     </Avatar>
                                 </Box>
                             </Box>
-                            <Box
-                                sx={{
-                                    position: "absolute",
-                                    bottom: 0,
-                                    left: 0,
-                                    width: "100%",
-                                    height: 2.5,
-                                    background: `linear-gradient(90deg, ${stat.iconColor} 0%, ${alpha(stat.iconColor, 0.3)} 100%)`,
-                                    opacity: 0.8,
-                                }}
-                            />
+                            
                         </Paper>
                     </motion.div>
                 </Grid>
@@ -425,26 +406,15 @@ const CouponCard = memo(({ coupon, onEdit, onDelete, isSuperAdmin, theme, onCopy
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     sx={{
-                        borderRadius: 2.5,
-                        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                        background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(theme.palette.background.paper, 0.98)} 100%)`,
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        '&:hover': {
-                            boxShadow: `0 12px 28px -8px ${alpha(theme.palette.primary.main, 0.2)}`,
-                            borderColor: alpha(statusColor.color, 0.3),
-                        },
-                        '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: 3,
-                            background: `linear-gradient(90deg, ${statusColor.color}, ${alpha(statusColor.color, 0.5)})`,
-                            transition: 'all 0.3s ease',
+                        borderRadius: 2,
+                        border: "1px solid", borderColor: "divider",
+                        bgcolor: "background.paper",
+                        transition: "all 0.2s",
+                        position: "relative",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        "&:hover": {
+                            borderColor: theme.palette.primary.main,
                         },
                     }}
                 >
@@ -988,19 +958,19 @@ const CouponManagement = () => {
             active: {
                 label: 'Active',
                 icon: <FaCheckCircle size={isSmallMobile ? 8 : 10} />,
-                bgColor: alpha("#22C55E", 0.1),
+                bgColor: alpha(theme.palette.primary.main, 0.1),
                 textColor: "#22C55E"
             },
             inactive: {
                 label: 'Inactive',
                 icon: <FaClock size={isSmallMobile ? 8 : 10} />,
-                bgColor: alpha("#F59E0B", 0.1),
+                bgColor: alpha(theme.palette.primary.main, 0.1),
                 textColor: "#F59E0B"
             },
             expired: {
                 label: 'Expired',
                 icon: <FaExclamationCircle size={isSmallMobile ? 8 : 10} />,
-                bgColor: alpha("#EF4444", 0.1),
+                bgColor: alpha(theme.palette.primary.main, 0.1),
                 textColor: "#EF4444"
             }
         };
@@ -1098,17 +1068,7 @@ const CouponManagement = () => {
                     }}
                 >
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
-                        <Typography
-                            variant={isMobile ? "body1" : "h6"}
-                            fontWeight="600"
-                            color={theme.palette.primary.main}
-                            sx={{
-                                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem', lg: '1.5rem', xl: '1.7rem' },
-                            }}
-                        >
+                        <Typography variant="h5" fontWeight="800" sx={{ mb: 0.5, color: 'text.primary', letterSpacing: '-0.5px' }}>
                             Coupon Management
                         </Typography>
                         <IconButton size="small" sx={{ width: 28, height: 28 }}>
@@ -1198,17 +1158,7 @@ const CouponManagement = () => {
                 <motion.div variants={containerVariants} initial="hidden" animate="visible">
                     <motion.div variants={itemVariants}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
-                            <Typography
-                                variant={isMobile ? "body1" : "h6"}
-                                fontWeight="800"
-                                color={theme.palette.primary.main}
-                                sx={{
-                                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.3rem', lg: '1.5rem', xl: '1.7rem' },
-                                }}
-                            >
+                            <Typography variant="h5" fontWeight="800" sx={{ mb: 0.5, color: 'text.primary', letterSpacing: '-0.5px' }}>
                                 Coupon Management
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1 }}>
@@ -1249,11 +1199,11 @@ const CouponManagement = () => {
                         <Paper
                             elevation={0}
                             sx={{
-                                p: isSmallMobile ? 1.2 : isMobile ? 1.5 : isTablet ? 2 : 2.5,
-                                mb: isMobile ? 1.5 : 2,
-                                borderRadius: isSmallMobile ? 1.5 : isMobile ? 2 : 3,
+                                p: { xs: 1.5, sm: 2 },
+                                mb: 2,
+                                borderRadius: 2,
                                 border: "1px solid",
-                                borderColor: alpha(theme.palette.primary.main, 0.1),
+                                borderColor: "divider",
                             }}
                         >
                             <Grid container spacing={2} alignItems="center">

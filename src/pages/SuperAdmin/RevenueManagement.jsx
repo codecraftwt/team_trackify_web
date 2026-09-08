@@ -23,6 +23,8 @@ import {
   Button,
   TextField,
   InputAdornment,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -63,11 +65,11 @@ function useDebounce(value, delay) {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUS_FILTERS = [
-  { key: "all", label: "All", color: "#6366f1" },
-  { key: "completed", label: "Completed", color: "#10b981" },
-  { key: "pending", label: "Pending", color: "#f59e0b" },
-  { key: "failed", label: "Failed", color: "#dc2626" },
-  { key: "cancelled", label: "Cancelled", color: "#ef4444" },
+  { key: "all", label: "All" },
+  { key: "completed", label: "Completed" },
+  { key: "pending", label: "Pending" },
+  { key: "failed", label: "Failed" },
+  { key: "cancelled", label: "Cancelled" },
 ];
 
 const TYPE_TABS = [
@@ -96,74 +98,74 @@ const TYPE_TABS = [
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const config = {
-    completed: { color: "#10b981", bg: "#d1fae5", icon: CompletedIcon, label: "Completed" },
-    cancelled: { color: "#ef4444", bg: "#fee2e2", icon: CancelledIcon, label: "Cancelled" },
-    failed: { color: "#dc2626", bg: "#fee2e2", icon: CancelledIcon, label: "Failed" }, // ✅ Add failed status
-    pending: { color: "#f59e0b", bg: "#fef3c7", icon: PendingIcon, label: "Pending" },
+    completed: { color: "#10b981", bg: alpha("#10b981", 0.1), icon: CompletedIcon, label: "Completed" },
+    cancelled: { color: "#ef4444", bg: alpha("#ef4444", 0.1), icon: CancelledIcon, label: "Cancelled" },
+    failed: { color: "#dc2626", bg: alpha("#dc2626", 0.1), icon: CancelledIcon, label: "Failed" },
+    pending: { color: "#f59e0b", bg: alpha("#f59e0b", 0.1), icon: PendingIcon, label: "Pending" },
   };
   const c = config[status?.toLowerCase()] || config.pending;
   const Icon = c.icon;
 
-  // Special handling for failed with different styling
-  const isFailed = status?.toLowerCase() === "failed";
-
   return (
-    <Box sx={{
-      display: "flex",
-      alignItems: "center",
-      gap: 0.5,
-      px: 1,
-      py: 0.4,
-      borderRadius: 10,
-      bgcolor: c.bg,
-      width: "fit-content",
-      ...(isFailed && { border: "1px solid", borderColor: alpha("#dc2626", 0.3) }) // Optional: add border for failed
-    }}>
-      <Icon sx={{ fontSize: 12, color: c.color }} />
-      <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: c.color, letterSpacing: 0.3 }}>
-        {c.label}
-      </Typography>
-    </Box>
+    <Chip
+      icon={<Icon sx={{ fontSize: 14 }} />}
+      label={c.label}
+      size="small"
+      sx={{
+        bgcolor: c.bg,
+        color: c.color,
+        fontWeight: 600,
+        fontSize: "0.7rem",
+        '& .MuiChip-icon': { color: c.color }
+      }}
+    />
   );
 };
 
 // ─── Type Badge ───────────────────────────────────────────────────────────────
 const TypeBadge = ({ type }) => {
   const isAddon = type === "addon";
+  const label = isAddon ? "Add-on" : "Plan";
   return (
-    <Box sx={{
-      display: "flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.3, borderRadius: 1,
-      bgcolor: isAddon ? alpha("#8b5cf6", 0.1) : alpha("#3b82f6", 0.1),
-      border: "1px solid",
-      borderColor: isAddon ? alpha("#8b5cf6", 0.3) : alpha("#3b82f6", 0.3),
-    }}>
-      {isAddon ? <AddonIcon sx={{ fontSize: 10, color: "#8b5cf6" }} /> : <PlanIcon sx={{ fontSize: 10, color: "#3b82f6" }} />}
-      <Typography sx={{ fontSize: "0.6rem", fontWeight: 700, color: isAddon ? "#8b5cf6" : "#3b82f6", textTransform: "uppercase", letterSpacing: 0.5 }}>
-        {isAddon ? "Add-on" : "Plan"}
-      </Typography>
-    </Box>
+    <Chip
+      label={label}
+      size="small"
+      variant="outlined"
+      sx={{
+        color: 'text.secondary',
+        borderColor: 'divider',
+        fontWeight: 600,
+        fontSize: "0.65rem",
+        textTransform: "uppercase",
+        bgcolor: 'background.paper',
+        '& .MuiChip-icon': { color: 'text.secondary' }
+      }}
+    />
   );
 };
 
 // ─── Stats Card ───────────────────────────────────────────────────────────────
 const StatsCard = ({ icon: Icon, value, label, accent, isMobile }) => (
   <Paper elevation={0} sx={{
-    p: { xs: 1.5, sm: 2 }, borderRadius: 3,
-    border: "1px solid", borderColor: alpha(accent, 0.15),
-    background: `linear-gradient(135deg, ${alpha(accent, 0.06)} 0%, ${alpha(accent, 0.02)} 100%)`,
-    height: "100%", position: "relative", overflow: "hidden",
+    p: { xs: 1.5, sm: 2 }, borderRadius: 2,
+    border: "1px solid", borderColor: "divider",
+    bgcolor: "background.paper",
+    height: "100%", 
+    display: 'flex', flexDirection: 'column', justifyContent: 'center',
+    transition: "box-shadow 0.2s ease-in-out",
+    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.05)" },
   }}>
-    <Box sx={{
-      position: "absolute", top: -10, right: -10, width: 60, height: 60,
-      borderRadius: "50%", bgcolor: alpha(accent, 0.08),
-    }} />
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <Box>
-        <Typography sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, color: "text.secondary", mb: 0.5, fontWeight: 500, letterSpacing: 0.5, textTransform: "uppercase" }}>{label}</Typography>
-        <Typography sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md: "1.4rem" }, fontWeight: 800, color: accent, lineHeight: 1 }}>{value}</Typography>
+        <Typography sx={{ fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.7rem" }, fontWeight: 700, color: "text.primary", lineHeight: 1.2, mb: 0.15 }}>
+          {value}
+        </Typography>
+        <Typography sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem" }, color: "text.secondary", fontWeight: 500 }}>
+          {label}
+        </Typography>
       </Box>
-      <Box sx={{ p: 1, borderRadius: 2, bgcolor: alpha(accent, 0.12) }}>
-        <Icon sx={{ fontSize: { xs: 18, sm: 20 }, color: accent }} />
+      <Box sx={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: alpha(accent, 0.1) }}>
+        <Icon sx={{ fontSize: 18, color: accent }} />
       </Box>
     </Box>
   </Paper>
@@ -171,13 +173,13 @@ const StatsCard = ({ icon: Icon, value, label, accent, isMobile }) => (
 
 // ─── Skeleton for Stats ───────────────────────────────────────────────────────
 const StatsCardSkeleton = () => (
-  <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}>
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+  <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", height: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <Box sx={{ flex: 1 }}>
-        <Skeleton variant="text" width={80} height={14} sx={{ mb: 0.8 }} />
-        <Skeleton variant="text" width={100} height={28} />
+        <Skeleton variant="text" width={60} height={28} sx={{ mb: 0.5 }} />
+        <Skeleton variant="text" width={80} height={14} />
       </Box>
-      <Skeleton variant="rounded" width={40} height={40} sx={{ borderRadius: 2 }} />
+      <Skeleton variant="circular" width={32} height={32} />
     </Box>
   </Paper>
 );
@@ -374,11 +376,9 @@ const RevenueManagement = () => {
         <motion.div initial="hidden" animate="visible" variants={fade} custom={0}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
             <Box>
-              <Typography sx={{
-                fontSize: { xs: "1.1rem", sm: "1.4rem", md: "1.7rem" }, fontWeight: 900,
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>Revenue Analytics</Typography>
+              <Typography variant="h5" fontWeight="800" sx={{ mb: 0.5, color: 'text.primary', letterSpacing: '-0.5px' }}>
+                Revenue Analytics
+              </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
                 Track and analyze all payment transactions
               </Typography>
@@ -394,9 +394,9 @@ const RevenueManagement = () => {
         <Grid container spacing={{ xs: 1.5, md: 2 }} sx={{ mb: 3 }}>
           {[
             { icon: CurrencyRupeeIcon, value: `₹${totalCompletedAmount?.toLocaleString("en-IN")}`, label: "Total Revenue", accent: theme.palette.primary.main },
-            { icon: PeopleIcon, value: numberOfPaidUsers, label: "Paid Users", accent: "#10b981" },
-            { icon: PlanIcon, value: `${totalPlanCount} Plans`, label: `₹${totalPlanAmount?.toLocaleString("en-IN")}`, accent: "#3b82f6" },
-            { icon: AddonIcon, value: `${totalAddOnCount} Add-ons`, label: `₹${totalAddOnAmount?.toLocaleString("en-IN")}`, accent: "#8b5cf6" },
+            { icon: PeopleIcon, value: numberOfPaidUsers, label: "Paid Users", accent: theme.palette.primary.main },
+            { icon: PlanIcon, value: `${totalPlanCount} Plans`, label: `₹${totalPlanAmount?.toLocaleString("en-IN")}`, accent: theme.palette.primary.main },
+            { icon: AddonIcon, value: `${totalAddOnCount} Add-ons`, label: `₹${totalAddOnAmount?.toLocaleString("en-IN")}`, accent: theme.palette.primary.main },
           ].map((card, i) => (
             <Grid item xs={6} md={3} key={i}>
               <motion.div initial="hidden" animate="visible" variants={fade} custom={i}>
@@ -406,285 +406,306 @@ const RevenueManagement = () => {
           ))}
         </Grid>
 
-        {/* Type Tabs */}
+        {/* Consolidated Data Section */}
         <motion.div initial="hidden" animate="visible" variants={fade} custom={4}>
-          <Paper elevation={0} sx={{ p: 0.8, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 2, display: "flex", gap: 0.5 }}>
-            {TYPE_TABS.map(({ key, label, icon: Icon }) => (
-              <Box key={key} onClick={() => setActiveTab(key)} sx={{
-                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.8,
-                py: 1, px: { xs: 0.5, sm: 1.5 }, borderRadius: 2, cursor: "pointer",
-                transition: "all 0.2s",
-                bgcolor: activeTab === key ? theme.palette.primary.main : "transparent",
-                color: activeTab === key ? "#fff" : "text.secondary",
-                "&:hover": { bgcolor: activeTab === key ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.06) },
-              }}>
-                <Icon sx={{ fontSize: { xs: 14, sm: 16 } }} />
-                <Typography sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" }, fontWeight: 700, display: { xs: key === "all" ? "block" : "none", sm: "block" } }}>
-                  {label}
-                </Typography>
-                <Box sx={{
-                  px: 0.8, py: 0.2, borderRadius: 10,
-                  bgcolor: activeTab === key ? alpha("#fff", 0.25) : alpha(theme.palette.primary.main, 0.1),
-                  minWidth: 20, textAlign: "center",
-                }}>
-                  <Typography sx={{ fontSize: "0.6rem", fontWeight: 800, color: activeTab === key ? "#fff" : theme.palette.primary.main }}>
-                    {counts[key]}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-          </Paper>
-        </motion.div>
+          <Paper elevation={0} sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider", overflow: 'hidden' }}>
+            
+            {/* 1. Tabs */}
+            <Box sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: alpha(theme.palette.background.paper, 0.5) }}>
+              <Tabs
+                value={activeTab}
+                onChange={(e, newValue) => setActiveTab(newValue)}
+                variant="standard"
+                sx={{
+                  minHeight: 48,
+                  px: 2,
+                  '& .MuiTab-root': {
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    minHeight: 48,
+                  },
+                }}
+              >
+                {TYPE_TABS.map(({ key, label, icon: Icon }) => (
+                  <Tab
+                    key={key}
+                    value={key}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Icon sx={{ fontSize: 18 }} />
+                        <span>{label}</span>
+                        <Chip
+                          label={counts[key]}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            bgcolor: activeTab === key ? alpha(theme.palette.primary.main, 0.1) : 'action.hover',
+                            color: activeTab === key ? 'primary.main' : 'text.secondary',
+                          }}
+                        />
+                      </Box>
+                    }
+                  />
+                ))}
+              </Tabs>
+            </Box>
 
-        {/* Status Filters + Search */}
-        <motion.div initial="hidden" animate="visible" variants={fade} custom={5}>
-          <Paper elevation={0} sx={{ p: { xs: 1.2, sm: 1.5 }, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 2 }}>
-            {/* Status pills */}
-            <Box sx={{ display: "flex", gap: 0.8, flexWrap: "wrap", mb: 1.5 }}>
-              {STATUS_FILTERS.map(({ key, label, color }) => (
-                <Box key={key} onClick={() => setStatusFilter(key)} sx={{
-                  display: "flex", alignItems: "center", gap: 0.5, px: 1.2, py: 0.5,
-                  borderRadius: 10, cursor: "pointer", border: "1.5px solid",
-                  transition: "all 0.18s",
-                  borderColor: statusFilter === key ? color : alpha(color, 0.25),
-                  bgcolor: statusFilter === key ? alpha(color, 0.12) : "transparent",
-                }}>
-                  <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: statusFilter === key ? color : "text.secondary" }}>{label}</Typography>
-                  <Box sx={{ px: 0.6, py: 0.15, borderRadius: 10, bgcolor: statusFilter === key ? alpha(color, 0.2) : alpha("#000", 0.06) }}>
-                    <Typography sx={{ fontSize: "0.58rem", fontWeight: 800, color: statusFilter === key ? color : "text.secondary" }}>
-                      {statusCounts[key]}
-                    </Typography>
+            {/* 2. Filters & Search */}
+            <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}>
+              <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "stretch", md: "center" }, gap: 2 }}>
+                
+                {/* Status Chips */}
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                  {STATUS_FILTERS.map(({ key, label }) => (
+                    <Chip
+                      key={key}
+                      label={`${label} (${statusCounts[key]})`}
+                      onClick={() => setStatusFilter(key)}
+                      variant={statusFilter === key ? "filled" : "outlined"}
+                      color={statusFilter === key ? "primary" : "default"}
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        height: 28,
+                        borderColor: statusFilter === key ? "transparent" : "divider",
+                        bgcolor: statusFilter === key ? 'primary.main' : 'background.default',
+                        color: statusFilter === key ? '#fff' : 'text.secondary',
+                        '&:hover': {
+                          bgcolor: statusFilter === key ? 'primary.dark' : 'action.hover',
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+
+                {/* Search & Date */}
+                <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
+                  <TextField
+                    placeholder="Search…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    size="small"
+                    sx={{
+                      width: { xs: "100%", sm: 200 },
+                      "& .MuiOutlinedInput-root": { borderRadius: 2, fontSize: "0.8rem", bgcolor: "background.default" },
+                    }}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "text.secondary" }} /></InputAdornment>,
+                      endAdornment: searchQuery ? (
+                        <InputAdornment position="end">
+                          <IconButton size="small" onClick={() => setSearchQuery("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton>
+                        </InputAdornment>
+                      ) : null,
+                    }}
+                  />
+                  
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <TextField type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} size="small"
+                      InputProps={{ sx: { borderRadius: 2, fontSize: "0.8rem", bgcolor: "background.default", height: 36 } }}
+                      sx={{ width: 130 }} />
+                    <Typography sx={{ color: "text.secondary", fontSize: "0.8rem" }}>to</Typography>
+                    <TextField type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} size="small"
+                      InputProps={{ sx: { borderRadius: 2, fontSize: "0.8rem", bgcolor: "background.default", height: 36 } }}
+                      sx={{ width: 130 }} />
+                    <Button size="small" variant="contained" onClick={applyDateFilter} disabled={!startDate && !endDate}
+                      sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem", px: 2, height: 36, boxShadow: "none" }}>Apply</Button>
+                    {(appliedStart || appliedEnd) && (
+                      <Button size="small" variant="outlined" color="error" onClick={clearDateFilter}
+                        sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem", px: 2, height: 36 }}>Clear</Button>
+                    )}
                   </Box>
                 </Box>
-              ))}
+              </Box>
             </Box>
 
-            {/* Search + Date row */}
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-              <TextField
-                placeholder="Search by name, email, plan…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                size="small"
-                sx={{
-                  flex: 1, minWidth: 180,
-                  "& .MuiOutlinedInput-root": { borderRadius: 2, fontSize: "0.75rem" },
-                }}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "text.secondary" }} /></InputAdornment>,
-                  endAdornment: searchQuery ? (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => setSearchQuery("")}><ClearIcon sx={{ fontSize: 14 }} /></IconButton>
-                    </InputAdornment>
-                  ) : null,
-                }}
-              />
-              <TextField type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} size="small"
-                label="From" InputLabelProps={{ shrink: true }}
-                sx={{ width: { xs: "100%", sm: 150 }, "& .MuiOutlinedInput-root": { borderRadius: 2, fontSize: "0.75rem" } }} />
-              <TextField type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} size="small"
-                label="To" InputLabelProps={{ shrink: true }}
-                sx={{ width: { xs: "100%", sm: 150 }, "& .MuiOutlinedInput-root": { borderRadius: 2, fontSize: "0.75rem" } }} />
-              <Button size="small" variant="contained" onClick={applyDateFilter} disabled={!startDate && !endDate}
-                sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.7rem", px: 1.5, height: 36 }}>Apply</Button>
-              {(appliedStart || appliedEnd) && (
-                <Button size="small" variant="outlined" color="error" onClick={clearDateFilter}
-                  sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.7rem", px: 1.5, height: 36 }}>Clear</Button>
+            {/* 3. Table */}
+            <Box sx={{ width: "100%", overflowX: "auto" }}>
+              {allPaymentHistoryLoading ? (
+                <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+                  <CircularProgress size={32} sx={{ color: theme.palette.primary.main }} />
+                </Box>
+              ) : filteredPayments.length === 0 ? (
+                <Box sx={{ py: 10, textAlign: "center" }}>
+                  <BarChartIcon sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
+                  <Typography color="text.secondary" sx={{ fontSize: "0.9rem" }}>No transactions found</Typography>
+                </Box>
+              ) : (
+                <TableContainer>
+                  <Table size="medium" sx={{ borderCollapse: "separate", borderSpacing: 0 }}>
+                    <TableHead>
+                      <TableRow>
+                        {[
+                          { label: "#", width: 40 },
+                          { label: "Type", width: 80 },
+                          { label: "User Details", sortKey: "name" },
+                          { label: "Plan Info", width: 160 },
+                          { label: "Amount", sortKey: "amount", align: "right" },
+                          { label: "Coupon", width: 100, align: "center" },
+                          { label: "Date", sortKey: "date" },
+                          { label: "Status", sortKey: "status", width: 120 },
+                          { label: "Actions", width: 70, align: "center" },
+                        ].map(({ label, sortKey, align, width }, i) => (
+                          <TableCell key={label}
+                            onClick={() => sortKey && handleSort(sortKey)}
+                            align={align || "left"}
+                            sx={{
+                              width, py: 1.8, px: 2,
+                              fontSize: "0.68rem", fontWeight: 800, letterSpacing: 0.5,
+                              textTransform: "uppercase", color: "text.secondary",
+                              bgcolor: alpha(theme.palette.primary.main, 0.03),
+                              borderBottom: "none",
+                              borderTopLeftRadius: i === 0 ? 8 : 0,
+                              borderTopRightRadius: i === 8 ? 8 : 0,
+                              borderBottomLeftRadius: i === 0 ? 8 : 0,
+                              borderBottomRightRadius: i === 8 ? 8 : 0,
+                              cursor: sortKey ? "pointer" : "default",
+                              userSelect: "none",
+                              whiteSpace: "nowrap",
+                              "&:hover": sortKey ? { color: theme.palette.primary.main } : {},
+                            }}>
+                            {label}
+                            {sortKey && sortBy === sortKey && (
+                              <span style={{ marginLeft: 4 }}>{sortOrder === "asc" ? "↑" : "↓"}</span>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <AnimatePresence>
+                        {filteredPayments.map((row, idx) => (
+                          <motion.tr key={row.id}
+                            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                            transition={{ delay: idx * 0.02, duration: 0.2 }}
+                            style={{ display: "table-row" }}
+                          >
+                            <TableCell sx={{ py: 1.5, px: 2, fontSize: "0.75rem", color: "text.disabled", borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015), borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}>
+                              {(page - 1) * 10 + idx + 1}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <TypeBadge type={row.type} />
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                <Avatar sx={{ width: 32, height: 32, fontSize: "0.8rem", bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, fontWeight: 700 }}>
+                                  {row.name?.[0]?.toUpperCase() || "?"}
+                                </Avatar>
+                                <Box>
+                                  <Typography sx={{ fontSize: "0.8rem", fontWeight: 600, color: "text.primary", lineHeight: 1.2, mb: 0.2 }}>{row.name}</Typography>
+                                  <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>{row.email}</Typography>
+                                </Box>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <Typography sx={{ fontSize: "0.8rem", fontWeight: 500, color: "text.primary", mb: 0.2 }}>{row.plan}</Typography>
+                              {row.duration && (
+                                <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>{row.duration}</Typography>
+                              )}
+                            </TableCell>
+                            <TableCell align="right" sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <Box>
+                                <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: row.status === "completed" ? "#10b981" : "text.primary" }}>
+                                  ₹{row.amount?.toLocaleString("en-IN")}
+                                </Typography>
+                                {row.discountAmount > 0 && (
+                                  <Typography sx={{ fontSize: "0.7rem", color: "text.disabled", textDecoration: "line-through" }}>
+                                    ₹{row.originalAmount?.toLocaleString("en-IN")}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </TableCell>
+                            <TableCell align="center" sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              {row.hasCouponApplied ? (
+                                <Tooltip title={`${row.couponCode} · Saved ₹${row.savingsAmount}`}>
+                                  <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.4, borderRadius: 1, bgcolor: alpha("#f59e0b", 0.1) }}>
+                                    <CouponIcon sx={{ fontSize: 14, color: "#f59e0b" }} />
+                                    <Typography sx={{ fontSize: "0.7rem", color: "#f59e0b", fontWeight: 600 }}>{row.couponCode}</Typography>
+                                  </Box>
+                                </Tooltip>
+                              ) : (
+                                <Typography sx={{ fontSize: "0.75rem", color: "text.disabled" }}>—</Typography>
+                              )}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <Typography sx={{ fontSize: "0.75rem", fontWeight: 500, color: "text.primary", mb: 0.2 }}>
+                                {moment(row.date).format("DD MMM YYYY")}
+                              </Typography>
+                              <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
+                                {moment(row.date).format("hh:mm A")}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015) }}>
+                              <StatusBadge status={row.status} />
+                              {row.isCancelledByUser && (
+                                <Tooltip title={row.cancellationReason || "Cancelled by user"}>
+                                  <Typography sx={{ fontSize: "0.6rem", color: "text.secondary", mt: 0.5, display: "block" }}>
+                                    {row.cancellationReason === "User closed the payment window"
+                                      ? "Payment Closed"
+                                      : "Plan Cancelled"}
+                                  </Typography>
+                                </Tooltip>
+                              )}
+                            </TableCell>
+                            <TableCell align="center" sx={{ py: 1.5, px: 2, borderBottom: "none", bgcolor: idx % 2 === 0 ? "transparent" : alpha(theme.palette.primary.main, 0.015), borderTopRightRadius: 8, borderBottomRightRadius: 8 }}>
+                              <Tooltip title="View Details">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleViewDetails(row.id)}
+                                  sx={{
+                                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                    "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.15) },
+                                  }}
+                                >
+                                  <VisibilityIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </motion.tr>
+                        ))}
+                      </AnimatePresence>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </Box>
-          </Paper>
-        </motion.div>
-
-        {/* Table */}
-        <motion.div initial="hidden" animate="visible" variants={fade} custom={6}>
-          <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
-            {allPaymentHistoryLoading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-                <CircularProgress size={28} sx={{ color: theme.palette.primary.main }} />
-              </Box>
-            ) : filteredPayments.length === 0 ? (
-              <Box sx={{ py: 8, textAlign: "center" }}>
-                <BarChartIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
-                <Typography color="text.secondary" sx={{ fontSize: "0.85rem" }}>No transactions found</Typography>
-              </Box>
-            ) : (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
-                      {[
-                        { label: "#", width: 40 },
-                        { label: "Type", width: 70 },
-                        { label: "Admin / User", sortKey: "name" },
-                        { label: "Plan", width: 150 },
-                        { label: "Amount", sortKey: "amount", align: "right" },
-                        { label: "Coupon", width: 90, align: "center" },
-                        { label: "Date", sortKey: "date" },
-                        { label: "Expires", width: 100 },
-                        { label: "Status", sortKey: "status", width: 110 },
-                        { label: "Actions", width: 60, align: "center" },
-                      ].map(({ label, sortKey, align, width }) => (
-                        <TableCell key={label}
-                          onClick={() => sortKey && handleSort(sortKey)}
-                          align={align || "left"}
-                          sx={{
-                            width, py: 1.2, px: { xs: 1, sm: 1.5 },
-                            fontSize: "0.65rem", fontWeight: 800, letterSpacing: 0.5,
-                            textTransform: "uppercase", color: "text.secondary",
-                            cursor: sortKey ? "pointer" : "default",
-                            userSelect: "none",
-                            whiteSpace: "nowrap",
-                            "&:hover": sortKey ? { color: theme.palette.primary.main } : {},
-                          }}>
-                          {label}
-                          {sortKey && sortBy === sortKey && (
-                            <span style={{ marginLeft: 2 }}>{sortOrder === "asc" ? " ↑" : " ↓"}</span>
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <AnimatePresence>
-                      {filteredPayments.map((row, idx) => (
-                        <motion.tr key={row.id}
-                          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                          transition={{ delay: idx * 0.03, duration: 0.25 }}
-                          style={{ display: "table-row" }}>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 }, fontSize: "0.7rem", color: "text.disabled" }}>
-                            {(page - 1) * 10 + idx + 1}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <TypeBadge type={row.type} />
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Avatar sx={{ width: 26, height: 26, fontSize: "0.6rem", bgcolor: alpha(theme.palette.primary.main, 0.15), color: theme.palette.primary.main, fontWeight: 800 }}>
-                                {row.name?.[0]?.toUpperCase() || "?"}
-                              </Avatar>
-                              <Box>
-                                <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, lineHeight: 1.2 }}>{row.name}</Typography>
-                                <Typography sx={{ fontSize: "0.6rem", color: "text.secondary" }}>{row.email}</Typography>
-                              </Box>
-                            </Box>
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <Typography sx={{ fontSize: "0.7rem", fontWeight: 600, lineHeight: 1.3 }}>{row.plan}</Typography>
-                            {row.duration && (
-                              <Typography sx={{ fontSize: "0.58rem", color: "text.secondary" }}>{row.duration}</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell align="right" sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <Box>
-                              <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: row.status === "completed" ? "#10b981" : "text.primary" }}>
-                                ₹{row.amount?.toLocaleString("en-IN")}
-                              </Typography>
-                              {row.discountAmount > 0 && (
-                                <Typography sx={{ fontSize: "0.58rem", color: "#ef4444", textDecoration: "line-through" }}>
-                                  ₹{row.originalAmount?.toLocaleString("en-IN")}
-                                </Typography>
-                              )}
-                            </Box>
-                          </TableCell>
-                          <TableCell align="center" sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            {row.hasCouponApplied ? (
-                              <Tooltip title={`${row.couponCode} · Saved ₹${row.savingsAmount}`}>
-                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.4 }}>
-                                  <CouponIcon sx={{ fontSize: 12, color: "#f59e0b" }} />
-                                  <Typography sx={{ fontSize: "0.6rem", color: "#f59e0b", fontWeight: 700 }}>{row.couponCode}</Typography>
-                                </Box>
-                              </Tooltip>
-                            ) : (
-                              <Typography sx={{ fontSize: "0.6rem", color: "text.disabled" }}>—</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <Typography sx={{ fontSize: "0.68rem", fontWeight: 500 }}>
-                              {moment(row.date).format("DD MMM YY")}
-                            </Typography>
-                            <Typography sx={{ fontSize: "0.58rem", color: "text.secondary" }}>
-                              {moment(row.date).format("hh:mm A")}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            {row.expiresAt ? (
-                              <Box>
-                                <Typography sx={{ fontSize: "0.65rem", fontWeight: 500, color: row.isExpired ? "#ef4444" : "text.primary" }}>
-                                  {moment(row.expiresAt).format("DD MMM YY")}
-                                </Typography>
-                                <Typography sx={{ fontSize: "0.58rem", color: row.isExpired ? "#ef4444" : "#10b981" }}>
-                                  {row.isExpired ? "Expired" : `${row.remainingDays}d left`}
-                                </Typography>
-                              </Box>
-                            ) : <Typography sx={{ fontSize: "0.65rem", color: "text.disabled" }}>—</Typography>}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <StatusBadge status={row.status} />
-                            {row.isCancelledByUser && (
-                              <Tooltip title={row.cancellationReason || "Cancelled by user"}>
-                                <Typography sx={{ fontSize: "0.55rem", color: "text.disabled", mt: 0.3, cursor: "default" }}>
-                                  {row.cancellationReason === "User closed the payment window"
-                                    ? "Payment Closed"
-                                    : "Plan Cancelled"}
-                                </Typography>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-
-                          <TableCell align="center" sx={{ py: 1.2, px: { xs: 1, sm: 1.5 } }}>
-                            <Tooltip title="View Details">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleViewDetails(row.id)}
-                                sx={{
-                                  bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                  "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.15) },
-                                }}
-                              >
-                                <VisibilityIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </motion.tr>
-                      ))}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
 
             {/* Pagination */}
             {!allPaymentHistoryLoading && filteredPayments.length > 0 && (
               <Box sx={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                px: 2, py: 1.5, borderTop: "1px solid", borderColor: "divider",
+                px: 3, py: 2, borderTop: "1px solid", borderColor: "divider", bgcolor: "background.paper"
               }}>
-                <Typography sx={{ fontSize: "0.68rem", color: "text.secondary" }}>
+                <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", fontWeight: 500 }}>
                   Showing {filteredPayments.length} of {totalPages * 10} transactions
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   <IconButton size="small" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                    sx={{ width: 28, height: 28, border: "1px solid", borderColor: "divider" }}>
-                    <KeyboardArrowLeft sx={{ fontSize: 16 }} />
+                    sx={{ width: 32, height: 32, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+                    <KeyboardArrowLeft sx={{ fontSize: 18 }} />
                   </IconButton>
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     const pg = page <= 3 ? i + 1 : page + i - 2;
                     if (pg < 1 || pg > totalPages) return null;
                     return (
                       <Box key={pg} onClick={() => setPage(pg)} sx={{
-                        width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
-                        borderRadius: 1.5, cursor: "pointer", border: "1px solid",
+                        width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
+                        borderRadius: 1, cursor: "pointer", border: "1px solid",
                         borderColor: pg === page ? theme.palette.primary.main : "divider",
                         bgcolor: pg === page ? theme.palette.primary.main : "transparent",
                         color: pg === page ? "#fff" : "text.secondary",
-                        fontSize: "0.7rem", fontWeight: pg === page ? 800 : 400,
+                        fontSize: "0.75rem", fontWeight: pg === page ? 700 : 500,
                         transition: "all 0.15s",
+                        "&:hover": { bgcolor: pg === page ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.05) }
                       }}>{pg}</Box>
                     );
                   })}
                   <IconButton size="small" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                    sx={{ width: 28, height: 28, border: "1px solid", borderColor: "divider" }}>
-                    <KeyboardArrowRight sx={{ fontSize: 16 }} />
+                    sx={{ width: 32, height: 32, border: "1px solid", borderColor: "divider", borderRadius: 1 }}>
+                    <KeyboardArrowRight sx={{ fontSize: 18 }} />
                   </IconButton>
                 </Box>
               </Box>

@@ -780,7 +780,7 @@ const ListUsers = () => {
           <IconButton onClick={handleBack} size="small" sx={{ color: theme.palette.primary.main, width: 32, height: 32, "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) } }}>
             <ArrowBackIcon sx={{ fontSize: 18 }} />
           </IconButton>
-          <Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: "1rem", md: "1.2rem" }, background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: "1rem", md: "1.2rem" }, color: "text.primary" }}>
             Organization Users
           </Typography>
         </Box>

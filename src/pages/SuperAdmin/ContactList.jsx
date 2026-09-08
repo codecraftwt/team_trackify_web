@@ -1222,9 +1222,7 @@ const ContactList = () => {
                   variant={isMobile ? "h6" : "h5"}
                   fontWeight="700"
                   sx={{
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
+                    color: 'text.primary',
                     fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' }
                   }}
                 >
