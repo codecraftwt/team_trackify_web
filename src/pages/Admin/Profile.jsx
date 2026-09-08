@@ -1090,12 +1090,15 @@ const Profile = () => {
                                   helperText={touched.fullName && errors.fullName}
                                   size="small"
                                   sx={{
-                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "12px",
+                                      "&.Mui-focused fieldset": { borderColor: "#102c4a" },
+                                    },
                                   }}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
-                                        <PersonIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                        <PersonIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1111,12 +1114,14 @@ const Profile = () => {
                                   disabled
                                   size="small"
                                   sx={{
-                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "12px",
+                                    },
                                   }}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
-                                        <EmailIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                        <EmailIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1135,12 +1140,15 @@ const Profile = () => {
                                   helperText={touched.mobile && errors.mobile}
                                   size="small"
                                   sx={{
-                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "12px",
+                                      "&.Mui-focused fieldset": { borderColor: "#102c4a" },
+                                    },
                                   }}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
-                                        <PhoneIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                        <PhoneIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1159,12 +1167,15 @@ const Profile = () => {
                                   helperText={touched.address && errors.address}
                                   size="small"
                                   sx={{
-                                    "& .MuiOutlinedInput-root": { borderRadius: "12px" },
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "12px",
+                                      "&.Mui-focused fieldset": { borderColor: "#102c4a" },
+                                    },
                                   }}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
-                                        <LocationIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                                        <LocationIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1198,8 +1209,8 @@ const Profile = () => {
                                       fontWeight: 700,
                                       fontSize: "0.82rem",
                                       textTransform: "none",
-                                      bgcolor: "#0284c7",
-                                      "&:hover": { bgcolor: "#0369a1" },
+                                      bgcolor: "#102c4a",
+                                      "&:hover": { bgcolor: "#1e4f7a" },
                                     }}
                                   >
                                     {loading ? "Saving..." : "Save Changes"}

@@ -231,7 +231,7 @@ const ResetPasswordProfile = () => {
           width: "450px",
           height: "450px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(2, 132, 199, 0.06) 0%, rgba(2, 132, 199, 0) 70%)",
+          background: "radial-gradient(circle, rgba(16, 44, 74, 0.06) 0%, rgba(16, 44, 74, 0) 70%)",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
@@ -265,13 +265,13 @@ const ResetPasswordProfile = () => {
                   width: 52,
                   height: 52,
                   borderRadius: "16px",
-                  bgcolor: "#e0f2fe",
-                  color: "#0284c7",
+                  bgcolor: "#eef4fa",
+                  color: "#102c4a",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mb: 1.5,
-                  boxShadow: "0 4px 14px rgba(2, 132, 199, 0.15)",
+                  boxShadow: "0 4px 14px rgba(16, 44, 74, 0.12)",
                 }}
               >
                 <KeyIcon sx={{ fontSize: 26 }} />
@@ -301,13 +301,13 @@ const ResetPasswordProfile = () => {
               </Typography>
             </Box>
 
-            {/* Full-width soft blue gradient line */}
+            {/* Full-width soft line */}
             <Box
               sx={{
                 height: "1.5px",
                 my: 2.5,
                 mx: { xs: -3, sm: -4 },
-                background: "linear-gradient(90deg, #bae6fd 0%, #7dd3fc 50%, #bae6fd 100%)",
+                background: "linear-gradient(90deg, rgba(16,44,74,0.12) 0%, rgba(16,44,74,0.25) 50%, rgba(16,44,74,0.12) 100%)",
               }}
             />
 
@@ -380,14 +380,14 @@ const ResetPasswordProfile = () => {
                         fontSize: "0.88rem",
                         borderColor: "#e2e8f0",
                         transition: "all 0.2s ease",
-                        "&:hover fieldset": { borderColor: "#0284c7" },
-                        "&.Mui-focused fieldset": { borderColor: "#0284c7", borderWidth: "1.5px" },
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
                       },
                     }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                          <LockIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -425,14 +425,14 @@ const ResetPasswordProfile = () => {
                         fontSize: "0.88rem",
                         borderColor: "#e2e8f0",
                         transition: "all 0.2s ease",
-                        "&:hover fieldset": { borderColor: "#0284c7" },
-                        "&.Mui-focused fieldset": { borderColor: "#0284c7", borderWidth: "1.5px" },
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
                       },
                     }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <KeyIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                          <KeyIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -497,14 +497,14 @@ const ResetPasswordProfile = () => {
                         fontSize: "0.88rem",
                         borderColor: "#e2e8f0",
                         transition: "all 0.2s ease",
-                        "&:hover fieldset": { borderColor: "#0284c7" },
-                        "&.Mui-focused fieldset": { borderColor: "#0284c7", borderWidth: "1.5px" },
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
                       },
                     }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <ShieldIcon sx={{ color: "#0284c7", fontSize: 18 }} />
+                          <ShieldIcon sx={{ color: "#102c4a", fontSize: 18 }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -589,12 +589,12 @@ const ResetPasswordProfile = () => {
                     fontWeight: 700,
                     fontSize: "0.88rem",
                     textTransform: "none",
-                    bgcolor: "#0284c7",
+                    bgcolor: "#102c4a",
                     color: "#ffffff",
-                    boxShadow: "0 4px 12px rgba(2, 132, 199, 0.25)",
+                    boxShadow: "0 4px 12px rgba(16, 44, 74, 0.25)",
                     "&:hover": {
-                      bgcolor: "#0369a1",
-                      boxShadow: "0 6px 16px rgba(2, 132, 199, 0.32)",
+                      bgcolor: "#1e4f7a",
+                      boxShadow: "0 6px 16px rgba(16, 44, 74, 0.32)",
                     },
                     "&.Mui-disabled": {
                       bgcolor: "#cbd5e1",
@@ -630,8 +630,8 @@ const ResetPasswordProfile = () => {
                   py: 0.6,
                   px: 1.5,
                   "&:hover": {
-                    color: "#0284c7",
-                    bgcolor: alpha("#0284c7", 0.06),
+                    color: "#102c4a",
+                    bgcolor: alpha("#102c4a", 0.06),
                   },
                 }}
               >
