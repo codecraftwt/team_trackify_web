@@ -142,7 +142,7 @@ const Header = ({ onMenuClick }) => {
                 boxShadow: `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
               }}
             >
-              Sign In
+              {isAuthenticated ? 'DashBoard' : 'Sign In'}
             </motion.button>
 
             {/* Mobile Menu Toggle */}
@@ -230,7 +230,7 @@ const Header = ({ onMenuClick }) => {
                   boxShadow: `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
                 }}
               >
-                Sign In
+                {isAuthenticated ? 'DashBoard' : 'Sign In'}
               </motion.button>
             </div>
           </motion.div>

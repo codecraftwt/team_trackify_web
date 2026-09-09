@@ -622,7 +622,7 @@ const ReportLocation = () => {
         for (let i = 0; i < validLocations.length - 1; i++) {
             const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
             const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
-            const color = validLocations[i].isOnline === true ? "#3553ea" : "#ef4444";
+            const color = validLocations[i].isOnline === true ? "#102c4a" : "#ef4444";
 
             const line = L.polyline(
                 [p1, p2],
@@ -943,8 +943,8 @@ const ReportLocation = () => {
                 sx={{
                     width: 28,
                     height: 28,
-                    bgcolor: alpha("#2196F3", 0.15),
-                    color: "#2196F3",
+                    bgcolor: alpha("#102c4a", 0.15),
+                    color: "#102c4a",
                 }}
             >
                 {userName?.charAt(0)?.toUpperCase() || <PersonIcon sx={{ fontSize: 16 }} />}
@@ -962,7 +962,7 @@ const ReportLocation = () => {
                 <Chip
                     label={fmtDist(totalDistance)}
                     size="small"
-                    sx={{ height: 18, fontSize: "0.5rem", bgcolor: alpha("#2196F3", 0.1), color: "#2196F3" }}
+                    sx={{ height: 18, fontSize: "0.5rem", bgcolor: alpha("#102c4a", 0.1), color: "#102c4a" }}
                 />
                 <Chip
                     label={fmtDuration(totalDuration)}
@@ -970,7 +970,7 @@ const ReportLocation = () => {
                     sx={{ height: 18, fontSize: "0.5rem", bgcolor: alpha("#FF9800", 0.1), color: "#FF9800" }}
                 />
             </Box>
-            <IconButton size="small" onClick={() => setIsExpanded(!isExpanded)} sx={{ color: "#2196F3", p: 0.5 }}>
+            <IconButton size="small" onClick={() => setIsExpanded(!isExpanded)} sx={{ color: "#102c4a", p: 0.5 }}>
                 {isExpanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
             </IconButton>
         </Box>
@@ -978,14 +978,14 @@ const ReportLocation = () => {
 
     // ─── Expanded Details Component ──────────────────────────────────────────────
     const ExpandedDetails = () => (
-        <Box sx={{ p: 1, pt: 0, borderTop: `1px solid ${alpha("#2196F3", 0.1)}` }}>
+        <Box sx={{ p: 1, pt: 0, borderTop: `1px solid ${alpha("#102c4a", 0.1)}` }}>
             {selectedSession?.remark && (
                 <Chip
                     label={selectedSession.remark}
                     size="small"
                     sx={{
-                        bgcolor: alpha("#2196F3", 0.08),
-                        color: "#2196F3",
+                        bgcolor: alpha("#102c4a", 0.08),
+                        color: "#102c4a",
                         fontSize: "0.5rem",
                         height: 20,
                         mb: 0.75,
@@ -1031,12 +1031,12 @@ const ReportLocation = () => {
         <Box sx={{ 
             p: 0.75, 
             pt: 0, 
-            borderTop: `1px solid ${alpha("#2196F3", 0.1)}`,
+            borderTop: `1px solid ${alpha("#102c4a", 0.1)}`,
             maxHeight: 220,  // Reduced height for smaller display
             overflowY: "auto",
             "&::-webkit-scrollbar": { width: 3 },
-            "&::-webkit-scrollbar-track": { bgcolor: alpha("#2196F3", 0.05), borderRadius: 2 },
-            "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 },
+            "&::-webkit-scrollbar-track": { bgcolor: alpha("#102c4a", 0.05), borderRadius: 2 },
+            "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 },
         }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, mb: 0.5 }}>
                 <CollectionsIcon sx={{ fontSize: 10, color: "#FF9800" }} />
@@ -1104,7 +1104,7 @@ const ReportLocation = () => {
                                         flyToLocation(currentPhoto.lat, currentPhoto.lng, currentPhoto);
                                         setPhotoModalOpen(false);
                                     }}
-                                    sx={{ mt: 1, fontSize: "0.6rem", borderColor: "#2196F3", color: "#2196F3" }}
+                                    sx={{ mt: 1, fontSize: "0.6rem", borderColor: "#102c4a", color: "#102c4a" }}
                                 >
                                     <LocationOnIcon sx={{ fontSize: 12, mr: 0.5 }} />
                                     Fly to this location
@@ -1121,7 +1121,7 @@ const ReportLocation = () => {
     if (loading || sessionDetailsLoading) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-                <CircularProgress sx={{ color: "#2196F3" }} />
+                <CircularProgress sx={{ color: "#102c4a" }} />
             </Box>
         );
     }
@@ -1129,9 +1129,9 @@ const ReportLocation = () => {
     if (!selectedSession) {
         return (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", flexDirection: "column", gap: 2 }}>
-                <InfoIcon sx={{ fontSize: 64, color: alpha("#2196F3", 0.3) }} />
+                <InfoIcon sx={{ fontSize: 64, color: alpha("#102c4a", 0.3) }} />
                 <Typography variant="h6" color="text.secondary">No session data available</Typography>
-                <Button variant="contained" onClick={() => window.history.back()} sx={{ bgcolor: "#2196F3" }}>
+                <Button variant="contained" onClick={() => window.history.back()} sx={{ bgcolor: "#102c4a" }}>
                     Go Back
                 </Button>
             </Box>
@@ -1144,15 +1144,15 @@ const ReportLocation = () => {
             {/* AppBar */}
             <AppBar position="static" sx={{ flexShrink: 0, bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
                 <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
-                    <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+                    <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
                         <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
                     </IconButton>
                     <Box sx={{ flex: 1, ml: 1 }}>
-                        <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600 }}>
+                        <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#102c4a", fontWeight: 600 }}>
                             Location Details
                         </Typography>
                     </Box>
-                    <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.1) }}>
+                    <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#102c4a", mr: 1, bgcolor: alpha("#102c4a", 0.1) }}>
                         {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
                     </IconButton>
                 </Toolbar>
@@ -1164,7 +1164,7 @@ const ReportLocation = () => {
 
                 {sessionDetailsLoading && (
                     <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-                        <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+                        <CircularProgress size={40} sx={{ color: "#102c4a" }} />
                     </Box>
                 )}
 
@@ -1181,11 +1181,11 @@ const ReportLocation = () => {
                         overflow: "auto",
                         bgcolor: "rgba(255, 255, 255, 0.96)",
                         backdropFilter: "blur(16px)",
-                        border: `1px solid ${alpha("#2196F3", 0.15)}`,
+                        border: `1px solid ${alpha("#102c4a", 0.15)}`,
                         boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
                         "&::-webkit-scrollbar": { width: 3 },
-                        "&::-webkit-scrollbar-track": { bgcolor: alpha("#2196F3", 0.05) },
-                        "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 },
+                        "&::-webkit-scrollbar-track": { bgcolor: alpha("#102c4a", 0.05) },
+                        "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 },
                     }}>
                         <CompactHeader />
                         {isExpanded && <ExpandedDetails />}
@@ -1220,8 +1220,8 @@ const ReportLocation = () => {
                       }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#2196F3', 0.15) }}>
-                                <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#102c4a', 0.15) }}>
+                                <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
                             </Box>
                             <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: isDarkMode ? "#fff" : "text.primary", letterSpacing: "0.3px", textTransform: "uppercase" }}>
                                 Map Legend
@@ -1235,7 +1235,7 @@ const ReportLocation = () => {
                     {isLegendOpen && (
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2, mt: 0.5 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                            <Box sx={{ width: 18, height: 4, bgcolor: '#3553ea', borderRadius: 2, boxShadow: "0 1px 3px rgba(53, 83, 234, 0.4)" }} />
+                            <Box sx={{ width: 18, height: 4, bgcolor: '#102c4a', borderRadius: 2, boxShadow: "0 1px 3px rgba(16, 44, 74, 0.4)" }} />
                             <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Online Route</Typography>
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>

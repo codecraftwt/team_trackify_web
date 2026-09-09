@@ -1278,6 +1278,9 @@ const TransactionHistory = () => {
                             border: `1.5px solid ${T.border}`,
                             bgcolor: "#ffffff",
                             transition: "all 0.2s ease",
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
                             "&:hover": {
                               borderColor: T.primary,
                               boxShadow: "0 8px 24px rgba(16, 44, 74, 0.08)",
@@ -1294,11 +1297,20 @@ const TransactionHistory = () => {
                             {transaction.planId?.name || (transaction.type === "addon" ? "Add-on Plan" : "Subscription Plan")}
                           </Typography>
 
-                          <Typography sx={{ fontSize: "0.78rem", color: T.textMuted, mb: 1.5 }}>
+                          <Typography sx={{ 
+                            fontSize: "0.78rem", 
+                            color: T.textMuted, 
+                            mb: 1.5,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis"
+                          }}>
                             {transaction.description || "No description provided"}
                           </Typography>
 
-                          <Divider sx={{ my: 1.5, borderColor: T.border }} />
+                          <Divider sx={{ mt: "auto", mb: 1.5, borderColor: T.border }} />
 
                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                             <Box>

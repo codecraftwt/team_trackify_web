@@ -599,7 +599,7 @@
 //           [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
 //         ],
 //         {
-//           color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
+//           color: validLocations[i].isOnline === true ? "#102c4a" : "#ef4444",
 //           weight: 3,
 //           opacity: 0.8,
 //           lineJoin: "round",
@@ -864,10 +864,10 @@
 //   //   <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
 //   //     <Box sx={{ p: 1 }}>
 //   //       <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.7rem", mb: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
-//   //         <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+//   //         <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
 //   //         Sessions ({allSessions.length})
 //   //         {(selectedDate || metadata?.selectedDate) && (
-//   //           <Chip label={selectedDate || metadata?.selectedDate} size="small" sx={{ ml: "auto", height: 18, fontSize: "0.5rem", bgcolor: alpha("#2196F3", 0.1), color: "#2196F3" }} />
+//   //           <Chip label={selectedDate || metadata?.selectedDate} size="small" sx={{ ml: "auto", height: 18, fontSize: "0.5rem", bgcolor: alpha("#102c4a", 0.1), color: "#102c4a" }} />
 //   //         )}
 //   //       </Typography>
 
@@ -888,15 +888,15 @@
 //   //                 onClick={() => handleSessionSelect(sessionId)}
 //   //                 sx={{
 //   //                   cursor: "pointer",
-//   //                   border: isSelected ? `1.5px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-//   //                   bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
+//   //                   border: isSelected ? `1.5px solid #102c4a` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+//   //                   bgcolor: isSelected ? alpha("#102c4a", 0.05) : "transparent",
 //   //                   transition: "all 0.2s ease",
-//   //                   "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02), transform: "translateY(-1px)", boxShadow: 1 },
+//   //                   "&:hover": { borderColor: "#102c4a", bgcolor: alpha("#102c4a", 0.02), transform: "translateY(-1px)", boxShadow: 1 },
 //   //                 }}
 //   //               >
 //   //                 <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
 //   //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.75 }}>
-//   //                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: isSelected ? "#2196F3" : alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "white" : "#2196F3", fontSize: "0.7rem", fontWeight: "bold" }}>
+//   //                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: isSelected ? "#102c4a" : alpha("#102c4a", 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "white" : "#102c4a", fontSize: "0.7rem", fontWeight: "bold" }}>
 //   //                       {isLoading ? <CircularProgress size={16} /> : index + 1}
 //   //                     </Box>
 //   //                     <Box sx={{ flex: 1 }}>
@@ -924,8 +924,8 @@
 //   //                       </Box>
 //   //                     </Grid>
 //   //                     <Grid item xs={6}>
-//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#2196F3", 0.03), borderRadius: 1 }}>
-//   //                         <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#102c4a", 0.03), borderRadius: 1 }}>
+//   //                         <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //   //                         <Box>
 //   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>Distance</Typography>
 //   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem", display: "block" }}>{fmtDist(stats.distance)}</Typography>
@@ -975,24 +975,24 @@
 //         justifyContent: "space-between",
 //         mb: 1.5,
 //         pb: 0.75,
-//         borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
+//         borderBottom: `2px solid ${alpha("#102c4a", 0.2)}`,
 //       }}>
 //         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
 //           <Box sx={{ 
 //             width: 28, 
 //             height: 28, 
 //             borderRadius: "50%", 
-//             background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//             background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //             display: "flex", 
 //             alignItems: "center", 
 //             justifyContent: "center",
-//             boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
+//             boxShadow: `0 2px 8px ${alpha("#102c4a", 0.3)}`
 //           }}>
 //             <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
 //           </Box>
 //           <Typography variant="subtitle2" fontWeight={700} sx={{ 
 //             fontSize: "0.7rem", 
-//             background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//             background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //             backgroundClip: "text",
 //             WebkitBackgroundClip: "text",
 //             color: "transparent",
@@ -1007,8 +1007,8 @@
 //               height: 18, 
 //               fontSize: "0.55rem", 
 //               fontWeight: 700,
-//               bgcolor: alpha("#2196F3", 0.15),
-//               color: "#2196F3",
+//               bgcolor: alpha("#102c4a", 0.15),
+//               color: "#102c4a",
 //               borderRadius: "8px"
 //             }} 
 //           />
@@ -1021,10 +1021,10 @@
 //               height: 20, 
 //               fontSize: "0.5rem", 
 //               fontWeight: 500,
-//               bgcolor: alpha("#2196F3", 0.1), 
-//               color: "#2196F3",
+//               bgcolor: alpha("#102c4a", 0.1), 
+//               color: "#102c4a",
 //               borderRadius: "6px",
-//               border: `1px solid ${alpha("#2196F3", 0.2)}`
+//               border: `1px solid ${alpha("#102c4a", 0.2)}`
 //             }} 
 //           />
 //         )}
@@ -1050,19 +1050,19 @@
 //                   position: "relative",
 //                   overflow: "visible",
 //                   background: isSelected 
-//                     ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
+//                     ? `linear-gradient(135deg, ${alpha("#102c4a", 0.08)}, ${alpha("#102c4a", 0.04)})`
 //                     : "rgba(255, 255, 255, 0.6)",
 //                   backdropFilter: "blur(10px)",
 //                   border: isSelected 
-//                     ? `1.5px solid ${alpha("#2196F3", 0.5)}`
+//                     ? `1.5px solid ${alpha("#102c4a", 0.5)}`
 //                     : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
 //                   borderRadius: "12px",
 //                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 //                   "&:hover": { 
-//                     borderColor: alpha("#2196F3", 0.6),
-//                     background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
+//                     borderColor: alpha("#102c4a", 0.6),
+//                     background: `linear-gradient(135deg, ${alpha("#102c4a", 0.05)}, ${alpha("#102c4a", 0.02)})`,
 //                     transform: "translateY(-2px) translateX(2px)",
-//                     boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
+//                     boxShadow: `0 4px 12px ${alpha("#102c4a", 0.15)}`,
 //                   },
 //                   ...(isSelected && {
 //                     "&::before": {
@@ -1072,7 +1072,7 @@
 //                       top: "20%",
 //                       height: "60%",
 //                       width: "3px",
-//                       background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//                       background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //                       borderRadius: "0 4px 4px 0",
 //                     }
 //                   })
@@ -1086,20 +1086,20 @@
 //                       height: 26, 
 //                       borderRadius: "10px",
 //                       background: isSelected 
-//                         ? `linear-gradient(135deg, #2196F3, #1976D2)`
-//                         : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
+//                         ? `linear-gradient(135deg, #102c4a, #102c4a)`
+//                         : `linear-gradient(135deg, ${alpha("#102c4a", 0.15)}, ${alpha("#102c4a", 0.08)})`,
 //                       display: "flex", 
 //                       alignItems: "center", 
 //                       justifyContent: "center",
-//                       boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
+//                       boxShadow: isSelected ? `0 2px 6px ${alpha("#102c4a", 0.3)}` : "none",
 //                       transition: "all 0.2s ease"
 //                     }}>
 //                       {isLoading ? (
-//                         <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
+//                         <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#102c4a" }} />
 //                       ) : (
 //                         <Typography fontWeight={700} sx={{ 
 //                           fontSize: "0.65rem", 
-//                           color: isSelected ? "white" : "#2196F3",
+//                           color: isSelected ? "white" : "#102c4a",
 //                           textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
 //                         }}>
 //                           {index + 1}
@@ -1110,14 +1110,14 @@
 //                     <Box sx={{ flex: 1 }}>
 //                       <Typography fontWeight={700} sx={{ 
 //                         fontSize: "0.7rem", 
-//                         color: isSelected ? "#2196F3" : "text.primary",
+//                         color: isSelected ? "#102c4a" : "text.primary",
 //                         letterSpacing: "0.3px",
 //                         mb: 0.25
 //                       }}>
 //                         {displayRemark || `Session #${index + 1}`}
 //                       </Typography>
 //                       {/* <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-//                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#2196F3", 0.6) }} />
+//                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#102c4a", 0.6) }} />
 //                         <Typography variant="caption" sx={{ 
 //                           fontSize: "0.5rem", 
 //                           color: "text.secondary",
@@ -1191,31 +1191,31 @@
 //                         alignItems: "center", 
 //                         gap: 0.6, 
 //                         p: 0.5, 
-//                         bgcolor: alpha("#2196F3", 0.04), 
+//                         bgcolor: alpha("#102c4a", 0.04), 
 //                         borderRadius: "8px",
-//                         border: `1px solid ${alpha("#2196F3", 0.08)}`,
+//                         border: `1px solid ${alpha("#102c4a", 0.08)}`,
 //                         transition: "all 0.2s ease",
 //                         "&:hover": {
-//                           bgcolor: alpha("#2196F3", 0.08),
-//                           borderColor: alpha("#2196F3", 0.15)
+//                           bgcolor: alpha("#102c4a", 0.08),
+//                           borderColor: alpha("#102c4a", 0.15)
 //                         }
 //                       }}>
 //                         <Box sx={{ 
 //                           width: 24, 
 //                           height: 24, 
 //                           borderRadius: "6px", 
-//                           bgcolor: alpha("#2196F3", 0.1),
+//                           bgcolor: alpha("#102c4a", 0.1),
 //                           display: "flex",
 //                           alignItems: "center",
 //                           justifyContent: "center"
 //                         }}>
-//                           <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//                           <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //                         </Box>
 //                         <Box>
 //                           <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
 //                             Distance
 //                           </Typography>
-//                           <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
+//                           <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#102c4a" }}>
 //                             {fmtDist(stats.distance)}
 //                           </Typography>
 //                         </Box>
@@ -1226,7 +1226,7 @@
 //                   <Divider sx={{ 
 //                     my: 0.6, 
 //                     borderColor: alpha(theme.palette.divider, 0.3),
-//                     background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
+//                     background: `linear-gradient(90deg, transparent, ${alpha("#102c4a", 0.2)}, transparent)`
 //                   }} />
 
 //                   {/* Start/End Points */}
@@ -1288,8 +1288,8 @@
 //                       width: 6,
 //                       height: 6,
 //                       borderRadius: "50%",
-//                       bgcolor: "#2196F3",
-//                       boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
+//                       bgcolor: "#102c4a",
+//                       boxShadow: `0 0 0 2px ${alpha("#102c4a", 0.2)}`
 //                     }} />
 //                   )}
 //                 </CardContent>
@@ -1317,16 +1317,16 @@
 //     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper", overflow: "hidden" }}>
 //       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
 //         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
-//           <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+//           <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
 //             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
 //           </IconButton>
 //           <Box sx={{ flex: 1, ml: 1 }}>
-//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600 }}>
+//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#102c4a", fontWeight: 600 }}>
 //               {summary.formattedDate || "Route Tracking"}
 //             </Typography>
 //           </Box>
 //           {isMobile && (
-//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
+//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#102c4a", 0.3), color: "#102c4a", py: 0.5 }}>
 //               {allSessions.length}
 //             </Button>
 //           )}
@@ -1340,13 +1340,13 @@
 
 //             {isLoadingSession && (
 //               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-//                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+//                 <CircularProgress size={40} sx={{ color: "#102c4a" }} />
 //               </Box>
 //             )}
 
 //             {selectedSession && hasLocations && (
 //               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)",  bgcolor: "rgba(255, 255, 255, 0.3)"  }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#102c4a", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
 //                   <PinDropIcon sx={{ fontSize: 12 }} />
 //                   {selectedSessionRemark || "No remark added"}
 //                 </Typography>
@@ -1355,8 +1355,8 @@
 //                     <TimerIcon sx={{ fontSize: 10, color: "#FF9800" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDuration(totalDuration)}</Typography>
 //                   </Box>
-//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#2196F3", 0.05), p: 0.5, borderRadius: 1 }}>
-//                     <StraightenIcon sx={{ fontSize: 10, color: "#2196F3" }} />
+//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#102c4a", 0.05), p: 0.5, borderRadius: 1 }}>
+//                     <StraightenIcon sx={{ fontSize: 10, color: "#102c4a" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDist(totalDistance)}</Typography>
 //                   </Box>
 //                 </Box>
@@ -1387,7 +1387,7 @@
 
 //       {isMobile && (
 //         <>
-//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }} onClick={openSessionDrawer}>
+//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#102c4a", width: 48, height: 48 }} onClick={openSessionDrawer}>
 //             <MenuIcon />
 //           </Fab>
 //           <Drawer anchor="right" open={drawerOpen} onClose={closeActiveDrawer} PaperProps={{ sx: drawerPaperSx }}>
@@ -2041,7 +2041,7 @@
 //           [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
 //         ],
 //         {
-//           color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
+//           color: validLocations[i].isOnline === true ? "#102c4a" : "#ef4444",
 //           weight: 3,
 //           opacity: 0.8,
 //           lineJoin: "round",
@@ -2343,10 +2343,10 @@
 //   //   <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0 }}>
 //   //     <Box sx={{ p: 1 }}>
 //   //       <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: "0.7rem", mb: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
-//   //         <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+//   //         <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
 //   //         Sessions ({allSessions.length})
 //   //         {(selectedDate || metadata?.selectedDate) && (
-//   //           <Chip label={selectedDate || metadata?.selectedDate} size="small" sx={{ ml: "auto", height: 18, fontSize: "0.5rem", bgcolor: alpha("#2196F3", 0.1), color: "#2196F3" }} />
+//   //           <Chip label={selectedDate || metadata?.selectedDate} size="small" sx={{ ml: "auto", height: 18, fontSize: "0.5rem", bgcolor: alpha("#102c4a", 0.1), color: "#102c4a" }} />
 //   //         )}
 //   //       </Typography>
 
@@ -2367,15 +2367,15 @@
 //   //                 onClick={() => handleSessionSelect(sessionId)}
 //   //                 sx={{
 //   //                   cursor: "pointer",
-//   //                   border: isSelected ? `1.5px solid #2196F3` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-//   //                   bgcolor: isSelected ? alpha("#2196F3", 0.05) : "transparent",
+//   //                   border: isSelected ? `1.5px solid #102c4a` : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+//   //                   bgcolor: isSelected ? alpha("#102c4a", 0.05) : "transparent",
 //   //                   transition: "all 0.2s ease",
-//   //                   "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.02), transform: "translateY(-1px)", boxShadow: 1 },
+//   //                   "&:hover": { borderColor: "#102c4a", bgcolor: alpha("#102c4a", 0.02), transform: "translateY(-1px)", boxShadow: 1 },
 //   //                 }}
 //   //               >
 //   //                 <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
 //   //                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.75 }}>
-//   //                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: isSelected ? "#2196F3" : alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "white" : "#2196F3", fontSize: "0.7rem", fontWeight: "bold" }}>
+//   //                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: isSelected ? "#102c4a" : alpha("#102c4a", 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: isSelected ? "white" : "#102c4a", fontSize: "0.7rem", fontWeight: "bold" }}>
 //   //                       {isLoading ? <CircularProgress size={16} /> : index + 1}
 //   //                     </Box>
 //   //                     <Box sx={{ flex: 1 }}>
@@ -2403,8 +2403,8 @@
 //   //                       </Box>
 //   //                     </Grid>
 //   //                     <Grid item xs={6}>
-//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#2196F3", 0.03), borderRadius: 1 }}>
-//   //                         <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//   //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, bgcolor: alpha("#102c4a", 0.03), borderRadius: 1 }}>
+//   //                         <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //   //                         <Box>
 //   //                           <Typography variant="caption" sx={{ fontSize: "0.5rem", color: "text.secondary" }}>Distance</Typography>
 //   //                           <Typography variant="caption" fontWeight={500} sx={{ fontSize: "0.6rem", display: "block" }}>{fmtDist(stats.distance)}</Typography>
@@ -2454,24 +2454,24 @@
 //           justifyContent: "space-between",
 //           mb: 1.5,
 //           pb: 0.75,
-//           borderBottom: `2px solid ${alpha("#2196F3", 0.2)}`,
+//           borderBottom: `2px solid ${alpha("#102c4a", 0.2)}`,
 //         }}>
 //           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
 //             <Box sx={{
 //               width: 28,
 //               height: 28,
 //               borderRadius: "50%",
-//               background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//               background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //               display: "flex",
 //               alignItems: "center",
 //               justifyContent: "center",
-//               boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}`
+//               boxShadow: `0 2px 8px ${alpha("#102c4a", 0.3)}`
 //             }}>
 //               <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
 //             </Box>
 //             <Typography variant="subtitle2" fontWeight={700} sx={{
 //               fontSize: "0.7rem",
-//               background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//               background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //               backgroundClip: "text",
 //               WebkitBackgroundClip: "text",
 //               color: "transparent",
@@ -2486,8 +2486,8 @@
 //                 height: 18,
 //                 fontSize: "0.55rem",
 //                 fontWeight: 700,
-//                 bgcolor: alpha("#2196F3", 0.15),
-//                 color: "#2196F3",
+//                 bgcolor: alpha("#102c4a", 0.15),
+//                 color: "#102c4a",
 //                 borderRadius: "8px"
 //               }}
 //             />
@@ -2500,10 +2500,10 @@
 //                 height: 20,
 //                 fontSize: "0.5rem",
 //                 fontWeight: 500,
-//                 bgcolor: alpha("#2196F3", 0.1),
-//                 color: "#2196F3",
+//                 bgcolor: alpha("#102c4a", 0.1),
+//                 color: "#102c4a",
 //                 borderRadius: "6px",
-//                 border: `1px solid ${alpha("#2196F3", 0.2)}`
+//                 border: `1px solid ${alpha("#102c4a", 0.2)}`
 //               }}
 //             />
 //           )}
@@ -2529,19 +2529,19 @@
 //                     position: "relative",
 //                     overflow: "visible",
 //                     background: isSelected
-//                       ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
+//                       ? `linear-gradient(135deg, ${alpha("#102c4a", 0.08)}, ${alpha("#102c4a", 0.04)})`
 //                       : "rgba(255, 255, 255, 0.6)",
 //                     backdropFilter: "blur(10px)",
 //                     border: isSelected
-//                       ? `1.5px solid ${alpha("#2196F3", 0.5)}`
+//                       ? `1.5px solid ${alpha("#102c4a", 0.5)}`
 //                       : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
 //                     borderRadius: "12px",
 //                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 //                     "&:hover": {
-//                       borderColor: alpha("#2196F3", 0.6),
-//                       background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
+//                       borderColor: alpha("#102c4a", 0.6),
+//                       background: `linear-gradient(135deg, ${alpha("#102c4a", 0.05)}, ${alpha("#102c4a", 0.02)})`,
 //                       transform: "translateY(-2px) translateX(2px)",
-//                       boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
+//                       boxShadow: `0 4px 12px ${alpha("#102c4a", 0.15)}`,
 //                     },
 //                     ...(isSelected && {
 //                       "&::before": {
@@ -2551,7 +2551,7 @@
 //                         top: "20%",
 //                         height: "60%",
 //                         width: "3px",
-//                         background: `linear-gradient(135deg, #2196F3, #1976D2)`,
+//                         background: `linear-gradient(135deg, #102c4a, #102c4a)`,
 //                         borderRadius: "0 4px 4px 0",
 //                       }
 //                     })
@@ -2565,20 +2565,20 @@
 //                         height: 26,
 //                         borderRadius: "10px",
 //                         background: isSelected
-//                           ? `linear-gradient(135deg, #2196F3, #1976D2)`
-//                           : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`,
+//                           ? `linear-gradient(135deg, #102c4a, #102c4a)`
+//                           : `linear-gradient(135deg, ${alpha("#102c4a", 0.15)}, ${alpha("#102c4a", 0.08)})`,
 //                         display: "flex",
 //                         alignItems: "center",
 //                         justifyContent: "center",
-//                         boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none",
+//                         boxShadow: isSelected ? `0 2px 6px ${alpha("#102c4a", 0.3)}` : "none",
 //                         transition: "all 0.2s ease"
 //                       }}>
 //                         {isLoading ? (
-//                           <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
+//                           <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#102c4a" }} />
 //                         ) : (
 //                           <Typography fontWeight={700} sx={{
 //                             fontSize: "0.65rem",
-//                             color: isSelected ? "white" : "#2196F3",
+//                             color: isSelected ? "white" : "#102c4a",
 //                             textShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.1)" : "none"
 //                           }}>
 //                             {index + 1}
@@ -2589,14 +2589,14 @@
 //                       <Box sx={{ flex: 1 }}>
 //                         <Typography fontWeight={700} sx={{
 //                           fontSize: "0.7rem",
-//                           color: isSelected ? "#2196F3" : "text.primary",
+//                           color: isSelected ? "#102c4a" : "text.primary",
 //                           letterSpacing: "0.3px",
 //                           mb: 0.25
 //                         }}>
 //                           {displayRemark || `Session #${index + 1}`}
 //                         </Typography>
 //                         {/* <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-//                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#2196F3", 0.6) }} />
+//                         <ScheduleIcon sx={{ fontSize: 8, color: alpha("#102c4a", 0.6) }} />
 //                         <Typography variant="caption" sx={{ 
 //                           fontSize: "0.5rem", 
 //                           color: "text.secondary",
@@ -2670,31 +2670,31 @@
 //                           alignItems: "center",
 //                           gap: 0.6,
 //                           p: 0.5,
-//                           bgcolor: alpha("#2196F3", 0.04),
+//                           bgcolor: alpha("#102c4a", 0.04),
 //                           borderRadius: "8px",
-//                           border: `1px solid ${alpha("#2196F3", 0.08)}`,
+//                           border: `1px solid ${alpha("#102c4a", 0.08)}`,
 //                           transition: "all 0.2s ease",
 //                           "&:hover": {
-//                             bgcolor: alpha("#2196F3", 0.08),
-//                             borderColor: alpha("#2196F3", 0.15)
+//                             bgcolor: alpha("#102c4a", 0.08),
+//                             borderColor: alpha("#102c4a", 0.15)
 //                           }
 //                         }}>
 //                           <Box sx={{
 //                             width: 24,
 //                             height: 24,
 //                             borderRadius: "6px",
-//                             bgcolor: alpha("#2196F3", 0.1),
+//                             bgcolor: alpha("#102c4a", 0.1),
 //                             display: "flex",
 //                             alignItems: "center",
 //                             justifyContent: "center"
 //                           }}>
-//                             <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//                             <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //                           </Box>
 //                           <Box>
 //                             <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
 //                               Distance
 //                             </Typography>
-//                             <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>
+//                             <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#102c4a" }}>
 //                               {fmtDist(stats.distance)}
 //                             </Typography>
 //                           </Box>
@@ -2705,7 +2705,7 @@
 //                     <Divider sx={{
 //                       my: 0.6,
 //                       borderColor: alpha(theme.palette.divider, 0.3),
-//                       background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)`
+//                       background: `linear-gradient(90deg, transparent, ${alpha("#102c4a", 0.2)}, transparent)`
 //                     }} />
 
 //                     {/* Start/End Points */}
@@ -2767,8 +2767,8 @@
 //                         width: 6,
 //                         height: 6,
 //                         borderRadius: "50%",
-//                         bgcolor: "#2196F3",
-//                         boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}`
+//                         bgcolor: "#102c4a",
+//                         boxShadow: `0 0 0 2px ${alpha("#102c4a", 0.2)}`
 //                       }} />
 //                     )}
 //                   </CardContent>
@@ -2796,19 +2796,19 @@
 //     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper", overflow: "hidden" }}>
 //       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
 //         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
-//           <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+//           <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
 //             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
 //           </IconButton>
 //           <Box sx={{ flex: 1, ml: 1 }}>
-//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600 }}>
+//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#102c4a", fontWeight: 600 }}>
 //               {summary.formattedDate || "Route Tracking"}
 //             </Typography>
 //           </Box>
-//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.1) }}>
+//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#102c4a", mr: 1, bgcolor: alpha("#102c4a", 0.1) }}>
 //             {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
 //           </IconButton>
 //           {isMobile && (
-//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
+//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#102c4a", 0.3), color: "#102c4a", py: 0.5 }}>
 //               {allSessions.length}
 //             </Button>
 //           )}
@@ -2822,13 +2822,13 @@
 
 //             {isLoadingSession && (
 //               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-//                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+//                 <CircularProgress size={40} sx={{ color: "#102c4a" }} />
 //               </Box>
 //             )}
 
 //             {selectedSession && hasLocations && (
 //               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)", bgcolor: "rgba(255, 255, 255, 0.3)" }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#102c4a", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
 //                   <PinDropIcon sx={{ fontSize: 12 }} />
 //                   {selectedSessionRemark || "No remark added"}
 //                 </Typography>
@@ -2837,8 +2837,8 @@
 //                     <TimerIcon sx={{ fontSize: 10, color: "#FF9800" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDuration(totalDuration)}</Typography>
 //                   </Box>
-//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#2196F3", 0.05), p: 0.5, borderRadius: 1 }}>
-//                     <StraightenIcon sx={{ fontSize: 10, color: "#2196F3" }} />
+//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#102c4a", 0.05), p: 0.5, borderRadius: 1 }}>
+//                     <StraightenIcon sx={{ fontSize: 10, color: "#102c4a" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDist(totalDistance)}</Typography>
 //                   </Box>
 //                 </Box>
@@ -2869,7 +2869,7 @@
 
 //       {isMobile && (
 //         <>
-//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }} onClick={openSessionDrawer}>
+//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#102c4a", width: 48, height: 48 }} onClick={openSessionDrawer}>
 //             <MenuIcon />
 //           </Fab>
 //           <Drawer anchor="right" open={drawerOpen} onClose={closeActiveDrawer} PaperProps={{ sx: drawerPaperSx }}>
@@ -3733,7 +3733,7 @@
 //           [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
 //         ],
 //         {
-//           color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
+//           color: validLocations[i].isOnline === true ? "#102c4a" : "#ef4444",
 //           weight: 3,
 //           opacity: 0.8,
 //           lineJoin: "round",
@@ -3771,7 +3771,7 @@
 //     const isActive = checkIsActive(session);
 //     if (endPoint && hasValidCoordinates(endPoint)) {
 //       const popupContent = `<div style="min-width:180px;max-width:240px;font-family:inherit;">
-//         <div style="background:linear-gradient(135deg, ${isActive ? "#2196F3, #1976D2" : "#ef4444, #dc2626"});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
+//         <div style="background:linear-gradient(135deg, ${isActive ? "#102c4a, #102c4a" : "#ef4444, #dc2626"});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
 //           <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px">${isActive ? "📍" : "🏁"}</span><b style="font-size:13px;letter-spacing:0.5px">${isActive ? "LIVE LOCATION" : "END POINT"}</b></div>
 //         </div>
 //         <div style="padding:4px 0;">
@@ -3781,7 +3781,7 @@
 //         </div>
 //       </div>`;
 //       const icon = isActive
-//         ? makeMovingIcon("#2196F3", fmtTime(endPoint.timestamp), endPoint.photo, 32)
+//         ? makeMovingIcon("#102c4a", fmtTime(endPoint.timestamp), endPoint.photo, 32)
 //         : (endPoint.photo ? makeEndWithPhotoIcon(endPoint.photo, fmtTime(endPoint.timestamp), 34) : makeEndIcon("#ef4444", fmtTime(endPoint.timestamp), false, 28));
 //       const m = L.marker([endPoint.lat, endPoint.lng], { icon, zIndexOffset: 1000 })
 //         .bindPopup(popupContent, { maxWidth: 260, minWidth: 180 }).addTo(mapInstance.current);
@@ -3789,9 +3789,9 @@
 //       markerRefs.current.set("end", m);
 //     } else if (validLocations.length > 1) {
 //       const lastLoc = validLocations[validLocations.length - 1];
-//       const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:${isActive ? "#2196F3" : "#ef4444"};color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:12px">${isActive ? "📍" : "🏁"}</span><b style="font-size:11px">${isActive ? "LIVE LOCATION" : "END POINT"}</b></div></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
+//       const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:${isActive ? "#102c4a" : "#ef4444"};color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><div style="display:flex;align-items:center;gap:4px;"><span style="font-size:12px">${isActive ? "📍" : "🏁"}</span><b style="font-size:11px">${isActive ? "LIVE LOCATION" : "END POINT"}</b></div></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
 //       const icon = isActive
-//         ? makeMovingIcon("#2196F3", fmtTime(lastLoc.timestamp), null, 30)
+//         ? makeMovingIcon("#102c4a", fmtTime(lastLoc.timestamp), null, 30)
 //         : makeEndIcon("#ef4444", fmtTime(lastLoc.timestamp), false, 28);
 //       const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon, zIndexOffset: 1000 })
 //         .bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
@@ -3993,18 +3993,18 @@
 //     <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
 //       <Box sx={{ p: 0.75 }}>
 //         {/* Header */}
-//         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, pb: 0.75, borderBottom: `2px solid ${alpha("#2196F3", 0.2)}` }}>
+//         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, pb: 0.75, borderBottom: `2px solid ${alpha("#102c4a", 0.2)}` }}>
 //           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-//             <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #2196F3, #1976D2)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}` }}>
+//             <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #102c4a, #102c4a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#102c4a", 0.3)}` }}>
 //               <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
 //             </Box>
-//             <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg, #2196F3, #1976D2)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
+//             <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg, #102c4a, #102c4a)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
 //               SESSIONS
 //             </Typography>
-//             <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#2196F3", 0.15), color: "#2196F3", borderRadius: "8px" }} />
+//             <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#102c4a", 0.15), color: "#102c4a", borderRadius: "8px" }} />
 //           </Box>
 
-//           <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} sx={{ borderColor: alpha("#2196F3", 0.3), color: "#2196F3", fontSize: "0.6rem", py: 0.3, px: 1, borderRadius: "16px", textTransform: "none", "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.05) } }}>
+//           <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} sx={{ borderColor: alpha("#102c4a", 0.3), color: "#102c4a", fontSize: "0.6rem", py: 0.3, px: 1, borderRadius: "16px", textTransform: "none", "&:hover": { borderColor: "#102c4a", bgcolor: alpha("#102c4a", 0.05) } }}>
 //             {selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
 //           </Button>
 
@@ -4016,18 +4016,18 @@
 //               .compact-calendar .react-calendar__navigation { height: 28px !important; margin-bottom: 8px !important; }
 //               .compact-calendar .react-calendar__month-view__weekdays { font-size: 0.62rem !important; text-transform: uppercase; font-weight: 600; }
 //               .compact-calendar .react-calendar__month-view__weekdays__weekday { padding: 4px !important; }
-//               .available-date { background-color: ${alpha("#2196F3", 0.15)} !important; border-radius: 8px !important; font-weight: bold !important; }
-//               .available-date:hover { background-color: ${alpha("#2196F3", 0.25)} !important; }
-//               .available-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: #2196F3; }
-//               .react-calendar__tile--active { background: linear-gradient(135deg, #2196F3, #1976D2) !important; color: white !important; }
-//               .react-calendar__tile--now { background: ${alpha("#2196F3", 0.1)} !important; }
+//               .available-date { background-color: ${alpha("#102c4a", 0.15)} !important; border-radius: 8px !important; font-weight: bold !important; }
+//               .available-date:hover { background-color: ${alpha("#102c4a", 0.25)} !important; }
+//               .available-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: #102c4a; }
+//               .react-calendar__tile--active { background: linear-gradient(135deg, #102c4a, #102c4a) !important; color: white !important; }
+//               .react-calendar__tile--now { background: ${alpha("#102c4a", 0.1)} !important; }
 //             `}</style>
 //             <Calendar onChange={handleDateSelection} value={selectedDate} maxDate={new Date()} next2Label={null} prev2Label={null} className="compact-calendar"
 //               tileClassName={({ date, view }) => view === "month" && isDateAvailable(date) ? "available-date" : null}
 //               tileContent={({ date, view }) => view === "month" && isDateAvailable(date) ? <div className="available-dot" /> : null}
 //             />
-//             <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-//               <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#2196F3" }}>Close</Button>
+//             <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+//               <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#102c4a" }}>Close</Button>
 //             </Box>
 //           </Popover>
 //         </Box>
@@ -4035,14 +4035,14 @@
 //         {/* Loading */}
 //         {loadingSessionsByDate && (
 //           <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-//             <CircularProgress size={30} sx={{ color: "#2196F3" }} />
+//             <CircularProgress size={30} sx={{ color: "#102c4a" }} />
 //           </Box>
 //         )}
 
 //         {/* Empty */}
 //         {!loadingSessionsByDate && allSessions.length === 0 && (
 //           <Box sx={{ textAlign: "center", py: 4 }}>
-//             <CalendarIcon sx={{ fontSize: 40, color: alpha("#2196F3", 0.3), mb: 1 }} />
+//             <CalendarIcon sx={{ fontSize: 40, color: alpha("#102c4a", 0.3), mb: 1 }} />
 //             <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>No sessions found for this date</Typography>
 //           </Box>
 //         )}
@@ -4069,32 +4069,32 @@
 //                       position: "relative",
 //                       overflow: "visible",
 //                       background: isSelected
-//                         ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
+//                         ? `linear-gradient(135deg, ${alpha("#102c4a", 0.08)}, ${alpha("#102c4a", 0.04)})`
 //                         : "rgba(255, 255, 255, 0.6)",
 //                       backdropFilter: "blur(10px)",
 //                       border: isSelected
-//                         ? `1.5px solid ${alpha("#2196F3", 0.5)}`
+//                         ? `1.5px solid ${alpha("#102c4a", 0.5)}`
 //                         : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
 //                       borderRadius: "12px",
 //                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-//                       "&:hover": { borderColor: alpha("#2196F3", 0.6), background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`, transform: "translateY(-2px) translateX(2px)", boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}` },
-//                       ...(isSelected && { "&::before": { content: '""', position: "absolute", left: 0, top: "20%", height: "60%", width: "3px", background: "linear-gradient(135deg, #2196F3, #1976D2)", borderRadius: "0 4px 4px 0" } }),
+//                       "&:hover": { borderColor: alpha("#102c4a", 0.6), background: `linear-gradient(135deg, ${alpha("#102c4a", 0.05)}, ${alpha("#102c4a", 0.02)})`, transform: "translateY(-2px) translateX(2px)", boxShadow: `0 4px 12px ${alpha("#102c4a", 0.15)}` },
+//                       ...(isSelected && { "&::before": { content: '""', position: "absolute", left: 0, top: "20%", height: "60%", width: "3px", background: "linear-gradient(135deg, #102c4a, #102c4a)", borderRadius: "0 4px 4px 0" } }),
 //                     }}
 //                   >
 //                     <CardContent sx={{ p: 0.85, "&:last-child": { pb: 0.85 } }}>
 //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-//                         <Box sx={{ width: 26, height: 26, borderRadius: "10px", background: isSelected ? "linear-gradient(135deg, #2196F3, #1976D2)" : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none", transition: "all 0.2s ease" }}>
+//                         <Box sx={{ width: 26, height: 26, borderRadius: "10px", background: isSelected ? "linear-gradient(135deg, #102c4a, #102c4a)" : `linear-gradient(135deg, ${alpha("#102c4a", 0.15)}, ${alpha("#102c4a", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isSelected ? `0 2px 6px ${alpha("#102c4a", 0.3)}` : "none", transition: "all 0.2s ease" }}>
 //                           {isLoading ? (
-//                             <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
+//                             <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#102c4a" }} />
 //                           ) : (
-//                             <Typography fontWeight={700} sx={{ fontSize: "0.65rem", color: isSelected ? "white" : "#2196F3" }}>
+//                             <Typography fontWeight={700} sx={{ fontSize: "0.65rem", color: isSelected ? "white" : "#102c4a" }}>
 //                               {index + 1}
 //                             </Typography>
 //                           )}
 //                         </Box>
 
 //                         <Box sx={{ flex: 1 }}>
-//                           <Typography fontWeight={700} sx={{ fontSize: "0.7rem", color: isSelected ? "#2196F3" : "text.primary", letterSpacing: "0.3px", mb: 0.25 }}>
+//                           <Typography fontWeight={700} sx={{ fontSize: "0.7rem", color: isSelected ? "#102c4a" : "text.primary", letterSpacing: "0.3px", mb: 0.25 }}>
 //                             {displayRemark || `Session #${index + 1}`}
 //                           </Typography>
 //                         </Box>
@@ -4149,19 +4149,19 @@
 //                           </Box>
 //                         </Grid>
 //                         <Grid item xs={6}>
-//                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#2196F3", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#2196F3", 0.08)}` }}>
-//                             <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
-//                               <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#102c4a", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#102c4a", 0.08)}` }}>
+//                             <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#102c4a", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
+//                               <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //                             </Box>
 //                             <Box>
 //                               <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distance</Typography>
-//                               <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>{fmtDist(stats.distance)}</Typography>
+//                               <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#102c4a" }}>{fmtDist(stats.distance)}</Typography>
 //                             </Box>
 //                           </Box>
 //                         </Grid>
 //                       </Grid>
 
-//                       <Divider sx={{ my: 0.6, borderColor: alpha(theme.palette.divider, 0.3), background: `linear-gradient(90deg, transparent, ${alpha("#2196F3", 0.2)}, transparent)` }} />
+//                       <Divider sx={{ my: 0.6, borderColor: alpha(theme.palette.divider, 0.3), background: `linear-gradient(90deg, transparent, ${alpha("#102c4a", 0.2)}, transparent)` }} />
 
 //                       <Grid container spacing={0.6}>
 //                         <Grid item xs={6}>
@@ -4189,7 +4189,7 @@
 //                       </Grid>
 
 //                       {isSelected && (
-//                         <Box sx={{ position: "absolute", bottom: 8, right: 8, width: 6, height: 6, borderRadius: "50%", bgcolor: "#2196F3", boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}` }} />
+//                         <Box sx={{ position: "absolute", bottom: 8, right: 8, width: 6, height: 6, borderRadius: "50%", bgcolor: "#102c4a", boxShadow: `0 0 0 2px ${alpha("#102c4a", 0.2)}` }} />
 //                       )}
 //                     </CardContent>
 //                   </Card>
@@ -4207,19 +4207,19 @@
 //     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper", overflow: "hidden" }}>
 //       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
 //         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
-//           <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+//           <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
 //             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
 //           </IconButton>
 //           <Box sx={{ flex: 1, ml: 1 }}>
-//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600 }}>
+//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#102c4a", fontWeight: 600 }}>
 //               {selectedDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 //             </Typography>
 //           </Box>
-//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.1) }}>
+//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#102c4a", mr: 1, bgcolor: alpha("#102c4a", 0.1) }}>
 //             {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
 //           </IconButton>
 //           {isMobile && (
-//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
+//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#102c4a", 0.3), color: "#102c4a", py: 0.5 }}>
 //               {allSessions.length}
 //             </Button>
 //           )}
@@ -4233,14 +4233,14 @@
 
 //             {isLoadingSession && (
 //               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-//                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+//                 <CircularProgress size={40} sx={{ color: "#102c4a" }} />
 //               </Box>
 //             )}
 
 //             {/* ── Stats overlay ── */}
 //             {selectedSession && hasLocations && (
 //               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)", bgcolor: "rgba(255, 255, 255, 0.3)" }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#102c4a", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
 //                   <PinDropIcon sx={{ fontSize: 12 }} />
 //                   {selectedSession.remark || "Session"}
 //                 </Typography>
@@ -4249,8 +4249,8 @@
 //                     <TimerIcon sx={{ fontSize: 10, color: "#FF9800" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDuration(totalDuration)}</Typography>
 //                   </Box>
-//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#2196F3", 0.05), p: 0.5, borderRadius: 1 }}>
-//                     <StraightenIcon sx={{ fontSize: 10, color: "#2196F3" }} />
+//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#102c4a", 0.05), p: 0.5, borderRadius: 1 }}>
+//                     <StraightenIcon sx={{ fontSize: 10, color: "#102c4a" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDist(totalDistance)}</Typography>
 //                   </Box>
 //                 </Box>
@@ -4384,7 +4384,7 @@
 
 //       {isMobile && (
 //         <>
-//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }} onClick={openSessionDrawer}>
+//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#102c4a", width: 48, height: 48 }} onClick={openSessionDrawer}>
 //             <MenuIcon />
 //           </Fab>
 //           <Drawer anchor="right" open={drawerOpen} onClose={closeActiveDrawer} PaperProps={{ sx: drawerPaperSx }}>
@@ -4732,7 +4732,7 @@
 //   });
 
 // // ─── makeMovingIcon ────────────────────────────────────────────────────────────
-// const makeMovingIcon = (color = "#2196F3", time, size = 24) =>
+// const makeMovingIcon = (color = "#102c4a", time, size = 24) =>
 //   L.divIcon({
 //     html: `
 //       <div style="position:relative;width:${size}px;height:${size}px;display:flex;flex-direction:column;align-items:center;">
@@ -5288,7 +5288,7 @@
 //           [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])],
 //         ],
 //         {
-//           color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444",
+//           color: validLocations[i].isOnline === true ? "#102c4a" : "#ef4444",
 //           weight: 3,
 //           opacity: 0.8,
 //           lineJoin: "round",
@@ -5336,7 +5336,7 @@
 
 //       const popupContent = `
 //         <div style="min-width:180px;max-width:240px;font-family:inherit;">
-//           <div style="background:linear-gradient(135deg,${isOnline ? '#2196F3' : '#6c757d'},${isOnline ? '#1976D2' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
+//           <div style="background:linear-gradient(135deg,${isOnline ? '#102c4a' : '#6c757d'},${isOnline ? '#102c4a' : '#5a6268'});color:white;padding:8px 12px;border-radius:8px 8px 0 0;margin:-14px -20px 10px -20px;">
 //             <div style="display:flex;align-items:center;gap:6px;">
 //               <span style="font-size:16px">${isOnline ? '📍' : '📶'}</span>
 //               <b style="font-size:13px;letter-spacing:0.5px">${isOnline ? 'LIVE LOCATION' : 'LAST KNOWN LOCATION (OFFLINE)'}</b>
@@ -5349,7 +5349,7 @@
 //           </div>
 //         </div>`;
 
-//       const markerColor = isOnline ? "#2196F3" : "#6c757d";
+//       const markerColor = isOnline ? "#102c4a" : "#6c757d";
 //       const m = L.marker(
 //         [getLat(mostRecentLocation), getLng(mostRecentLocation)],
 //         { icon: makeMovingIcon(markerColor, fmtTime(ts), 24), zIndexOffset: 1100 }
@@ -5667,18 +5667,18 @@
 //     <Paper elevation={0} sx={{ height: "100%", overflow: "auto", borderRadius: 0, bgcolor: "transparent" }}>
 //       <Box sx={{ p: 0.75 }}>
 //         {/* Header */}
-//         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, pb: 0.75, borderBottom: `2px solid ${alpha("#2196F3", 0.2)}` }}>
+//         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, pb: 0.75, borderBottom: `2px solid ${alpha("#102c4a", 0.2)}` }}>
 //           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-//             <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #2196F3, #1976D2)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}` }}>
+//             <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #102c4a, #102c4a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#102c4a", 0.3)}` }}>
 //               <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
 //             </Box>
-//             <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg, #2196F3, #1976D2)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
+//             <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg, #102c4a, #102c4a)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
 //               SESSIONS
 //             </Typography>
-//             <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#2196F3", 0.15), color: "#2196F3", borderRadius: "8px" }} />
+//             <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#102c4a", 0.15), color: "#102c4a", borderRadius: "8px" }} />
 //           </Box>
 
-//           <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} sx={{ borderColor: alpha("#2196F3", 0.3), color: "#2196F3", fontSize: "0.6rem", py: 0.3, px: 1, borderRadius: "16px", textTransform: "none", "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.05) } }}>
+//           <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 14 }} />} sx={{ borderColor: alpha("#102c4a", 0.3), color: "#102c4a", fontSize: "0.6rem", py: 0.3, px: 1, borderRadius: "16px", textTransform: "none", "&:hover": { borderColor: "#102c4a", bgcolor: alpha("#102c4a", 0.05) } }}>
 //             {selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
 //           </Button>
 
@@ -5690,11 +5690,11 @@
 //               .compact-calendar .react-calendar__navigation { height: 28px !important; margin-bottom: 8px !important; }
 //               .compact-calendar .react-calendar__month-view__weekdays { font-size: 0.62rem !important; text-transform: uppercase; font-weight: 600; }
 //               .compact-calendar .react-calendar__month-view__weekdays__weekday { padding: 4px !important; }
-//               .available-date { background-color: ${alpha("#2196F3", 0.15)} !important; border-radius: 8px !important; font-weight: bold !important; }
-//               .available-date:hover { background-color: ${alpha("#2196F3", 0.25)} !important; }
-//               .available-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: #2196F3; }
-//               .react-calendar__tile--active { background: linear-gradient(135deg, #2196F3, #1976D2) !important; color: white !important; }
-//               .react-calendar__tile--now { background: ${alpha("#2196F3", 0.1)} !important; }
+//               .available-date { background-color: ${alpha("#102c4a", 0.15)} !important; border-radius: 8px !important; font-weight: bold !important; }
+//               .available-date:hover { background-color: ${alpha("#102c4a", 0.25)} !important; }
+//               .available-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: #102c4a; }
+//               .react-calendar__tile--active { background: linear-gradient(135deg, #102c4a, #102c4a) !important; color: white !important; }
+//               .react-calendar__tile--now { background: ${alpha("#102c4a", 0.1)} !important; }
 //             `}</style>
 //             <Calendar
 //               onChange={handleDateSelection}
@@ -5706,8 +5706,8 @@
 //               tileClassName={({ date, view }) => view === "month" && isDateAvailable(date) ? "available-date" : null}
 //               tileContent={({ date, view }) => view === "month" && isDateAvailable(date) ? <div className="available-dot" /> : null}
 //             />
-//             <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-//               <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#2196F3" }}>Close</Button>
+//             <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+//               <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#102c4a" }}>Close</Button>
 //             </Box>
 //           </Popover>
 //         </Box>
@@ -5715,14 +5715,14 @@
 //         {/* Loading */}
 //         {loadingSessionsByDate && (
 //           <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-//             <CircularProgress size={30} sx={{ color: "#2196F3" }} />
+//             <CircularProgress size={30} sx={{ color: "#102c4a" }} />
 //           </Box>
 //         )}
 
 //         {/* Empty state */}
 //         {!loadingSessionsByDate && allSessions.length === 0 && (
 //           <Box sx={{ textAlign: "center", py: 4 }}>
-//             <CalendarIcon sx={{ fontSize: 40, color: alpha("#2196F3", 0.3), mb: 1 }} />
+//             <CalendarIcon sx={{ fontSize: 40, color: alpha("#102c4a", 0.3), mb: 1 }} />
 //             <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>No sessions found for this date</Typography>
 //           </Box>
 //         )}
@@ -5749,19 +5749,19 @@
 //                       position: "relative",
 //                       overflow: "visible",
 //                       background: isSelected
-//                         ? `linear-gradient(135deg, ${alpha("#2196F3", 0.08)}, ${alpha("#1976D2", 0.04)})`
+//                         ? `linear-gradient(135deg, ${alpha("#102c4a", 0.08)}, ${alpha("#102c4a", 0.04)})`
 //                         : "rgba(255, 255, 255, 0.6)",
 //                       backdropFilter: "blur(10px)",
 //                       border: isSelected
-//                         ? `1.5px solid ${alpha("#2196F3", 0.5)}`
+//                         ? `1.5px solid ${alpha("#102c4a", 0.5)}`
 //                         : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
 //                       borderRadius: "12px",
 //                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 //                       "&:hover": {
-//                         borderColor: alpha("#2196F3", 0.6),
-//                         background: `linear-gradient(135deg, ${alpha("#2196F3", 0.05)}, ${alpha("#1976D2", 0.02)})`,
+//                         borderColor: alpha("#102c4a", 0.6),
+//                         background: `linear-gradient(135deg, ${alpha("#102c4a", 0.05)}, ${alpha("#102c4a", 0.02)})`,
 //                         transform: "translateY(-2px) translateX(2px)",
-//                         boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}`,
+//                         boxShadow: `0 4px 12px ${alpha("#102c4a", 0.15)}`,
 //                       },
 //                       ...(isSelected && {
 //                         "&::before": {
@@ -5771,7 +5771,7 @@
 //                           top: "20%",
 //                           height: "60%",
 //                           width: "3px",
-//                           background: "linear-gradient(135deg, #2196F3, #1976D2)",
+//                           background: "linear-gradient(135deg, #102c4a, #102c4a)",
 //                           borderRadius: "0 4px 4px 0",
 //                         },
 //                       }),
@@ -5779,18 +5779,18 @@
 //                   >
 //                     <CardContent sx={{ p: 0.85, "&:last-child": { pb: 0.85 } }}>
 //                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-//                         <Box sx={{ width: 26, height: 26, borderRadius: "10px", background: isSelected ? "linear-gradient(135deg, #2196F3, #1976D2)" : `linear-gradient(135deg, ${alpha("#2196F3", 0.15)}, ${alpha("#1976D2", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isSelected ? `0 2px 6px ${alpha("#2196F3", 0.3)}` : "none", transition: "all 0.2s ease" }}>
+//                         <Box sx={{ width: 26, height: 26, borderRadius: "10px", background: isSelected ? "linear-gradient(135deg, #102c4a, #102c4a)" : `linear-gradient(135deg, ${alpha("#102c4a", 0.15)}, ${alpha("#102c4a", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: isSelected ? `0 2px 6px ${alpha("#102c4a", 0.3)}` : "none", transition: "all 0.2s ease" }}>
 //                           {isLoading ? (
-//                             <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#2196F3" }} />
+//                             <CircularProgress size={14} sx={{ color: isSelected ? "white" : "#102c4a" }} />
 //                           ) : (
-//                             <Typography fontWeight={700} sx={{ fontSize: "0.65rem", color: isSelected ? "white" : "#2196F3" }}>
+//                             <Typography fontWeight={700} sx={{ fontSize: "0.65rem", color: isSelected ? "white" : "#102c4a" }}>
 //                               {index + 1}
 //                             </Typography>
 //                           )}
 //                         </Box>
 
 //                         <Box sx={{ flex: 1 }}>
-//                           <Typography fontWeight={700} sx={{ fontSize: "0.7rem", color: isSelected ? "#2196F3" : "text.primary", letterSpacing: "0.3px", mb: 0.25 }}>
+//                           <Typography fontWeight={700} sx={{ fontSize: "0.7rem", color: isSelected ? "#102c4a" : "text.primary", letterSpacing: "0.3px", mb: 0.25 }}>
 //                             {displayRemark || `Session #${index + 1}`}
 //                           </Typography>
 //                         </Box>
@@ -5845,13 +5845,13 @@
 //                           </Box>
 //                         </Grid>
 //                         <Grid item xs={6}>
-//                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#2196F3", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#2196F3", 0.08)}` }}>
-//                             <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#2196F3", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
-//                               <StraightenIcon sx={{ fontSize: 12, color: "#2196F3" }} />
+//                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, p: 0.5, bgcolor: alpha("#102c4a", 0.04), borderRadius: "8px", border: `1px solid ${alpha("#102c4a", 0.08)}` }}>
+//                             <Box sx={{ width: 24, height: 24, borderRadius: "6px", bgcolor: alpha("#102c4a", 0.1), display: "flex", alignItems: "center", justifyContent: "center" }}>
+//                               <StraightenIcon sx={{ fontSize: 12, color: "#102c4a" }} />
 //                             </Box>
 //                             <Box>
 //                               <Typography variant="caption" sx={{ fontSize: "0.45rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>Distance</Typography>
-//                               <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#2196F3" }}>{fmtDist(stats.distance)}</Typography>
+//                               <Typography fontWeight={600} sx={{ fontSize: "0.6rem", lineHeight: 1.2, color: "#102c4a" }}>{fmtDist(stats.distance)}</Typography>
 //                             </Box>
 //                           </Box>
 //                         </Grid>
@@ -5885,7 +5885,7 @@
 //                       </Grid>
 
 //                       {isSelected && (
-//                         <Box sx={{ position: "absolute", bottom: 8, right: 8, width: 6, height: 6, borderRadius: "50%", bgcolor: "#2196F3", boxShadow: `0 0 0 2px ${alpha("#2196F3", 0.2)}` }} />
+//                         <Box sx={{ position: "absolute", bottom: 8, right: 8, width: 6, height: 6, borderRadius: "50%", bgcolor: "#102c4a", boxShadow: `0 0 0 2px ${alpha("#102c4a", 0.2)}` }} />
 //                       )}
 //                     </CardContent>
 //                   </Card>
@@ -5903,19 +5903,19 @@
 //     <Box sx={{ minHeight: "100vh", bgcolor: "background.paper", overflow: "hidden" }}>
 //       <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
 //         <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
-//           <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+//           <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
 //             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
 //           </IconButton>
 //           <Box sx={{ flex: 1, ml: 1 }}>
-//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#2196F3", fontWeight: 600 }}>
+//             <Typography sx={{ fontSize: { xs: "0.75rem", sm: "0.85rem" }, color: "#102c4a", fontWeight: 600 }}>
 //               {selectedDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 //             </Typography>
 //           </Box>
-//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.1) }}>
+//           <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#102c4a", mr: 1, bgcolor: alpha("#102c4a", 0.1) }}>
 //             {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
 //           </IconButton>
 //           {isMobile && (
-//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
+//             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer} sx={{ fontSize: "0.6rem", borderColor: alpha("#102c4a", 0.3), color: "#102c4a", py: 0.5 }}>
 //               {allSessions.length}
 //             </Button>
 //           )}
@@ -5930,14 +5930,14 @@
 
 //             {isLoadingSession && (
 //               <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-//                 <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+//                 <CircularProgress size={40} sx={{ color: "#102c4a" }} />
 //               </Box>
 //             )}
 
 //             {/* Stats overlay */}
 //             {selectedSession && hasLocations && (
 //               <Paper sx={{ position: "absolute", top: 12, left: 50, p: { xs: 0.75, sm: 1 }, borderRadius: 2, maxWidth: { xs: 180, sm: 220 }, zIndex: 500, boxShadow: 2, backdropFilter: "blur(8px)", bgcolor: "rgba(255, 255, 255, 0.3)" }}>
-//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#2196F3", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
+//                 <Typography variant="body2" fontWeight={600} sx={{ color: "#102c4a", fontSize: { xs: "0.65rem", sm: "0.7rem" }, mb: 0.5, display: "flex", alignItems: "center", gap: 0.5 }}>
 //                   <PinDropIcon sx={{ fontSize: 12 }} />
 //                   {selectedSession.remark || "Session"}
 //                 </Typography>
@@ -5946,8 +5946,8 @@
 //                     <TimerIcon sx={{ fontSize: 10, color: "#FF9800" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDuration(totalDuration)}</Typography>
 //                   </Box>
-//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#2196F3", 0.05), p: 0.5, borderRadius: 1 }}>
-//                     <StraightenIcon sx={{ fontSize: 10, color: "#2196F3" }} />
+//                   <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 0.5, bgcolor: alpha("#102c4a", 0.05), p: 0.5, borderRadius: 1 }}>
+//                     <StraightenIcon sx={{ fontSize: 10, color: "#102c4a" }} />
 //                     <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{fmtDist(totalDistance)}</Typography>
 //                   </Box>
 //                 </Box>
@@ -6078,7 +6078,7 @@
 //       {/* Mobile drawer */}
 //       {isMobile && (
 //         <>
-//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }} onClick={openSessionDrawer}>
+//           <Fab color="primary" sx={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, bgcolor: "#102c4a", width: 48, height: 48 }} onClick={openSessionDrawer}>
 //             <MenuIcon />
 //           </Fab>
 //           <Drawer anchor="right" open={drawerOpen} onClose={closeActiveDrawer} PaperProps={{ sx: drawerPaperSx }}>
@@ -6394,7 +6394,7 @@ const makeEndWithPhotoIcon = (photoUrl, time, color = "#ef4444", size = 34) => {
   });
 };
 
-const makeMovingIcon = (color = "#2196F3", time, size = 24) =>
+const makeMovingIcon = (color = "#102c4a", time, size = 24) =>
   L.divIcon({
     html: `
       <div style="position:relative;width:${size}px;height:${size}px;display:flex;flex-direction:column;align-items:center;">
@@ -6848,7 +6848,7 @@ const Locations = () => {
   //   for (let i = 0; i < validLocations.length - 1; i++) {
   //     const line = L.polyline(
   //       [[getLat(validLocations[i]), getLng(validLocations[i])], [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])]],
-  //       { color: validLocations[i].isOnline === true ? "#3553ea" : "#ef4444", weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
+  //       { color: validLocations[i].isOnline === true ? "#102c4a" : "#ef4444", weight: 3, opacity: 0.8, lineJoin: "round", lineCap: "round" }
   //     ).addTo(mapInstance.current);
   //     polylines.current.push(line);
   //   }
@@ -6916,7 +6916,7 @@ const Locations = () => {
     for (let i = 0; i < validLocations.length - 1; i++) {
       const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
       const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
-      const color = validLocations[i].isOnline === true ? "#3553ea" : "#ef4444";
+      const color = validLocations[i].isOnline === true ? "#102c4a" : "#ef4444";
 
       const line = L.polyline(
         [p1, p2],
@@ -7348,7 +7348,7 @@ const Locations = () => {
   //           Photos ({sessionPhotos.length})
   //         </Typography>
   //       </Box>
-  //       <Box sx={{ display: "flex", gap: 0.75, overflowX: "auto", overflowY: "hidden", pb: 0.5, "&::-webkit-scrollbar": { height: 3 }, "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.3), borderRadius: 2 } }}>
+  //       <Box sx={{ display: "flex", gap: 0.75, overflowX: "auto", overflowY: "hidden", pb: 0.5, "&::-webkit-scrollbar": { height: 3 }, "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 } }}>
   //         {sessionPhotos.map((photo, index) => {
   //           const isStart = photo.type === "start", isEnd = photo.type === "end";
   //           const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
@@ -7463,19 +7463,19 @@ const Locations = () => {
   const renderSessionList = () => (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
       {/* Fixed Header */}
-      <Box sx={{ px: 1.25, pt: 1.25, pb: 0.75, flexShrink: 0, borderBottom: `2px solid ${alpha("#2196F3", 0.15)}` }}>
+      <Box sx={{ px: 1.25, pt: 1.25, pb: 0.75, flexShrink: 0, borderBottom: `2px solid ${alpha("#102c4a", 0.15)}` }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.75 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-            <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg,#2196F3,#1976D2)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#2196F3", 0.3)}` }}>
+            <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg,#102c4a,#102c4a)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${alpha("#102c4a", 0.3)}` }}>
               <PinDropIcon sx={{ fontSize: 14, color: "white" }} />
             </Box>
-            <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg,#2196F3,#1976D2)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ fontSize: "0.7rem", background: "linear-gradient(135deg,#102c4a,#102c4a)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", letterSpacing: "0.5px" }}>
               SESSIONS
             </Typography>
-            <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#2196F3", 0.12), color: "#2196F3", borderRadius: "8px" }} />
+            <Chip label={allSessions.length} size="small" sx={{ height: 18, fontSize: "0.55rem", fontWeight: 700, bgcolor: alpha("#102c4a", 0.12), color: "#102c4a", borderRadius: "8px" }} />
           </Box>
           <Button variant="outlined" size="small" onClick={toggleCalendar} startIcon={<CalendarIcon sx={{ fontSize: 12 }} />}
-            sx={{ borderColor: alpha("#2196F3", 0.3), color: "#2196F3", fontSize: "0.58rem", py: 0.25, px: 0.75, borderRadius: "14px", textTransform: "none", "&:hover": { borderColor: "#2196F3", bgcolor: alpha("#2196F3", 0.05) } }}>
+            sx={{ borderColor: alpha("#102c4a", 0.3), color: "#102c4a", fontSize: "0.58rem", py: 0.25, px: 0.75, borderRadius: "14px", textTransform: "none", "&:hover": { borderColor: "#102c4a", bgcolor: alpha("#102c4a", 0.05) } }}>
             {selectedDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           </Button>
           <Popover open={showCalendar} anchorEl={calendarAnchorEl} onClose={closeCalendar}
@@ -7488,17 +7488,17 @@ const Locations = () => {
               .compact-calendar .react-calendar__navigation{height:28px!important;margin-bottom:8px!important}
               .compact-calendar .react-calendar__month-view__weekdays{font-size:.62rem!important;text-transform:uppercase;font-weight:600}
               .compact-calendar .react-calendar__month-view__weekdays__weekday{padding:4px!important}
-              .available-date{background-color:${alpha("#2196F3", 0.15)}!important;border-radius:8px!important;font-weight:bold!important}
-              .available-date:hover{background-color:${alpha("#2196F3", 0.25)}!important}
-              .available-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background-color:#2196F3}
-              .react-calendar__tile--active{background:linear-gradient(135deg,#2196F3,#1976D2)!important;color:white!important}
-              .react-calendar__tile--now{background:${alpha("#2196F3", 0.1)}!important}
+              .available-date{background-color:${alpha("#102c4a", 0.15)}!important;border-radius:8px!important;font-weight:bold!important}
+              .available-date:hover{background-color:${alpha("#102c4a", 0.25)}!important}
+              .available-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background-color:#102c4a}
+              .react-calendar__tile--active{background:linear-gradient(135deg,#102c4a,#102c4a)!important;color:white!important}
+              .react-calendar__tile--now{background:${alpha("#102c4a", 0.1)}!important}
             `}</style>
             <Calendar onChange={handleDateSelection} value={selectedDate} maxDate={new Date()} next2Label={null} prev2Label={null} className="compact-calendar"
               tileClassName={({ date, view }) => view === "month" && isDateAvailable(date) ? "available-date" : null}
               tileContent={({ date, view }) => view === "month" && isDateAvailable(date) ? <div className="available-dot" /> : null} />
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-              <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#2196F3" }}>Close</Button>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 1, pt: 1, borderTop: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+              <Button size="small" onClick={closeCalendar} sx={{ fontSize: "0.65rem", color: "#102c4a" }}>Close</Button>
             </Box>
           </Popover>
         </Box>
@@ -7511,16 +7511,16 @@ const Locations = () => {
         overscrollBehavior: "contain",
         "&::-webkit-scrollbar": { width: 3 },
         "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
-        "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#2196F3", 0.2), borderRadius: 2 },
+        "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.2), borderRadius: 2 },
       }}>
         {loadingSessionsByDate && (
           <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress size={28} sx={{ color: "#2196F3" }} />
+            <CircularProgress size={28} sx={{ color: "#102c4a" }} />
           </Box>
         )}
         {!loadingSessionsByDate && allSessions.length === 0 && (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <CalendarIcon sx={{ fontSize: 36, color: alpha("#2196F3", 0.3), mb: 1 }} />
+            <CalendarIcon sx={{ fontSize: 36, color: alpha("#102c4a", 0.3), mb: 1 }} />
             <Typography sx={{ fontSize: "0.68rem", color: "text.secondary" }}>No sessions on this date</Typography>
           </Box>
         )}
@@ -7539,20 +7539,20 @@ const Locations = () => {
               return (
                 <Card key={sessionId} onClick={() => handleSessionSelect(sessionId)} sx={{
                   cursor: "pointer", position: "relative", overflow: "visible",
-                  background: isSelected ? `linear-gradient(135deg,${alpha("#2196F3", 0.08)},${alpha("#1976D2", 0.04)})` : "rgba(255,255,255,0.6)",
+                  background: isSelected ? `linear-gradient(135deg,${alpha("#102c4a", 0.08)},${alpha("#102c4a", 0.04)})` : "rgba(255,255,255,0.6)",
                   backdropFilter: "blur(10px)",
-                  border: isSelected ? `1.5px solid ${alpha("#2196F3", 0.5)}` : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                  border: isSelected ? `1.5px solid ${alpha("#102c4a", 0.5)}` : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
                   borderRadius: "12px",
                   transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
-                  "&:hover": { borderColor: alpha("#2196F3", 0.6), background: `linear-gradient(135deg,${alpha("#2196F3", 0.05)},${alpha("#1976D2", 0.02)})`, transform: "translateY(-1px) translateX(1px)", boxShadow: `0 4px 12px ${alpha("#2196F3", 0.15)}` },
-                  ...(isSelected && { "&::before": { content: '""', position: "absolute", left: 0, top: "20%", height: "60%", width: "3px", background: "linear-gradient(135deg,#2196F3,#1976D2)", borderRadius: "0 4px 4px 0" } }),
+                  "&:hover": { borderColor: alpha("#102c4a", 0.6), background: `linear-gradient(135deg,${alpha("#102c4a", 0.05)},${alpha("#102c4a", 0.02)})`, transform: "translateY(-1px) translateX(1px)", boxShadow: `0 4px 12px ${alpha("#102c4a", 0.15)}` },
+                  ...(isSelected && { "&::before": { content: '""', position: "absolute", left: 0, top: "20%", height: "60%", width: "3px", background: "linear-gradient(135deg,#102c4a,#102c4a)", borderRadius: "0 4px 4px 0" } }),
                 }}>
                   <CardContent sx={{ p: "8px 10px", "&:last-child": { pb: "8px" } }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
-                      <Box sx={{ width: 24, height: 24, borderRadius: "8px", background: isSelected ? "linear-gradient(135deg,#2196F3,#1976D2)" : `linear-gradient(135deg,${alpha("#2196F3", 0.15)},${alpha("#1976D2", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {isLoading ? <CircularProgress size={12} sx={{ color: isSelected ? "white" : "#2196F3" }} /> : <Typography fontWeight={700} sx={{ fontSize: "0.6rem", color: isSelected ? "white" : "#2196F3" }}>{allSessions.length - index}</Typography>}
+                      <Box sx={{ width: 24, height: 24, borderRadius: "8px", background: isSelected ? "linear-gradient(135deg,#102c4a,#102c4a)" : `linear-gradient(135deg,${alpha("#102c4a", 0.15)},${alpha("#102c4a", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {isLoading ? <CircularProgress size={12} sx={{ color: isSelected ? "white" : "#102c4a" }} /> : <Typography fontWeight={700} sx={{ fontSize: "0.6rem", color: isSelected ? "white" : "#102c4a" }}>{allSessions.length - index}</Typography>}
                       </Box>
-                      <Typography fontWeight={700} sx={{ flex: 1, fontSize: "0.65rem", color: isSelected ? "#2196F3" : "text.primary", letterSpacing: "0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <Typography fontWeight={700} sx={{ flex: 1, fontSize: "0.65rem", color: isSelected ? "#102c4a" : "text.primary", letterSpacing: "0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {displayRemark || `Session #${allSessions.length - index}`}
                       </Typography>
                       {sessionIsActive && (
@@ -7580,11 +7580,11 @@ const Locations = () => {
                         </Box>
                       </Grid>
                       <Grid item xs={6}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#2196F3", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-                          <StraightenIcon sx={{ fontSize: 11, color: "#2196F3", flexShrink: 0 }} />
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#102c4a", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+                          <StraightenIcon sx={{ fontSize: 11, color: "#102c4a", flexShrink: 0 }} />
                           <Box sx={{ minWidth: 0 }}>
                             <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Distance</Typography>
-                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#2196F3" }}>{fmtDist(stats.distance)}</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#102c4a" }}>{fmtDist(stats.distance)}</Typography>
                           </Box>
                         </Box>
                       </Grid>
@@ -7600,11 +7600,11 @@ const Locations = () => {
                         </Box>
                       </Grid>
                       <Grid item xs={6}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#2196F3", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#2196F3", 0.1)}` }}>
-                          <StraightenIcon sx={{ fontSize: 11, color: "#2196F3", flexShrink: 0 }} />
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, p: "4px 6px", bgcolor: alpha("#102c4a", 0.05), borderRadius: "7px", border: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+                          <StraightenIcon sx={{ fontSize: 11, color: "#102c4a", flexShrink: 0 }} />
                           <Box sx={{ minWidth: 0 }}>
                             <Typography variant="caption" sx={{ fontSize: "0.42rem", color: "text.secondary", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.4px", display: "block" }}>Distance</Typography>
-                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#2196F3" }}>{sessionIsActive ? "Updating..." : fmtDist(stats.distance)}</Typography>
+                            <Typography fontWeight={600} sx={{ fontSize: "0.58rem", lineHeight: 1.2, color: "#102c4a" }}>{sessionIsActive ? "Updating..." : fmtDist(stats.distance)}</Typography>
                           </Box>
                         </Box>
                       </Grid>
@@ -7663,20 +7663,20 @@ const Locations = () => {
       {/* AppBar */}
       <AppBar position="static" sx={{ flexShrink: 0, bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.06)", zIndex: 1200 }}>
         <Toolbar variant="dense" disableGutters sx={{ height: 48, minHeight: "48px !important", px: { xs: 1, sm: 2 } }}>
-          <IconButton onClick={() => window.history.back()} sx={{ color: "#2196F3" }}>
+          <IconButton onClick={() => window.history.back()} sx={{ color: "#102c4a" }}>
             <ArrowBackIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
           </IconButton>
           <Box sx={{ flex: 1, ml: 1, minWidth: 0 }}>
-            <Typography noWrap sx={{ fontSize: { xs: "0.68rem", sm: "0.82rem" }, color: "#2196F3", fontWeight: 600 }}>
+            <Typography noWrap sx={{ fontSize: { xs: "0.68rem", sm: "0.82rem" }, color: "#102c4a", fontWeight: 600 }}>
               {selectedDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </Typography>
           </Box>
-          <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#2196F3", mr: 1, bgcolor: alpha("#2196F3", 0.08) }}>
+          <IconButton onClick={() => setIsDarkMode(!isDarkMode)} sx={{ color: "#102c4a", mr: 1, bgcolor: alpha("#102c4a", 0.08) }}>
             {isDarkMode ? <LightModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} /> : <DarkModeIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
           </IconButton>
           {isMobile && (
             <Button variant="outlined" size="small" startIcon={<MenuIcon />} onClick={openSessionDrawer}
-              sx={{ fontSize: "0.6rem", borderColor: alpha("#2196F3", 0.3), color: "#2196F3", py: 0.5 }}>
+              sx={{ fontSize: "0.6rem", borderColor: alpha("#102c4a", 0.3), color: "#102c4a", py: 0.5 }}>
               {allSessions.length}
             </Button>
           )}
@@ -7691,7 +7691,7 @@ const Locations = () => {
 
           {isLoadingSession && (
             <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
-              <CircularProgress size={40} sx={{ color: "#2196F3" }} />
+              <CircularProgress size={40} sx={{ color: "#102c4a" }} />
             </Box>
           )}
 
@@ -7706,8 +7706,8 @@ const Locations = () => {
             }}>
               {/* Session title */}
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
-                <PinDropIcon sx={{ fontSize: 12, color: "#2196F3", flexShrink: 0 }} />
-                <Typography sx={{ fontSize: "0.6rem", color: "#2196F3", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <PinDropIcon sx={{ fontSize: 12, color: "#102c4a", flexShrink: 0 }} />
+                <Typography sx={{ fontSize: "0.6rem", color: "#102c4a", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {selectedSession.remark || "Session"}
                 </Typography>
               </Box>
@@ -7716,7 +7716,7 @@ const Locations = () => {
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0.4 }}>
                 {[
                   { icon: <TimerIcon sx={{ fontSize: 9, color: "#FF9800" }} />, label: fmtDuration(totalDuration), color: "#FF9800", bg: alpha("#FF9800", 0.15) },
-                  { icon: <StraightenIcon sx={{ fontSize: 9, color: "#2196F3" }} />, label: fmtDist(totalDistance), color: "#2196F3", bg: alpha("#2196F3", 0.15) },
+                  { icon: <StraightenIcon sx={{ fontSize: 9, color: "#102c4a" }} />, label: fmtDist(totalDistance), color: "#102c4a", bg: alpha("#102c4a", 0.15) },
                   { icon: <StartIcon sx={{ fontSize: 9, color: "#22c55e" }} />, label: fmtTime(startTime), color: "#22c55e", bg: alpha("#22c55e", 0.15) },
                   { icon: <FlagIcon sx={{ fontSize: 9, color: "#ef4444" }} />, label: fmtTime(endTime), color: "#ef4444", bg: alpha("#ef4444", 0.15) },
                 ].map((chip, i) => (
@@ -7790,8 +7790,8 @@ const Locations = () => {
               }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#2196F3', 0.15) }}>
-                        <PinDropIcon sx={{ fontSize: 14, color: "#2196F3" }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#102c4a', 0.15) }}>
+                        <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
                     </Box>
                     <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: isDarkMode ? "#fff" : "text.primary", letterSpacing: "0.3px", textTransform: "uppercase" }}>
                       Map Legend
@@ -7805,7 +7805,7 @@ const Locations = () => {
             {isLegendOpen && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2, mt: 0.5 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 18, height: 4, bgcolor: '#3553ea', borderRadius: 2, boxShadow: "0 1px 3px rgba(53, 83, 234, 0.4)" }} />
+                  <Box sx={{ width: 18, height: 4, bgcolor: '#102c4a', borderRadius: 2, boxShadow: "0 1px 3px rgba(16, 44, 74, 0.4)" }} />
                   <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Online Route</Typography>
                 </Box>
 
@@ -7863,7 +7863,7 @@ const Locations = () => {
       {/* Mobile drawer */}
       {isMobile && (
         <>
-          <Fab color="primary" sx={{ position: "fixed", bottom: 24, right: 16, zIndex: 1000, bgcolor: "#2196F3", width: 48, height: 48 }} onClick={openSessionDrawer}>
+          <Fab color="primary" sx={{ position: "fixed", bottom: 24, right: 16, zIndex: 1000, bgcolor: "#102c4a", width: 48, height: 48 }} onClick={openSessionDrawer}>
             <MenuIcon />
           </Fab>
           <Drawer anchor="right" open={drawerOpen} onClose={closeActiveDrawer} PaperProps={{ sx: { ...drawerPaperSx, display: "flex", flexDirection: "column" } }}>
