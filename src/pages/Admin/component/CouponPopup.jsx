@@ -16,22 +16,23 @@ import {
   Fade,
   Tooltip,
   Chip,
+  Stack,
 } from '@mui/material';
 import {
   Close as CloseIcon,
-  LocalOffer as LocalOfferIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  ContentCopy as ContentCopyIcon,
-  Percent as PercentIcon,
-  CurrencyRupee as CurrencyRupeeIcon,
-  Bolt as BoltIcon,
-  Celebration as CelebrationIcon,
-  Discount as DiscountIcon,
-  AutoAwesome as AutoAwesomeIcon,
-  ArrowForward as ArrowForwardIcon,
-  DateRange as DateRangeIcon,
-  People as PeopleIcon,
+  LocalOfferRounded as LocalOfferIcon,
+  CheckCircleRounded as CheckCircleIcon,
+  ErrorOutlineRounded as ErrorIcon,
+  ContentCopyRounded as ContentCopyIcon,
+  PercentRounded as PercentIcon,
+  CurrencyRupeeRounded as CurrencyRupeeIcon,
+  BoltRounded as BoltIcon,
+  DiscountRounded as DiscountIcon,
+  AutoAwesomeRounded as AutoAwesomeIcon,
+  ArrowForwardRounded as ArrowForwardIcon,
+  CalendarTodayRounded as DateRangeIcon,
+  PeopleRounded as PeopleIcon,
+  ConfirmationNumberRounded as TicketIcon,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,28 +47,39 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-// Design tokens - hardcoded to avoid theme issues
+// Design tokens aligned with the application navy theme
 const T = {
-  indigo: '#6366f1',
-  indigoLight: '#818cf8',
-  indigoPale: '#eef2ff',
-  emerald: '#10b981',
-  emeraldLight: '#34d399',
-  emeraldPale: '#ecfdf5',
-  gold: '#f59e0b',
+  primary: '#102c4a',
+  primaryDark: '#0b2138',
+  primaryHover: '#1e4f7a',
+  primaryLight: '#3088c7',
+  primaryPale: '#eef4fa',
+  primaryAlpha: (o = 0.1) => `rgba(16, 44, 74, ${o})`,
+
+  emerald: '#16a34a',
+  emeraldDark: '#15803d',
+  emeraldLight: '#22c55e',
+  emeraldPale: '#f0fdf4',
+  emeraldBorder: '#bbf7d0',
+
+  gold: '#d97706',
   goldPale: '#fffbeb',
-  red: '#ef4444',
+  goldBorder: '#fde68a',
+
+  red: '#dc2626',
   redPale: '#fef2f2',
+  redBorder: '#fecaca',
+
   surface: '#ffffff',
   surfaceAlt: '#f8fafc',
   border: '#e2e8f0',
   borderStrong: '#cbd5e1',
   text: '#0f172a',
-  textSub: '#64748b',
-  textMuted: '#94a3b8',
+  textSub: '#475569',
+  textMuted: '#64748b',
 };
 
-// Safe Icon Component - CRITICAL FIX
+// Safe Icon Component
 const SafeIcon = ({ icon: Icon, sx, fontSize, color, ...props }) => {
   if (!Icon) return null;
   const safeSx = sx && typeof sx === 'object' ? sx : {};
@@ -102,30 +114,37 @@ const isExpiringSoon = (endDate) => {
 
 // CouponSkeleton
 const CouponSkeleton = () => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+  <Stack spacing={1.2}>
     {[1, 2, 3].map((item) => (
-      <Box key={item} sx={{ p: 1.2, borderRadius: 2, border: `1px solid ${T.border}`, bgcolor: T.surfaceAlt }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.8 }}>
-          <Skeleton variant="rounded" width={70} height={20} sx={{ borderRadius: 1 }} />
-          <Skeleton variant="rounded" width={50} height={18} sx={{ borderRadius: 1 }} />
+      <Box
+        key={item}
+        sx={{
+          p: 1.8,
+          borderRadius: '14px',
+          border: `1px solid ${T.border}`,
+          bgcolor: T.surfaceAlt,
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+          <Skeleton variant="rounded" width={90} height={26} sx={{ borderRadius: '8px' }} />
+          <Skeleton variant="rounded" width={65} height={24} sx={{ borderRadius: '8px' }} />
         </Box>
-        <Skeleton variant="text" width="70%" height={12} />
-        <Box sx={{ display: 'flex', gap: 1, mt: 0.6 }}>
-          <Skeleton variant="text" width={45} height={10} />
-          <Skeleton variant="text" width={35} height={10} />
+        <Skeleton variant="text" width="75%" height={16} />
+        <Box sx={{ display: 'flex', gap: 1.2, mt: 1 }}>
+          <Skeleton variant="rounded" width={60} height={18} sx={{ borderRadius: '6px' }} />
+          <Skeleton variant="rounded" width={80} height={18} sx={{ borderRadius: '6px' }} />
         </Box>
       </Box>
     ))}
-  </Box>
+  </Stack>
 );
 
-// CouponCard Component - COMPLETELY SAFE VERSION
+// CouponCard Component
 const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying }) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   if (!coupon || typeof coupon !== 'object') return null;
-  
-  // Safe access with fallbacks
+
   const discountType = coupon.discountType || 'fixed';
   const discountValue = coupon.discountValue || 0;
   const code = coupon.code || '';
@@ -134,211 +153,245 @@ const CouponCard = ({ coupon, onUse, onCopy, copiedCode, isEligible, isApplying 
   const endDate = coupon.endDate;
   const maxUsageCount = coupon.maxUsageCount;
   const usedCount = coupon.usedCount || 0;
-  
+
   if (!code) return null;
-  
+
   const isPercent = discountType === 'percentage';
-  const accent = isPercent ? T.indigo : T.emerald;
-  const accentPale = isPercent ? T.indigoPale : T.emeraldPale;
-  const accentLight = isPercent ? T.indigoLight : T.emeraldLight;
-  const isPopular = discountValue > 20 && isPercent;
+  const isPopular = discountValue >= 20 && isPercent;
   const expiringSoon = isExpiringSoon(endDate);
   const isUnlimited = maxUsageCount === null || maxUsageCount === undefined;
-  const remainingUses = !isUnlimited ? (maxUsageCount - usedCount) : null;
-
-  const iconStyle = { fontSize: 9 };
-  const smallIconStyle = { fontSize: 8 };
+  const remainingUses = !isUnlimited ? maxUsageCount - usedCount : null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.2 }}
     >
       <Box
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => isEligible && !isApplying && onUse(code)}
         sx={{
-          p: 2,
-          borderRadius: 2,
-          border: `1.5px solid`,
-          borderColor: isEligible && isHovered ? accent : T.border,
-          bgcolor: isEligible && isHovered ? accentPale : T.surface,
+          p: 1.8,
+          borderRadius: '14px',
+          border: '1.5px solid',
+          borderColor: isHovered && isEligible ? T.primary : T.border,
+          bgcolor: isHovered && isEligible ? T.primaryPale : T.surface,
           cursor: isEligible ? (isApplying ? 'wait' : 'pointer') : 'not-allowed',
-          opacity: isEligible ? 1 : 0.5,
-          transition: 'all 0.18s ease',
-          transform: isHovered && isEligible && !isApplying ? 'translateX(3px)' : 'none',
-          boxShadow: isHovered && isEligible ? `0 2px 12px -3px ${alpha(accent, 0.18)}` : 'none',
+          opacity: isEligible ? 1 : 0.55,
+          transition: 'all 0.2s ease',
+          boxShadow: isHovered && isEligible ? `0 6px 18px -4px ${T.primaryAlpha(0.12)}` : 'none',
+          transform: isHovered && isEligible && !isApplying ? 'translateY(-2px)' : 'none',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         {isApplying && (
-          <Box sx={{
-            position: 'absolute', inset: 0, borderRadius: 2,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            bgcolor: alpha(T.surface, 0.75),
-            backdropFilter: 'blur(2px)',
-            zIndex: 2,
-          }}>
-            <CircularProgress size={16} sx={{ color: accent }} />
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(3px)',
+              zIndex: 3,
+            }}
+          >
+            <CircularProgress size={22} sx={{ color: T.primary }} />
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
-            {isPopular && (
-              <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.4,
-                px: 1, py: 0.3, borderRadius: 1,
-                bgcolor: alpha(T.gold, 0.12),
-                border: `1px solid ${alpha(T.gold, 0.3)}`,
-              }}>
-                <SafeIcon icon={BoltIcon} sx={{ fontSize: 10 }} color={T.gold} />
-                <Typography sx={{ fontSize: '0.55rem', fontWeight: 800, color: T.gold, letterSpacing: 0.3 }}>HOT</Typography>
-              </Box>
-            )}
-            
-            {expiringSoon && !isPopular && (
-              <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.2,
-                px: 0.5, py: 0.1, borderRadius: 0.8,
-                bgcolor: alpha(T.gold, 0.08),
-                border: `1px solid ${alpha(T.gold, 0.2)}`,
-              }}>
-                <Typography sx={{ fontSize: '0.48rem', fontWeight: 600, color: T.gold }}>Expiring Soon</Typography>
-              </Box>
-            )}
-
-            <Box sx={{
-              display: 'flex', alignItems: 'center', gap: 0.6,
-              px: 1, py: 0.5, borderRadius: 1.5,
-              bgcolor: alpha(accent, 0.08),
-              border: `1px solid ${alpha(accent, 0.2)}`,
-            }}>
-              <SafeIcon icon={LocalOfferIcon} sx={{ fontSize: 12 }} color={accent} />
-              <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: accent, letterSpacing: 0.8 }}>
+        {/* Header: Code & Discount Badge */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Code Pill */}
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.7,
+                px: 1.2,
+                py: 0.4,
+                borderRadius: '8px',
+                bgcolor: isHovered ? '#ffffff' : T.primaryPale,
+                border: `1.5px dashed ${T.primary}`,
+              }}
+            >
+              <TicketIcon sx={{ fontSize: 15, color: T.primary }} />
+              <Typography
+                sx={{
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  color: T.primary,
+                  letterSpacing: '0.04em',
+                }}
+              >
                 {code}
               </Typography>
             </Box>
 
-            <Tooltip title="Copy code">
-              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onCopy(code); }}
+            {/* Copy Button */}
+            <Tooltip title={copiedCode === code ? 'Copied!' : 'Copy Code'}>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCopy(code);
+                }}
                 sx={{
-                  width: 18, height: 18, p: 0,
+                  width: 26,
+                  height: 26,
                   color: copiedCode === code ? T.emerald : T.textMuted,
-                  '&:hover': { color: accent, bgcolor: alpha(accent, 0.08) },
-                  transition: 'all 0.15s',
-                }}>
-                <SafeIcon icon={ContentCopyIcon} sx={smallIconStyle} />
-                {copiedCode === code && (
-                  <Box sx={{
-                    position: 'absolute', top: -16, left: '50%',
-                    transform: 'translateX(-50%)',
-                    bgcolor: T.emerald, color: 'white',
-                    px: 0.5, py: 0.1, borderRadius: 0.6,
-                    fontSize: '0.42rem', whiteSpace: 'nowrap', fontWeight: 700,
-                  }}>Copied!</Box>
-                )}
+                  bgcolor: copiedCode === code ? T.emeraldPale : 'transparent',
+                  '&:hover': { color: T.primary, bgcolor: T.primaryAlpha(0.08) },
+                }}
+              >
+                <ContentCopyIcon sx={{ fontSize: 13 }} />
               </IconButton>
             </Tooltip>
+
+            {/* Tags (Hot / Expiring) */}
+            {isPopular && (
+              <Chip
+                icon={<BoltIcon sx={{ fontSize: '13px !important', color: `${T.gold} !important` }} />}
+                label="HOT"
+                size="small"
+                sx={{
+                  height: 22,
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  bgcolor: T.goldPale,
+                  color: T.gold,
+                  border: `1px solid ${T.goldBorder}`,
+                }}
+              />
+            )}
+
+            {expiringSoon && !isPopular && (
+              <Chip
+                label="Expiring Soon"
+                size="small"
+                sx={{
+                  height: 22,
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  bgcolor: T.goldPale,
+                  color: T.gold,
+                  border: `1px solid ${T.goldBorder}`,
+                }}
+              />
+            )}
           </Box>
 
-          <Box sx={{
-            display: 'flex', alignItems: 'center', gap: 0.4,
-            px: 1, py: 0.4, borderRadius: 1,
-            bgcolor: accentPale,
-            border: `1px solid ${alpha(accent, 0.2)}`,
-          }}>
-            {isPercent
-              ? <SafeIcon icon={PercentIcon} sx={{ fontSize: 12 }} color={accentLight} />
-              : <SafeIcon icon={CurrencyRupeeIcon} sx={{ fontSize: 12 }} color={accentLight} />}
-            <Typography sx={{ fontSize: '0.65rem', fontWeight: 800, color: accent }}>
-              {isPercent ? `${discountValue}%` : `₹${discountValue}`} OFF
+          {/* Discount Badge */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.4,
+              px: 1.2,
+              py: 0.4,
+              borderRadius: '8px',
+              bgcolor: T.emeraldPale,
+              border: `1px solid ${T.emeraldBorder}`,
+            }}
+          >
+            {isPercent ? (
+              <PercentIcon sx={{ fontSize: 14, color: T.emerald }} />
+            ) : (
+              <CurrencyRupeeIcon sx={{ fontSize: 14, color: T.emerald }} />
+            )}
+            <Typography sx={{ fontSize: '0.78rem', fontWeight: 800, color: T.emerald }}>
+              {isPercent ? `${discountValue}% OFF` : `₹${discountValue} OFF`}
             </Typography>
           </Box>
         </Box>
 
-        <Typography sx={{
-          fontSize: '0.65rem', color: T.textSub,
-          mt: 1, lineHeight: 1.4,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          maxWidth: '90%',
-        }}>
+        {/* Description */}
+        <Typography
+          sx={{
+            fontSize: '0.76rem',
+            color: T.textSub,
+            lineHeight: 1.4,
+            mb: 1.2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {description}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+        {/* Footer Meta Chips */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flexWrap: 'wrap' }}>
           {minAmount > 0 && (
-            <Typography sx={{
-              fontSize: '0.55rem', color: T.textMuted,
-              px: 0.8, py: 0.2, borderRadius: 1,
-              bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-            }}>
-              Min ₹{minAmount}
-            </Typography>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 0.9,
+                py: 0.3,
+                borderRadius: '6px',
+                bgcolor: T.surfaceAlt,
+                border: `1px solid ${T.border}`,
+              }}
+            >
+              <Typography sx={{ fontSize: '0.68rem', color: T.textMuted, fontWeight: 600 }}>
+                Min ₹{minAmount}
+              </Typography>
+            </Box>
           )}
-          
+
           {!isUnlimited && remainingUses !== null && remainingUses > 0 && (
-            <Tooltip title={`${remainingUses} uses left`}>
-              <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.4,
-                px: 0.8, py: 0.2, borderRadius: 1,
-                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-              }}>
-                <SafeIcon icon={PeopleIcon} sx={{ fontSize: 10 }} color={T.textMuted} />
-                <Typography sx={{ fontSize: '0.55rem', color: T.textMuted }}>
-                  {remainingUses} left
-                </Typography>
-              </Box>
-            </Tooltip>
-          )}
-          
-          {isUnlimited && (
-            <Tooltip title="Unlimited uses">
-              <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.3,
-                px: 0.5, py: 0.1, borderRadius: 0.6,
-                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-              }}>
-                <SafeIcon icon={PeopleIcon} sx={smallIconStyle} color={T.textMuted} />
-                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
-                  Unlimited
-                </Typography>
-              </Box>
-            </Tooltip>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.4,
+                px: 0.9,
+                py: 0.3,
+                borderRadius: '6px',
+                bgcolor: T.surfaceAlt,
+                border: `1px solid ${T.border}`,
+              }}
+            >
+              <PeopleIcon sx={{ fontSize: 12, color: T.textMuted }} />
+              <Typography sx={{ fontSize: '0.68rem', color: T.textMuted, fontWeight: 600 }}>
+                {remainingUses} left
+              </Typography>
+            </Box>
           )}
 
           {endDate && (
-            <Tooltip title={`Valid until ${formatDate(endDate)}`}>
-              <Box sx={{
-                display: 'flex', alignItems: 'center', gap: 0.3,
-                px: 0.5, py: 0.1, borderRadius: 0.6,
-                bgcolor: T.surfaceAlt, border: `1px solid ${T.border}`,
-              }}>
-                <SafeIcon icon={DateRangeIcon} sx={smallIconStyle} color={T.textMuted} />
-                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted }}>
-                  {formatDate(endDate)}
-                </Typography>
-              </Box>
-            </Tooltip>
-          )}
-
-          {!isEligible && (
-            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-              <SafeIcon icon={ErrorIcon} sx={smallIconStyle} color={T.red} />
-              <Typography sx={{ fontSize: '0.5rem', color: T.red }}>Not eligible</Typography>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.4,
+                px: 0.9,
+                py: 0.3,
+                borderRadius: '6px',
+                bgcolor: T.surfaceAlt,
+                border: `1px solid ${T.border}`,
+              }}
+            >
+              <DateRangeIcon sx={{ fontSize: 12, color: T.textMuted }} />
+              <Typography sx={{ fontSize: '0.68rem', color: T.textMuted, fontWeight: 600 }}>
+                Valid till {formatDate(endDate)}
+              </Typography>
             </Box>
           )}
 
           {isEligible && isHovered && !isApplying && (
-            <motion.div initial={{ opacity: 0, x: 4 }} animate={{ opacity: 1, x: 0 }} style={{ marginLeft: 'auto' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
-                <SafeIcon icon={AutoAwesomeIcon} sx={smallIconStyle} color={accent} />
-                <Typography sx={{ fontSize: '0.5rem', color: accent, fontWeight: 700 }}>Click to apply</Typography>
-              </Box>
-            </motion.div>
+            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <AutoAwesomeIcon sx={{ fontSize: 13, color: T.primary }} />
+              <Typography sx={{ fontSize: '0.7rem', color: T.primary, fontWeight: 800 }}>
+                Click to Apply
+              </Typography>
+            </Box>
           )}
         </Box>
       </Box>
@@ -360,11 +413,9 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
 
   const {
     validationLoading,
-    validationResult,
-    validationError: reduxValidationError,
     coupons,
     loading: couponsLoading,
-    error
+    error,
   } = useSelector((state) => state.coupon);
 
   useEffect(() => {
@@ -385,16 +436,22 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
       setFetchError(false);
       dispatch(getAllCoupons({ status: 'active', limit: 50 }))
         .unwrap()
-        .catch((err) => { console.error('Failed to fetch coupons:', err); setFetchError(true); });
+        .catch((err) => {
+          console.error('Failed to fetch coupons:', err);
+          setFetchError(true);
+        });
     }
   }, [dispatch, open]);
 
   const availableCoupons = Array.isArray(coupons)
-    ? coupons.filter(c => c && c.status === 'active' && (c.minAmount || 0) <= (planPrice || 0))
+    ? coupons.filter((c) => c && c.status === 'active' && (c.minAmount || 0) <= (planPrice || 0))
     : [];
 
   const doValidate = async (code) => {
-    if (!code?.trim()) { setValidationError('Please enter a coupon code'); return; }
+    if (!code?.trim()) {
+      setValidationError('Please enter a coupon code');
+      return;
+    }
     setValidationError('');
     const result = await dispatch(validateCoupon({ code, amount: planPrice || 0 }));
     if (validateCoupon.fulfilled.match(result)) {
@@ -464,389 +521,499 @@ const CouponPopup = ({ open, onClose, onApplyCoupon, planPrice, planName }) => {
       open={open}
       onClose={onClose}
       TransitionComponent={Transition}
-      maxWidth="xs"
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: '22px',
           overflow: 'hidden',
           bgcolor: T.surface,
           border: `1px solid ${T.border}`,
-          boxShadow: '0 20px 48px -8px rgba(0,0,0,0.14), 0 4px 16px -4px rgba(0,0,0,0.08)',
-          maxHeight: '90vh',
-        }
+          boxShadow: '0 24px 48px -12px rgba(16, 44, 74, 0.2), 0 4px 16px -4px rgba(16, 44, 74, 0.08)',
+          maxWidth: { xs: '92%', sm: '480px' },
+          m: { xs: 1.5, sm: 2 },
+        },
       }}
       sx={{
         '& .MuiBackdrop-root': {
-          backdropFilter: 'blur(4px)',
-          bgcolor: 'rgba(15,23,42,0.4)',
-        }
+          backdropFilter: 'blur(6px)',
+          bgcolor: 'rgba(15, 23, 42, 0.45)',
+        },
       }}
     >
-      <Box sx={{
-        px: 2, py: 1.5,
-        background: `linear-gradient(135deg, ${T.indigoPale} 0%, ${alpha(T.indigo, 0.04)} 100%)`,
-        borderBottom: `1px solid ${T.border}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <motion.div initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }}
-          style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Box sx={{
-            width: 34, height: 34, borderRadius: 1.8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: `linear-gradient(135deg, ${alpha(T.indigo, 0.15)}, ${alpha(T.indigoLight, 0.08)})`,
-            border: `1px solid ${alpha(T.indigo, 0.2)}`,
-          }}>
-            <LocalOfferIcon sx={{ fontSize: 17, color: T.indigo }} />
+      {/* ── Modal Header ── */}
+      <Box
+        sx={{
+          px: { xs: 2.5, sm: 3 },
+          py: 2,
+          background: `linear-gradient(135deg, ${T.primaryPale} 0%, rgba(255,255,255,0.9) 100%)`,
+          borderBottom: `1px solid ${T.border}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 42,
+              height: 42,
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: T.primary,
+              color: '#ffffff',
+              boxShadow: `0 4px 12px ${T.primaryAlpha(0.25)}`,
+            }}
+          >
+            <LocalOfferIcon sx={{ fontSize: 20 }} />
           </Box>
           <Box>
-            <Typography sx={{ fontWeight: 800, fontSize: '0.88rem', color: T.text, letterSpacing: -0.2, lineHeight: 1.2 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: T.text, lineHeight: 1.2 }}>
               {appliedCoupon ? 'Coupon Applied! 🎉' : 'Apply Coupon'}
             </Typography>
-            <Typography sx={{ fontSize: '0.6rem', color: T.textMuted, mt: 0.1 }}>
-              {appliedCoupon ? 'Review your savings' : 'Save more on your purchase'}
+            <Typography sx={{ fontSize: '0.75rem', color: T.textMuted, mt: 0.3, fontWeight: 500 }}>
+              {appliedCoupon ? 'Review your savings and proceed' : 'Enter a promo code or pick from available offers'}
             </Typography>
           </Box>
-        </motion.div>
+        </Box>
 
-        <IconButton onClick={onClose} size="small" sx={{
-          width: 26, height: 26,
-          color: T.textMuted,
-          '&:hover': { bgcolor: alpha(T.indigo, 0.06), color: T.indigo },
-        }}>
-          <CloseIcon sx={{ fontSize: 15 }} />
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: '10px',
+            color: T.textMuted,
+            bgcolor: '#ffffff',
+            border: `1px solid ${T.border}`,
+            '&:hover': { bgcolor: T.redPale, color: T.red, borderColor: T.redBorder },
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 16 }} />
         </IconButton>
       </Box>
 
-      <DialogContent sx={{ p: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{
-          px: 2, pt: 1.8, pb: 1.5, overflowY: 'auto', flex: 1,
-          '&::-webkit-scrollbar': { width: 3 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
-        }}>
-          <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.07 }}>
-            <Box sx={{
-              px: 1.8, py: 1.2, mb: 1.8, borderRadius: 2,
-              bgcolor: T.surfaceAlt,
-              border: `1px solid ${T.border}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-              <Box>
-                <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, mb: 0.2 }}>
-                  Selected Plan
-                </Typography>
-                <Typography sx={{ fontSize: '0.82rem', fontWeight: 800, color: T.text, letterSpacing: -0.1 }}>
-                  {planName || 'Plan'}
-                </Typography>
-              </Box>
-              <Box sx={{ textAlign: 'right' }}>
-                <Typography sx={{ fontSize: '0.5rem', color: T.textMuted, mb: 0.1 }}>one-time</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.2 }}>
-                  <Typography sx={{ fontSize: '0.7rem', color: T.indigo, fontWeight: 700 }}>₹</Typography>
-                  <Typography sx={{ fontSize: '1.35rem', fontWeight: 900, color: T.indigo, letterSpacing: -0.8, lineHeight: 1 }}>
-                    {planPrice || 0}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </motion.div>
+      {/* ── Dialog Content ── */}
+      <DialogContent sx={{ p: { xs: 2.5, sm: 3 } }}>
+        {/* Selected Plan Summary Banner */}
+        <Box
+          sx={{
+            p: 1.8,
+            mb: 2.2,
+            borderRadius: '14px',
+            bgcolor: T.surfaceAlt,
+            border: `1px solid ${T.border}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box>
+            <Typography
+              sx={{
+                fontSize: '0.68rem',
+                color: T.textMuted,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                mb: 0.3,
+              }}
+            >
+              Selected Plan
+            </Typography>
+            <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: T.text }}>
+              {planName || 'Plan'}
+            </Typography>
+          </Box>
 
-          <AnimatePresence mode="wait">
-            {appliedCoupon ? (
-              <motion.div key="applied"
-                initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.22 }}
-              >
-                <Box sx={{
-                  p: 1.8, mb: 1.8, borderRadius: 2,
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography sx={{ fontSize: '0.68rem', color: T.textMuted, fontWeight: 600 }}>
+              Plan Price
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '1.25rem',
+                fontWeight: 800,
+                color: T.primary,
+                lineHeight: 1.1,
+              }}
+            >
+              ₹{planPrice || 0}
+            </Typography>
+          </Box>
+        </Box>
+
+        <AnimatePresence mode="wait">
+          {appliedCoupon ? (
+            /* ── Applied Coupon Success Card ── */
+            <motion.div
+              key="applied"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Box
+                sx={{
+                  p: 2.2,
+                  mb: 2.2,
+                  borderRadius: '16px',
                   bgcolor: T.emeraldPale,
-                  border: `1.5px solid ${alpha(T.emerald, 0.3)}`,
-                }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                      <Box sx={{
-                        width: 24, height: 24, borderRadius: 1.2,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        bgcolor: alpha(T.emerald, 0.15), border: `1px solid ${alpha(T.emerald, 0.3)}`,
-                      }}>
-                        <CheckCircleIcon sx={{ fontSize: 14, color: T.emerald }} />
-                      </Box>
-                      <Box>
-                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: T.emerald }}>Coupon Applied!</Typography>
-                        <Typography sx={{ fontSize: '0.55rem', color: T.textSub }}>Discount calculated</Typography>
-                      </Box>
-                    </Box>
-                    <Tooltip title="Remove Coupon">
-                      <IconButton onClick={handleRemoveCoupon} size="small"
-                        sx={{
-                          width: 22, height: 22,
-                          bgcolor: alpha(T.emerald, 0.1), border: `1px solid ${alpha(T.emerald, 0.2)}`, color: T.emerald,
-                          '&:hover': { bgcolor: T.redPale, borderColor: T.red, color: T.red },
-                          transition: 'all 0.18s',
-                        }}>
-                        <CloseIcon sx={{ fontSize: 12 }} />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-
-                  <Typography sx={{ fontSize: '0.6rem', color: T.textSub, fontStyle: 'italic', mb: 1.2, lineHeight: 1.4 }}>
-                    "{appliedCoupon.description || 'No description'}"
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', gap: 0.8, mb: 1.2, flexWrap: 'wrap' }}>
-                    {typeof appliedCoupon.maxUsageCount === 'number' && 
-                     typeof appliedCoupon.remainingUses === 'number' && 
-                     appliedCoupon.remainingUses > 0 && (
-                      <Chip
-                        icon={<PeopleIcon sx={{ fontSize: 12 }} />}
-                        label={`${appliedCoupon.remainingUses} uses left`}
-                        size="small"
-                        sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
-                      />
-                    )}
-                    
-                    {appliedCoupon.validUntil && (
-                      <Chip
-                        icon={<DateRangeIcon sx={{ fontSize: 12 }} />}
-                        label={`Valid until ${formatDate(appliedCoupon.validUntil)}`}
-                        size="small"
-                        sx={{ height: 20, fontSize: '0.5rem', bgcolor: alpha(T.emerald, 0.1) }}
-                      />
-                    )}
-                  </Box>
-
-                  <Divider sx={{ borderColor: alpha(T.emerald, 0.15), mb: 1.2 }} />
-
-                  <Box sx={{ display: 'flex', gap: 0.8, mb: 0.8 }}>
-                    <Box sx={{ flex: 1, p: 1, borderRadius: 1.2, bgcolor: T.surface, border: `1px solid ${T.border}` }}>
-                      <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, mb: 0.2 }}>Original</Typography>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.textSub }}>₹{appliedCoupon.originalAmount || 0}</Typography>
-                    </Box>
-                    <Box sx={{ flex: 1, p: 1, borderRadius: 1.2, bgcolor: alpha(T.emerald, 0.06), border: `1px solid ${alpha(T.emerald, 0.15)}` }}>
-                      <Typography sx={{ fontSize: '0.52rem', color: T.textMuted, mb: 0.2 }}>Discount</Typography>
-                      <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.emerald }}>−₹{appliedCoupon.discountAmount || 0}</Typography>
-                    </Box>
-                  </Box>
-
-                  <Box sx={{
-                    px: 1.5, py: 1, borderRadius: 1.2,
-                    background: `linear-gradient(135deg, ${alpha(T.emerald, 0.1)}, ${alpha(T.emeraldLight, 0.06)})`,
-                    border: `1px solid ${alpha(T.emerald, 0.25)}`,
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  }}>
-                    <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: T.text }}>Final Amount</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.6 }}>
-                      <Typography sx={{ fontSize: '0.6rem', color: T.textMuted, textDecoration: 'line-through' }}>
-                        ₹{appliedCoupon.originalAmount || 0}
-                      </Typography>
-                      <Typography sx={{ fontSize: '1.2rem', fontWeight: 900, color: T.emerald, letterSpacing: -0.5 }}>
-                        ₹{appliedCoupon.finalAmount || 0}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </motion.div>
-            ) : (
-              <motion.div key="input"
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+                  border: `1.5px solid ${T.emeraldBorder}`,
+                }}
               >
-                <Box sx={{ mb: 1.8 }}>
-                  <TextField
-                    fullWidth size="small"
-                    placeholder="Enter coupon code"
-                    value={couponCode}
-                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setValidationError(''); }}
-                    error={!!validationError}
-                    helperText={validationError}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LocalOfferIcon sx={{ fontSize: 15, color: alpha(T.indigo, 0.6) }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <Button onClick={handleValidateCoupon}
-                            disabled={validationLoading || !couponCode.trim()} size="small"
-                            sx={{
-                              minWidth: 58, height: 26, fontSize: '0.62rem', fontWeight: 800,
-                              borderRadius: 1.2,
-                              background: `linear-gradient(135deg, ${T.indigo}, ${T.indigoLight})`,
-                              color: 'white', letterSpacing: 0.4,
-                              boxShadow: `0 3px 8px ${alpha(T.indigo, 0.28)}`,
-                              '&:hover': { background: `linear-gradient(135deg, ${alpha(T.indigo, 0.85)}, ${T.indigo})` },
-                              '&.Mui-disabled': { background: T.border, color: T.textMuted },
-                            }}>
-                            {validationLoading ? <CircularProgress size={12} sx={{ color: T.textMuted }} /> : 'Apply'}
-                          </Button>
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        fontSize: '0.72rem', fontWeight: 600, color: T.text,
-                        bgcolor: T.surfaceAlt, borderRadius: 1.8,
-                        '& input': { textTransform: 'uppercase', letterSpacing: 0.5 },
-                        '& .MuiOutlinedInput-notchedOutline': { borderColor: T.border },
-                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: T.indigoLight },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: T.indigo, boxShadow: `0 0 0 3px ${alpha(T.indigo, 0.1)}` },
-                      },
-                    }}
-                    FormHelperTextProps={{ sx: { fontSize: '0.58rem', mt: 0.3 } }}
-                  />
-                </Box>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {/* Applied Header */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleIcon sx={{ fontSize: 20, color: T.emerald }} />
+                    <Box>
+                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 800, color: T.emeraldDark }}>
+                        Coupon Applied ({appliedCoupon.code})
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.72rem', color: T.textSub }}>
+                        You saved ₹{appliedCoupon.discountAmount || 0} on this purchase!
+                      </Typography>
+                    </Box>
+                  </Box>
 
-          {!appliedCoupon && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <DiscountIcon sx={{ fontSize: 12, color: T.indigo }} />
-                  <Typography sx={{ fontSize: '0.6rem', fontWeight: 700, color: T.textSub, letterSpacing: 0.6, textTransform: 'uppercase' }}>
-                    Available Coupons
-                  </Typography>
+                  <Tooltip title="Remove Coupon">
+                    <IconButton
+                      onClick={handleRemoveCoupon}
+                      size="small"
+                      sx={{
+                        width: 28,
+                        height: 28,
+                        bgcolor: '#ffffff',
+                        border: `1px solid ${T.emeraldBorder}`,
+                        color: T.emerald,
+                        '&:hover': { bgcolor: T.redPale, borderColor: T.redBorder, color: T.red },
+                      }}
+                    >
+                      <CloseIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-                {availableCoupons.length > 0 && (
-                  <Box sx={{
-                    px: 0.7, py: 0.15, borderRadius: 0.8,
-                    bgcolor: T.indigoPale, border: `1px solid ${alpha(T.indigo, 0.2)}`,
-                  }}>
-                    <Typography sx={{ fontSize: '0.52rem', fontWeight: 700, color: T.indigo }}>
-                      {availableCoupons.length} available
+
+                {/* Price Breakdown Grid */}
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.2, mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      p: 1.2,
+                      borderRadius: '10px',
+                      bgcolor: '#ffffff',
+                      border: `1px solid ${T.border}`,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '0.68rem', color: T.textMuted, fontWeight: 600, mb: 0.2 }}>
+                      Original Amount
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: T.text }}>
+                      ₹{appliedCoupon.originalAmount || 0}
                     </Typography>
                   </Box>
-                )}
-              </Box>
 
-              <Box sx={{
-                maxHeight: 220, overflowY: 'auto', pr: 0.3,
-                '&::-webkit-scrollbar': { width: 2 },
-                '&::-webkit-scrollbar-thumb': { bgcolor: T.border, borderRadius: 2 },
-              }}>
-                {couponsLoading ? (
-                  <CouponSkeleton />
-                ) : fetchError || error ? (
-                  <Box sx={{ p: 2.5, textAlign: 'center', borderRadius: 1.8, border: `1px dashed ${alpha(T.red, 0.3)}`, bgcolor: T.redPale }}>
-                    <ErrorIcon sx={{ fontSize: 28, color: alpha(T.red, 0.4), mb: 0.8 }} />
-                    <Typography sx={{ fontSize: '0.68rem', color: T.textSub, mb: 1.2 }}>Failed to load coupons</Typography>
-                    <Button size="small" onClick={() => { setFetchError(false); dispatch(getAllCoupons({ status: 'active', limit: 50 })); }}
-                      sx={{ fontSize: '0.58rem', borderRadius: 1.2, border: `1px solid ${alpha(T.red, 0.3)}`, color: T.red, '&:hover': { bgcolor: alpha(T.red, 0.06) } }}>
-                      Retry
-                    </Button>
+                  <Box
+                    sx={{
+                      p: 1.2,
+                      borderRadius: '10px',
+                      bgcolor: '#ffffff',
+                      border: `1px solid ${T.emeraldBorder}`,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '0.68rem', color: T.emerald, fontWeight: 700, mb: 0.2 }}>
+                      Discount Savings
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.95rem', fontWeight: 800, color: T.emerald }}>
+                      −₹{appliedCoupon.discountAmount || 0}
+                    </Typography>
                   </Box>
-                ) : availableCoupons.length > 0 ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
-                    {availableCoupons.map((coupon) => (
-                      coupon && coupon.code ? (
-                        <CouponCard key={coupon._id} coupon={coupon}
-                          onUse={handleUseCoupon}
-                          onCopy={handleCopyCode}
-                          copiedCode={copiedCode}
-                          isEligible={true}
-                          isApplying={applyingCode === coupon.code}
-                        />
-                      ) : null
-                    ))}
-                  </Box>
-                ) : (
-                  <Box sx={{ p: 2.5, textAlign: 'center', borderRadius: 1.8, border: `1px dashed ${T.border}`, bgcolor: T.surfaceAlt }}>
-                    <LocalOfferIcon sx={{ fontSize: 30, color: T.textMuted, mb: 0.8 }} />
-                    <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: T.textSub, mb: 0.2 }}>No coupons available</Typography>
-                    <Typography sx={{ fontSize: '0.58rem', color: T.textMuted }}>No active coupons for this plan</Typography>
-                  </Box>
-                )}
-              </Box>
+                </Box>
 
-              <Box sx={{ mt: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ flex: 1, height: '1px', bgcolor: T.border }} />
-                <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: T.textMuted, letterSpacing: 0.8 }}>OR</Typography>
-                <Box sx={{ flex: 1, height: '1px', bgcolor: T.border }} />
+                {/* Final Payable Box */}
+                <Box
+                  sx={{
+                    px: 1.8,
+                    py: 1.2,
+                    borderRadius: '12px',
+                    bgcolor: '#ffffff',
+                    border: `1.5px solid ${T.emerald}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 800, color: T.text }}>
+                    Final Payable Amount
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.8 }}>
+                    <Typography sx={{ fontSize: '0.8rem', color: T.textMuted, textDecoration: 'line-through' }}>
+                      ₹{appliedCoupon.originalAmount || 0}
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 900, color: T.emerald }}>
+                      ₹{appliedCoupon.finalAmount || 0}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
-
-              <Button fullWidth onClick={handleDirectPayment} disabled={isDirectPayment}
-                endIcon={<ArrowForwardIcon sx={{ fontSize: 13 }} />}
-                sx={{
-                  mt: 1.2, py: 1, borderRadius: 1.8,
-                  border: `1px solid ${T.indigo}`,
-                  color: T.indigo, fontSize: '0.65rem', fontWeight: 700,
-                  bgcolor: 'transparent',
-                  '&:hover': { border: `1px solid ${T.indigo}`, bgcolor: alpha(T.indigo, 0.05), color: T.indigo },
-                  transition: 'all 0.18s ease',
-                }}>
-                Continue without coupon — ₹{planPrice || 0}
-              </Button>
+            </motion.div>
+          ) : (
+            /* ── Coupon Code Input Box ── */
+            <motion.div
+              key="input"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Box sx={{ mb: 2.5 }}>
+                <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: T.text, mb: 0.8 }}>
+                  Have a Promo Code?
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Enter code (e.g. SAVE20)"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    setValidationError('');
+                  }}
+                  error={!!validationError}
+                  helperText={validationError}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocalOfferIcon sx={{ fontSize: 18, color: T.primary }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Button
+                          onClick={handleValidateCoupon}
+                          disabled={validationLoading || !couponCode.trim()}
+                          size="small"
+                          sx={{
+                            minWidth: 70,
+                            height: 32,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            borderRadius: '8px',
+                            bgcolor: T.primary,
+                            color: '#ffffff',
+                            textTransform: 'none',
+                            '&:hover': { bgcolor: T.primaryHover },
+                            '&.Mui-disabled': { bgcolor: T.border, color: T.textMuted },
+                          }}
+                        >
+                          {validationLoading ? <CircularProgress size={14} sx={{ color: '#ffffff' }} /> : 'Apply'}
+                        </Button>
+                      </InputAdornment>
+                    ),
+                    sx: {
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      color: T.text,
+                      borderRadius: '12px',
+                      '& input': { textTransform: 'uppercase', letterSpacing: '0.04em' },
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: T.border },
+                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: T.primary },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: T.primary, borderWidth: '1.5px' },
+                    },
+                  }}
+                  FormHelperTextProps={{ sx: { fontSize: '0.72rem', mt: 0.4 } }}
+                />
+              </Box>
             </motion.div>
           )}
+        </AnimatePresence>
 
-          {validationError && !appliedCoupon && (
-            <Fade in>
-              <Box sx={{
-                mt: 1.2, px: 1, py: 0.7, borderRadius: 1.2,
-                bgcolor: T.redPale, border: `1px solid ${alpha(T.red, 0.25)}`,
-                display: 'flex', alignItems: 'center', gap: 0.5,
-              }}>
-                <ErrorIcon sx={{ fontSize: 12, color: T.red }} />
-                <Typography sx={{ fontSize: '0.6rem', color: T.red }}>{validationError}</Typography>
+        {/* ── Available Coupons Section (when no coupon is currently applied) ── */}
+        {!appliedCoupon && (
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <DiscountIcon sx={{ fontSize: 16, color: T.primary }} />
+                <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, color: T.text }}>
+                  Available Offers
+                </Typography>
               </Box>
-            </Fade>
-          )}
+              {availableCoupons.length > 0 && (
+                <Chip
+                  label={`${availableCoupons.length} Offers`}
+                  size="small"
+                  sx={{
+                    height: 22,
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    bgcolor: T.primaryPale,
+                    color: T.primary,
+                  }}
+                />
+              )}
+            </Box>
 
-          {reduxValidationError && !appliedCoupon && !validationError && (
-            <Fade in>
-              <Box sx={{
-                mt: 1.2, px: 1, py: 0.7, borderRadius: 1.2,
-                bgcolor: T.redPale, border: `1px solid ${alpha(T.red, 0.25)}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <ErrorIcon sx={{ fontSize: 12, color: T.red }} />
-                  <Typography sx={{ fontSize: '0.6rem', color: T.red }}>
-                    {reduxValidationError.message || 'Invalid coupon'}
+            <Box
+              sx={{
+                maxHeight: 250,
+                overflowY: 'auto',
+                pr: 0.4,
+                '&::-webkit-scrollbar': { width: 4 },
+                '&::-webkit-scrollbar-thumb': { bgcolor: T.borderStrong, borderRadius: 2 },
+              }}
+            >
+              {couponsLoading ? (
+                <CouponSkeleton />
+              ) : fetchError || error ? (
+                <Box
+                  sx={{
+                    p: 2.5,
+                    textAlign: 'center',
+                    borderRadius: '14px',
+                    border: `1px dashed ${T.redBorder}`,
+                    bgcolor: T.redPale,
+                  }}
+                >
+                  <ErrorIcon sx={{ fontSize: 28, color: T.red, mb: 0.6 }} />
+                  <Typography sx={{ fontSize: '0.8rem', color: T.textSub, mb: 1 }}>
+                    Failed to load coupons
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => {
+                      setFetchError(false);
+                      dispatch(getAllCoupons({ status: 'active', limit: 50 }));
+                    }}
+                    sx={{
+                      fontSize: '0.72rem',
+                      borderRadius: '8px',
+                      color: T.red,
+                      borderColor: T.redBorder,
+                      textTransform: 'none',
+                    }}
+                  >
+                    Retry
+                  </Button>
+                </Box>
+              ) : availableCoupons.length > 0 ? (
+                <Stack spacing={1.2}>
+                  {availableCoupons.map((coupon) =>
+                    coupon && coupon.code ? (
+                      <CouponCard
+                        key={coupon._id}
+                        coupon={coupon}
+                        onUse={handleUseCoupon}
+                        onCopy={handleCopyCode}
+                        copiedCode={copiedCode}
+                        isEligible={true}
+                        isApplying={applyingCode === coupon.code}
+                      />
+                    ) : null
+                  )}
+                </Stack>
+              ) : (
+                <Box
+                  sx={{
+                    p: 3,
+                    textAlign: 'center',
+                    borderRadius: '14px',
+                    border: `1px dashed ${T.border}`,
+                    bgcolor: T.surfaceAlt,
+                  }}
+                >
+                  <LocalOfferIcon sx={{ fontSize: 32, color: T.textMuted, mb: 0.8 }} />
+                  <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: T.textSub, mb: 0.2 }}>
+                    No Coupons Available
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.72rem', color: T.textMuted }}>
+                    There are no active coupons matching this plan at this time.
                   </Typography>
                 </Box>
-                <IconButton size="small" onClick={() => dispatch(clearValidationResult())}
-                  sx={{ p: 0.2, color: alpha(T.red, 0.5), '&:hover': { color: T.red } }}>
-                  <CloseIcon sx={{ fontSize: 10 }} />
-                </IconButton>
-              </Box>
-            </Fade>
-          )}
-        </Box>
+              )}
+            </Box>
+
+            {/* Direct Continue Button */}
+            <Button
+              fullWidth
+              onClick={handleDirectPayment}
+              disabled={isDirectPayment}
+              endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+              sx={{
+                mt: 2,
+                py: 1.1,
+                borderRadius: '12px',
+                border: `1.5px solid ${T.primary}`,
+                color: T.primary,
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'none',
+                bgcolor: 'transparent',
+                '&:hover': {
+                  bgcolor: T.primaryPale,
+                  borderColor: T.primary,
+                },
+              }}
+            >
+              Continue without coupon — ₹{planPrice || 0}
+            </Button>
+          </Box>
+        )}
       </DialogContent>
 
-      <Box sx={{
-        px: 2, py: 1.5,
-        borderTop: `1px solid ${T.border}`,
-        display: 'flex', gap: 0.8,
-        bgcolor: T.surfaceAlt,
-      }}>
-        <Button fullWidth onClick={onClose}
+      {/* ── Dialog Footer ── */}
+      <Box
+        sx={{
+          px: { xs: 2.5, sm: 3 },
+          py: 2,
+          borderTop: `1px solid ${T.border}`,
+          display: 'flex',
+          gap: 1.2,
+          bgcolor: T.surfaceAlt,
+        }}
+      >
+        <Button
+          fullWidth
+          variant="outlined"
+          onClick={onClose}
           sx={{
-            py: 0.8, borderRadius: 1.8, fontSize: '0.68rem', fontWeight: 700,
-            border: `1px solid ${T.border}`, color: T.textSub,
-            '&:hover': { bgcolor: T.border, color: T.text },
-          }}>
+            py: 1,
+            borderRadius: '10px',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            borderColor: T.border,
+            color: T.textSub,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#ffffff', borderColor: T.borderStrong, color: T.text },
+          }}
+        >
           Cancel
         </Button>
 
         {appliedCoupon && (
-          <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-            <Button fullWidth onClick={handleApplyCoupon}
-              startIcon={<AutoAwesomeIcon sx={{ fontSize: 14 }} />} 
-              sx={{
-                py: 0.8, borderRadius: 1.8, fontSize: '0.68rem', fontWeight: 800,
-                background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldLight})`,
-                color: 'white',
-                boxShadow: `0 4px 14px -3px ${alpha(T.emerald, 0.4)}`,
-                '&:hover': {
-                  background: `linear-gradient(135deg, ${alpha(T.emerald, 0.9)}, ${T.emeraldLight})`,
-                  boxShadow: `0 6px 18px -3px ${alpha(T.emerald, 0.45)}`,
-                },
-              }}>
-              Pay ₹{appliedCoupon.finalAmount || 0}
-            </Button>
-          </motion.div>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleApplyCoupon}
+            startIcon={<AutoAwesomeIcon sx={{ fontSize: 16 }} />}
+            sx={{
+              py: 1,
+              borderRadius: '10px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              bgcolor: T.emerald,
+              color: '#ffffff',
+              textTransform: 'none',
+              boxShadow: `0 4px 14px ${alpha(T.emerald, 0.3)}`,
+              '&:hover': {
+                bgcolor: T.emeraldDark,
+              },
+            }}
+          >
+            Pay ₹{appliedCoupon.finalAmount || 0}
+          </Button>
         )}
       </Box>
     </Dialog>

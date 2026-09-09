@@ -1186,9 +1186,20 @@ const PaymentPlans = () => {
     }
   };
 
+  const handleOpenCouponModal = (plan, isAddOn = false) => {
+    const isAddOnPlan = isAddOn || addOnPlans.some(p => p._id === plan._id) || plan?.name?.toLowerCase().includes("add-on") || plan?.name?.toLowerCase().includes("add on");
+    setSelectedPlanForCoupon({ ...plan, isAddOn: isAddOnPlan });
+    setCouponPopupOpen(true);
+  };
+
   const handleApplyCoupon = (couponData) => {
+    const isAddOn = selectedPlanForCoupon?.isAddOn || 
+                    addOnPlans.some(p => p._id === selectedPlanForCoupon?._id) || 
+                    selectedPlanForCoupon?.name?.toLowerCase().includes("add-on") || 
+                    selectedPlanForCoupon?.name?.toLowerCase().includes("add on");
+
     if (couponData === null) {
-      if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
+      if (isAddOn) {
         handleUpgradePlan(selectedPlanForCoupon._id, null);
       } else {
         handleSubscriptionPayment(selectedPlanForCoupon._id, null);
@@ -1196,7 +1207,7 @@ const PaymentPlans = () => {
       setAppliedCouponData(null);
     } else {
       setAppliedCouponData(couponData);
-      if (selectedPlanForCoupon?.name?.includes("Add on Plan")) {
+      if (isAddOn) {
         handleUpgradePlan(selectedPlanForCoupon._id, couponData.code);
       } else {
         handleSubscriptionPayment(selectedPlanForCoupon._id, couponData.code);
@@ -1429,7 +1440,7 @@ const PaymentPlans = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  onClick={() => handleOpenCouponModal(plan)}
+                  onClick={() => handleOpenCouponModal(plan, false)}
                   disabled={processingPlanId === plan._id}
                   startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
                   size="small"
@@ -1447,7 +1458,7 @@ const PaymentPlans = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  onClick={() => handleOpenCouponModal(plan)}
+                  onClick={() => handleOpenCouponModal(plan, true)}
                   disabled={isDisabled || processingPlanId === plan._id}
                   startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <AddIcon sx={{ fontSize: 16 }} />}
                   size="small"
@@ -1466,7 +1477,7 @@ const PaymentPlans = () => {
                 <Button
                   fullWidth
                   variant={isRecommended ? "contained" : "outlined"}
-                  onClick={() => handleOpenCouponModal(plan)}
+                  onClick={() => handleOpenCouponModal(plan, false)}
                   disabled={isDisabled || processingPlanId === plan._id}
                   startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
                   size="small"
