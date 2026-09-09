@@ -12,34 +12,32 @@ import {
   CircularProgress,
   Alert,
   alpha,
-  Avatar,
-  useMediaQuery,
-  useTheme,
+  Container,
+  Stack,
+  Tooltip,
+  LinearProgress,
 } from "@mui/material";
 import {
-  Lock as LockIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Key as KeyIcon,
-  ArrowBack as ArrowBackIcon,
+  LockRounded as LockIcon,
+  VisibilityRounded as VisibilityIcon,
+  VisibilityOffRounded as VisibilityOffIcon,
+  KeyRounded as KeyIcon,
+  ArrowBackRounded as ArrowBackIcon,
+  ShieldRounded as ShieldIcon,
+  CheckCircleRounded as CheckCircleIcon,
+  CancelRounded as CancelIcon,
+  SecurityUpdateGoodRounded as SecurityIcon,
 } from "@mui/icons-material";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { resetPassword } from "../../redux/slices/userSlice";
 import { toast, ToastContainer } from "react-toastify";
 
 const ResetPasswordProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const theme = useTheme();
-
-  // Responsive breakpoints
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isSmallMobile = useMediaQuery('(max-width:480px)');
-  const isLandscape = useMediaQuery('(orientation: landscape)');
 
   const { loading } = useSelector((state) => state.user || {});
-  const { user, role_id } = useSelector((state) => state.auth || {});
+  const { user } = useSelector((state) => state.auth || {});
 
   const [form, setForm] = useState({
     oldPassword: "",
@@ -95,7 +93,7 @@ const ResetPasswordProfile = () => {
 
     switch (fieldName) {
       case "oldPassword":
-        if (!value) error = "Old password is required";
+        if (!value) error = "Current password is required";
         break;
       case "newPassword":
         if (!value) {
@@ -103,12 +101,12 @@ const ResetPasswordProfile = () => {
         } else if (value.length < 6) {
           error = "Password must be at least 6 characters";
         } else if (!/(?=.*[A-Za-z])(?=.*\d)/.test(value)) {
-          error = "Password must contain at least one letter and one number";
+          error = "Must contain at least one letter and one number";
         }
         break;
       case "confirmPassword":
         if (!value) {
-          error = "Please confirm your password";
+          error = "Please confirm your new password";
         } else if (value !== form.newPassword) {
           error = "Passwords do not match";
         }
@@ -162,395 +160,489 @@ const ResetPasswordProfile = () => {
           })
         ).unwrap();
 
-        setSuccessMessage("Password reset successfully!");
-        // toast.success("Password reset successfully!");
+        setSuccessMessage("Password has been reset successfully!");
+        toast.success("Password reset successfully!");
 
         setTimeout(() => {
-          // Redirect based on role
-          if (role_id === 2) {
-            navigate("/profile");
-          } else {
-            navigate("/profile");
-          }
-        }, 2000);
+          navigate("/profile");
+        }, 1500);
       } catch (err) {
-        setApiError(err?.message || "Failed to reset password");
+        setApiError(err?.message || "Failed to reset password. Please check your current password.");
       }
     }
   };
 
-  const handleBackToProfile = () => {
-    if (role_id === 2) {
-      navigate("/profile");
-    } else {
-      navigate("/profile");
-    }
+  // Password requirements calculation
+  const hasMinLength = form.newPassword.length >= 6;
+  const hasLetterAndNumber = /(?=.*[A-Za-z])(?=.*\d)/.test(form.newPassword);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(form.newPassword);
+  const passwordsMatch = form.confirmPassword && form.confirmPassword === form.newPassword;
+
+  // Strength score
+  const calculateStrength = () => {
+    if (!form.newPassword) return 0;
+    let score = 0;
+    if (form.newPassword.length >= 6) score += 35;
+    if (/(?=.*[A-Za-z])(?=.*\d)/.test(form.newPassword)) score += 35;
+    if (hasSpecialChar || form.newPassword.length >= 10) score += 30;
+    return Math.min(score, 100);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        staggerChildren: 0.1,
-      },
-    },
+  const strength = calculateStrength();
+  const getStrengthMeta = () => {
+    if (strength === 0) return { label: "", color: "#cbd5e1" };
+    if (strength < 40) return { label: "Weak", color: "#ef4444" };
+    if (strength < 75) return { label: "Medium", color: "#f59e0b" };
+    return { label: "Strong", color: "#10b981" };
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
+  const strengthMeta = getStrengthMeta();
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 2.5 } }}>
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2, sm: 2.5, md: 3 },
-            borderRadius: { xs: 2, sm: 2.5 },
-            border: "1px solid",
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-            boxShadow: `0 10px 30px -10px ${alpha(theme.palette.primary.main, 0.2)}`,
-            maxWidth: 500,
-            mx: "auto",
-          }}
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 70px)",
+        bgcolor: "#f8fafc",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        py: { xs: 4, sm: 6 },
+        px: { xs: 2, sm: 3 },
+        position: "relative",
+      }}
+    >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
+      {/* Decorative background glow */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "450px",
+          height: "450px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(16, 44, 74, 0.06) 0%, rgba(16, 44, 74, 0) 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      <Container maxWidth="xs" disableGutters sx={{ position: "relative", zIndex: 1 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          {/* Header */}
-          <motion.div variants={itemVariants}>
-            <Box sx={{ textAlign: "center", mb: { xs: 2.5, sm: 3 } }}>
-              <Avatar
+          {/* Main Card */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 3, sm: 4 },
+              borderRadius: "20px",
+              bgcolor: "#ffffff",
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 12px 36px -8px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03)",
+              width: "100%",
+            }}
+          >
+            {/* Top Icon Badge & Title Header */}
+            <Box sx={{ textAlign: "center", mb: 2 }}>
+              <Box
                 sx={{
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
-                  color: theme.palette.primary.main,
-                  width: { xs: 48, sm: 56 },
-                  height: { xs: 48, sm: 56 },
-                  mx: "auto",
+                  width: 52,
+                  height: 52,
+                  borderRadius: "16px",
+                  bgcolor: "#eef4fa",
+                  color: "#102c4a",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   mb: 1.5,
+                  boxShadow: "0 4px 14px rgba(16, 44, 74, 0.12)",
                 }}
               >
-                <KeyIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
-              </Avatar>
+                <KeyIcon sx={{ fontSize: 26 }} />
+              </Box>
+
               <Typography
-                variant={isMobile ? "h6" : "h5"}
-                fontWeight="700"
+                variant="h5"
                 sx={{
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontSize: {
-                    xs: '1rem',
-                    sm: '1.2rem',
-                    md: '1.4rem',
-                  },
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  fontSize: { xs: "1.35rem", sm: "1.45rem" },
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Reset Password
               </Typography>
+
               <Typography
-                variant="caption"
-                color="text.secondary"
                 sx={{
+                  color: "#64748b",
+                  fontSize: "0.84rem",
                   mt: 0.5,
-                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                  lineHeight: 1.4,
                 }}
               >
-                Enter your old password and choose a new one
+                Enter your current password and choose a new secure one
               </Typography>
             </Box>
-          </motion.div>
 
-          {/* Success Message */}
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Alert
-                severity="success"
-                sx={{
-                  mb: { xs: 2, sm: 2.5 },
-                  borderRadius: 1.5,
-                  border: "1px solid",
-                  borderColor: alpha("#22c55e", 0.2),
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  py: 0.5,
-                }}
-              >
-                {successMessage}
-              </Alert>
-            </motion.div>
-          )}
+            {/* Full-width soft line */}
+            <Box
+              sx={{
+                height: "1.5px",
+                my: 2.5,
+                mx: { xs: -3, sm: -4 },
+                background: "linear-gradient(90deg, rgba(16,44,74,0.12) 0%, rgba(16,44,74,0.25) 50%, rgba(16,44,74,0.12) 100%)",
+              }}
+            />
 
-          {/* API Error Message */}
-          {apiError && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Alert
-                severity="error"
-                sx={{
-                  mb: { xs: 2, sm: 2.5 },
-                  borderRadius: 1.5,
-                  border: "1px solid",
-                  borderColor: alpha("#ef4444", 0.2),
-                  fontSize: { xs: '0.65rem', sm: '0.7rem' },
-                  py: 0.5,
-                }}
-              >
-                {apiError}
-              </Alert>
-            </motion.div>
-          )}
+            {/* Success Feedback Alert */}
+            <AnimatePresence>
+              {successMessage && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                  <Alert
+                    severity="success"
+                    sx={{
+                      mb: 2,
+                      borderRadius: "10px",
+                      bgcolor: "#f0fdf4",
+                      color: "#166534",
+                      border: "1px solid #bbf7d0",
+                      fontWeight: 600,
+                      fontSize: "0.82rem",
+                    }}
+                  >
+                    {successMessage}
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <motion.div variants={itemVariants}>
-              {/* Old Password */}
-              <TextField
-                fullWidth
-                type={showPassword.old ? "text" : "password"}
-                label="Old Password"
-                value={form.oldPassword}
-                onChange={handleChange("oldPassword")}
-                onBlur={handleBlur("oldPassword")}
-                error={touched.oldPassword && !!errors.oldPassword}
-                helperText={touched.oldPassword && errors.oldPassword}
-                size="small"
-                sx={{
-                  mb: { xs: 1.5, sm: 2 },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiFormHelperText-root': {
-                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&:hover fieldset': {
-                      borderColor: theme.palette.primary.main,
+            {/* Error Feedback Alert */}
+            <AnimatePresence>
+              {apiError && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                  <Alert
+                    severity="error"
+                    sx={{
+                      mb: 2,
+                      borderRadius: "10px",
+                      bgcolor: "#fef2f2",
+                      color: "#991b1b",
+                      border: "1px solid #fecaca",
+                      fontWeight: 600,
+                      fontSize: "0.82rem",
+                    }}
+                  >
+                    {apiError}
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Reset Form */}
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2}>
+                {/* Current / Old Password */}
+                <Box>
+                  <Typography sx={{ fontSize: "0.78rem", fontWeight: 700, color: "#334155", mb: 0.6 }}>
+                    Current Password
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type={showPassword.old ? "text" : "password"}
+                    placeholder="Enter your current password"
+                    value={form.oldPassword}
+                    onChange={handleChange("oldPassword")}
+                    onBlur={handleBlur("oldPassword")}
+                    error={touched.oldPassword && !form.oldPassword}
+                    helperText={touched.oldPassword && !form.oldPassword ? "Current password is required" : ""}
+                    size="small"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "10px",
+                        bgcolor: "#ffffff",
+                        fontSize: "0.88rem",
+                        borderColor: "#e2e8f0",
+                        transition: "all 0.2s ease",
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: "#102c4a", fontSize: 18 }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title={showPassword.old ? "Hide password" : "Show password"}>
+                            <IconButton onClick={() => toggleVisibility("old")} edge="end" size="small" sx={{ color: "#94a3b8" }}>
+                              {showPassword.old ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
+
+                {/* New Password */}
+                <Box>
+                  <Typography sx={{ fontSize: "0.78rem", fontWeight: 700, color: "#334155", mb: 0.6 }}>
+                    New Password
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type={showPassword.new ? "text" : "password"}
+                    placeholder="Create new password"
+                    value={form.newPassword}
+                    onChange={handleChange("newPassword")}
+                    onBlur={handleBlur("newPassword")}
+                    error={touched.newPassword && !!errors.newPassword}
+                    helperText={touched.newPassword && errors.newPassword}
+                    size="small"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "10px",
+                        bgcolor: "#ffffff",
+                        fontSize: "0.88rem",
+                        borderColor: "#e2e8f0",
+                        transition: "all 0.2s ease",
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <KeyIcon sx={{ color: "#102c4a", fontSize: 18 }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title={showPassword.new ? "Hide password" : "Show password"}>
+                            <IconButton onClick={() => toggleVisibility("new")} edge="end" size="small" sx={{ color: "#94a3b8" }}>
+                              {showPassword.new ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  {/* Password Strength Progress Bar */}
+                  {form.newPassword && (
+                    <Box sx={{ mt: 1, px: 0.5 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.4 }}>
+                        <Typography sx={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600 }}>
+                          Strength
+                        </Typography>
+                        <Typography sx={{ fontSize: "0.7rem", fontWeight: 700, color: strengthMeta.color }}>
+                          {strengthMeta.label}
+                        </Typography>
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={strength}
+                        sx={{
+                          height: 4,
+                          borderRadius: 2,
+                          bgcolor: "#f1f5f9",
+                          "& .MuiLinearProgress-bar": {
+                            bgcolor: strengthMeta.color,
+                            borderRadius: 2,
+                          },
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Confirm New Password */}
+                <Box>
+                  <Typography sx={{ fontSize: "0.78rem", fontWeight: 700, color: "#334155", mb: 0.6 }}>
+                    Confirm New Password
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type={showPassword.confirm ? "text" : "password"}
+                    placeholder="Re-enter new password"
+                    value={form.confirmPassword}
+                    onChange={handleChange("confirmPassword")}
+                    onBlur={handleBlur("confirmPassword")}
+                    error={touched.confirmPassword && !!errors.confirmPassword}
+                    helperText={touched.confirmPassword && errors.confirmPassword}
+                    size="small"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "10px",
+                        bgcolor: "#ffffff",
+                        fontSize: "0.88rem",
+                        borderColor: "#e2e8f0",
+                        transition: "all 0.2s ease",
+                        "&:hover fieldset": { borderColor: "#102c4a" },
+                        "&.Mui-focused fieldset": { borderColor: "#102c4a", borderWidth: "1.5px" },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <ShieldIcon sx={{ color: "#102c4a", fontSize: 18 }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title={showPassword.confirm ? "Hide password" : "Show password"}>
+                            <IconButton onClick={() => toggleVisibility("confirm")} edge="end" size="small" sx={{ color: "#94a3b8" }}>
+                              {showPassword.confirm ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Box>
+
+                {/* Security Requirement Checklist */}
+                <Box
+                  sx={{
+                    p: 1.5,
+                    borderRadius: "10px",
+                    bgcolor: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", mb: 0.6, textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                    Security Requirements
+                  </Typography>
+                  <Stack spacing={0.5}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                      {hasMinLength ? (
+                        <CheckCircleIcon sx={{ fontSize: 13, color: "#16a34a" }} />
+                      ) : (
+                        <Box sx={{ width: 13, height: 13, borderRadius: "50%", border: "1.5px solid #cbd5e1" }} />
+                      )}
+                      <Typography sx={{ fontSize: "0.74rem", color: hasMinLength ? "#16a34a" : "#64748b", fontWeight: hasMinLength ? 600 : 400 }}>
+                        At least 6 characters
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                      {hasLetterAndNumber ? (
+                        <CheckCircleIcon sx={{ fontSize: 13, color: "#16a34a" }} />
+                      ) : (
+                        <Box sx={{ width: 13, height: 13, borderRadius: "50%", border: "1.5px solid #cbd5e1" }} />
+                      )}
+                      <Typography sx={{ fontSize: "0.74rem", color: hasLetterAndNumber ? "#16a34a" : "#64748b", fontWeight: hasLetterAndNumber ? 600 : 400 }}>
+                        Contains letters and numbers
+                      </Typography>
+                    </Box>
+
+                    {form.confirmPassword && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                        {passwordsMatch ? (
+                          <CheckCircleIcon sx={{ fontSize: 13, color: "#16a34a" }} />
+                        ) : (
+                          <CancelIcon sx={{ fontSize: 13, color: "#ef4444" }} />
+                        )}
+                        <Typography sx={{ fontSize: "0.74rem", color: passwordsMatch ? "#16a34a" : "#ef4444", fontWeight: 600 }}>
+                          {passwordsMatch ? "Passwords match" : "Passwords do not match"}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* Submit Action Button */}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={
+                    loading ||
+                    !form.oldPassword ||
+                    !form.newPassword ||
+                    !form.confirmPassword ||
+                    Object.values(errors).some(Boolean)
+                  }
+                  sx={{
+                    height: 42,
+                    mt: 0.8,
+                    borderRadius: "10px",
+                    fontWeight: 700,
+                    fontSize: "0.88rem",
+                    textTransform: "none",
+                    bgcolor: "#102c4a",
+                    color: "#ffffff",
+                    boxShadow: "0 4px 12px rgba(16, 44, 74, 0.25)",
+                    "&:hover": {
+                      bgcolor: "#1e4f7a",
+                      boxShadow: "0 6px 16px rgba(16, 44, 74, 0.32)",
                     },
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => toggleVisibility("old")}
-                        edge="end"
-                        sx={{ color: theme.palette.primary.main }}
-                        size="small"
-                      >
-                        {showPassword.old ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </motion.div>
-
-            <motion.div variants={itemVariants}>
-              {/* New Password */}
-              <TextField
-                fullWidth
-                type={showPassword.new ? "text" : "password"}
-                label="New Password"
-                value={form.newPassword}
-                onChange={handleChange("newPassword")}
-                onBlur={handleBlur("newPassword")}
-                error={touched.newPassword && !!errors.newPassword}
-                helperText={touched.newPassword && errors.newPassword}
-                size="small"
-                sx={{
-                  mb: { xs: 1.5, sm: 2 },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiFormHelperText-root': {
-                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&:hover fieldset': {
-                      borderColor: theme.palette.primary.main,
+                    "&.Mui-disabled": {
+                      bgcolor: "#cbd5e1",
+                      color: "#94a3b8",
+                      boxShadow: "none",
                     },
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => toggleVisibility("new")}
-                        edge="end"
-                        sx={{ color: theme.palette.primary.main }}
-                        size="small"
-                      >
-                        {showPassword.new ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </motion.div>
+                  }}
+                >
+                  {loading ? (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <CircularProgress size={16} sx={{ color: "#ffffff" }} />
+                      <span>Updating Password...</span>
+                    </Box>
+                  ) : (
+                    "Reset Password"
+                  )}
+                </Button>
+              </Stack>
+            </form>
 
-            <motion.div variants={itemVariants}>
-              {/* Confirm Password */}
-              <TextField
-                fullWidth
-                type={showPassword.confirm ? "text" : "password"}
-                label="Confirm New Password"
-                value={form.confirmPassword}
-                onChange={handleChange("confirmPassword")}
-                onBlur={handleBlur("confirmPassword")}
-                error={touched.confirmPassword && !!errors.confirmPassword}
-                helperText={touched.confirmPassword && errors.confirmPassword}
-                size="small"
-                sx={{
-                  mb: { xs: 2, sm: 2.5 },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiInputBase-input': {
-                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  },
-                  '& .MuiFormHelperText-root': {
-                    fontSize: { xs: '0.55rem', sm: '0.6rem' },
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&:hover fieldset': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => toggleVisibility("confirm")}
-                        edge="end"
-                        sx={{ color: theme.palette.primary.main }}
-                        size="small"
-                      >
-                        {showPassword.confirm ? <VisibilityOffIcon sx={{ fontSize: 16 }} /> : <VisibilityIcon sx={{ fontSize: 16 }} />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </motion.div>
-
-            {/* Submit Button */}
-            <motion.div variants={itemVariants}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={
-                  loading ||
-                  !form.oldPassword ||
-                  !form.newPassword ||
-                  !form.confirmPassword ||
-                  Object.values(errors).some((error) => error)
-                }
-                size="small"
-                sx={{
-                  py: { xs: 0.8, sm: 1 },
-                  borderRadius: { xs: 1.5, sm: 2 },
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                  fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-                  height: 36,
-                  "&:hover": {
-                    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                  },
-                  "&.Mui-disabled": {
-                    background: alpha(theme.palette.primary.main, 0.3),
-                  },
-                }}
-              >
-                {loading ? (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CircularProgress size={14} sx={{ color: "white" }} />
-                    <span>Resetting...</span>
-                  </Box>
-                ) : (
-                  "Reset Password"
-                )}
-              </Button>
-            </motion.div>
-          </form>
-
-          {/* Back to Profile Link */}
-          <motion.div variants={itemVariants}>
-            <Box sx={{ textAlign: "center", mt: { xs: 1.5, sm: 2 } }}>
+            {/* Back to Profile Navigation */}
+            <Box sx={{ textAlign: "center", mt: 2.2 }}>
               <Button
                 variant="text"
-                onClick={handleBackToProfile}
-                startIcon={<ArrowBackIcon sx={{ fontSize: 14 }} />}
-                size="small"
+                onClick={() => navigate("/profile")}
+                startIcon={<ArrowBackIcon sx={{ fontSize: 15 }} />}
                 sx={{
-                  color: theme.palette.primary.main,
-                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                  color: "#64748b",
+                  fontWeight: 600,
+                  fontSize: "0.82rem",
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  py: 0.6,
+                  px: 1.5,
                   "&:hover": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: "#102c4a",
+                    bgcolor: alpha("#102c4a", 0.06),
                   },
                 }}
               >
                 Back to Profile
               </Button>
             </Box>
-          </motion.div>
-        </Paper>
-      </motion.div>
+          </Paper>
+        </motion.div>
+      </Container>
     </Box>
   );
 };
 
-export default ResetPasswordProfile;
+export default ResetPasswordProfile;
