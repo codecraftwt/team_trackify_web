@@ -30,9 +30,6 @@ import {
   FaRegClock,
 } from 'react-icons/fa';
 import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi';
-import mobileImage from '../assets/Home_1.png';
-import mobileanimation from '../assets/Animation_Home2.mp4';
-import Playstore from '../assets/Home_2.png';
 import bgPlanLeft from '../assets/bg-plan-left.png';
 import downapk from '../assets/downapk.png';
 import heroImage from '../assets/Hero_Section.png';

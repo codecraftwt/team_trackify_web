@@ -19,7 +19,6 @@ import WifiOffIcon from '@mui/icons-material/WifiOff';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
 import aboutImage from '../assets/About_Section.jpg';
-import mobileImage from '../assets/About.png';
 import manImage from '../assets/man1.jpg';
 import yearlyImage from '../assets/yearly.png';
 import whiteBg from '../assets/white-bg.png';
