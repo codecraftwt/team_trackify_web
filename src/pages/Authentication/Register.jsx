@@ -356,8 +356,8 @@ const Register = () => {
       <AuthLayoutLeft />
 
       {/* Right Column (Form) */}
-      <div className="w-1/2 flex flex-col items-center overflow-y-auto h-full bg-white py-8">
-        <Box sx={{ maxWidth: 560, width: '100%', px: { xs: 3, sm: 5, lg: 6 }, py: { xs: 4, sm: 5 }, my: 'auto' }}>
+      <div className="w-full lg:w-1/2 flex flex-col items-center overflow-y-auto h-full bg-white py-6 sm:py-8 px-4 sm:px-6">
+        <Box sx={{ maxWidth: 560, width: '100%', px: { xs: 1.5, sm: 3, lg: 4 }, py: { xs: 3, sm: 4 }, my: 'auto' }}>
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
 

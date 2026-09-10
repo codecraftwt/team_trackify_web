@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { useTheme, alpha } from '@mui/material';
+import { useTheme, alpha, ThemeProvider, createTheme } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
@@ -26,7 +26,21 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { createContact } from '../redux/slices/contactSlice';
 
 const Contact = () => {
-  const theme = useTheme();
+  const baseTheme = useTheme();
+  const theme = useMemo(
+    () =>
+      createTheme(baseTheme, {
+        palette: {
+          primary: {
+            main: '#2f6eaa',
+            light: '#3088c7',
+            dark: '#1e4f7a',
+            contrastText: '#ffffff',
+          },
+        },
+      }),
+    [baseTheme]
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [submitted, setSubmitted] = useState(false);
@@ -78,7 +92,7 @@ const Contact = () => {
       transition: 'all 0.2s ease',
       '& fieldset': { borderColor: '#e5e7eb', borderWidth: '1px' },
       '&:hover fieldset': { borderColor: '#d1d5db' },
-      '&.Mui-focused fieldset': { borderColor: '#0b163f', borderWidth: '1px' },
+      '&.Mui-focused fieldset': { borderColor: theme.palette.primary.main, borderWidth: '1.5px' },
     },
     '& .MuiInputBase-multiline': {
       padding: '0',
@@ -89,8 +103,9 @@ const Contact = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f4f9fd', overflowX: 'hidden' }}>
-      <Header />
+    <ThemeProvider theme={theme}>
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f4f9fd', overflowX: 'hidden' }}>
+        <Header />
 
       <Box sx={{ pt: { xs: 16, md: 24 }, pb: { xs: 8, md: 14 }, flexGrow: 1 }}>
         <div className="container-custom mx-auto px-4 md:px-6 lg:px-8">
@@ -297,6 +312,7 @@ const Contact = () => {
       <Footer />
       <ScrollToTopButton />
     </Box>
+    </ThemeProvider>
   );
 };
 
