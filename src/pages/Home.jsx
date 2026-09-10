@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, Fragment } from 'react';
+import { useRef, useState, useEffect, useMemo, Fragment } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import Header from '../components/layout/Header';
@@ -38,7 +38,7 @@ import downapk from '../assets/downapk.png';
 import heroImage from '../assets/Hero_Section.png';
 import stepImage from '../assets/Step_S.png';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
-import { useTheme, alpha } from '@mui/material';
+import { useTheme, alpha, ThemeProvider, createTheme } from '@mui/material';
 
 const TypingText = ({ text }) => {
   const [displayText, setDisplayText] = useState('');
@@ -119,7 +119,21 @@ const dotGrid = (color, size = 22) => ({
 });
 
 const Home = () => {
-  const theme = useTheme();
+  const baseTheme = useTheme();
+  const theme = useMemo(
+    () =>
+      createTheme(baseTheme, {
+        palette: {
+          primary: {
+            main: '#2f6eaa',
+            light: '#3088c7',
+            dark: '#1e4f7a',
+            contrastText: '#ffffff',
+          },
+        },
+      }),
+    [baseTheme]
+  );
   const navigate = useNavigate();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
 
@@ -216,7 +230,8 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: theme.palette.background.paper }}>
+    <ThemeProvider theme={theme}>
+      <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: theme.palette.background.paper }}>
       <style>{`
         @keyframes tf-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .tf-marquee-track { display: flex; width: max-content; animation: tf-marquee 28s linear infinite; }
@@ -719,6 +734,7 @@ const Home = () => {
       
       <ScrollToTopButton />
     </div>
+    </ThemeProvider>
   );
 };
 

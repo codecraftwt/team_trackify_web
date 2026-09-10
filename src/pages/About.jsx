@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useTheme, alpha, Box, Typography, Button, Container, Grid } from '@mui/material';
+import { useTheme, alpha, Box, Typography, Button, Container, Grid, ThemeProvider, createTheme } from '@mui/material';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ScrollToTopButton from '../components/common/ScrollToTopButton';
@@ -62,7 +62,21 @@ const dotGrid = (color, size = 22) => ({
 });
 
 const About = () => {
-  const theme = useTheme();
+  const baseTheme = useTheme();
+  const theme = useMemo(
+    () =>
+      createTheme(baseTheme, {
+        palette: {
+          primary: {
+            main: '#2f6eaa',
+            light: '#3088c7',
+            dark: '#1e4f7a',
+            contrastText: '#ffffff',
+          },
+        },
+      }),
+    [baseTheme]
+  );
   const navigate = useNavigate();
 
   const empowermentList = [
@@ -107,8 +121,9 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: theme.palette.background.paper }}>
-      <Header />
+    <ThemeProvider theme={theme}>
+      <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: theme.palette.background.paper }}>
+        <Header />
 
       {/* 1. Hero Section */}
       {/* 1. Hero Section */}
@@ -626,6 +641,7 @@ const About = () => {
       <Footer />
       <ScrollToTopButton />
     </div>
+    </ThemeProvider>
   );
 };
 
