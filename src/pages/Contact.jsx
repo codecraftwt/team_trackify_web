@@ -264,8 +264,8 @@ const Contact = () => {
                           <Typography variant="body1" sx={{ color: 'text.primary', fontWeight: 500, minWidth: { xs: '120px', sm: '140px' }, flexShrink: 0, mr: 1 }}>
                             Email Now:
                           </Typography>
-                          <a href="mailto:no-reply@teamtrackify.com" style={{ color: theme.palette.primary.main, fontWeight: 600, textDecoration: 'none' }}>
-                            no-reply@teamtrackify.com
+                          <a href="mailto:support@teamtrackify.com" style={{ color: theme.palette.primary.main, fontWeight: 600, textDecoration: 'none' }}>
+                            support@teamtrackify.com
                           </a>
                         </Box>
                       </Box>
