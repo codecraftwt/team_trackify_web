@@ -629,7 +629,7 @@ const Profile = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "#f8fafc",
+        background: "#f5f5f5",
         width: "100%",
         overflowX: "hidden",
         position: "relative",

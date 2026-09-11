@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
@@ -22,6 +22,8 @@ import {
   alpha,
   useTheme,
   useMediaQuery,
+  ThemeProvider,
+  createTheme,
 } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -219,7 +221,21 @@ const CouponSection = ({ theme }) => {
 const Pricing = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const baseTheme = useTheme();
+  const theme = useMemo(
+    () =>
+      createTheme(baseTheme, {
+        palette: {
+          primary: {
+            main: '#2f6eaa',
+            light: '#3088c7',
+            dark: '#1e4f7a',
+            contrastText: '#ffffff',
+          },
+        },
+      }),
+    [baseTheme]
+  );
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -558,8 +574,9 @@ const Pricing = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: '#f0f8ff' }}>
-      <Header />
+    <ThemeProvider theme={theme}>
+      <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: '#f0f8ff' }}>
+        <Header />
       <section className="relative overflow-hidden pt-32 pb-8 md:pt-40 md:pb-12">
         <div className="container-custom relative z-10">
           <motion.div
@@ -692,6 +709,7 @@ const Pricing = () => {
       <Footer />
       <ScrollToTopButton />
     </div>
+    </ThemeProvider>
   );
 };
 

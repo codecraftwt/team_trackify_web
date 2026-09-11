@@ -353,7 +353,7 @@ const RevenueManagement = () => {
   // ── First load skeleton ───────────────────────────────────────────────────
   if (firstLoad) {
     return (
-      <Box sx={{ minHeight: "100vh", py: 3, px: { xs: 1.5, sm: 3 }, bgcolor: "background.default" }}>
+      <Box sx={{ minHeight: "100vh", py: 3, px: { xs: 1.5, sm: 3 }, bgcolor: "#f5f5f5" }}>
         <Container maxWidth="xl" disableGutters>
           <Skeleton variant="text" width={220} height={36} sx={{ mb: 0.5 }} />
           <Skeleton variant="text" width={160} height={20} sx={{ mb: 3 }} />
@@ -370,7 +370,7 @@ const RevenueManagement = () => {
 
   // ── Main Render ───────────────────────────────────────────────────────────
   return (
-    <Box sx={{ minHeight: "100vh", py: { xs: 2, sm: 3 }, px: { xs: 1.5, sm: 3 }, bgcolor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh", py: { xs: 2, sm: 3 }, px: { xs: 1.5, sm: 3 }, bgcolor: "#f5f5f5" }}>
       <Container maxWidth="xl" disableGutters>
         {/* Header */}
         <motion.div initial="hidden" animate="visible" variants={fade} custom={0}>

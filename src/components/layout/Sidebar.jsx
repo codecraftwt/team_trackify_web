@@ -294,17 +294,26 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   };
 
   const sidebarContent = (
+    <>
+      <style>
+        {`
+          @keyframes slideInClip {
+            0% { clip-path: inset(-30px -30px -30px 100%); }
+            100% { clip-path: inset(-30px -30px -30px 0%); }
+          }
+        `}
+      </style>
     <Box
       sx={{
         height: '100%',
         width: isMobile ? getMobileWidth() : (collapsed ? 72 : 270), // Slightly wider sidebar for premium feel
         display: 'flex',
         flexDirection: 'column',
-        background: 'linear-gradient(180deg, #123456 0%, #081525 100%)', // More elegant dark rich blue gradient
+        background: '#102c4a', // Global primary color
         color: '#f8fafc',
         transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         overflowX: 'hidden',
-        boxShadow: '4px 0 24px rgba(0,0,0,0.15)', // Softer, wider shadow
+        boxShadow: 'none', // Removed shadow for seamless active item cutout
         borderRadius: 0,
       }}
     >
@@ -539,7 +548,8 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
         sx={{
           flexGrow: 1,
           pt: 0.5,
-          px: isMobile ? 0.8 : (collapsed ? 0.5 : 1.5),
+          pl: isMobile ? 0.8 : (collapsed ? 0.5 : 1.5),
+          pr: 0,
           pb: 0.5,
         }}
       >
@@ -571,36 +581,77 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                   onClick={() => handleNavigation(item.path)}
                   sx={{
                     minHeight: isMobile ? 40 : (collapsed ? 44 : 46),
-                    borderRadius: 2,
-                    mx: 1,
+                    borderRadius: active && !collapsed && !isMobile ? '24px 0 0 24px' : 2,
+                    ml: 1,
+                    mr: active && !collapsed && !isMobile ? 0 : (isMobile ? 1.8 : (collapsed ? 1.5 : 2.5)),
                     justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
                     px: collapsed && !isMobile ? 0 : (isMobile ? 1.5 : 2),
                     py: isMobile ? 0.8 : 1,
-                    bgcolor: active ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-                    border: active ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent',
-                    boxShadow: active ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+                    bgcolor: active ? (collapsed || isMobile ? 'rgba(255, 255, 255, 0.1)' : 'transparent') : 'transparent',
+                    border: active && (collapsed || isMobile) ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                    boxShadow: active && (collapsed || isMobile) ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
                     '&:hover': {
                       bgcolor: active
-                        ? 'rgba(255, 255, 255, 0.15)'
+                        ? (collapsed || isMobile ? 'rgba(255, 255, 255, 0.15)' : 'transparent')
                         : 'rgba(255, 255, 255, 0.05)',
-                      transform: 'translateX(4px)',
+                      transform: active && !collapsed && !isMobile ? 'none' : 'translateX(4px)',
                     },
                     position: 'relative',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
+                  {/* Animated Active Background */}
+                  {active && !collapsed && !isMobile && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0,
+                        bgcolor: 'rgb(245, 245, 245)',
+                        borderRadius: '24px 0 0 24px',
+                        animation: 'slideInClip 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        zIndex: 0,
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          right: 0,
+                          top: -20,
+                          width: 20,
+                          height: 20,
+                          bgcolor: 'transparent',
+                          borderRadius: '50%',
+                          boxShadow: `10px 10px 0 0 rgb(245, 245, 245)`,
+                          pointerEvents: 'none',
+                        },
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          right: 0,
+                          bottom: -20,
+                          width: 20,
+                          height: 20,
+                          bgcolor: 'transparent',
+                          borderRadius: '50%',
+                          boxShadow: `10px -10px 0 0 rgb(245, 245, 245)`,
+                          pointerEvents: 'none',
+                        }
+                      }}
+                    />
+                  )}
                   {active && !collapsed && !isMobile && (
                     <Box
                       sx={{
                         position: 'absolute',
                         left: -8,
+                        zIndex: 1,
                         top: '50%',
                         transform: 'translateY(-50%)',
                         width: 4,
                         height: '50%',
-                        bgcolor: 'secondary.main',
+                        bgcolor: '#102c4a',
                         borderRadius: '0 4px 4px 0',
-                        boxShadow: '0 0 8px rgba(245, 158, 11, 0.5)',
                       }}
                     />
                   )}
@@ -608,14 +659,16 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                   <ListItemIcon
                     sx={{
                       minWidth: collapsed && !isMobile ? 'auto' : (isMobile ? 32 : 36),
-                      color: active ? 'secondary.main' : 'rgba(255,255,255,0.7)',
+                      color: active && !collapsed && !isMobile ? '#102c4a' : (active ? 'secondary.main' : 'rgba(255,255,255,0.7)'),
                       transition: 'color 0.3s ease',
                       '& svg': {
                         fontSize: isMobile ? '1.1rem' : '1.25rem',
-                        filter: active ? 'drop-shadow(0px 2px 4px rgba(0,0,0,0.3))' : 'none',
+                        filter: active && (collapsed || isMobile) ? 'drop-shadow(0px 2px 4px rgba(0,0,0,0.3))' : 'none',
                       },
                       display: 'flex',
                       justifyContent: 'center',
+                      position: 'relative',
+                      zIndex: 1,
                     }}
                   >
                     {item.icon}
@@ -625,12 +678,12 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
-                        fontWeight: active ? 700 : 500,
+                        fontWeight: active ? 800 : 500,
                         fontSize: isMobile ? '0.75rem' : '0.85rem',
-                        color: active ? '#FFFFFF' : 'rgba(255,255,255,0.85)',
+                        color: active && !collapsed && !isMobile ? '#102c4a' : (active ? '#FFFFFF' : 'rgba(255,255,255,0.85)'),
                         letterSpacing: '0.3px',
                       }}
-                      sx={{ ml: isMobile ? 0.5 : 0.5 }}
+                      sx={{ ml: isMobile ? 0.5 : 0.5, position: 'relative', zIndex: 1 }}
                     />
                   )}
                 </ListItemButton>
@@ -695,8 +748,8 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
               alignItems: 'center',
               border: '1px solid transparent',
               transition: 'all 0.3s ease',
-              '&:hover': { 
-                bgcolor: 'rgba(244, 67, 54, 0.1)', 
+              '&:hover': {
+                bgcolor: 'rgba(244, 67, 54, 0.1)',
                 borderColor: 'rgba(244, 67, 54, 0.2)',
                 transform: 'translateX(4px)',
               },
@@ -733,6 +786,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
         </Tooltip>
       </Box>
     </Box>
+    </>
   );
 
   // For mobile devices

@@ -40,22 +40,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchShifts, createShift, deleteShift, updateShift } from "../../../redux/slices/shiftSlice";
 import { toast } from "react-toastify";
 
-// ── Helper ────────────────────────────────────────────────────────────────────
 const getShiftTheme = (shiftName, index = 0) => {
   const name = (shiftName || "").toLowerCase();
+  const globalColor = "#102c4a";
+  
   if (name.includes("morning")) {
-    return { color: "#2563eb", icon: <WbSunnyIcon sx={{ fontSize: 20 }} /> }; // Blue
+    return { color: globalColor, icon: <WbSunnyIcon sx={{ fontSize: 20 }} /> };
   }
   if (name.includes("night")) {
-    return { color: "#9333ea", icon: <NightsStayIcon sx={{ fontSize: 20 }} /> }; // Purple
+    return { color: globalColor, icon: <NightsStayIcon sx={{ fontSize: 20 }} /> };
   }
   if (name.includes("test")) {
-    return { color: "#16a34a", icon: <ScienceIcon sx={{ fontSize: 20 }} /> }; // Green
+    return { color: globalColor, icon: <ScienceIcon sx={{ fontSize: 20 }} /> };
   }
   
-  // Default/Fallback colors based on index
-  const colors = ["#ea580c", "#dc2626", "#0891b2", "#c026d3"];
-  return { color: colors[index % colors.length], icon: <ScheduleIcon sx={{ fontSize: 20 }} /> };
+  // Default/Fallback icon
+  return { color: globalColor, icon: <ScheduleIcon sx={{ fontSize: 20 }} /> };
 };
 
 const calculateTotalHours = (startTime, endTime) => {

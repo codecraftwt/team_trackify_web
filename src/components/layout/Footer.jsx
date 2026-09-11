@@ -68,7 +68,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 mb-6">
                 <EmailOutlinedIcon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
-                <span className="text-[14px]" style={{ color: theme.palette.text.secondary }}>info@teamtrackify.com</span>
+                <span className="text-[14px]" style={{ color: theme.palette.text.secondary }}>no-reply@teamtrackify.com</span>
               </li>
             </ul>
 
