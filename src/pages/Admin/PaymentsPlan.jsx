@@ -1512,7 +1512,7 @@ const PaymentPlans = () => {
   // ─────────────────────────────────────────────────────────────
   if (showFirstRenderLoader) {
     return (
-      <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 3 }}>
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 3 }}>
         <Container maxWidth="xl">
           <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
@@ -1564,7 +1564,7 @@ const PaymentPlans = () => {
 // Main render
   // ─────────────────────────────────────────────────────────────
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 3 }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 3 }}>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" style={{ top: "70px" }} />
 
       <Container maxWidth="xl">

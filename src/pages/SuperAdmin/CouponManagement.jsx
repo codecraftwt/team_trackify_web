@@ -1052,7 +1052,7 @@ const CouponManagement = () => {
             <Box
                 sx={{
                     minHeight: "100vh",
-                    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+                    background: "#f5f5f5",
                     width: "100%",
                     overflowX: "hidden",
                     position: "relative",
@@ -1126,7 +1126,7 @@ const CouponManagement = () => {
         <Box
             sx={{
                 minHeight: "100vh",
-                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+                background: "#f5f5f5",
                 width: "100%",
                 overflowX: "hidden",
                 position: "relative",

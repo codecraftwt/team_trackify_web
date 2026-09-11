@@ -445,7 +445,7 @@ const TransactionHistory = () => {
   // ── Initial Skeleton Loader ─────────────────────────────────────────────────
   if (showFirstRenderLoader) {
     return (
-      <Box sx={{ minHeight: "100vh", bgcolor: "#f8fafc", py: { xs: 2.5, sm: 3.5 } }}>
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: { xs: 2.5, sm: 3.5 } }}>
         <Container maxWidth="xl">
           {/* Header Skeleton */}
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
@@ -481,7 +481,7 @@ const TransactionHistory = () => {
 
   // ── Main Render ─────────────────────────────────────────────────────────────
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f8fafc", py: { xs: 2.5, sm: 3.5 } }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: { xs: 2.5, sm: 3.5 } }}>
       <Container maxWidth="xl">
         {/* ── Page Header ── */}
         <Box

@@ -1048,7 +1048,7 @@ const PlanManagement = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+          background: "#f5f5f5",
           py: { xs: 1.5, sm: 2, md: 3 },
           px: { xs: 1, sm: 2, md: 3 },
         }}
@@ -1107,7 +1107,7 @@ const PlanManagement = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.02)} 100%)`,
+        background: "#f5f5f5",
         py: { xs: 1.5, sm: 2, md: 3 },
         px: { xs: 1, sm: 2, md: 3 },
       }}
