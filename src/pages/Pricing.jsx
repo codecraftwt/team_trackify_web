@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import Header from '../components/layout/Header';
@@ -24,6 +25,14 @@ import {
   useMediaQuery,
   ThemeProvider,
   createTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -39,6 +48,11 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import BusinessIcon from '@mui/icons-material/Business';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import BuildIcon from '@mui/icons-material/Build';
+import CloseIcon from '@mui/icons-material/Close';
+import GroupIcon from '@mui/icons-material/Group';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { getAvailablePlans } from '../redux/slices/planSlice';
 
@@ -241,6 +255,14 @@ const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [loading, setLoading] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState(false);
+  const [basePriceData, setBasePriceData] = useState(null);
+  
+  const [customPlanModalOpen, setCustomPlanModalOpen] = useState(false);
+  const [customPlanData, setCustomPlanData] = useState({
+    userLimit: '2',
+    duration: '2',
+    durationUnit: 'months'
+  });
 
   const handleFaqChange = (panel) => (event, isExpanded) => {
     setExpandedFaq(isExpanded ? panel : false);
@@ -359,7 +381,21 @@ const Pricing = () => {
         setTimeout(() => setLoading(false), 800);
       }
     };
+
+    const fetchBasePrice = async () => {
+      try {
+        const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
+        const response = await axios.get(`${BASE_URL}/plans/base-price/historypublic`);
+        if (response.data?.success) {
+          setBasePriceData(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching base price history:", error);
+      }
+    };
+
     fetchPlans();
+    fetchBasePrice();
   }, [dispatch]);
 
 
@@ -398,39 +434,72 @@ const Pricing = () => {
     };
   };
 
+  const calculateCustomPlanPrice = () => {
+    const users = parseInt(customPlanData.userLimit) || 0;
+    const duration = parseInt(customPlanData.duration) || 0;
+    const basePrice = basePriceData?.currentPrice || 0;
+    const months = customPlanData.durationUnit === 'years' ? duration * 12 : duration;
+    return users * basePrice * months;
+  };
+
+  const handleCustomPlanChange = (e) => {
+    const { name, value } = e.target;
+    setCustomPlanData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCustomPlanSubmit = () => {
+    const plan = subscriptionPlans.find(p => p.id === 'custom' || p.isCustom);
+    if (!plan) return;
+    
+    const price = calculateCustomPlanPrice();
+    const selectedPlanData = {
+      id: 'custom',
+      name: 'Custom Plan',
+      price: price,
+      originalPrice: price,
+      billingCycle: 'custom',
+      duration: 'custom',
+      maxUsers: customPlanData.userLimit,
+      minUsers: customPlanData.userLimit,
+      durationValue: customPlanData.duration,
+      durationUnit: customPlanData.durationUnit,
+      description: plan.description,
+      features: plan.features,
+      color: plan.color,
+      isCustom: true,
+    };
+    
+    sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
+    navigate('/register', {
+      state: {
+        selectedPlan: selectedPlanData,
+        fromPricing: true
+      }
+    });
+  };
+
   const handleSelectPlan = (plan) => {
-    // console.log("=========================================");
-    // console.log("🎯 PLAN SELECTED IN PRICING PAGE");
-    // console.log("Plan Details:", {
-    //   id: plan.id,
-    //   name: plan.name,
-    //   price: plan.isCustom ? 'Variable' : getPrice(plan),
-    //   billingCycle: billingCycle
-    // });
+    if (plan.isCustom) {
+      setCustomPlanModalOpen(true);
+      return;
+    }
 
     const selectedPlanData = {
       id: plan.id,
       name: plan.name,
-      price: plan.isCustom ? 'Variable' : getPrice(plan),
-      originalPrice: plan.isCustom ? 0 : (billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice),
+      price: getPrice(plan),
+      originalPrice: billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice,
       billingCycle: billingCycle,
-      duration: plan.isCustom ? 'custom' : (billingCycle === 'monthly' ? 'month' : 'year'),
+      duration: billingCycle === 'monthly' ? 'month' : 'year',
       maxUsers: plan.maxUsers,
       minUsers: plan.minUsers,
       description: plan.description,
       features: plan.features,
       color: plan.color,
-      isCustom: plan.isCustom || false,
+      isCustom: false,
     };
 
-    // console.log("📦 Selected Plan Data being sent to Register:", selectedPlanData);
-
-    // // Store in sessionStorage
     sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
-    // console.log("💾 Saved to sessionStorage");
-
-    // // Navigate with state
-    // console.log("🚀 Navigating to /register with state");
     navigate('/register', {
       state: {
         selectedPlan: selectedPlanData,
@@ -550,8 +619,8 @@ const Pricing = () => {
               className="w-full font-bold text-base py-3.5 rounded-md flex items-center justify-center gap-2 transition-all duration-300"
               style={{
                 color: 'white',
-                background: isPopular 
-                  ? 'rgba(255,255,255,0.1)' 
+                background: isPopular
+                  ? 'rgba(255,255,255,0.1)'
                   : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                 boxShadow: isPopular ? 'none' : `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
                 border: isPopular ? '1px solid rgba(255,255,255,0.5)' : 'none'
@@ -577,138 +646,265 @@ const Pricing = () => {
     <ThemeProvider theme={theme}>
       <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: '#f0f8ff' }}>
         <Header />
-      <section className="relative overflow-hidden pt-32 pb-8 md:pt-40 md:pb-12">
-        <div className="container-custom relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* Decorative Arrow SVG */}
-            <Box sx={{ position: 'absolute', top: -40, left: '20%', display: { xs: 'none', md: 'block' } }}>
-              <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M90 10 C 60 0, 30 20, 20 60 C 15 80, 40 90, 50 70 C 60 50, 40 30, 20 40" stroke="#a5b4fc" strokeWidth="2" strokeDasharray="4 4" fill="none" />
-              </svg>
-            </Box>
-
-            <Kicker color={theme.palette.primary.main} center className="mb-4">Our Best Features</Kicker>
-
-            <Typography variant="h2" sx={{ color: '#1e293b', fontWeight: 800, fontSize: { xs: '2.5rem', md: '3.5rem' }, mb: 4 }}>
-              Choose Your <span style={{ position: 'relative' }}>
-                Simple
-                <svg style={{ position: 'absolute', bottom: -10, left: 0, width: '100%', height: '12px' }} viewBox="0 0 100 12" preserveAspectRatio="none">
-                  <path d="M0,8 Q25,2 50,8 T100,8" stroke={theme.palette.primary.main} strokeWidth="4" fill="none" strokeLinecap="round" />
+        <section className="relative overflow-hidden pt-32 pb-8 md:pt-40 md:pb-12">
+          <div className="container-custom relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              {/* Decorative Arrow SVG */}
+              <Box sx={{ position: 'absolute', top: -40, left: '20%', display: { xs: 'none', md: 'block' } }}>
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M90 10 C 60 0, 30 20, 20 60 C 15 80, 40 90, 50 70 C 60 50, 40 30, 20 40" stroke="#a5b4fc" strokeWidth="2" strokeDasharray="4 4" fill="none" />
                 </svg>
-              </span> Pricing Plan
-            </Typography>
+              </Box>
 
-            <Typography variant="body1" sx={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '700px', mx: 'auto', mb: 2, lineHeight: 1.6 }}>
-              Find the perfect plan for your team. From basic tracking to enterprise-grade analytics, our transparent pricing scales with your business.
-            </Typography>
+              <Kicker color={theme.palette.primary.main} center className="mb-4">Our Best Features</Kicker>
 
-            {/* Monthly / Yearly Toggle - hidden to match mockup but functionality retained */}
-            <div className="flex justify-center items-center mb-8" style={{ display: 'none' }}>
-              <div className="relative flex items-center p-1.5 bg-white rounded-full border shadow-sm">
-                <button
-                  onClick={() => setBillingCycle('monthly')}
-                  className="relative w-32 z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300"
-                  style={{ color: billingCycle !== 'monthly' ? theme.palette.text.secondary : theme.palette.primary.main }}
-                >
-                  Monthly
-                </button>
-                <button
-                  onClick={() => setBillingCycle('yearly')}
-                  className="relative w-32 z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300"
-                  style={{ color: billingCycle !== 'yearly' ? theme.palette.text.secondary : theme.palette.primary.main }}
-                >
-                  Yearly
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+              <Typography variant="h2" sx={{ color: '#1e293b', fontWeight: 800, fontSize: { xs: '2.5rem', md: '3.5rem' }, mb: 4 }}>
+                Choose Your <span style={{ position: 'relative' }}>
+                  Simple
+                  <svg style={{ position: 'absolute', bottom: -10, left: 0, width: '100%', height: '12px' }} viewBox="0 0 100 12" preserveAspectRatio="none">
+                    <path d="M0,8 Q25,2 50,8 T100,8" stroke={theme.palette.primary.main} strokeWidth="4" fill="none" strokeLinecap="round" />
+                  </svg>
+                </span> Pricing Plan
+              </Typography>
 
-      <section className="pb-20">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch', gap: { xs: 4, md: 2 } }}>
-            {loading ? (
-              <>
-                <PlanCardSkeleton /><PlanCardSkeleton /><PlanCardSkeleton />
-              </>
-            ) : subscriptionPlans.length > 0 ? (
-              subscriptionPlans.map((plan, index) => renderPlanCard(plan, index))
-            ) : (
-              <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 2, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`, width: '100%' }}>
-                <CreditCardIcon sx={{ fontSize: 32, color: alpha(theme.palette.primary.main, 0.3), mb: 1 }} />
-                <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '0.85rem' }}>No subscription plans available</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Please check back later for our pricing plans.</Typography>
-              </Paper>
-            )}
-          </Box>
-        </div>
-      </section>
+              <Typography variant="body1" sx={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '700px', mx: 'auto', mb: 2, lineHeight: 1.6 }}>
+                Find the perfect plan for your team. From basic tracking to enterprise-grade analytics, our transparent pricing scales with your business.
+              </Typography>
 
-      <CouponSection theme={theme} />
-
-      <section className="py-20 md:py-28" style={{ backgroundColor: alpha(theme.palette.primary.main, 0.02) }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
-            <Kicker color={theme.palette.primary.main} center className="mb-3">Frequently Asked Questions</Kicker>
-            <Typography variant="h2" sx={{ color: '#1a1a1a', fontWeight: 700, mb: 3, letterSpacing: '-0.02em', fontSize: { xs: '2rem', md: '2.8rem' } }}>
-              We're Here to Answer<br />All Your Questions.
-            </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: '600px', mx: 'auto', fontSize: '1.05rem', lineHeight: 1.6 }}>
-              Got questions about our pricing, features, or setup? We're here to help you make the best decision for your field operations.
-            </Typography>
-          </motion.div>
-
-          <div className="space-y-4 max-w-4xl mx-auto">
-            {faqs.map((faq, index) => {
-              const isExpanded = expandedFaq === index;
-              return (
-                <Accordion
-                  key={index}
-                  expanded={isExpanded}
-                  onChange={handleFaqChange(index)}
-                  elevation={0}
-                  disableGutters
-                  sx={{
-                    borderRadius: '8px !important',
-                    backgroundColor: isExpanded ? 'transparent' : 'white',
-                    transition: 'all 0.3s ease',
-                    '&:before': { display: 'none' },
-                    boxShadow: isExpanded ? 'none' : `0 4px 15px rgba(0,0,0,0.02)`,
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={isExpanded ? <RemoveIcon sx={{ color: 'white' }} /> : <AddIcon sx={{ color: '#1a1a1a' }} />}
+              {/* Base Price Banner */}
+              {basePriceData && basePriceData.currentPrice && (
+                <Box sx={{ mt: 3, mb: { xs: 4, md: 5 }, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1.5 }}>
+                  <Chip
+                    label={`Base price starting at ₹${basePriceData.currentPrice} / user`}
                     sx={{
-                      px: 3,
-                      py: 1.5,
-                      borderRadius: '8px',
-                      backgroundColor: isExpanded ? theme.palette.primary.main : 'white',
-                      transition: 'background-color 0.3s ease',
-                      '& .MuiAccordionSummary-content': { margin: '0 !important' }
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      py: 2.5,
+                      px: 1.5,
+                      borderRadius: 2
+                    }}
+                  />
+                  {basePriceData.previousPrice && basePriceData.previousPrice > basePriceData.currentPrice && (
+                    <Typography sx={{ textDecoration: 'line-through', color: '#94a3b8', fontWeight: 600, fontSize: '1rem' }}>
+                      ₹{basePriceData.previousPrice}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
+              {/* Monthly / Yearly Toggle - hidden to match mockup but functionality retained */}
+              <div className="flex justify-center items-center mb-8" style={{ display: 'none' }}>
+                <div className="relative flex items-center p-1.5 bg-white rounded-full border shadow-sm">
+                  <button
+                    onClick={() => setBillingCycle('monthly')}
+                    className="relative w-32 z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300"
+                    style={{ color: billingCycle !== 'monthly' ? theme.palette.text.secondary : theme.palette.primary.main }}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    onClick={() => setBillingCycle('yearly')}
+                    className="relative w-32 z-10 py-2.5 text-sm font-bold rounded-full transition-colors duration-300"
+                    style={{ color: billingCycle !== 'yearly' ? theme.palette.text.secondary : theme.palette.primary.main }}
+                  >
+                    Yearly
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section className="pb-20">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch', gap: { xs: 4, md: 2 } }}>
+              {loading ? (
+                <>
+                  <PlanCardSkeleton /><PlanCardSkeleton /><PlanCardSkeleton />
+                </>
+              ) : subscriptionPlans.length > 0 ? (
+                subscriptionPlans.map((plan, index) => renderPlanCard(plan, index))
+              ) : (
+                <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 2, border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`, width: '100%' }}>
+                  <CreditCardIcon sx={{ fontSize: 32, color: alpha(theme.palette.primary.main, 0.3), mb: 1 }} />
+                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '0.85rem' }}>No subscription plans available</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>Please check back later for our pricing plans.</Typography>
+                </Paper>
+              )}
+            </Box>
+          </div>
+        </section>
+
+        <CouponSection theme={theme} />
+
+        <section className="py-20 md:py-28" style={{ backgroundColor: alpha(theme.palette.primary.main, 0.02) }}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
+              <Kicker color={theme.palette.primary.main} center className="mb-3">Frequently Asked Questions</Kicker>
+              <Typography variant="h2" sx={{ color: '#1a1a1a', fontWeight: 700, mb: 3, letterSpacing: '-0.02em', fontSize: { xs: '2rem', md: '2.8rem' } }}>
+                We're Here to Answer<br />All Your Questions.
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: '600px', mx: 'auto', fontSize: '1.05rem', lineHeight: 1.6 }}>
+                Got questions about our pricing, features, or setup? We're here to help you make the best decision for your field operations.
+              </Typography>
+            </motion.div>
+
+            <div className="space-y-4 max-w-4xl mx-auto">
+              {faqs.map((faq, index) => {
+                const isExpanded = expandedFaq === index;
+                return (
+                  <Accordion
+                    key={index}
+                    expanded={isExpanded}
+                    onChange={handleFaqChange(index)}
+                    elevation={0}
+                    disableGutters
+                    sx={{
+                      borderRadius: '8px !important',
+                      backgroundColor: isExpanded ? 'transparent' : 'white',
+                      transition: 'all 0.3s ease',
+                      '&:before': { display: 'none' },
+                      boxShadow: isExpanded ? 'none' : `0 4px 15px rgba(0,0,0,0.02)`,
                     }}
                   >
-                    <Typography sx={{ fontWeight: 600, color: isExpanded ? 'white' : 'text.primary', fontSize: '1.05rem' }}>{faq.question}</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ px: 3, pb: 4, pt: 3, backgroundColor: 'transparent' }}>
-                    <Typography sx={{ color: 'text.secondary', fontSize: '1rem', lineHeight: 1.8 }}>{faq.answer}</Typography>
-                  </AccordionDetails>
-                </Accordion>
-              );
-            })}
+                    <AccordionSummary
+                      expandIcon={isExpanded ? <RemoveIcon sx={{ color: 'white' }} /> : <AddIcon sx={{ color: '#1a1a1a' }} />}
+                      sx={{
+                        px: 3,
+                        py: 1.5,
+                        borderRadius: '8px',
+                        backgroundColor: isExpanded ? theme.palette.primary.main : 'white',
+                        transition: 'background-color 0.3s ease',
+                        '& .MuiAccordionSummary-content': { margin: '0 !important' }
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: 600, color: isExpanded ? 'white' : 'text.primary', fontSize: '1.05rem' }}>{faq.question}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ px: 3, pb: 4, pt: 3, backgroundColor: 'transparent' }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '1rem', lineHeight: 1.8 }}>{faq.answer}</Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              })}
+            </div>
+
+
           </div>
-
-
-        </div>
       </section>
+
+      {/* Custom Plan Edit Modal */}
+      <Dialog open={customPlanModalOpen} onClose={() => setCustomPlanModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 4, overflow: "hidden" } }}>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, pt: 3, px: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BuildIcon sx={{ color: theme.palette.primary.main }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={700} sx={{ color: '#1a1a1a', fontSize: '1.25rem', letterSpacing: '-0.01em' }}>Edit Custom Plan</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem' }}>Configure your team size and subscription duration</Typography>
+            </Box>
+          </Box>
+          <IconButton onClick={() => setCustomPlanModalOpen(false)} sx={{ border: `1px solid ${alpha(theme.palette.divider, 0.8)}`, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(theme.palette.divider, 0.2) } }}>
+            <CloseIcon fontSize="small" sx={{ color: '#1a1a1a' }} />
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent sx={{ p: 3, px: 4 }}>
+          <Grid container spacing={2.5}>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>User Count <span style={{color: '#ff4d4f'}}>*</span></Typography>
+              <TextField 
+                fullWidth 
+                name="userLimit" 
+                type="number" 
+                value={customPlanData.userLimit} 
+                onChange={handleCustomPlanChange} 
+                size="medium" 
+                InputProps={{ 
+                  startAdornment: <InputAdornment position="start"><GroupIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                  inputProps: { min: 1 },
+                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                }} 
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration <span style={{color: '#ff4d4f'}}>*</span></Typography>
+              <TextField 
+                fullWidth 
+                name="duration" 
+                type="number" 
+                value={customPlanData.duration} 
+                onChange={handleCustomPlanChange} 
+                size="medium" 
+                InputProps={{ 
+                  startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                  inputProps: { min: 1 },
+                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                }} 
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration Unit</Typography>
+              <TextField
+                select
+                fullWidth
+                name="durationUnit"
+                value={customPlanData.durationUnit}
+                onChange={handleCustomPlanChange}
+                size="medium"
+                InputProps={{ 
+                  startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                }} 
+              >
+                <MenuItem value="months">months</MenuItem>
+                <MenuItem value="years">years</MenuItem>
+              </TextField>
+            </Grid>
+
+            {customPlanData.userLimit && customPlanData.duration && (
+              <Grid item xs={12} sx={{ mt: 1 }}>
+                <Box sx={{ p: 3, bgcolor: '#f4f9fd', borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}` }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                    <Typography variant="body1" fontWeight={600} color="text.secondary">Estimated Price:</Typography>
+                    <Chip label="DYNAMIC PRICING" size="small" sx={{ fontWeight: 700, fontSize: '0.75rem', color: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 1.5, px: 0.5 }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
+                    <Typography variant="h3" fontWeight={800} sx={{ color: '#1a1a1a', mr: 1, letterSpacing: '-0.02em' }}>₹{calculateCustomPlanPrice()}</Typography>
+                    <Typography variant="body1" color="text.secondary" fontWeight={500}>/{customPlanData.duration} {customPlanData.durationUnit}</Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.95rem' }}>
+                    Based on {customPlanData.userLimit} users × ₹{basePriceData?.currentPrice || 0} (base price) × {customPlanData.duration} {customPlanData.durationUnit}
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Flexible user limits</Typography></Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Custom duration settings</Typography></Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Personalized support</Typography></Box>
+                  </Box>
+                </Box>
+              </Grid>
+            )}
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 4, pt: 1, gap: 2 }}>
+          <Button onClick={() => setCustomPlanModalOpen(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1, py: 1.5, fontWeight: 700, fontSize: '1rem', borderColor: alpha(theme.palette.divider, 0.8), color: 'text.secondary' }}>Cancel</Button>
+          <Button onClick={handleCustomPlanSubmit} variant="contained" sx={{ flex: 1, py: 1.5, fontSize: '1rem', borderRadius: 2, bgcolor: theme.palette.primary.dark, fontWeight: 700, boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.dark, 0.4)}` }}>
+            Get Started
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
-      <ScrollToTopButton />
-    </div>
+        <ScrollToTopButton />
+      </div>
     </ThemeProvider>
   );
 };

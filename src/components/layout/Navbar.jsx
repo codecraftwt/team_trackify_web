@@ -733,18 +733,6 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                 <Typography variant="body2" sx={{ fontSize: '0.9rem', color: '#102c4a', fontWeight: 600 }}>
                   Configuration
                 </Typography>
-                <Chip
-                  label="Admin"
-                  size="small"
-                  sx={{
-                    ml: 'auto',
-                    height: 22,
-                    fontSize: '0.65rem',
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
-                    fontWeight: 600,
-                  }}
-                />
               </MenuItem>
             )}
 
