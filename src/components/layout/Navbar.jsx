@@ -638,78 +638,99 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
             onClose={handleMenuClose}
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            MenuListProps={{
+              sx: { p: 1 }
+            }}
             PaperProps={{
               sx: {
                 mt: 1,
-                minWidth: { xs: 180, sm: 220 },
-                borderRadius: 2.5,
-                boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+                minWidth: { xs: 240, sm: 280 },
+                borderRadius: 3,
+                boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
                 border: '1px solid',
-                borderColor: alpha(isSubAdmin ? theme.palette.secondary.main : theme.palette.primary.main, 0.15),
-                overflow: 'hidden',
+                borderColor: alpha(isSubAdmin ? theme.palette.secondary.main : theme.palette.primary.main, 0.1),
               }
             }}
           >
             {/* User Info Header */}
             <Box sx={{
-              px: 2.5,
+              px: 2,
               py: 2,
+              mb: 1,
+              borderRadius: 2,
               background: isSubAdmin
                 ? `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`
                 : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
               color: '#fff',
+              boxShadow: `0 4px 12px ${alpha(isSubAdmin ? theme.palette.secondary.main : theme.palette.primary.main, 0.3)}`,
             }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                <Avatar
-                  src={avatarUrl}
-                  alt={displayName}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  variant="dot"
                   sx={{
-                    width: 48,
-                    height: 48,
-                    bgcolor: avatarUrl ? 'transparent' : alpha('#ffffff', 0.2),
-                    color: '#ffffff',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    border: '2px solid',
-                    borderColor: alpha('#ffffff', 0.3),
+                    '& .MuiBadge-badge': {
+                      backgroundColor: '#10b981',
+                      color: '#10b981',
+                      boxShadow: `0 0 0 2px ${isSubAdmin ? theme.palette.secondary.main : theme.palette.primary.main}`,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                    }
                   }}
                 >
-                  {!avatarUrl && userInitials}
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ fontSize: '1rem', mb: 0.5 }}>
+                  <Avatar
+                    src={avatarUrl}
+                    alt={displayName}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      bgcolor: avatarUrl ? 'transparent' : alpha('#ffffff', 0.2),
+                      color: '#ffffff',
+                      fontSize: '1.2rem',
+                      fontWeight: 600,
+                      border: '2px solid',
+                      borderColor: alpha('#ffffff', 0.5),
+                    }}
+                  >
+                    {!avatarUrl && userInitials}
+                  </Avatar>
+                </Badge>
+                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                  <Typography variant="subtitle1" fontWeight={700} noWrap sx={{ fontSize: '1rem', mb: 0 }}>
                     {displayName}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: alpha('#ffffff', 0.9), fontSize: '0.7rem', display: 'block' }}>
+                  <Typography variant="caption" noWrap sx={{ color: alpha('#ffffff', 0.9), fontSize: '0.75rem', display: 'block', mb: 0.5 }}>
                     {displayEmail}
                   </Typography>
+                  <Box sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    backgroundColor: alpha('#ffffff', 0.25),
+                    borderRadius: 4,
+                    px: 1.2,
+                    py: 0.2,
+                  }}>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>{roleName}</span>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                backgroundColor: alpha('#ffffff', 0.2),
-                borderRadius: 4,
-                px: 1.2,
-                py: 0.3,
-              }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 500 }}>{roleName}</span>
               </Box>
             </Box>
 
             {/* My Profile Menu Item */}
-            <MenuItem onClick={handleProfile} sx={{ py: 1.5, mt: 0.5 }}>
-              <PersonIcon sx={{ mr: 1.5, color: isSubAdmin ? 'secondary.main' : 'primary.main', fontSize: 20 }} />
-              <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.primary', fontWeight: 500 }}>
+            <MenuItem onClick={handleProfile} sx={{ py: 1.2, px: 1.5, borderRadius: 1.5, mb: 0.5 }}>
+              <PersonIcon sx={{ mr: 1.5, color: '#102c4a', fontSize: 22 }} />
+              <Typography variant="body2" sx={{ fontSize: '0.9rem', color: '#102c4a', fontWeight: 600 }}>
                 My Profile
               </Typography>
             </MenuItem>
 
             {/* Configuration Menu Item - Only for Super Admin */}
             {isSuperAdmin && (
-              <MenuItem onClick={handleConfiguration} sx={{ py: 1.5 }}>
-                <SettingsIcon sx={{ mr: 1.5, color: 'primary.main', fontSize: 20 }} />
-                <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.primary', fontWeight: 500 }}>
+              <MenuItem onClick={handleConfiguration} sx={{ py: 1.2, px: 1.5, borderRadius: 1.5 }}>
+                <SettingsIcon sx={{ mr: 1.5, color: '#102c4a', fontSize: 22 }} />
+                <Typography variant="body2" sx={{ fontSize: '0.9rem', color: '#102c4a', fontWeight: 600 }}>
                   Configuration
                 </Typography>
                 <Chip
@@ -717,8 +738,8 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
                   size="small"
                   sx={{
                     ml: 'auto',
-                    height: 20,
-                    fontSize: '0.6rem',
+                    height: 22,
+                    fontSize: '0.65rem',
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                     color: theme.palette.primary.main,
                     fontWeight: 600,
@@ -731,18 +752,19 @@ const Navbar = ({ sidebarCollapsed, onToggleSidebar, isMobile, mobileOpen }) => 
             <MenuItem
               onClick={handleLogoutClick}
               sx={{
-                py: 1.5,
+                py: 1.2,
+                px: 1.5,
+                borderRadius: 1.5,
                 color: '#ef4444',
-                borderTop: '1px solid',
-                borderColor: alpha(theme.palette.primary.main, 0.1),
-                mt: 0.5,
+                bgcolor: alpha('#ef4444', 0.08),
+                mt: 1,
                 '&:hover': {
-                  bgcolor: alpha('#ef4444', 0.05),
+                  bgcolor: alpha('#ef4444', 0.15),
                 }
               }}
             >
-              <LogoutIcon sx={{ mr: 1.5, color: '#ef4444', fontSize: 20 }} />
-              <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 500 }}>
+              <LogoutIcon sx={{ mr: 1.5, color: '#ef4444', fontSize: 22 }} />
+              <Typography variant="body2" sx={{ fontSize: '0.9rem', fontWeight: 600 }}>
                 Logout
               </Typography>
             </MenuItem>
