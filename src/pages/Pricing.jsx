@@ -256,7 +256,7 @@ const Pricing = () => {
   const [loading, setLoading] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState(false);
   const [basePriceData, setBasePriceData] = useState(null);
-  
+
   const [customPlanModalOpen, setCustomPlanModalOpen] = useState(false);
   const [customPlanData, setCustomPlanData] = useState({
     userLimit: '2',
@@ -384,7 +384,7 @@ const Pricing = () => {
 
     const fetchBasePrice = async () => {
       try {
-        const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000/api";
+        const BASE_URL = import.meta.env.VITE_BASE_URL || "https://trackingapp-backend-6ny6.onrender.com/api";
         const response = await axios.get(`${BASE_URL}/plans/base-price/historypublic`);
         if (response.data?.success) {
           setBasePriceData(response.data);
@@ -450,7 +450,7 @@ const Pricing = () => {
   const handleCustomPlanSubmit = () => {
     const plan = subscriptionPlans.find(p => p.id === 'custom' || p.isCustom);
     if (!plan) return;
-    
+
     const price = calculateCustomPlanPrice();
     const selectedPlanData = {
       id: 'custom',
@@ -468,7 +468,7 @@ const Pricing = () => {
       color: plan.color,
       isCustom: true,
     };
-    
+
     sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlanData));
     navigate('/register', {
       state: {
@@ -797,112 +797,112 @@ const Pricing = () => {
 
 
           </div>
-      </section>
+        </section>
 
-      {/* Custom Plan Edit Modal */}
-      <Dialog open={customPlanModalOpen} onClose={() => setCustomPlanModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 4, overflow: "hidden" } }}>
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, pt: 3, px: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <BuildIcon sx={{ color: theme.palette.primary.main }} />
+        {/* Custom Plan Edit Modal */}
+        <Dialog open={customPlanModalOpen} onClose={() => setCustomPlanModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 4, overflow: "hidden" } }}>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, pt: 3, px: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <BuildIcon sx={{ color: theme.palette.primary.main }} />
+              </Box>
+              <Box>
+                <Typography variant="h6" fontWeight={700} sx={{ color: '#1a1a1a', fontSize: '1.25rem', letterSpacing: '-0.01em' }}>Edit Custom Plan</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem' }}>Configure your team size and subscription duration</Typography>
+              </Box>
             </Box>
-            <Box>
-              <Typography variant="h6" fontWeight={700} sx={{ color: '#1a1a1a', fontSize: '1.25rem', letterSpacing: '-0.01em' }}>Edit Custom Plan</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem' }}>Configure your team size and subscription duration</Typography>
-            </Box>
-          </Box>
-          <IconButton onClick={() => setCustomPlanModalOpen(false)} sx={{ border: `1px solid ${alpha(theme.palette.divider, 0.8)}`, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(theme.palette.divider, 0.2) } }}>
-            <CloseIcon fontSize="small" sx={{ color: '#1a1a1a' }} />
-          </IconButton>
-        </DialogTitle>
-        
-        <DialogContent sx={{ p: 3, px: 4 }}>
-          <Grid container spacing={2.5}>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>User Count <span style={{color: '#ff4d4f'}}>*</span></Typography>
-              <TextField 
-                fullWidth 
-                name="userLimit" 
-                type="number" 
-                value={customPlanData.userLimit} 
-                onChange={handleCustomPlanChange} 
-                size="medium" 
-                InputProps={{ 
-                  startAdornment: <InputAdornment position="start"><GroupIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
-                  inputProps: { min: 1 },
-                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
-                }} 
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration <span style={{color: '#ff4d4f'}}>*</span></Typography>
-              <TextField 
-                fullWidth 
-                name="duration" 
-                type="number" 
-                value={customPlanData.duration} 
-                onChange={handleCustomPlanChange} 
-                size="medium" 
-                InputProps={{ 
-                  startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
-                  inputProps: { min: 1 },
-                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
-                }} 
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration Unit</Typography>
-              <TextField
-                select
-                fullWidth
-                name="durationUnit"
-                value={customPlanData.durationUnit}
-                onChange={handleCustomPlanChange}
-                size="medium"
-                InputProps={{ 
-                  startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
-                  sx: { borderRadius: 2, bgcolor: '#ffffff' }
-                }} 
-              >
-                <MenuItem value="months">months</MenuItem>
-                <MenuItem value="years">years</MenuItem>
-              </TextField>
-            </Grid>
+            <IconButton onClick={() => setCustomPlanModalOpen(false)} sx={{ border: `1px solid ${alpha(theme.palette.divider, 0.8)}`, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(theme.palette.divider, 0.2) } }}>
+              <CloseIcon fontSize="small" sx={{ color: '#1a1a1a' }} />
+            </IconButton>
+          </DialogTitle>
 
-            {customPlanData.userLimit && customPlanData.duration && (
-              <Grid item xs={12} sx={{ mt: 1 }}>
-                <Box sx={{ p: 3, bgcolor: '#f4f9fd', borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}` }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Typography variant="body1" fontWeight={600} color="text.secondary">Estimated Price:</Typography>
-                    <Chip label="DYNAMIC PRICING" size="small" sx={{ fontWeight: 700, fontSize: '0.75rem', color: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 1.5, px: 0.5 }} />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                    <Typography variant="h3" fontWeight={800} sx={{ color: '#1a1a1a', mr: 1, letterSpacing: '-0.02em' }}>₹{calculateCustomPlanPrice()}</Typography>
-                    <Typography variant="body1" color="text.secondary" fontWeight={500}>/{customPlanData.duration} {customPlanData.durationUnit}</Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.95rem' }}>
-                    Based on {customPlanData.userLimit} users × ₹{basePriceData?.currentPrice || 0} (base price) × {customPlanData.duration} {customPlanData.durationUnit}
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Flexible user limits</Typography></Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Custom duration settings</Typography></Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }}/><Typography variant="body2" fontWeight={600} color="text.secondary">Personalized support</Typography></Box>
-                  </Box>
-                </Box>
+          <DialogContent sx={{ p: 3, px: 4 }}>
+            <Grid container spacing={2.5}>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>User Count <span style={{ color: '#ff4d4f' }}>*</span></Typography>
+                <TextField
+                  fullWidth
+                  name="userLimit"
+                  type="number"
+                  value={customPlanData.userLimit}
+                  onChange={handleCustomPlanChange}
+                  size="medium"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start"><GroupIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                    inputProps: { min: 1 },
+                    sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                  }}
+                />
               </Grid>
-            )}
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 4, pt: 1, gap: 2 }}>
-          <Button onClick={() => setCustomPlanModalOpen(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1, py: 1.5, fontWeight: 700, fontSize: '1rem', borderColor: alpha(theme.palette.divider, 0.8), color: 'text.secondary' }}>Cancel</Button>
-          <Button onClick={handleCustomPlanSubmit} variant="contained" sx={{ flex: 1, py: 1.5, fontSize: '1rem', borderRadius: 2, bgcolor: theme.palette.primary.dark, fontWeight: 700, boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.dark, 0.4)}` }}>
-            Get Started
-          </Button>
-        </DialogActions>
-      </Dialog>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration <span style={{ color: '#ff4d4f' }}>*</span></Typography>
+                <TextField
+                  fullWidth
+                  name="duration"
+                  type="number"
+                  value={customPlanData.duration}
+                  onChange={handleCustomPlanChange}
+                  size="medium"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                    inputProps: { min: 1 },
+                    sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>Duration Unit</Typography>
+                <TextField
+                  select
+                  fullWidth
+                  name="durationUnit"
+                  value={customPlanData.durationUnit}
+                  onChange={handleCustomPlanChange}
+                  size="medium"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start"><CalendarTodayIcon sx={{ color: '#94a3b8' }} fontSize="small" /></InputAdornment>,
+                    sx: { borderRadius: 2, bgcolor: '#ffffff' }
+                  }}
+                >
+                  <MenuItem value="months">months</MenuItem>
+                  <MenuItem value="years">years</MenuItem>
+                </TextField>
+              </Grid>
 
-      <Footer />
+              {customPlanData.userLimit && customPlanData.duration && (
+                <Grid item xs={12} sx={{ mt: 1 }}>
+                  <Box sx={{ p: 3, bgcolor: '#f4f9fd', borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}` }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                      <Typography variant="body1" fontWeight={600} color="text.secondary">Estimated Price:</Typography>
+                      <Chip label="DYNAMIC PRICING" size="small" sx={{ fontWeight: 700, fontSize: '0.75rem', color: theme.palette.primary.main, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 1.5, px: 0.5 }} />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
+                      <Typography variant="h3" fontWeight={800} sx={{ color: '#1a1a1a', mr: 1, letterSpacing: '-0.02em' }}>₹{calculateCustomPlanPrice()}</Typography>
+                      <Typography variant="body1" color="text.secondary" fontWeight={500}>/{customPlanData.duration} {customPlanData.durationUnit}</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.95rem' }}>
+                      Based on {customPlanData.userLimit} users × ₹{basePriceData?.currentPrice || 0} (base price) × {customPlanData.duration} {customPlanData.durationUnit}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /><Typography variant="body2" fontWeight={600} color="text.secondary">Flexible user limits</Typography></Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /><Typography variant="body2" fontWeight={600} color="text.secondary">Custom duration settings</Typography></Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} /><Typography variant="body2" fontWeight={600} color="text.secondary">Personalized support</Typography></Box>
+                    </Box>
+                  </Box>
+                </Grid>
+              )}
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ p: 4, pt: 1, gap: 2 }}>
+            <Button onClick={() => setCustomPlanModalOpen(false)} variant="outlined" sx={{ borderRadius: 2, flex: 1, py: 1.5, fontWeight: 700, fontSize: '1rem', borderColor: alpha(theme.palette.divider, 0.8), color: 'text.secondary' }}>Cancel</Button>
+            <Button onClick={handleCustomPlanSubmit} variant="contained" sx={{ flex: 1, py: 1.5, fontSize: '1rem', borderRadius: 2, bgcolor: theme.palette.primary.dark, fontWeight: 700, boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.dark, 0.4)}` }}>
+              Get Started
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Footer />
         <ScrollToTopButton />
       </div>
     </ThemeProvider>
