@@ -355,7 +355,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (location.state?.openConfigTab && isSuperAdmin) {
-      setTabValue(1);
+      setTabValue(2);
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, isSuperAdmin, navigate, location.pathname]);
@@ -745,8 +745,10 @@ const Profile = () => {
                       <Box
                         sx={{
                           display: "flex",
+                          flexDirection: { xs: "row", md: "column", lg: "row" },
                           alignItems: "center",
-                          gap: 2.2,
+                          textAlign: { xs: "left", md: "center", lg: "left" },
+                          gap: { xs: 2.2, md: 1.5, lg: 2.2 },
                           mb: 0.5,
                         }}
                       >
@@ -831,8 +833,14 @@ const Profile = () => {
                           </Box>
                         </Badge>
 
-                        {/* Name & Role on the Right Side */}
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                        {/* Name & Role on the Right Side / Bottom */}
+                        <Box sx={{ 
+                          minWidth: 0, 
+                          flex: 1, 
+                          display: "flex", 
+                          flexDirection: "column", 
+                          alignItems: { xs: "flex-start", md: "center", lg: "flex-start" } 
+                        }}>
                           <Typography
                             sx={{
                               fontWeight: 800,
