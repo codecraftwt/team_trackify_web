@@ -7550,10 +7550,10 @@ const Locations = () => {
                   <CardContent sx={{ p: "8px 10px", "&:last-child": { pb: "8px" } }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.65, mb: 0.6 }}>
                       <Box sx={{ width: 24, height: 24, borderRadius: "8px", background: isSelected ? "linear-gradient(135deg,#102c4a,#102c4a)" : `linear-gradient(135deg,${alpha("#102c4a", 0.15)},${alpha("#102c4a", 0.08)})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {isLoading ? <CircularProgress size={12} sx={{ color: isSelected ? "white" : "#102c4a" }} /> : <Typography fontWeight={700} sx={{ fontSize: "0.6rem", color: isSelected ? "white" : "#102c4a" }}>{allSessions.length - index}</Typography>}
+                        {isLoading ? <CircularProgress size={12} sx={{ color: isSelected ? "white" : "#102c4a" }} /> : <Typography fontWeight={700} sx={{ fontSize: "0.6rem", color: isSelected ? "white" : "#102c4a" }}>{index + 1}</Typography>}
                       </Box>
                       <Typography fontWeight={700} sx={{ flex: 1, fontSize: "0.65rem", color: isSelected ? "#102c4a" : "text.primary", letterSpacing: "0.3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {displayRemark || `Session #${allSessions.length - index}`}
+                        {displayRemark || `Session #${index + 1}`}
                       </Typography>
                       {sessionIsActive && (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, bgcolor: alpha("#22c55e", 0.12), border: `1px solid ${alpha("#22c55e", 0.35)}`, borderRadius: "10px", px: 0.6, py: 0.2, flexShrink: 0 }}>
@@ -7775,33 +7775,33 @@ const Locations = () => {
             minWidth: 160,
             transition: "all 0.3s ease",
             "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
+              transform: "translateY(-4px)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
             }
           }}>
-            <Box 
+            <Box
               onClick={() => setIsLegendOpen(!isLegendOpen)}
-              sx={{ 
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, 
-                mb: isLegendOpen ? 0.5 : 0, 
-                borderBottom: isLegendOpen ? `1px solid ${alpha(isDarkMode ? '#fff' : '#000', 0.1)}` : 'none', 
-                pb: isLegendOpen ? 1 : 0, 
-                cursor: 'pointer' 
+              sx={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1,
+                mb: isLegendOpen ? 0.5 : 0,
+                borderBottom: isLegendOpen ? `1px solid ${alpha(isDarkMode ? '#fff' : '#000', 0.1)}` : 'none',
+                pb: isLegendOpen ? 1 : 0,
+                cursor: 'pointer'
               }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#102c4a', 0.15) }}>
-                        <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
-                    </Box>
-                    <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: isDarkMode ? "#fff" : "text.primary", letterSpacing: "0.3px", textTransform: "uppercase" }}>
-                      Map Legend
-                    </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', bgcolor: alpha('#102c4a', 0.15) }}>
+                  <PinDropIcon sx={{ fontSize: 14, color: "#102c4a" }} />
                 </Box>
-                <Box sx={{ display: 'flex', color: isDarkMode ? "#aaa" : "text.secondary" }}>
-                    <NavigateNextIcon sx={{ fontSize: 18, transform: isLegendOpen ? "rotate(-90deg)" : "rotate(90deg)", transition: "transform 0.3s ease" }} />
-                </Box>
+                <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: isDarkMode ? "#fff" : "text.primary", letterSpacing: "0.3px", textTransform: "uppercase" }}>
+                  Map Legend
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', color: isDarkMode ? "#aaa" : "text.secondary" }}>
+                <NavigateNextIcon sx={{ fontSize: 18, transform: isLegendOpen ? "rotate(-90deg)" : "rotate(90deg)", transition: "transform 0.3s ease" }} />
+              </Box>
             </Box>
-            
+
             {isLegendOpen && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2, mt: 0.5 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
