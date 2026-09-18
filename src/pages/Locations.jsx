@@ -6147,11 +6147,13 @@ import {
   Flag as FlagIcon,
   Start as StartIcon,
   PinDrop as PinDropIcon,
-  Collections as CollectionsIcon,
   NavigateBefore as NavigateBeforeIcon,
   NavigateNext as NavigateNextIcon,
   CalendarToday as CalendarIcon,
   Refresh as RefreshIcon,
+  PlayArrow as PlayArrowIcon,
+  CameraAlt as CameraAltIcon,
+  LocationOn as LocationOnIcon,
 } from "@mui/icons-material";
 import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from "../redux/slices/userSlice";
 import Calendar from "react-calendar";
@@ -6317,15 +6319,26 @@ const getUniquePhotos = (photos) => {
 };
 
 // ─── Marker factories ──────────────────────────────────────────────────────────
+// ─── Clean Vector SVG Icons for Map Popups and Markers ────────────────────────
+const SVG_ICONS = {
+  start: `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  end: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`,
+  camera: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
+  clock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+  calendar: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+  pin: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+  chat: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+  expand: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`,
+};
+
 const makeStartIcon = (color, time, hasPhoto = false, size = 28) =>
   L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
       <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:2;">
-        <span style="font-size:${size / 2.8}px;line-height:1">🚀</span>
-        <span style="font-size:${size / 8}px;line-height:1;margin-top:1px">START</span>
+        <div style="display:flex;align-items:center;justify-content:center;width:14px;height:14px;">${SVG_ICONS.start}</div>
       </div>
-      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid ${color};z-index:1">
-        ${time}${hasPhoto ? " 📸" : ""}
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:1px 5px;border-radius:8px;font-size:7.5px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:600;">
+        ${time}
       </div>
     </div>`,
     className: "", iconSize: [size, size + 20], iconAnchor: [size / 2, size + 10],
@@ -6335,11 +6348,10 @@ const makeEndIcon = (color, time, hasPhoto = false, size = 28) =>
   L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
       <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${color};border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:2;">
-        <span style="font-size:${size / 2.8}px;line-height:1">🏁</span>
-        <span style="font-size:${size / 8}px;line-height:1;margin-top:1px">END</span>
+        <div style="display:flex;align-items:center;justify-content:center;width:14px;height:14px;">${SVG_ICONS.end}</div>
       </div>
-      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid ${color};z-index:1">
-        ${time}${hasPhoto ? " 📸" : ""}
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:1px 5px;border-radius:8px;font-size:7.5px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:600;">
+        ${time}
       </div>
     </div>`,
     className: "", iconSize: [size, size + 20], iconAnchor: [size / 2, size + 10],
@@ -6348,11 +6360,13 @@ const makeEndIcon = (color, time, hasPhoto = false, size = 28) =>
 const makePhotoIcon = (photoUrl, time, size = 28) =>
   L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FF9800,#F57C00);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);overflow:hidden;">
-        <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\'font-size:16px\\'>📸</span>'"/>
-        <span style="position:absolute;bottom:0;right:0;background:#FF9800;border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;font-size:7px;border:1px solid #fff;">📸</span>
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);overflow:hidden;">
+        <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'color:#fff;display:flex;align-items:center;justify-content:center;\\'>${SVG_ICONS.camera}</div>'"/>
+        <div style="position:absolute;bottom:0;right:0;background:#f59e0b;border-radius:50%;width:13px;height:13px;display:flex;align-items:center;justify-content:center;color:#fff;border:1px solid #fff;">
+          ${SVG_ICONS.camera}
+        </div>
       </div>
-      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:1px 4px;border-radius:8px;font-size:7px;white-space:nowrap;border:1px solid #FF9800;">
+      <div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:1px 5px;border-radius:8px;font-size:7.5px;white-space:nowrap;border:1px solid #f59e0b;font-weight:600;">
         ${time}
       </div>
     </div>`,
@@ -6362,32 +6376,39 @@ const makePhotoIcon = (photoUrl, time, size = 28) =>
 const makeStartWithPhotoIcon = (photoUrl, time, size = 34) =>
   L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#22c55e,#15803d);border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, #10b981, #059669);border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35);z-index:2;overflow:hidden;">
         <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;">
-          <span style="position:absolute;bottom:2px;right:2px;background:#22c55e;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;border:1px solid #fff;">🚀</span>
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;bottom:2px;right:2px;background:#10b981;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;color:#fff;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+            ${SVG_ICONS.start}
+          </div>
         </div>
       </div>
-      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:2px 6px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid #22c55e;z-index:1;font-weight:500;">
-        ${time} 📍 START
+      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#f8fafc;padding:2px 7px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid #10b981;z-index:1;font-weight:600;letter-spacing:0.3px;box-shadow:0 2px 5px rgba(0,0,0,0.3);display:flex;align-items:center;gap:3px;">
+        <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#10b981;"></span>
+        ${time} START
       </div>
     </div>`,
     className: "", iconSize: [size, size + 28], iconAnchor: [size / 2, size + 15],
   });
 
 const makeEndWithPhotoIcon = (photoUrl, time, color = "#ef4444", size = 34) => {
-  const gradientColor = color === "#22c55e" ? "linear-gradient(135deg,#22c55e,#15803d)" : "linear-gradient(135deg,#ef4444,#dc2626)";
-  const overlayColor = color === "#22c55e" ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)";
+  const gradientColor = color === "#22c55e" ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+  const overlayColor = color === "#22c55e" ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)";
+  const badgeBg = color === "#22c55e" ? "#10b981" : "#ef4444";
   return L.divIcon({
     html: `<div style="position:relative;width:${size}px;height:${size}px;">
-      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${gradientColor};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:${gradientColor};border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35);z-index:2;overflow:hidden;">
         <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:${overlayColor};display:flex;align-items:center;justify-content:center;">
-          <span style="position:absolute;bottom:2px;right:2px;background:${color};border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;border:1px solid #fff;">🏁</span>
+          <div style="position:absolute;bottom:2px;right:2px;background:${badgeBg};border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;color:#fff;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+            ${SVG_ICONS.end}
+          </div>
         </div>
       </div>
-      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:2px 6px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:500;">
-        ${time} 🏁 END
+      <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#f8fafc;padding:2px 7px;border-radius:12px;font-size:8px;white-space:nowrap;border:1px solid ${color};z-index:1;font-weight:600;letter-spacing:0.3px;box-shadow:0 2px 5px rgba(0,0,0,0.3);display:flex;align-items:center;gap:3px;">
+        <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${color};"></span>
+        ${time} END
       </div>
     </div>`,
     className: "", iconSize: [size, size + 28], iconAnchor: [size / 2, size + 15],
@@ -6403,7 +6424,7 @@ const makeMovingIcon = (color = "#102c4a", time, size = 24) =>
         <div style="position:absolute;top:-8px;left:-8px;width:${size + 16}px;height:${size + 16}px;border-radius:50%;background:${color}10;animation:liveRing3 1.6s ease-out infinite 0.8s;pointer-events:none;"></div>
         <div style="position:absolute;top:0;left:0;width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.28);animation:liveCore 1.2s ease-in-out infinite;z-index:2;"></div>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${Math.round(size / 3)}px;height:${Math.round(size / 3)}px;border-radius:50%;background:#fff;opacity:0.9;z-index:3;pointer-events:none;"></div>
-        <div style="position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:2px 8px;border-radius:12px;font-size:7px;white-space:nowrap;border:1px solid ${color};font-weight:600;letter-spacing:0.3px;z-index:4;pointer-events:none;">📍 ${time}</div>
+        <div style="position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:2px 8px;border-radius:12px;font-size:7.5px;white-space:nowrap;border:1px solid ${color};font-weight:600;letter-spacing:0.3px;z-index:4;pointer-events:none;">${time}</div>
         <style>
           @keyframes liveRing1{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.4);opacity:0}}
           @keyframes liveRing2{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.9);opacity:0}}
@@ -6954,37 +6975,38 @@ const Locations = () => {
     }
 
     if (startPoint && hasValidCoordinates(startPoint)) {
-      const popupContent = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #22c55e">
-      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-        <span style="font-size:16px">🚀</span>
+      const popupContent = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #f0fdf4, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+      <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 6px rgba(16,185,129,0.3);flex-shrink:0;">
+        ${SVG_ICONS.start}
       </div>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#1f2937">Start Point</div>
-        <div style="font-size:10px;color:#22c55e">Beginning of journey</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12.5px;font-weight:700;color:#0f172a;line-height:1.2;">Start Point</div>
+        <div style="font-size:10px;color:#059669;font-weight:500;">Beginning of journey</div>
       </div>
     </div>
-    <div style="padding:12px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-        <span style="font-size:11px;color:#6b7280">🕐</span>
-        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(startPoint.timestamp)}</span>
+    <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
+        <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(startPoint.timestamp)}</span>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
-        <span style="font-size:11px;color:#6b7280">📅</span>
-        <span style="font-size:11px;color:#374151">${fmtDate(startPoint.timestamp)}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.calendar}</span>
+        <span style="font-size:11.5px;color:#475569;font-weight:500;">${fmtDate(startPoint.timestamp)}</span>
       </div>
       ${startPoint.photo ? `
-      <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
-        <img src="${startPoint.photo}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${startPoint.photo}','_blank')"/>
+      <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+        <img src="${startPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${startPoint.photo}','_blank')"/>
       </div>
-      <div style="margin-top:8px;text-align:center">
-        <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+      <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+        ${SVG_ICONS.expand}
+        <span>Click image to view full size</span>
       </div>
       ` : ''}
     </div>
   </div>`;
 
-      const icon = startPoint.photo ? makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34) : makeStartIcon("#22c55e", fmtTime(startPoint.timestamp), false, 28);
+      const icon = startPoint.photo ? makeStartWithPhotoIcon(startPoint.photo, fmtTime(startPoint.timestamp), 34) : makeStartIcon("#10b981", fmtTime(startPoint.timestamp), false, 28);
       const m = L.marker([startPoint.lat, startPoint.lng], {
         icon,
         zIndexOffset: 1000
@@ -6998,8 +7020,8 @@ const Locations = () => {
       markerRefs.current.set("start", m);
     } else if (validLocations.length > 0) {
       const fb = validLocations[0];
-      const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:#22c55e;color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🚀 START POINT</b></div><div style="font-size:10px"><b>Time:</b> ${fmtTime(fb.timestamp)}</div></div>`;
-      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#22c55e", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+      const popupContent = `<div style="min-width:180px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#f0fdf4;border-radius:6px 6px 0 0;margin:-13px -19px 8px -19px;"><div style="width:22px;height:22px;border-radius:6px;background:#10b981;display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.start}</div><b style="font-size:11.5px;color:#0f172a;">Start Point</b></div><div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(fb.timestamp)}</b></div></div></div>`;
+      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#10b981", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
       markers.current.push(m); markerRefs.current.set("start", m);
     }
 
@@ -7102,39 +7124,40 @@ const Locations = () => {
     } else if (!isActive) {
       if (endPoint && hasValidCoordinates(endPoint)) {
         const isOnline = endPoint.isOnline === true;
-        const markerColor = isOnline ? "#22c55e" : "#ef4444";
-        const themeColor = isOnline ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+        const markerColor = isOnline ? "#10b981" : "#ef4444";
+        const themeColor = isOnline ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)";
         const statusLabel = isOnline ? "Online" : "Journey completed";
-        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation: pulse 1s infinite; margin-right: 4px;"></span>` : "";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;animation: pulse 1s infinite; margin-right: 4px;"></span>` : "";
 
-        const popupContent = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid ${markerColor}">
-      <div style="width:32px;height:32px;border-radius:50%;background:${themeColor};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-        <span style="font-size:16px">🏁</span>
+        const popupContent = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #fef2f2, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+      <div style="width:28px;height:28px;border-radius:8px;background:${themeColor};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.15);color:#fff;">
+        ${SVG_ICONS.end}
       </div>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#1f2937">End Point</div>
-        <div style="font-size:10px;color:${markerColor};display:flex;align-items:center;gap:4px">
+        <div style="font-size:12.5px;font-weight:700;color:#0f172a;line-height:1.2;">End Point</div>
+        <div style="font-size:10px;color:${markerColor};display:flex;align-items:center;gap:4px;font-weight:500;">
           ${statusDot}
           ${statusLabel}
         </div>
       </div>
     </div>
-    <div style="padding:12px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-        <span style="font-size:11px;color:#6b7280">🕐</span>
-        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(endPoint.timestamp)}</span>
+    <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
+        <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(endPoint.timestamp)}</span>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:12px">
-        <span style="font-size:11px;color:#6b7280;flex-shrink:0">📍</span>
-        <span style="font-size:11px;color:#4b5563;word-wrap:break-word;word-break:break-word;white-space:normal;line-height:1.4">${endPoint.address || "Address not available"}</span>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <span style="display:flex;align-items:center;color:#64748b;margin-top:2px;flex-shrink:0;">${SVG_ICONS.pin}</span>
+        <span style="font-size:11px;color:#475569;line-height:1.4;word-wrap:break-word;word-break:break-word;">${endPoint.address || "Address not available"}</span>
       </div>
       ${endPoint.photo ? `
-      <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
-        <img src="${endPoint.photo}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${endPoint.photo}','_blank')"/>
+      <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+        <img src="${endPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${endPoint.photo}','_blank')"/>
       </div>
-      <div style="margin-top:8px;text-align:center">
-        <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+      <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+        ${SVG_ICONS.expand}
+        <span>Click image to view full size</span>
       </div>
       ` : ''}
     </div>
@@ -7155,13 +7178,13 @@ const Locations = () => {
       } else if (validLocations.length > 1) {
         const lastLoc = validLocations[validLocations.length - 1];
         const isOnline = lastLoc.isOnline === true;
-        const markerColor = isOnline ? "#22c55e" : "#ef4444";
-        const themeColor = isOnline ? "linear-gradient(135deg,#22c55e,#16a34a)" : "linear-gradient(135deg,#ef4444,#dc2626)";
+        const markerColor = isOnline ? "#10b981" : "#ef4444";
+        const themeColor = isOnline ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)";
         const statusLabel = isOnline ? "Online" : "Journey completed";
-        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation: pulse 1s infinite; margin-right:4px;"></span>` : "";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;animation: pulse 1s infinite; margin-right:4px;"></span>` : "";
 
-        const popupContent = `<div style="min-width:160px;max-width:200px;"><div style="background:${themeColor};color:white;padding:5px 7px;border-radius:5px;margin-bottom:6px;"><b style="font-size:11px">🏁 END POINT</b></div><div style="font-size:10px;display:flex;align-items:center;margin-bottom:4px;">${statusDot}<b>Status:</b> ${statusLabel}</div><div style="font-size:10px"><b>Time:</b> ${fmtTime(lastLoc.timestamp)}</div><div style="font-size:10px"><b>Address:</b> ${getAddress(lastLoc)}</div></div>`;
-        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon(markerColor, fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+        const popupContent = `<div style="min-width:180px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#fef2f2;border-radius:6px 6px 0 0;margin:-13px -19px 8px -19px;"><div style="width:22px;height:22px;border-radius:6px;background:${markerColor};display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.end}</div><b style="font-size:11.5px;color:#0f172a;">End Point</b></div><div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;"><div style="font-size:10.5px;display:flex;align-items:center;">${statusDot}<b>Status:</b>&nbsp;${statusLabel}</div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(lastLoc.timestamp)}</b></div><div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#475569;">${SVG_ICONS.pin} <span style="line-height:1.3;">${getAddress(lastLoc)}</span></div></div></div>`;
+        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon(markerColor, fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 220, minWidth: 160 }).addTo(mapInstance.current);
         markers.current.push(m); markerRefs.current.set("end", m);
       }
     }
@@ -7180,33 +7203,33 @@ const Locations = () => {
         const markerKey = isLast ? "end" : `photo_${idx}`;
         const label = isLast ? "Latest Photo" : "Route Photo";
 
-        // Modern, clean photo popup design with time & remark on same line
-        const popup = `<div style="min-width:200px;font-family: system-ui, -apple-system, sans-serif;">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid #f59e0b">
-        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ea580c);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-          <span style="font-size:16px">📸</span>
+        const popup = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #fffbeb, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(245,158,11,0.3);color:#fff;">
+          ${SVG_ICONS.camera}
         </div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#1f2937">${label}</div>
-          <div style="font-size:10px;color:#f59e0b">${idx + 1} of ${sortedPhotos.length}</div>
+          <div style="font-size:12.5px;font-weight:700;color:#0f172a;line-height:1.2;">${label}</div>
+          <div style="font-size:10px;color:#d97706;font-weight:500;">Photo ${idx + 1} of ${sortedPhotos.length}</div>
         </div>
       </div>
-      <div style="padding:12px">
-        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-            <span style="font-size:11px;color:#6b7280">🕐</span>
-            <span style="font-size:11px;color:#374151;font-weight:500;white-space:nowrap">${fmtTime(photo.timestamp)}</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:4px;flex:1;min-width:120px">
-            <span style="font-size:11px;color:#6b7280;flex-shrink:0">💬</span>
-            <span style="font-size:11px;color:#4b5563;word-wrap:break-word;word-break:break-word;white-space:normal;line-height:1.4;font-style:${photo.remark ? 'normal' : 'italic'}">${photo.remark || "No remark"}</span>
-          </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
+          <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(photo.timestamp)}</span>
         </div>
-        <div style="margin-top:8px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s">
-          <img src="${photo.url}" style="width:100%;max-height:160px;object-fit:cover;display:block" onclick="window.open('${photo.url}','_blank')"/>
+        ${photo.remark ? `
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <span style="display:flex;align-items:center;color:#64748b;margin-top:2px;flex-shrink:0;">${SVG_ICONS.chat}</span>
+          <span style="font-size:11px;color:#475569;line-height:1.4;word-wrap:break-word;word-break:break-word;">${photo.remark}</span>
         </div>
-        <div style="margin-top:8px;text-align:center">
-          <span style="font-size:9px;color:#9ca3af">📱 Click image to view full size</span>
+        ` : ''}
+        <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+          <img src="${photo.url}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${photo.url}','_blank')"/>
+        </div>
+        <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+          ${SVG_ICONS.expand}
+          <span>Click image to view full size</span>
         </div>
       </div>
     </div>`;
@@ -7413,14 +7436,14 @@ const Locations = () => {
         >
           {sessionPhotos.map((photo, index) => {
             const isStart = photo.type === "start", isEnd = photo.type === "end";
-            const borderColor = isStart ? "#22c55e" : isEnd ? "#ef4444" : "#FF9800";
+            const borderColor = isStart ? "#10b981" : isEnd ? "#ef4444" : "#f59e0b";
             return (
               <Box key={photo.key || index} onClick={() => handlePhotoClick(photo)} sx={{ flexShrink: 0, width: 54, height: 54, borderRadius: 1.5, overflow: "hidden", cursor: "pointer", border: `2px solid ${borderColor}`, position: "relative", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "scale(1.08)", boxShadow: `0 4px 12px ${alpha(borderColor, 0.4)}` } }}>
                 <img src={photo.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>
-                  {isStart ? "🚀" : isEnd ? "🏁" : "📸"}
+                <Box sx={{ position: "absolute", top: 2, right: 2, bgcolor: borderColor, color: "#fff", borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {isStart ? <PlayArrowIcon sx={{ fontSize: 9 }} /> : isEnd ? <FlagIcon sx={{ fontSize: 8 }} /> : <CameraAltIcon sx={{ fontSize: 8 }} />}
                 </Box>
-                <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(0,0,0,0.65)", color: "white", fontSize: "6px", textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
+                <Typography variant="caption" sx={{ position: "absolute", bottom: 0, left: 0, right: 0, bgcolor: "rgba(15,23,42,0.75)", color: "white", fontSize: "6.5px", fontWeight: 500, textAlign: "center", py: 0.15, lineHeight: 1.4 }}>
                   {fmtTime(photo.timestamp)}
                 </Typography>
               </Box>
@@ -7434,24 +7457,98 @@ const Locations = () => {
   const renderPhotoModal = () => {
     if (!photoModalOpen || selectedPhotoIndex === null) return null;
     const currentPhoto = sessionPhotos[selectedPhotoIndex];
+    const isStart = currentPhoto?.type === "start";
+    const isEnd = currentPhoto?.type === "end";
+    const typeLabel = isStart ? "Start Point" : isEnd ? "End Point" : `Route Photo ${(currentPhoto?.idx ?? selectedPhotoIndex) + 1}`;
+    const badgeColor = isStart ? "#10b981" : isEnd ? "#ef4444" : "#f59e0b";
+
     const handleNext = () => setSelectedPhotoIndex((prev) => (prev + 1) % sessionPhotos.length);
     const handlePrev = () => setSelectedPhotoIndex((prev) => (prev - 1 + sessionPhotos.length) % sessionPhotos.length);
     return (
       <Modal open={photoModalOpen} onClose={() => setPhotoModalOpen(false)} closeAfterTransition sx={{ zIndex: 1300 }}>
         <Fade in={photoModalOpen}>
-          <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "90%", maxWidth: 800, bgcolor: "black", borderRadius: 2, boxShadow: 24, overflow: "hidden" }}>
-            <Box sx={{ position: "relative" }}>
-              <IconButton onClick={() => setPhotoModalOpen(false)} sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, bgcolor: "rgba(0,0,0,0.5)", color: "white" }}><CloseIcon /></IconButton>
-              <img src={currentPhoto?.url} alt="Full size" style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }} />
-              <IconButton onClick={handlePrev} sx={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white" }}><NavigateBeforeIcon /></IconButton>
-              <IconButton onClick={handleNext} sx={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(0,0,0,0.5)", color: "white" }}><NavigateNextIcon /></IconButton>
+          <Box sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "92%", sm: "85%", md: 720 },
+            bgcolor: "#0f172a",
+            borderRadius: 3,
+            boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
+            overflow: "hidden",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}>
+            <Box sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2.5,
+              py: 1.5,
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              bgcolor: "rgba(15,23,42,0.9)",
+            }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                <Box sx={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  bgcolor: alpha(badgeColor, 0.2),
+                  color: badgeColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                  {isStart ? <PlayArrowIcon sx={{ fontSize: 14 }} /> : isEnd ? <FlagIcon sx={{ fontSize: 14 }} /> : <CameraAltIcon sx={{ fontSize: 14 }} />}
+                </Box>
+                <Typography sx={{ fontSize: "0.85rem", fontWeight: 700, color: "#f8fafc" }}>
+                  {typeLabel}
+                </Typography>
+                <Chip
+                  label={`${selectedPhotoIndex + 1} / ${sessionPhotos.length}`}
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    color: "#94a3b8"
+                  }}
+                />
+              </Box>
+              <IconButton
+                onClick={() => setPhotoModalOpen(false)}
+                size="small"
+                sx={{ color: "#94a3b8", "&:hover": { color: "#fff", bgcolor: "rgba(255,255,255,0.1)" } }}
+              >
+                <CloseIcon sx={{ fontSize: 18 }} />
+              </IconButton>
             </Box>
-            <Box sx={{ p: 2, bgcolor: "black", color: "white" }}>
-              <Typography variant="caption" display="block" sx={{ mb: 0.5 }}>
-                {currentPhoto?.type === "start" ? "🚀 Start Point" : currentPhoto?.type === "end" ? "🏁 End Point" : `📸 Route Photo ${(currentPhoto?.idx ?? selectedPhotoIndex) + 1}`}
+            <Box sx={{ position: "relative", bgcolor: "#020617", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300, maxHeight: "65vh" }}>
+              <img src={currentPhoto?.url} alt="Full size" style={{ width: "100%", maxHeight: "65vh", objectFit: "contain", display: "block" }} />
+              {sessionPhotos.length > 1 && (
+                <>
+                  <IconButton onClick={handlePrev} sx={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(15,23,42,0.7)", color: "white", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)", "&:hover": { bgcolor: "rgba(15,23,42,0.9)" } }}><NavigateBeforeIcon /></IconButton>
+                  <IconButton onClick={handleNext} sx={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", bgcolor: "rgba(15,23,42,0.7)", color: "white", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)", "&:hover": { bgcolor: "rgba(15,23,42,0.9)" } }}><NavigateNextIcon /></IconButton>
+                </>
+              )}
+            </Box>
+            <Box sx={{ p: 2, bgcolor: "#0f172a", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+              <Typography sx={{ fontSize: "0.75rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: 0.75 }}>
+                <CalendarIcon sx={{ fontSize: 13, color: "#64748b" }} />
+                {fmtDateTime(currentPhoto?.timestamp)}
               </Typography>
-              <Typography variant="caption" display="block" color="text.secondary">{fmtDateTime(currentPhoto?.timestamp)}</Typography>
-              <Typography variant="caption" display="block" color="text.secondary">📍 {currentPhoto?.address || "Address not available"}</Typography>
+              {currentPhoto?.address && (
+                <Typography noWrap sx={{ fontSize: "0.72rem", color: "#cbd5e1", mt: 0.5, display: "flex", alignItems: "center", gap: 0.75 }}>
+                  <LocationOnIcon sx={{ fontSize: 13, color: "#ef4444", flexShrink: 0 }} />
+                  {currentPhoto.address}
+                </Typography>
+              )}
+              {currentPhoto?.remark && (
+                <Typography sx={{ fontSize: "0.72rem", color: "#cbd5e1", mt: 0.5 }}>
+                  Note: {currentPhoto.remark}
+                </Typography>
+              )}
             </Box>
           </Box>
         </Fade>
