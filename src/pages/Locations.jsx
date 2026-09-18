@@ -6154,6 +6154,13 @@ import {
   PlayArrow as PlayArrowIcon,
   CameraAlt as CameraAltIcon,
   LocationOn as LocationOnIcon,
+  Collections as CollectionsIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  DragIndicator as DragIndicatorIcon,
+  Info as InfoIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
 } from "@mui/icons-material";
 import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from "../redux/slices/userSlice";
 import Calendar from "react-calendar";
