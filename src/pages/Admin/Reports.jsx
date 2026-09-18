@@ -91,37 +91,42 @@ const SummaryCards = ({ summary, loading }) => {
     },
   ];
 
-  // Helper function to format duration text for different screen sizes
+  // Helper function to format duration text
   const formatDurationText = (durationText) => {
-    if (!durationText) return "0 seconds";
+    if (!durationText) return "0 min";
     
-    // For mobile, shorten the text
-    if (isMobile) {
-      // Replace "hours" with "h", "minutes" with "m", "seconds" with "s"
-      let shortened = durationText
-        .replace(/hours?/g, 'h')
-        .replace(/minutes?/g, 'm')
-        .replace(/seconds?/g, 's')
-        .replace(/\s+/g, ' ');
+    let formatted = durationText
+      .replace(/hours?/g, 'hr')
+      .replace(/minutes?/g, 'min')
+      .replace(/\s*\d+\s*seconds?/g, '')
+      .trim();
       
-      // Further shorten if still too long
-      if (shortened.length > 20) {
-        // Remove spaces between units
-        shortened = shortened.replace(/\s/g, '');
-      }
-      
-      return shortened;
-    }
+    formatted = formatted || "0 min";
+    const parts = formatted.split(' ');
     
-    // For tablet, slightly shorten
-    if (isTablet) {
-      return durationText
-        .replace(/hours?/g, 'h')
-        .replace(/minutes?/g, 'm')
-        .replace(/seconds?/g, 's');
-    }
-    
-    return durationText;
+    return (
+      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'baseline', flexWrap: 'wrap' }}>
+        {parts.map((part, index) => {
+          const isNumber = !isNaN(part);
+          return (
+            <Typography
+              key={index}
+              component="span"
+              sx={{
+                fontSize: isNumber ? 'inherit' : '0.65em',
+                fontWeight: isNumber ? 'inherit' : 600,
+                opacity: isNumber ? 1 : 0.8,
+                letterSpacing: isNumber ? 'normal' : '0.5px',
+                textTransform: 'uppercase',
+                ml: index === 0 ? 0 : (isNumber ? 1.5 : 0.4),
+              }}
+            >
+              {part}
+            </Typography>
+          );
+        })}
+      </Box>
+    );
   };
 
   return (
@@ -200,10 +205,10 @@ const SummaryCards = ({ summary, loading }) => {
                 sx={{
                   color: card.color,
                   fontSize: {
-                    xs: card.title === "Total Duration" ? "0.85rem" : "1rem",
-                    sm: card.title === "Total Duration" ? "0.9rem" : "1.25rem",
-                    md: card.title === "Total Duration" ? "1rem" : "1.5rem",
-                    lg: card.title === "Total Duration" ? "1.1rem" : "1.75rem"
+                    xs: "1.1rem",
+                    sm: "1.25rem",
+                    md: "1.5rem",
+                    lg: "1.75rem"
                   },
                   lineHeight: 1.2,
                   wordBreak: 'break-word',

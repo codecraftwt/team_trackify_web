@@ -28,6 +28,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import PaymentsPlan from './pages/Admin/PaymentsPlan';
 import Reports from './pages/Admin/Reports';
 import AdminProfile from './pages/Admin/Profile';
+import ShiftManagement from './pages/Admin/ShiftManagement';
 
 // Super Admin Pages (role_id: 2)
 import SuperAdminDashboard from './pages/SuperAdmin/SuperAdminDashboard';
@@ -129,6 +130,7 @@ function App() {
                 <Route path="/admin/payments-plans" element={<PaymentsPlan />} />
                 <Route path="/admin/transactionhistory" element={<TransactionHistory />} />
                 <Route path="/admin/reports" element={<Reports />} />
+                <Route path="/admin/shifts" element={<ShiftManagement />} />
                 <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/admin/add-User" element={<AddUser />} />
                 <Route path="/reset-password-profile" element={<ResetPasswordProfile />} />
