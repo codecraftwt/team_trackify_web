@@ -39,6 +39,7 @@ import {
   Login as LoginIcon,
   ExitToApp as ExitToAppIcon,
   CurrencyRupee as CurrencyRupeeIcon,
+  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { logout, logoutUser, stopImpersonation } from '../../redux/slices/authSlice';
 import LogoutModal from '../models/LogoutModal';
@@ -261,6 +262,7 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onClose, isMobile = fa
   const adminMenuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
     { text: 'User Management', icon: <PeopleIcon />, path: '/user' },
+    { text: 'Shift Management', icon: <ScheduleIcon />, path: '/admin/shifts' },
     { text: 'Payment Plans', icon: <PaymentIcon />, path: '/admin/payments-plans' },
     { text: 'Transaction History', icon: <ReportIcon />, path: '/admin/transactionhistory' },
     { text: 'Reports', icon: <ReceiptIcon />, path: '/admin/reports' },

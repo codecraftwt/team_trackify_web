@@ -39,6 +39,7 @@ import {
   TableHead,
   TableRow,
   Pagination,
+  InputAdornment,
 } from "@mui/material";
 import {
   CreditCard as CreditCardIcon,
@@ -111,41 +112,41 @@ const PlanCardSkeleton = () => {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          borderRadius: 2.5,
-          border: "2px solid",
+          borderRadius: 2,
+          border: "1px solid",
           borderColor: alpha(theme.palette.divider, 0.6),
           bgcolor: "#ffffff",
-          boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+          boxShadow: "0 2px 12px rgba(15, 23, 42, 0.04)",
         }}
       >
-        <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        <CardContent sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}>
           {/* Header Row: Icon Avatar + Title/Subtitle + Duration Chip */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
               <Skeleton
                 variant="rounded"
-                width={40}
-                height={40}
+                width={32}
+                height={32}
                 sx={{ borderRadius: "50%", bgcolor: alpha(theme.palette.primary.main, 0.08) }}
               />
               <Box>
-                <Skeleton variant="text" width={110} height={24} sx={{ borderRadius: "4px" }} />
-                <Skeleton variant="text" width={65} height={16} sx={{ borderRadius: "4px", mt: 0.3 }} />
+                <Skeleton variant="text" width={90} height={20} sx={{ borderRadius: "4px" }} />
+                <Skeleton variant="text" width={55} height={14} sx={{ borderRadius: "4px", mt: 0.2 }} />
               </Box>
             </Box>
             <Skeleton
               variant="rounded"
-              width={65}
-              height={24}
-              sx={{ borderRadius: "12px", bgcolor: alpha(theme.palette.primary.main, 0.08) }}
+              width={55}
+              height={20}
+              sx={{ borderRadius: "10px", bgcolor: alpha(theme.palette.primary.main, 0.08) }}
             />
           </Box>
 
           {/* Price & Duration */}
-          <Box sx={{ mb: 2.5 }}>
-            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-              <Skeleton variant="rounded" width={110} height={38} sx={{ borderRadius: "6px" }} />
-              <Skeleton variant="text" width={48} height={20} />
+          <Box sx={{ mb: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8 }}>
+              <Skeleton variant="rounded" width={90} height={28} sx={{ borderRadius: "6px" }} />
+              <Skeleton variant="text" width={40} height={18} />
             </Box>
           </Box>
 
@@ -154,51 +155,51 @@ const PlanCardSkeleton = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1.2,
-              mb: 2.5,
-              p: 1.5,
+              gap: 1,
+              mb: 1.5,
+              p: 1,
               bgcolor: "background.default",
-              borderRadius: 2,
+              borderRadius: 1.5,
               border: "1px solid",
               borderColor: alpha(theme.palette.divider, 0.4),
             }}
           >
-            <Skeleton variant="circular" width={18} height={18} sx={{ flexShrink: 0 }} />
-            <Skeleton variant="text" width="65%" height={18} />
+            <Skeleton variant="circular" width={16} height={16} sx={{ flexShrink: 0 }} />
+            <Skeleton variant="text" width="60%" height={16} />
           </Box>
 
-          <Divider sx={{ mb: 2.5, borderColor: alpha(theme.palette.divider, 0.5) }} />
+          <Divider sx={{ mb: 1.5, borderColor: alpha(theme.palette.divider, 0.5) }} />
 
           {/* Features Section */}
           <Box sx={{ flexGrow: 1 }}>
-            <Skeleton variant="text" width={100} height={18} sx={{ mb: 1.5, fontWeight: 700 }} />
-            <Stack spacing={1.2}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
-                <Skeleton variant="text" width="85%" height={16} />
+            <Skeleton variant="text" width={90} height={16} sx={{ mb: 1, fontWeight: 700 }} />
+            <Stack spacing={0.8}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                <Skeleton variant="circular" width={13} height={13} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="85%" height={14} />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
-                <Skeleton variant="text" width="70%" height={16} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                <Skeleton variant="circular" width={13} height={13} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="70%" height={14} />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
-                <Skeleton variant="text" width="90%" height={16} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                <Skeleton variant="circular" width={13} height={13} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="90%" height={14} />
               </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Skeleton variant="circular" width={15} height={15} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
-                <Skeleton variant="text" width="60%" height={16} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+                <Skeleton variant="circular" width={13} height={13} sx={{ bgcolor: alpha(theme.palette.success.main, 0.2), flexShrink: 0 }} />
+                <Skeleton variant="text" width="60%" height={14} />
               </Box>
             </Stack>
           </Box>
         </CardContent>
 
         {/* Action Button */}
-        <CardActions sx={{ p: 3, pt: 0 }}>
+        <CardActions sx={{ p: 2, pt: 0 }}>
           <Skeleton
             variant="rounded"
             width="100%"
-            height={42}
+            height={34}
             sx={{ borderRadius: 1.5, bgcolor: alpha(theme.palette.primary.main, 0.12) }}
           />
         </CardActions>
@@ -210,11 +211,13 @@ const PlanCardSkeleton = () => {
 // ─────────────────────────────────────────────────────────────
 // Custom Plan Popup
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Custom Plan Popup (matching Pricing page modal UI)
+// ─────────────────────────────────────────────────────────────
 const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, errors, isCreating, isEditing }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { basePrice, priceHistoryLoading } = useSelector((state) => state.plan || {});
-  const durationUnits = ["months", "years"];
 
   useEffect(() => {
     if (open && !basePrice) dispatch(getPriceHistory());
@@ -235,10 +238,10 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
     const minUsers = parseInt(planData.minUsers) || 0;
     const maxUsers = parseInt(planData.maxUsers) || 0;
     const durationValue = parseInt(planData.durationValue) || 0;
-    const durationUnit = planData.durationUnit;
+    const durationUnit = planData.durationUnit || "months";
     if (!minUsers || !maxUsers || !durationValue || !durationUnit) return 0;
     const userCount = maxUsers || minUsers || 1;
-    const currentBasePrice = basePrice;
+    const currentBasePrice = basePrice || 100;
     let totalMonths = 0;
     switch (durationUnit?.toLowerCase()) {
       case "month":
@@ -259,76 +262,226 @@ const CustomPlanPopup = ({ open, onClose, onSubmit, planData, setPlanData, error
   const currentBasePrice = basePrice || 100;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-      <DialogTitle
-        sx={{
-          color: "text.primary",
-          py: 2,
-          px: 3,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-        }}
-      >
-        <BuildIcon />
-        <Typography variant="h6" fontWeight={600}>
-          {isEditing ? "Edit Custom Plan" : "Create Custom Plan"}
-        </Typography>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+          overflow: "hidden",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+        },
+      }}
+    >
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1, pt: 3, px: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: alpha(theme.palette.primary.main, 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BuildIcon sx={{ color: theme.palette.primary.main }} />
+          </Box>
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#1a1a1a', fontSize: '1.25rem', letterSpacing: '-0.01em' }}>
+              {isEditing ? "Edit Custom Plan" : "Create Custom Plan"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
+              Configure your team size and subscription duration
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton onClick={onClose} sx={{ border: `1px solid ${alpha(theme.palette.divider, 0.8)}`, bgcolor: 'transparent', '&:hover': { bgcolor: alpha(theme.palette.divider, 0.2) } }}>
+          <CloseIcon fontSize="small" sx={{ color: '#1a1a1a' }} />
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
-        <Box component="form">
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Min Users" name="minUsers" type="number" value={planData.minUsers} onChange={handleChange} error={!!errors.minUsers} helperText={errors.minUsers} required size="small" InputProps={{ inputProps: { min: 1 } }} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Max Users" name="maxUsers" type="number" value={planData.maxUsers} onChange={handleChange} error={!!errors.maxUsers} helperText={errors.maxUsers} required size="small" InputProps={{ inputProps: { min: 1 } }} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Duration" name="durationValue" type="number" value={planData.durationValue} onChange={handleChange} error={!!errors.durationValue} helperText={errors.durationValue} required size="small" InputProps={{ inputProps: { min: 1 } }} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Duration Unit</InputLabel>
-                <Select name="durationUnit" value={planData.durationUnit} onChange={handleChange} label="Duration Unit">
-                  {durationUnits.map((unit) => (
-                    <MenuItem key={unit} value={unit}>{unit}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {planData.minUsers && planData.maxUsers && planData.durationValue && planData.durationUnit && (
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, bgcolor: "background.default", borderRadius: 2, border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}` }}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>Estimated Price:</Typography>
-                  {priceHistoryLoading ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <>
-                      <Typography variant="h5" fontWeight={700} color="primary.main">₹{estimatedPrice.toLocaleString()}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Based on {planData.maxUsers} users × ₹{currentBasePrice} (base price) × {planData.durationValue} {planData.durationUnit}
-                      </Typography>
-                    </>
-                  )}
-                </Paper>
-              </Grid>
-            )}
+      <DialogContent sx={{ p: 3, px: 4 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>
+              Min Users <span style={{ color: '#ff4d4f' }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              name="minUsers"
+              type="number"
+              value={planData.minUsers || ""}
+              onChange={handleChange}
+              error={!!errors.minUsers}
+              helperText={errors.minUsers}
+              size="medium"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PeopleIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                  </InputAdornment>
+                ),
+                inputProps: { min: 1 },
+                sx: { borderRadius: 2, bgcolor: '#ffffff' },
+              }}
+            />
           </Grid>
-        </Box>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>
+              Max Users <span style={{ color: '#ff4d4f' }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              name="maxUsers"
+              type="number"
+              value={planData.maxUsers || ""}
+              onChange={handleChange}
+              error={!!errors.maxUsers}
+              helperText={errors.maxUsers}
+              size="medium"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PeopleIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                  </InputAdornment>
+                ),
+                inputProps: { min: 1 },
+                sx: { borderRadius: 2, bgcolor: '#ffffff' },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>
+              Duration <span style={{ color: '#ff4d4f' }}>*</span>
+            </Typography>
+            <TextField
+              fullWidth
+              name="durationValue"
+              type="number"
+              value={planData.durationValue || ""}
+              onChange={handleChange}
+              error={!!errors.durationValue}
+              helperText={errors.durationValue}
+              size="medium"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                  </InputAdornment>
+                ),
+                inputProps: { min: 1 },
+                sx: { borderRadius: 2, bgcolor: '#ffffff' },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={700} color="#1a1a1a" mb={1}>
+              Duration Unit
+            </Typography>
+            <TextField
+              select
+              fullWidth
+              name="durationUnit"
+              value={planData.durationUnit || "months"}
+              onChange={handleChange}
+              size="medium"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CalendarIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 2, bgcolor: '#ffffff' },
+              }}
+            >
+              <MenuItem value="months">months</MenuItem>
+              <MenuItem value="years">years</MenuItem>
+            </TextField>
+          </Grid>
+
+          {planData.minUsers && planData.maxUsers && planData.durationValue && (
+            <Grid item xs={12} sx={{ mt: 1 }}>
+              <Box sx={{ p: 3, bgcolor: '#f4f9fd', borderRadius: 3, border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}` }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                  <Typography variant="body1" fontWeight={600} color="text.secondary">
+                    Estimated Price:
+                  </Typography>
+                  <Chip
+                    label="DYNAMIC PRICING"
+                    size="small"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      color: theme.palette.primary.main,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      borderRadius: 1.5,
+                      px: 0.5,
+                    }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
+                  <Typography variant="h3" fontWeight={800} sx={{ color: '#1a1a1a', mr: 1, letterSpacing: '-0.02em' }}>
+                    ₹{estimatedPrice.toLocaleString()}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" fontWeight={500}>
+                    /{planData.durationValue} {planData.durationUnit || "months"}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: '0.95rem' }}>
+                  Based on {planData.maxUsers} users × ₹{currentBasePrice} (base price) × {planData.durationValue} {planData.durationUnit || "months"}
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} />
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Flexible user limits
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} />
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Custom duration settings
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CheckCircleIcon sx={{ color: '#ff6b6b', fontSize: 20 }} />
+                    <Typography variant="body2" fontWeight={600} color="text.secondary">
+                      Personalized support
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, pt: 0, gap: 1 }}>
-        <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 2, flex: 1, py: 1 }}>Cancel</Button>
+      <DialogActions sx={{ p: 4, pt: 1, gap: 2 }}>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{
+            borderRadius: 2,
+            flex: 1,
+            py: 1.5,
+            fontWeight: 700,
+            fontSize: '1rem',
+            borderColor: alpha(theme.palette.divider, 0.8),
+            color: 'text.secondary',
+          }}
+        >
+          Cancel
+        </Button>
         <Button
           onClick={onSubmit}
           variant="contained"
           disabled={isCreating}
-          sx={{ flex: 1, py: 1, borderRadius: 2, bgcolor: theme.palette.primary.main }}
+          sx={{
+            flex: 1,
+            py: 1.5,
+            fontSize: '1rem',
+            borderRadius: 2,
+            bgcolor: theme.palette.primary.dark,
+            fontWeight: 700,
+            boxShadow: `0 8px 16px -4px ${alpha(theme.palette.primary.dark, 0.4)}`,
+          }}
         >
-          {isCreating ? <CircularProgress size={24} /> : isEditing ? "Update Plan" : "Create Plan"}
+          {isCreating ? <CircularProgress size={24} color="inherit" /> : isEditing ? "Update Plan" : "Create Plan"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -563,17 +716,17 @@ const PaymentPlans = () => {
     const parts = description.split(/\s*-\s+/).map((p) => p.trim()).filter(Boolean);
     if (parts.length <= 1) {
       return (
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.74rem", mb: 1.5, display: "block" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", mb: 1, display: "block" }}>
           {description}
         </Typography>
       );
     }
     return (
-      <Box sx={{ mb: 1.5, textAlign: "left", width: "100%" }}>
+      <Box sx={{ mb: 1, textAlign: "left", width: "100%" }}>
         {parts.map((part, idx) => (
-          <Box key={idx} sx={{ display: "flex", alignItems: "flex-start", gap: 0.75, mb: 0.5 }}>
-            <CheckIcon sx={{ color: theme.palette.success.main, fontSize: 13, mt: 0.25, flexShrink: 0 }} />
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.72rem", lineHeight: 1.3 }}>
+          <Box key={idx} sx={{ display: "flex", alignItems: "flex-start", gap: 0.6, mb: 0.35 }}>
+            <CheckIcon sx={{ color: theme.palette.success.main, fontSize: 13, mt: 0.2, flexShrink: 0 }} />
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", lineHeight: 1.3 }}>
               {part}
             </Typography>
           </Box>
@@ -874,8 +1027,8 @@ const PaymentPlans = () => {
         minUsers: parseInt(customPlanData.minUsers),
         maxUsers: parseInt(customPlanData.maxUsers),
         durationValue: parseInt(customPlanData.durationValue),
-        durationUnit: customPlanData.durationUnit,
-        status: customPlanData.status,
+        durationUnit: customPlanData.durationUnit || "months",
+        status: customPlanData.status || "active",
       };
       if (isEditingCustomPlan && editingPlanId) {
         await dispatch(updateCustomPlan({ planId: editingPlanId, data: payload })).unwrap();
@@ -929,11 +1082,11 @@ const PaymentPlans = () => {
       setEditingPlanId(userCustomPlan._id);
       setIsEditingCustomPlan(true);
       setCustomPlanData({
-        minUsers: userCustomPlan.minUsers.toString(),
-        maxUsers: userCustomPlan.maxUsers.toString(),
-        durationValue: userCustomPlan.durationValue.toString(),
-        durationUnit: userCustomPlan.durationUnit,
-        status: userCustomPlan.status,
+        minUsers: (userCustomPlan.minUsers || 1).toString(),
+        maxUsers: (userCustomPlan.maxUsers || "").toString(),
+        durationValue: (userCustomPlan.durationValue || "").toString(),
+        durationUnit: userCustomPlan.durationUnit || "months",
+        status: userCustomPlan.status || "active",
       });
       setCustomPlanPopupOpen(true);
       setCustomPlanErrors({});
@@ -947,7 +1100,7 @@ const PaymentPlans = () => {
   };
 
   const resetCustomPlanForm = () => {
-    setCustomPlanData({ minUsers: "", maxUsers: "", durationValue: "", durationUnit: "months", status: "active" });
+    setCustomPlanData({ minUsers: "1", maxUsers: "", durationValue: "", durationUnit: "months", status: "active" });
   };
 
   const handlePurchaseCustomPlan = () => {
@@ -1246,7 +1399,7 @@ const PaymentPlans = () => {
         >
           <Card elevation={0} sx={{
               position: "relative",
-              borderRadius: 2.5,
+              borderRadius: 2,
               border: "1px solid",
               borderColor: isRecommended
                 ? theme.palette.primary.main
@@ -1263,10 +1416,10 @@ const PaymentPlans = () => {
               flexDirection: "column",
               "&:hover": !isDisabled
                 ? {
-                    transform: "translateY(-6px)",
+                    transform: "translateY(-4px)",
                     boxShadow: isRecommended
-                      ? `0 25px 40px -15px ${alpha(theme.palette.primary.main, 0.6)}`
-                      : `0 15px 30px -8px ${alpha(theme.palette.primary.main, 0.4)}`,
+                      ? `0 16px 30px -10px ${alpha(theme.palette.primary.main, 0.5)}`
+                      : `0 10px 24px -6px ${alpha(theme.palette.primary.main, 0.3)}`,
                     borderColor: theme.palette.primary.main,
                   }
                 : {},
@@ -1276,19 +1429,19 @@ const PaymentPlans = () => {
               <Box
                 sx={{
                   position: "absolute",
-                  top: 18,
+                  top: 14,
                   left: -28,
                   zIndex: 10,
                   color: "text.primary",
                   fontWeight: 600,
-                  fontSize: "0.6rem",
-                  py: 0.4,
-                  px: 2.5,
+                  fontSize: "0.58rem",
+                  py: 0.3,
+                  px: 2.2,
                   transform: "rotate(-45deg)",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                   textTransform: "capitalize",
                   letterSpacing: "0.3px",
-                  width: "110px",
+                  width: "105px",
                   textAlign: "center",
                 }}
               >
@@ -1296,79 +1449,78 @@ const PaymentPlans = () => {
               </Box>
             )}
 
-             <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 40, height: 40 }}>
-                    {isAddOn ? <AddIcon sx={{ fontSize: 22 }} /> : <CreditCardIcon sx={{ fontSize: 22 }} />}
+            <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
+                    {isAddOn ? <AddIcon sx={{ fontSize: 18 }} /> : <CreditCardIcon sx={{ fontSize: 18 }} />}
                   </Avatar>
                   <Box>
-                    <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2 }}>
+                    <Typography fontWeight={700} color="text.primary" sx={{ fontSize: "0.95rem", lineHeight: 1.2 }}>
                       {plan.name}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.68rem" }}>
                       {isAddOn ? "Add-on Plan" : `Plan #${index + 1}`}
                     </Typography>
                   </Box>
                 </Box>
-                <Chip label={plan.duration} size="small" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, fontWeight: 600, fontSize: "0.65rem" }} />
+                <Chip label={plan.duration} size="small" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, fontWeight: 600, fontSize: "0.65rem", height: 22 }} />
               </Box>
 
-              <Box sx={{ mb: 3, position: "relative" }}>
+              <Box sx={{ mb: 1.5, position: "relative" }}>
                 {hasCouponApplied && (
                   <Chip
                     label={`Coupon applied: -₹${appliedCouponData.discountAmount}`}
                     size="small"
-                    icon={<LocalOfferIcon sx={{ fontSize: 12 }} />}
+                    icon={<LocalOfferIcon sx={{ fontSize: 11 }} />}
                     onDelete={() => setAppliedCouponData(null)}
                     sx={{
                       position: "absolute",
-                      top: -25,
+                      top: -22,
                       right: 0,
                       bgcolor: alpha("#22c55e", 0.1),
                       color: "#22c55e",
-                      fontSize: "0.6rem",
-                      height: 22,
-                      "& .MuiChip-deleteIcon": { color: "#22c55e", fontSize: 14 },
+                      fontSize: "0.58rem",
+                      height: 20,
+                      "& .MuiChip-deleteIcon": { color: "#22c55e", fontSize: 13 },
                     }}
                   />
                 )}
                 
-                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.8 }}>
                   <Typography
-                    variant="h3"
                     fontWeight={800}
                     sx={{
                       color: hasCouponApplied ? alpha(theme.palette.primary.main, 0.5) : "text.primary",
                       textDecoration: hasCouponApplied ? "line-through" : "none",
-                      fontSize: hasCouponApplied ? "1.5rem" : "2.5rem",
+                      fontSize: hasCouponApplied ? "1.2rem" : "1.75rem",
                       lineHeight: 1
                     }}
                   >
                     ₹{plan.price}
                   </Typography>
                   {hasCouponApplied && (
-                    <Typography variant="h3" fontWeight={800} sx={{ color: "#22c55e", fontSize: "2.5rem", lineHeight: 1 }}>
+                    <Typography fontWeight={800} sx={{ color: "#22c55e", fontSize: "1.75rem", lineHeight: 1 }}>
                       ₹{appliedCouponData.finalAmount}
                     </Typography>
                   )}
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ fontSize: "0.75rem" }}>
                     / {plan.duration}
                   </Typography>
                 </Box>
               </Box>
 
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3, p: 1.5, bgcolor: "background.default", borderRadius: 2 }}>
-                <PeopleIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 1.5, p: 1, bgcolor: "background.default", borderRadius: 1.5 }}>
+                <PeopleIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
                   Up to <Box component="span" fontWeight={700} color="text.primary">{plan.maxUsers}</Box> users allowed
                 </Typography>
               </Box>
 
-              <Divider sx={{ mb: 3 }} />
+              <Divider sx={{ mb: 1.5 }} />
 
               <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="subtitle2" color="text.primary" fontWeight={700} sx={{ mb: 1.5 }}>
+                <Typography color="text.primary" fontWeight={700} sx={{ mb: 0.8, fontSize: "0.75rem" }}>
                   What's included:
                 </Typography>
                 {renderPlanDescription(plan.description)}
@@ -1376,38 +1528,38 @@ const PaymentPlans = () => {
 
               {/* Active / Expired badge */}
               {isActivePlan && (
-                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600 }}>
+                <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
+                  <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, fontSize: "0.68rem" }}>
                     ✓ Active Subscription
                   </Typography>
                 </Box>
               )}
 
               {isCurrentPlan && isSubscriptionExpired && (
-                <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600 }}>
+                <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
+                  <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600, fontSize: "0.68rem" }}>
                     ⚠ Subscription Expired — Please renew
                   </Typography>
                 </Box>
               )}
             </CardContent>
 
-            <CardActions sx={{ p: 2.5, pt: 0 }}>
+            <CardActions sx={{ p: 2, pt: 0 }}>
               {isActivePlan ? (
-                <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                <Box sx={{ display: "flex", gap: 0.8, width: "100%" }}>
                   <Button
                     fullWidth
                     variant="contained"
                     color="success"
                     disabled
-                    startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+                    startIcon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
                     size="small"
                     sx={{
-                      py: 1.2,
+                      py: 0.8,
                       borderRadius: 1.5,
                       bgcolor: theme.palette.success.main,
                       color: "white",
-                      fontSize: "0.7rem",
+                      fontSize: "0.72rem",
                     }}
                   >
                     Active Plan
@@ -1418,15 +1570,15 @@ const PaymentPlans = () => {
                     size="small"
                     onClick={() => handleOpenCancelDialog(plan, plan.name)}
                     disabled={isCancelling}
-                    startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
+                    startIcon={<CancelIcon sx={{ fontSize: 13 }} />}
                     sx={{
-                      py: 1.2,
+                      py: 0.8,
                       borderRadius: 1.5,
                       borderColor: alpha(theme.palette.error.main, 0.5),
                       color: theme.palette.error.main,
-                      fontSize: "0.65rem",
+                      fontSize: "0.68rem",
                       minWidth: "auto",
-                      px: 1.5,
+                      px: 1.2,
                       "&:hover": {
                         borderColor: theme.palette.error.main,
                         bgcolor: alpha(theme.palette.error.main, 0.05),
@@ -1442,13 +1594,13 @@ const PaymentPlans = () => {
                   variant="contained"
                   onClick={() => handleOpenCouponModal(plan, false)}
                   disabled={processingPlanId === plan._id}
-                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={13} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 15 }} />}
                   size="small"
                   sx={{
-                    py: 1.2,
+                    py: 0.8,
                     borderRadius: 1.5,
                     bgcolor: theme.palette.primary.main,
-                    fontSize: "0.7rem",
+                    fontSize: "0.72rem",
                     "&:hover": { bgcolor: theme.palette.primary.dark },
                   }}
                 >
@@ -1460,13 +1612,13 @@ const PaymentPlans = () => {
                   variant="contained"
                   onClick={() => handleOpenCouponModal(plan, true)}
                   disabled={isDisabled || processingPlanId === plan._id}
-                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <AddIcon sx={{ fontSize: 16 }} />}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={13} color="inherit" /> : <AddIcon sx={{ fontSize: 15 }} />}
                   size="small"
                   sx={{
-                    py: 1.2,
+                    py: 0.8,
                     borderRadius: 1.5,
                     bgcolor: theme.palette.primary.main,
-                    fontSize: "0.7rem",
+                    fontSize: "0.72rem",
                     "&:hover": { bgcolor: theme.palette.primary.dark },
                     "&.Mui-disabled": { bgcolor: alpha(theme.palette.primary.main, 0.3) },
                   }}
@@ -1479,15 +1631,15 @@ const PaymentPlans = () => {
                   variant={isRecommended ? "contained" : "outlined"}
                   onClick={() => handleOpenCouponModal(plan, false)}
                   disabled={isDisabled || processingPlanId === plan._id}
-                  startIcon={processingPlanId === plan._id ? <CircularProgress size={14} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 16 }} />}
+                  startIcon={processingPlanId === plan._id ? <CircularProgress size={13} color="inherit" /> : <CreditCardIcon sx={{ fontSize: 15 }} />}
                   size="small"
                   sx={{
-                    py: 1.2,
+                    py: 0.8,
                     borderRadius: 1.5,
                     bgcolor: isRecommended ? theme.palette.primary.main : "transparent",
                     color: isRecommended ? "white" : theme.palette.primary.main,
                     borderColor: theme.palette.primary.main,
-                    fontSize: "0.7rem",
+                    fontSize: "0.72rem",
                     "&:hover": {
                       bgcolor: isRecommended ? theme.palette.primary.dark : alpha(theme.palette.primary.main, 0.05),
                     },
@@ -1512,30 +1664,30 @@ const PaymentPlans = () => {
   // ─────────────────────────────────────────────────────────────
   if (showFirstRenderLoader) {
     return (
-      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 3 }}>
+      <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 2 }}>
         <Container maxWidth="xl">
-          <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
-              <Typography variant="h5" fontWeight={700} gutterBottom sx={{ color: "text.primary", fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" } }}>
+              <Typography variant="h5" fontWeight={700} sx={{ color: "text.primary", fontSize: { xs: "1.2rem", sm: "1.35rem", md: "1.5rem" }, mb: 0.2 }}>
                 Payment Plans
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
                 Choose the perfect plan for your team
               </Typography>
             </Box>
-            <Skeleton variant="rounded" width={130} height={36} sx={{ borderRadius: 2 }} />
+            <Skeleton variant="rounded" width={120} height={32} sx={{ borderRadius: 2 }} />
           </Box>
 
-          <Box sx={{ mb: 5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
-                <CreditCardIcon sx={{ fontSize: 18 }} />
+          <Box sx={{ mb: 3.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 28, height: 28 }}>
+                <CreditCardIcon sx={{ fontSize: 16 }} />
               </Avatar>
-              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+              <Typography fontWeight={600} sx={{ fontSize: "0.95rem", color: "text.primary" }}>
                 Subscription Plans
               </Typography>
             </Box>
-            <Grid container spacing={2.5} alignItems="stretch">
+            <Grid container spacing={2} alignItems="stretch">
               <PlanCardSkeleton />
               <PlanCardSkeleton />
               <PlanCardSkeleton />
@@ -1543,15 +1695,15 @@ const PaymentPlans = () => {
           </Box>
 
           <Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
-                <AddIcon sx={{ fontSize: 18 }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 28, height: 28 }}>
+                <AddIcon sx={{ fontSize: 16 }} />
               </Avatar>
-              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+              <Typography fontWeight={600} sx={{ fontSize: "0.95rem", color: "text.primary" }}>
                 Add-on Plans
               </Typography>
             </Box>
-            <Grid container spacing={2.5} alignItems="stretch">
+            <Grid container spacing={2} alignItems="stretch">
               <PlanCardSkeleton />
             </Grid>
           </Box>
@@ -1561,28 +1713,28 @@ const PaymentPlans = () => {
   }
 
   // ─────────────────────────────────────────────────────────────
-// Main render
+  // Main render
   // ─────────────────────────────────────────────────────────────
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 3 }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5", py: 2 }}>
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" style={{ top: "70px" }} />
 
       <Container maxWidth="xl">
         {/* Header */}
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="h5" fontWeight={700} gutterBottom sx={{ color: "text.primary", fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.8rem" } }}>
+            <Typography variant="h5" fontWeight={700} sx={{ color: "text.primary", fontSize: { xs: "1.2rem", sm: "1.35rem", md: "1.5rem" }, mb: 0.2 }}>
               Payment Plans
             </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
               Choose the perfect plan for your team
             </Typography>
           </Box>
           <Button
             variant="outlined"
-            startIcon={<HistoryIcon />}
+            startIcon={<HistoryIcon sx={{ fontSize: 16 }} />}
             onClick={() => setHistoryDialogOpen(true)}
-            sx={{ borderRadius: 2, borderColor: alpha(theme.palette.primary.main, 0.3), color: theme.palette.primary.main, fontSize: "0.75rem", py: 1, px: 2 }}
+            sx={{ borderRadius: 2, borderColor: alpha(theme.palette.primary.main, 0.3), color: theme.palette.primary.main, fontSize: "0.75rem", py: 0.6, px: 1.5 }}
           >
             Payment History
           </Button>
@@ -1590,30 +1742,30 @@ const PaymentPlans = () => {
 
         {/* Revenue Summary for Superadmin */}
         {authUser?.role === "superadmin" && revenueSummary && (
-          <Paper sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
-            <Grid container spacing={2}>
+          <Paper sx={{ mb: 2, p: 1.5, borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
+            <Grid container spacing={1.5}>
               <Grid item xs={12} sm={6} md={3}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Total Revenue</Typography>
-                  <Typography variant="h6" fontWeight={700} color="primary.main">₹{revenueSummary.totalRevenue?.toLocaleString()}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Total Revenue</Typography>
+                  <Typography fontWeight={700} color="primary.main" sx={{ fontSize: "1rem" }}>₹{revenueSummary.totalRevenue?.toLocaleString()}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Current Month</Typography>
-                  <Typography variant="h6" fontWeight={700} color="success.main">₹{revenueSummary.currentMonthRevenue?.toLocaleString()}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Current Month</Typography>
+                  <Typography fontWeight={700} color="success.main" sx={{ fontSize: "1rem" }}>₹{revenueSummary.currentMonthRevenue?.toLocaleString()}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Total Discounts</Typography>
-                  <Typography variant="h6" fontWeight={700} color="warning.main">₹{revenueSummary.totalDiscount?.toLocaleString()}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Total Discounts</Typography>
+                  <Typography fontWeight={700} color="warning.main" sx={{ fontSize: "1rem" }}>₹{revenueSummary.totalDiscount?.toLocaleString()}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Growth</Typography>
-                  <Typography variant="h6" fontWeight={700} color={revenueSummary.growthPercentage >= 0 ? "success.main" : "error.main"}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Growth</Typography>
+                  <Typography fontWeight={700} color={revenueSummary.growthPercentage >= 0 ? "success.main" : "error.main"} sx={{ fontSize: "1rem" }}>
                     {revenueSummary.growthPercentage}%
                   </Typography>
                 </Box>
@@ -1624,24 +1776,24 @@ const PaymentPlans = () => {
 
         {/* Admin stats */}
         {authUser?.role === "superadmin" && allPaymentHistory && (
-          <Paper sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.02) }}>
-            <Grid container spacing={2}>
+          <Paper sx={{ mb: 2, p: 1.5, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.02) }}>
+            <Grid container spacing={1.5}>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Total Completed Amount</Typography>
-                  <Typography variant="h6" fontWeight={700} color="info.main">₹{totalCompletedAmount?.toLocaleString()}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Total Completed Amount</Typography>
+                  <Typography fontWeight={700} color="info.main" sx={{ fontSize: "1rem" }}>₹{totalCompletedAmount?.toLocaleString()}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Paid Users</Typography>
-                  <Typography variant="h6" fontWeight={700} color="info.main">{numberOfPaidUsers}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Paid Users</Typography>
+                  <Typography fontWeight={700} color="info.main" sx={{ fontSize: "1rem" }}>{numberOfPaidUsers}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">Average Revenue</Typography>
-                  <Typography variant="h6" fontWeight={700} color="info.main">₹{averageRevenue?.toLocaleString()}</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>Average Revenue</Typography>
+                  <Typography fontWeight={700} color="info.main" sx={{ fontSize: "1rem" }}>₹{averageRevenue?.toLocaleString()}</Typography>
                 </Box>
               </Grid>
             </Grid>
@@ -1671,7 +1823,7 @@ const PaymentPlans = () => {
 
         {paymentSuccess && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-            <Alert severity="success" onClose={() => setPaymentSuccess(null)} sx={{ mb: 2.5, borderRadius: 1.5 }}>
+            <Alert severity="success" onClose={() => setPaymentSuccess(null)} sx={{ mb: 2, borderRadius: 1.5 }}>
               <AlertTitle sx={{ fontSize: "0.85rem" }}>Payment Successful!</AlertTitle>
               <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>{paymentSuccess}</Typography>
             </Alert>
@@ -1680,202 +1832,322 @@ const PaymentPlans = () => {
 
         {/* Custom Plan Section */}
         {isAuthenticated && (
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            {userCustomPlan && (
-              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
-                Your Custom Plan
+          <Box sx={{ mb: 3.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", width: 28, height: 28 }}>
+                <BuildIcon sx={{ fontSize: 16 }} />
+              </Avatar>
+              <Typography fontWeight={600} sx={{ fontSize: "0.95rem", color: "text.primary" }}>
+                {userCustomPlan ? "Your Custom Plan" : "Custom Plan"}
               </Typography>
-            )}
-            {!userCustomPlan && !fetchingCustomPlan && (
-              <Button
-                variant="outlined"
-                color="primary"
-                size="small"
-                startIcon={<BuildIcon />}
-                onClick={handleOpenCreateCustomPlan}
-                sx={{ fontSize: "0.75rem", py: 0.5, px: 1.5, borderRadius: 2, borderColor: alpha(theme.palette.primary.main, 0.3) }}
-              >
-                Create Custom Plan
-              </Button>
-            )}
-          </Box>
-        )}
+            </Box>
 
-        {fetchingCustomPlan && (
-          <Box sx={{ mb: 4, p: 3, textAlign: "center" }}>
-            <CircularProgress size={30} />
-            <Typography sx={{ mt: 1, fontSize: "0.8rem", color: "text.secondary" }}>Loading your custom plan...</Typography>
-          </Box>
-        )}
+            {fetchingCustomPlan ? (
+              <Box sx={{ mb: 3, p: 2, textAlign: "center" }}>
+                <CircularProgress size={24} />
+                <Typography sx={{ mt: 1, fontSize: "0.75rem", color: "text.secondary" }}>Loading your custom plan...</Typography>
+              </Box>
+            ) : userCustomPlan ? (
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid item xs={12} md={6} lg={4}>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", height: "100%" }}>
+                    <Card elevation={0} sx={{
+                        position: "relative",
+                        borderRadius: 2,
+                        border: "2px solid",
+                        borderColor: isCustomPlanPurchased ? theme.palette.success.main : "#9c27b0",
+                        boxShadow: "none", height: "100%", display: "flex", flexDirection: "column",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 14,
+                          right: -30,
+                          zIndex: 10,
+                          background: isCustomPlanPurchased ? theme.palette.success.main : "#df3a24b1",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "0.58rem",
+                          py: 0.3,
+                          px: 2.2,
+                          transform: "rotate(45deg)",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          textTransform: "capitalize",
+                          letterSpacing: "0.3px",
+                          width: "105px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {isCustomPlanPurchased ? "ACTIVE" : "YOUR PLAN"}
+                      </Box>
 
-        {userCustomPlan && !fetchingCustomPlan && (
-          <Grid container spacing={2.5} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={6} lg={4}>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", height: "100%" }}>
-                <Card elevation={0} sx={{
-                    position: "relative",
-                    borderRadius: 2.5,
-                    border: "2px solid",
-                    borderColor: isCustomPlanPurchased ? theme.palette.success.main : "#9c27b0",
-                    boxShadow: "none", height: "100%", display: "flex", flexDirection: "column",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 18,
-                      right: -30,
-                      zIndex: 10,
-                      background: isCustomPlanPurchased ? theme.palette.success.main : "#df3a24b1",
-                      color: "white",
-                      fontWeight: 600,
-                      fontSize: "0.6rem",
-                      py: 0.4,
-                      px: 2.5,
-                      transform: "rotate(45deg)",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      textTransform: "capitalize",
-                      letterSpacing: "0.3px",
-                      width: "110px",
-                      textAlign: "center",
-                    }}
-                  >
-                    {isCustomPlanPurchased ? "ACTIVE" : "YOUR PLAN"}
-                  </Box>
+                      <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                            <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", width: 32, height: 32 }}>
+                              <BuildIcon sx={{ fontSize: 18 }} />
+                            </Avatar>
+                            <Box>
+                              <Typography fontWeight={700} color="text.primary" sx={{ fontSize: "0.95rem", lineHeight: 1.2 }}>
+                                {userCustomPlan.name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.68rem" }}>
+                                Custom Plan
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Chip label={userCustomPlan.duration} size="small" sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", fontWeight: 600, fontSize: "0.65rem", height: 22 }} />
+                        </Box>
 
-                  <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", width: 40, height: 40 }}>
-                          <BuildIcon sx={{ fontSize: 22 }} />
-                        </Avatar>
-                        <Box>
-                          <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2 }}>
-                            {userCustomPlan.name}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
-                            Custom Plan
+                        <Box sx={{ mb: 1.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.8 }}>
+                            <Typography fontWeight={800} sx={{ color: "text.primary", fontSize: "1.75rem", lineHeight: 1 }}>
+                              ₹{userCustomPlan.price}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ fontSize: "0.75rem" }}>
+                              / {userCustomPlan.duration}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 1.5, p: 1, bgcolor: "background.default", borderRadius: 1.5 }}>
+                          <PeopleIcon sx={{ color: "#9c27b0", fontSize: 16 }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                            Custom tailored for <Box component="span" fontWeight={700} color="text.primary">{userCustomPlan.maxUsers}</Box> users
                           </Typography>
                         </Box>
-                      </Box>
-                      <Chip label={userCustomPlan.duration} size="small" sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", fontWeight: 600, fontSize: "0.65rem" }} />
-                    </Box>
 
-                    <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                        <Typography variant="h3" fontWeight={800} sx={{ color: "text.primary", fontSize: "2.5rem", lineHeight: 1 }}>
-                          ₹{userCustomPlan.price}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                          / {userCustomPlan.duration}
-                        </Typography>
-                      </Box>
-                    </Box>
+                        <Divider sx={{ mb: 1.5 }} />
 
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3, p: 1.5, bgcolor: "background.default", borderRadius: 2 }}>
-                      <PeopleIcon sx={{ color: "#9c27b0", fontSize: 18 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        Custom tailored for <Box component="span" fontWeight={700} color="text.primary">{userCustomPlan.maxUsers}</Box> users
-                      </Typography>
-                    </Box>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography color="text.primary" fontWeight={700} sx={{ mb: 0.8, fontSize: "0.75rem" }}>
+                            What's included:
+                          </Typography>
+                          {renderPlanDescription(userCustomPlan.description)}
+                        </Box>
 
-                    <Divider sx={{ mb: 3 }} />
+                        {/* ✅ Active badge only when not expired */}
+                        {isCustomPlanPurchased && !isSubscriptionExpired && (
+                          <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
+                            <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, fontSize: "0.68rem" }}>
+                              ✓ You have an active subscription for this plan
+                            </Typography>
+                          </Box>
+                        )}
 
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="subtitle2" color="text.primary" fontWeight={700} sx={{ mb: 1.5 }}>
-                        What's included:
-                      </Typography>
-                      {renderPlanDescription(userCustomPlan.description)}
-                    </Box>
+                        {/* ✅ Expired badge */}
+                        {isCustomPlanPurchased && isSubscriptionExpired && (
+                          <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
+                            <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600, fontSize: "0.68rem" }}>
+                              ⚠ Subscription Expired — Please renew
+                            </Typography>
+                          </Box>
+                        )}
+                      </CardContent>
 
-                    {/* ✅ Active badge only when not expired */}
-                    {isCustomPlanPurchased && !isSubscriptionExpired && (
-                      <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
-                        <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600 }}>
-                          ✓ You have an active subscription for this plan
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {/* ✅ Expired badge */}
-                    {isCustomPlanPurchased && isSubscriptionExpired && (
-                      <Box sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.5, textAlign: "center" }}>
-                        <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600 }}>
-                          ⚠ Subscription Expired — Please renew
-                        </Typography>
-                      </Box>
-                    )}
-                  </CardContent>
-
-                  <CardActions sx={{ p: 2.5, pt: 0 }}>
-                    {/* ✅ Active and NOT expired */}
-                    {isCustomPlanPurchased && !isSubscriptionExpired ? (
-                      <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                        <Button fullWidth variant="contained" color="success" disabled startIcon={<CheckCircleIcon sx={{ fontSize: 16 }} />} size="small" sx={{ py: 1.2, borderRadius: 1.5, bgcolor: theme.palette.success.main, color: "white", fontSize: "0.7rem" }}>
-                          Active Plan
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          onClick={() => handleOpenCancelDialog(userCustomPlan, userCustomPlan.name)}
-                          disabled={isCancelling}
-                          startIcon={<CancelIcon sx={{ fontSize: 14 }} />}
-                          sx={{ py: 1.2, borderRadius: 1.5, borderColor: alpha(theme.palette.error.main, 0.5), color: theme.palette.error.main, fontSize: "0.65rem", minWidth: "auto", px: 1.5, "&:hover": { borderColor: theme.palette.error.main, bgcolor: alpha(theme.palette.error.main, 0.05) } }}
-                        >
-                          Cancel
-                        </Button>
-                      </Box>
-                    ) : isCustomPlanPurchased && isSubscriptionExpired ? (
-                      // ✅ Expired custom plan → Renew
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={handlePurchaseCustomPlan}
-                        startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
-                        size="small"
-                        sx={{ py: 1.2, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.7rem", "&:hover": { bgcolor: "#7b1fa2" } }}
+                      <CardActions sx={{ p: 2, pt: 0 }}>
+                        {/* ✅ Active and NOT expired */}
+                        {isCustomPlanPurchased && !isSubscriptionExpired ? (
+                          <Box sx={{ display: "flex", gap: 0.8, width: "100%" }}>
+                            <Button fullWidth variant="contained" color="success" disabled startIcon={<CheckCircleIcon sx={{ fontSize: 14 }} />} size="small" sx={{ py: 0.8, borderRadius: 1.5, bgcolor: theme.palette.success.main, color: "white", fontSize: "0.72rem" }}>
+                              Active Plan
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => handleOpenCancelDialog(userCustomPlan, userCustomPlan.name)}
+                              disabled={isCancelling}
+                              startIcon={<CancelIcon sx={{ fontSize: 13 }} />}
+                              sx={{ py: 0.8, borderRadius: 1.5, borderColor: alpha(theme.palette.error.main, 0.5), color: theme.palette.error.main, fontSize: "0.68rem", minWidth: "auto", px: 1.2, "&:hover": { borderColor: theme.palette.error.main, bgcolor: alpha(theme.palette.error.main, 0.05) } }}
+                            >
+                              Cancel
+                            </Button>
+                          </Box>
+                        ) : isCustomPlanPurchased && isSubscriptionExpired ? (
+                          // ✅ Expired custom plan → Renew
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={handlePurchaseCustomPlan}
+                            startIcon={<CreditCardIcon sx={{ fontSize: 15 }} />}
+                            size="small"
+                            sx={{ py: 0.8, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.72rem", "&:hover": { bgcolor: "#7b1fa2" } }}
+                          >
+                            Renew Plan
+                          </Button>
+                        ) : (
+                          // ✅ Not purchased yet → Edit + Subscribe
+                          <>
+                            <Button
+                              fullWidth
+                              variant="outlined"
+                              onClick={handleOpenEditCustomPlan}
+                              startIcon={<EditIcon sx={{ fontSize: 15 }} />}
+                              size="small"
+                              sx={{ py: 0.8, borderRadius: 1.5, borderColor: alpha("#9c27b0", 0.3), color: "#9c27b0", fontSize: "0.72rem", mr: 0.8, "&:hover": { borderColor: "#9c27b0", bgcolor: alpha("#9c27b0", 0.05) } }}
+                            >
+                              Edit Plan
+                            </Button>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              onClick={handlePurchaseCustomPlan}
+                              disabled={hasActiveSubscription}
+                              startIcon={<CreditCardIcon sx={{ fontSize: 15 }} />}
+                              size="small"
+                              sx={{ py: 0.8, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.72rem", "&:hover": { bgcolor: "#7b1fa2" }, "&.Mui-disabled": { bgcolor: alpha("#9c27b0", 0.3) } }}
+                            >
+                              Subscribe
+                            </Button>
+                          </>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid container spacing={2} sx={{ mb: 1 }}>
+                <Grid item xs={12} md={6} lg={4}>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", height: "100%" }}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        position: "relative",
+                        borderRadius: 2,
+                        border: "1.5px dashed",
+                        borderColor: "#9c27b0",
+                        bgcolor: alpha("#9c27b0", 0.02),
+                        boxShadow: "none",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: `0 10px 24px -6px ${alpha("#9c27b0", 0.25)}`,
+                          borderColor: "#7b1fa2",
+                          bgcolor: alpha("#9c27b0", 0.04),
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 14,
+                          right: -30,
+                          zIndex: 10,
+                          background: "#9c27b0",
+                          color: "white",
+                          fontWeight: 600,
+                          fontSize: "0.58rem",
+                          py: 0.3,
+                          px: 2.2,
+                          transform: "rotate(45deg)",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.3px",
+                          width: "105px",
+                          textAlign: "center",
+                        }}
                       >
-                        Renew Plan
-                      </Button>
-                    ) : (
-                      // ✅ Not purchased yet → Edit + Subscribe
-                      <>
-                        <Button
-                          fullWidth
-                          variant="outlined"
-                          onClick={handleOpenEditCustomPlan}
-                          startIcon={<EditIcon sx={{ fontSize: 16 }} />}
-                          size="small"
-                          sx={{ py: 1.2, borderRadius: 1.5, borderColor: alpha("#9c27b0", 0.3), color: "#9c27b0", fontSize: "0.7rem", mr: 1, "&:hover": { borderColor: "#9c27b0", bgcolor: alpha("#9c27b0", 0.05) } }}
-                        >
-                          Edit Plan
-                        </Button>
+                        CUSTOM
+                      </Box>
+
+                      <CardContent sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                            <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.12), color: "#9c27b0", width: 32, height: 32 }}>
+                              <BuildIcon sx={{ fontSize: 18 }} />
+                            </Avatar>
+                            <Box>
+                              <Typography fontWeight={700} color="text.primary" sx={{ fontSize: "0.95rem", lineHeight: 1.2 }}>
+                                Custom Plan
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.68rem" }}>
+                                Tailored to your needs
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Chip label="Flexible" size="small" sx={{ bgcolor: alpha("#9c27b0", 0.12), color: "#9c27b0", fontWeight: 600, fontSize: "0.65rem", height: 22 }} />
+                        </Box>
+
+                        <Box sx={{ mb: 1.5 }}>
+                          <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8 }}>
+                            <Typography fontWeight={800} sx={{ color: "#9c27b0", fontSize: "1.45rem", lineHeight: 1.1 }}>
+                              Pay as you go
+                            </Typography>
+                          </Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.72rem", mt: 0.3, display: "block" }}>
+                            Price calculated based on your team size
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mb: 1.5, p: 1, bgcolor: "background.default", borderRadius: 1.5 }}>
+                          <PeopleIcon sx={{ color: "#9c27b0", fontSize: 16 }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                            Choose <Box component="span" fontWeight={700} color="text.primary">exact user limit</Box> & duration
+                          </Typography>
+                        </Box>
+
+                        <Divider sx={{ mb: 1.5 }} />
+
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography color="text.primary" fontWeight={700} sx={{ mb: 0.8, fontSize: "0.75rem" }}>
+                            What's included:
+                          </Typography>
+                          <Box sx={{ mb: 1, textAlign: "left", width: "100%" }}>
+                            {[
+                              "Custom user limits according to your requirements",
+                              "Flexible monthly or yearly billing intervals",
+                              "Full employee route history & live tracking",
+                              "Instant price calculation & transparent billing",
+                            ].map((feature, idx) => (
+                              <Box key={idx} sx={{ display: "flex", alignItems: "flex-start", gap: 0.6, mb: 0.35 }}>
+                                <CheckIcon sx={{ color: "#9c27b0", fontSize: 13, mt: 0.2, flexShrink: 0 }} />
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem", lineHeight: 1.3 }}>
+                                  {feature}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
+                      </CardContent>
+
+                      <CardActions sx={{ p: 2, pt: 0 }}>
                         <Button
                           fullWidth
                           variant="contained"
-                          onClick={handlePurchaseCustomPlan}
-                          disabled={hasActiveSubscription}
-                          startIcon={<CreditCardIcon sx={{ fontSize: 16 }} />}
+                          onClick={handleOpenCreateCustomPlan}
+                          startIcon={<BuildIcon sx={{ fontSize: 15 }} />}
                           size="small"
-                          sx={{ py: 1.2, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.7rem", "&:hover": { bgcolor: "#7b1fa2" }, "&.Mui-disabled": { bgcolor: alpha("#9c27b0", 0.3) } }}
+                          sx={{
+                            py: 0.8,
+                            borderRadius: 1.5,
+                            bgcolor: "#9c27b0",
+                            fontSize: "0.72rem",
+                            fontWeight: 600,
+                            "&:hover": { bgcolor: "#7b1fa2" },
+                          }}
                         >
-                          Subscribe
+                          Create Custom Plan
                         </Button>
-                      </>
-                    )}
-                  </CardActions>
-                </Card>
-              </motion.div>
-            </Grid>
-          </Grid>
+                      </CardActions>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              </Grid>
+            )}
+          </Box>
         )}
 
         {/* Payment Status Alerts */}
         <AnimatePresence>
           {paymentStatus === "processing" && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <Alert severity="info" sx={{ mb: 2.5, borderRadius: 1.5 }}>
+              <Alert severity="info" sx={{ mb: 2, borderRadius: 1.5 }}>
                 <AlertTitle sx={{ fontSize: "0.85rem" }}>Processing Payment</AlertTitle>
                 <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>Please wait while we process your payment...</Typography>
               </Alert>
@@ -1883,7 +2155,7 @@ const PaymentPlans = () => {
           )}
           {orderError && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <Alert severity="error" onClose={() => dispatch(clearPaymentState())} sx={{ mb: 2.5, borderRadius: 1.5 }}>
+              <Alert severity="error" onClose={() => dispatch(clearPaymentState())} sx={{ mb: 2, borderRadius: 1.5 }}>
                 <AlertTitle sx={{ fontSize: "0.85rem" }}>Payment Error</AlertTitle>
                 <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>{orderError?.message || "An error occurred"}</Typography>
               </Alert>
@@ -1892,25 +2164,25 @@ const PaymentPlans = () => {
         </AnimatePresence>
 
         {/* Subscription Plans */}
-        <Box sx={{ mb: 5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
-              <CreditCardIcon sx={{ fontSize: 18 }} />
+        <Box sx={{ mb: 3.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 28, height: 28 }}>
+              <CreditCardIcon sx={{ fontSize: 16 }} />
             </Avatar>
-            <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+            <Typography fontWeight={600} sx={{ fontSize: "0.95rem", color: "text.primary" }}>
               Subscription Plans
             </Typography>
           </Box>
-          <Grid container spacing={2.5} alignItems="stretch">
+          <Grid container spacing={2} alignItems="stretch">
             {plansLoading ? (
               <><PlanCardSkeleton /><PlanCardSkeleton /><PlanCardSkeleton /></>
             ) : subscriptionPlans.length > 0 ? (
               subscriptionPlans.map((plan, index) => renderPlanCard(plan, index, false))
             ) : (
               <Grid item xs={12}>
-                <Paper sx={{ p: 4, textAlign: "center", borderRadius: 2.5 }}>
-                  <CreditCardIcon sx={{ fontSize: 40, color: alpha(theme.palette.primary.main, 0.3), mb: 1.5 }} />
-                  <Typography variant="body1" color="text.secondary" gutterBottom sx={{ fontSize: "0.9rem" }}>No subscription plans available</Typography>
+                <Paper sx={{ p: 3, textAlign: "center", borderRadius: 2 }}>
+                  <CreditCardIcon sx={{ fontSize: 32, color: alpha(theme.palette.primary.main, 0.3), mb: 1 }} />
+                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: "0.85rem" }}>No subscription plans available</Typography>
                 </Paper>
               </Grid>
             )}
@@ -1920,15 +2192,15 @@ const PaymentPlans = () => {
         {/* Add-on Plans */}
         {!plansLoading && addOnPlans.length > 0 && (
           <Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
-              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
-                <AddIcon sx={{ fontSize: 18 }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+              <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 28, height: 28 }}>
+                <AddIcon sx={{ fontSize: 16 }} />
               </Avatar>
-              <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.1rem", color: "text.primary" }}>
+              <Typography fontWeight={600} sx={{ fontSize: "0.95rem", color: "text.primary" }}>
                 Add-on Plans
               </Typography>
             </Box>
-            <Grid container spacing={2.5} alignItems="stretch">
+            <Grid container spacing={2} alignItems="stretch">
               {addOnPlans.map((plan, index) => renderPlanCard(plan, index, true))}
             </Grid>
           </Box>

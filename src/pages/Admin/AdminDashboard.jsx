@@ -1718,9 +1718,7 @@ const AdminDashboard = () => {
           <StatsCards stats={userStats} loading={isLoading} />
 
           {/* Current Plan Section */}
-          <CurrentPlan planData={planData} loading={isLoading} onPurchasePlan={handlePurchasePlan} isSubAdmin={isSubAdmin} onOpenShifts={() => setIsShiftsPopupOpen(true)} />
-
-          <ShiftsPopup open={isShiftsPopupOpen} onClose={() => setIsShiftsPopupOpen(false)} />
+          <CurrentPlan planData={planData} loading={isLoading} onPurchasePlan={handlePurchasePlan} isSubAdmin={isSubAdmin} onOpenShifts={() => navigate("/admin/shifts")} />
 
           {/* Recent Activities */}
           <RecentActivities users={lastTrackedUsers} loading={isLoading} />
