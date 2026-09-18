@@ -6982,8 +6982,8 @@ const Locations = () => {
     }
 
     if (startPoint && hasValidCoordinates(startPoint)) {
-      const popupContent = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #f0fdf4, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+      const popupContent = `<div style="width:230px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom,#f0fdf4,#ffffff);">
       <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 6px rgba(16,185,129,0.3);flex-shrink:0;">
         ${SVG_ICONS.start}
       </div>
@@ -6992,7 +6992,7 @@ const Locations = () => {
         <div style="font-size:10px;color:#059669;font-weight:500;">Beginning of journey</div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+    <div style="padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
         <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(startPoint.timestamp)}</span>
@@ -7002,10 +7002,10 @@ const Locations = () => {
         <span style="font-size:11.5px;color:#475569;font-weight:500;">${fmtDate(startPoint.timestamp)}</span>
       </div>
       ${startPoint.photo ? `
-      <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
-        <img src="${startPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${startPoint.photo}','_blank')"/>
+      <div style="margin-top:4px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 6px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+        <img src="${startPoint.photo}" style="width:100%;height:135px;object-fit:cover;display:block;" onclick="window.open('${startPoint.photo}','_blank')"/>
       </div>
-      <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+      <div style="margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
         ${SVG_ICONS.expand}
         <span>Click image to view full size</span>
       </div>
@@ -7018,8 +7018,8 @@ const Locations = () => {
         icon,
         zIndexOffset: 1000
       }).bindPopup(popupContent, {
-        maxWidth: 260,
-        minWidth: 200,
+        maxWidth: 240,
+        minWidth: 230,
         className: 'photo-popup'
       }).addTo(mapInstance.current);
 
@@ -7027,8 +7027,8 @@ const Locations = () => {
       markerRefs.current.set("start", m);
     } else if (validLocations.length > 0) {
       const fb = validLocations[0];
-      const popupContent = `<div style="min-width:180px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#f0fdf4;border-radius:6px 6px 0 0;margin:-13px -19px 8px -19px;"><div style="width:22px;height:22px;border-radius:6px;background:#10b981;display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.start}</div><b style="font-size:11.5px;color:#0f172a;">Start Point</b></div><div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(fb.timestamp)}</b></div></div></div>`;
-      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#10b981", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 200, minWidth: 160 }).addTo(mapInstance.current);
+      const popupContent = `<div style="width:200px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#f0fdf4;"><div style="width:22px;height:22px;border-radius:6px;background:#10b981;display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.start}</div><b style="font-size:11.5px;color:#0f172a;">Start Point</b></div><div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(fb.timestamp)}</b></div></div></div>`;
+      const m = L.marker([getLat(fb), getLng(fb)], { icon: makeStartIcon("#10b981", fmtTime(fb.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 210, minWidth: 200, className: 'photo-popup' }).addTo(mapInstance.current);
       markers.current.push(m); markerRefs.current.set("start", m);
     }
 
@@ -7048,35 +7048,29 @@ const Locations = () => {
         const isOnline = mostRecent.isOnline === true;
 
         // Modern, clean popup design
-        const popupContent = `<div style="min-width:180px;font-family: system-ui, -apple-system, sans-serif;">
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 12px 8px 12px;border-bottom:2px solid ${isOnline ? '#22c55e' : '#9ca3af'}">
-      <div style="width:32px;height:32px;border-radius:50%;background:${isOnline ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#9ca3af,#6b7280)'};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-        <span style="font-size:16px">${isOnline ? '📍' : '📌'}</span>
+        const popupContent = `<div style="width:200px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e2e8f0;background:${isOnline ? '#f0fdf4' : '#f8fafc'};">
+      <div style="width:24px;height:24px;border-radius:6px;background:${isOnline ? '#10b981' : '#64748b'};display:flex;align-items:center;justify-content:center;color:#fff;">
+        ${SVG_ICONS.pin}
       </div>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#1f2937">${isOnline ? 'Live Location' : 'Last Known'}</div>
-        <div style="font-size:10px;color:${isOnline ? '#22c55e' : '#9ca3af'};display:flex;align-items:center;gap:4px">
-          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline ? '#22c55e' : '#9ca3af'};${isOnline ? 'animation: pulse 1s infinite' : ''}"></span>
+        <div style="font-size:12px;font-weight:700;color:#0f172a;">${isOnline ? 'Live Location' : 'Last Known'}</div>
+        <div style="font-size:10px;color:${isOnline ? '#10b981' : '#64748b'};display:flex;align-items:center;gap:4px;font-weight:500;">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOnline ? '#10b981' : '#64748b'};"></span>
           ${isOnline ? 'Online' : 'Offline'}
         </div>
       </div>
     </div>
-    <div style="padding:10px 12px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <span style="font-size:11px;color:#6b7280">🕐</span>
-        <span style="font-size:11px;color:#374151;font-weight:500">${fmtTime(ts)}</span>
+    <div style="padding:8px 12px;display:flex;flex-direction:column;gap:4px;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">
+        <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
+        <span style="font-weight:600;">${fmtTime(ts)}</span>
       </div>
-      <div style="display:flex;gap:6px">
-        <span style="font-size:11px;color:#6b7280">📍</span>
-        <span style="font-size:11px;color:#4b5563;line-height:1.3">${getAddress(mostRecent).substring(0, 80)}${getAddress(mostRecent).length > 80 ? '...' : ''}</span>
+      <div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#475569;line-height:1.3;">
+        <span style="display:flex;align-items:center;color:#64748b;margin-top:2px;">${SVG_ICONS.pin}</span>
+        <span>${getAddress(mostRecent).substring(0, 80)}${getAddress(mostRecent).length > 80 ? '...' : ''}</span>
       </div>
     </div>
-    <style>
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
-      }
-    </style>
   </div>`;
 
         const markerColor = isOnline ? "#22c55e" : "#9ca3af";
@@ -7095,34 +7089,12 @@ const Locations = () => {
             icon,
             zIndexOffset: 1100
           }).bindPopup(popupContent, {
-            maxWidth: 220,
-            minWidth: 180,
-            className: 'clean-popup'
+            maxWidth: 210,
+            minWidth: 200,
+            className: 'photo-popup'
           }).addTo(mapInstance.current);
           markers.current.push(m);
           markerRefs.current.set("live", m);
-        }
-
-        // Clean popup styles
-        if (!document.querySelector('#clean-popup-styles')) {
-          const style = document.createElement('style');
-          style.id = 'clean-popup-styles';
-          style.textContent = `
-      .clean-popup .leaflet-popup-content-wrapper {
-        border-radius: 16px;
-        padding: 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        background: white;
-      }
-      .clean-popup .leaflet-popup-content {
-        margin: 0;
-        min-width: 180px;
-      }
-      .clean-popup .leaflet-popup-tip {
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      }
-    `;
-          document.head.appendChild(style);
         }
 
         markers.current.push(m);
@@ -7134,10 +7106,10 @@ const Locations = () => {
         const markerColor = isOnline ? "#10b981" : "#ef4444";
         const themeColor = isOnline ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)";
         const statusLabel = isOnline ? "Online" : "Journey completed";
-        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;animation: pulse 1s infinite; margin-right: 4px;"></span>` : "";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right: 4px;"></span>` : "";
 
-        const popupContent = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #fef2f2, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+        const popupContent = `<div style="width:230px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom,#fef2f2,#ffffff);">
       <div style="width:28px;height:28px;border-radius:8px;background:${themeColor};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.15);color:#fff;">
         ${SVG_ICONS.end}
       </div>
@@ -7149,7 +7121,7 @@ const Locations = () => {
         </div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+    <div style="padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
         <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(endPoint.timestamp)}</span>
@@ -7159,10 +7131,10 @@ const Locations = () => {
         <span style="font-size:11px;color:#475569;line-height:1.4;word-wrap:break-word;word-break:break-word;">${endPoint.address || "Address not available"}</span>
       </div>
       ${endPoint.photo ? `
-      <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
-        <img src="${endPoint.photo}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${endPoint.photo}','_blank')"/>
+      <div style="margin-top:4px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 6px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+        <img src="${endPoint.photo}" style="width:100%;height:135px;object-fit:cover;display:block;" onclick="window.open('${endPoint.photo}','_blank')"/>
       </div>
-      <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+      <div style="margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
         ${SVG_ICONS.expand}
         <span>Click image to view full size</span>
       </div>
@@ -7175,8 +7147,8 @@ const Locations = () => {
           icon,
           zIndexOffset: 1000
         }).bindPopup(popupContent, {
-          maxWidth: 260,
-          minWidth: 200,
+          maxWidth: 240,
+          minWidth: 230,
           className: 'photo-popup'
         }).addTo(mapInstance.current);
 
@@ -7186,12 +7158,11 @@ const Locations = () => {
         const lastLoc = validLocations[validLocations.length - 1];
         const isOnline = lastLoc.isOnline === true;
         const markerColor = isOnline ? "#10b981" : "#ef4444";
-        const themeColor = isOnline ? "linear-gradient(135deg,#10b981,#059669)" : "linear-gradient(135deg,#ef4444,#dc2626)";
         const statusLabel = isOnline ? "Online" : "Journey completed";
-        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;animation: pulse 1s infinite; margin-right:4px;"></span>` : "";
+        const statusDot = isOnline ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>` : "";
 
-        const popupContent = `<div style="min-width:180px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#fef2f2;border-radius:6px 6px 0 0;margin:-13px -19px 8px -19px;"><div style="width:22px;height:22px;border-radius:6px;background:${markerColor};display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.end}</div><b style="font-size:11.5px;color:#0f172a;">End Point</b></div><div style="display:flex;flex-direction:column;gap:4px;padding:0 2px;"><div style="font-size:10.5px;display:flex;align-items:center;">${statusDot}<b>Status:</b>&nbsp;${statusLabel}</div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(lastLoc.timestamp)}</b></div><div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#475569;">${SVG_ICONS.pin} <span style="line-height:1.3;">${getAddress(lastLoc)}</span></div></div></div>`;
-        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon(markerColor, fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 220, minWidth: 160 }).addTo(mapInstance.current);
+        const popupContent = `<div style="width:200px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e2e8f0;background:#fef2f2;"><div style="width:22px;height:22px;border-radius:6px;background:${markerColor};display:flex;align-items:center;justify-content:center;color:#fff;">${SVG_ICONS.end}</div><b style="font-size:11.5px;color:#0f172a;">End Point</b></div><div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px;"><div style="font-size:10.5px;display:flex;align-items:center;">${statusDot}<b>Status:</b>&nbsp;${statusLabel}</div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">${SVG_ICONS.clock} <b>${fmtTime(lastLoc.timestamp)}</b></div><div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#475569;">${SVG_ICONS.pin} <span style="line-height:1.3;">${getAddress(lastLoc)}</span></div></div></div>`;
+        const m = L.marker([getLat(lastLoc), getLng(lastLoc)], { icon: makeEndIcon(markerColor, fmtTime(lastLoc.timestamp), false, 28), zIndexOffset: 1000 }).bindPopup(popupContent, { maxWidth: 210, minWidth: 200, className: 'photo-popup' }).addTo(mapInstance.current);
         markers.current.push(m); markerRefs.current.set("end", m);
       }
     }
@@ -7210,8 +7181,8 @@ const Locations = () => {
         const markerKey = isLast ? "end" : `photo_${idx}`;
         const label = isLast ? "Latest Photo" : "Route Photo";
 
-        const popup = `<div style="min-width:220px;max-width:260px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color:#1e293b;">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom, #fffbeb, #ffffff);border-radius:8px 8px 0 0;margin:-13px -19px 10px -19px;">
+        const popup = `<div style="width:230px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e2e8f0;background:linear-gradient(to bottom,#fffbeb,#ffffff);">
         <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(245,158,11,0.3);color:#fff;">
           ${SVG_ICONS.camera}
         </div>
@@ -7220,7 +7191,7 @@ const Locations = () => {
           <div style="font-size:10px;color:#d97706;font-weight:500;">Photo ${idx + 1} of ${sortedPhotos.length}</div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px;padding:0 2px;">
+      <div style="padding:10px 12px;display:flex;flex-direction:column;gap:6px;">
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="display:flex;align-items:center;color:#64748b;">${SVG_ICONS.clock}</span>
           <span style="font-size:11.5px;color:#334155;font-weight:600;">${fmtTime(photo.timestamp)}</span>
@@ -7231,10 +7202,10 @@ const Locations = () => {
           <span style="font-size:11px;color:#475569;line-height:1.4;word-wrap:break-word;word-break:break-word;">${photo.remark}</span>
         </div>
         ` : ''}
-        <div style="margin-top:6px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
-          <img src="${photo.url}" style="width:100%;max-height:150px;object-fit:cover;display:block;" onclick="window.open('${photo.url}','_blank')"/>
+        <div style="margin-top:4px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;position:relative;">
+          <img src="${photo.url}" style="width:100%;height:135px;object-fit:cover;display:block;" onclick="window.open('${photo.url}','_blank')"/>
         </div>
-        <div style="margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
+        <div style="margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px;color:#64748b;font-size:9.5px;font-weight:500;">
           ${SVG_ICONS.expand}
           <span>Click image to view full size</span>
         </div>
@@ -7245,8 +7216,8 @@ const Locations = () => {
           icon: makePhotoIcon(photo.url, fmtTime(photo.timestamp), 28),
           zIndexOffset: 950
         }).bindPopup(popup, {
-          maxWidth: 260,
-          minWidth: 200,
+          maxWidth: 240,
+          minWidth: 230,
           className: 'photo-popup'
         }).addTo(mapInstance.current);
 
