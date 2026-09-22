@@ -248,7 +248,7 @@ const HistoryRow = ({ row, theme, index }) => {
   const [open, setOpen] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
   const dispatch = useDispatch();
-  
+
   const userLogsObj = useSelector((state) => state.shift.userHistoryLogs[row.id] || {});
   const { logs = [], pagination: innerPagination = {}, loading: innerLoading = false } = userLogsObj;
 
@@ -278,13 +278,13 @@ const HistoryRow = ({ row, theme, index }) => {
 
   return (
     <React.Fragment>
-      <TableRow 
-        hover 
+      <TableRow
+        hover
         onClick={() => setOpen(!open)}
-        sx={{ 
+        sx={{
           cursor: "pointer",
-          "&:hover": { bgcolor: "#f8fafc" }, 
-          "& > *": { borderBottom: "unset" } 
+          "&:hover": { bgcolor: "#f8fafc" },
+          "& > *": { borderBottom: "unset" }
         }}
       >
         <TableCell sx={{ fontWeight: 600, color: "text.secondary", fontSize: "0.8rem", borderColor: "#f1f5f9" }}>
@@ -371,47 +371,48 @@ const HistoryRow = ({ row, theme, index }) => {
                 {logs.map((histItem, index) => {
                   const isLastElement = logs.length === index + 1;
                   return (
-                    <Grid item xs={12} key={histItem._id || index} ref={isLastElement ? lastElementRef : null}>
-                      <Card variant="outlined" sx={{ p: 1.5, bgcolor: "white", borderColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        
-                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                          <Typography variant="caption" color="text.secondary" gutterBottom>New Assignment</Typography>
-                          <Chip 
-                            label={histItem.newShiftName || "Free Time"} 
-                            size="small" 
-                            sx={{ 
-                              fontSize: "0.75rem", 
-                              height: 24,
+                    <Grid item xs={12} sm={6} md={4} key={histItem._id || index} ref={isLastElement ? lastElementRef : null}>
+                      <Card variant="outlined" sx={{ p: 1.25, bgcolor: "white", borderColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between", height: "100%" }}>
+
+                        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: "0.68rem", mb: 0.2 }}>New Assignment</Typography>
+                          <Chip
+                            label={histItem.newShiftName || "Free Time"}
+                            size="small"
+                            sx={{
+                              fontSize: "0.72rem",
+                              height: 22,
+                              maxWidth: "100%",
                               bgcolor: alpha(theme.palette.primary.main, 0.08),
                               color: theme.palette.primary.main,
                               border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
-                            }} 
+                            }}
                           />
                           {histItem.newShiftTime && (
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
+                            <Typography variant="caption" color="text.secondary" noWrap sx={{ mt: 0.3, fontSize: "0.68rem", fontWeight: 500 }}>
                               {histItem.newShiftTime}
                             </Typography>
                           )}
                         </Box>
 
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2 }}>
-                          <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.65rem", mb: 0.5 }}>
-                            {new Date(histItem.changedAt || histItem.assignedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 1, flexShrink: 0 }}>
+                          <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.62rem", mb: 0.3, whiteSpace: "nowrap" }}>
+                            {new Date(histItem.changedAt || histItem.assignedAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
                           </Typography>
-                          <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 0.5, borderRadius: "50%", display: "flex" }}>
-                            <ArrowBackIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
+                          <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 0.4, borderRadius: "50%", display: "flex" }}>
+                            <ArrowBackIcon sx={{ fontSize: 14, color: theme.palette.primary.main }} />
                           </Box>
                         </Box>
 
-                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                          <Typography variant="caption" color="text.secondary" gutterBottom>Previous Assignment</Typography>
-                          <Chip 
-                            label={histItem.oldShiftName || "Free Time"} 
-                            size="small" 
-                            sx={{ fontSize: "0.75rem", height: 24, bgcolor: "#f1f5f9", color: "text.secondary" }} 
+                        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: "0.68rem", mb: 0.2 }}>Previous Assignment</Typography>
+                          <Chip
+                            label={histItem.oldShiftName || "Free Time"}
+                            size="small"
+                            sx={{ fontSize: "0.72rem", height: 22, maxWidth: "100%", bgcolor: "#f1f5f9", color: "text.secondary" }}
                           />
                           {histItem.oldShiftTime && (
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
+                            <Typography variant="caption" color="text.secondary" noWrap sx={{ mt: 0.3, fontSize: "0.68rem", fontWeight: 500 }}>
                               {histItem.oldShiftTime}
                             </Typography>
                           )}
@@ -422,7 +423,7 @@ const HistoryRow = ({ row, theme, index }) => {
                   );
                 })}
               </Grid>
-              
+
               {innerLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
                   <CircularProgress size={24} />
@@ -663,8 +664,8 @@ const ShiftManagement = () => {
         user?.shift && typeof user.shift === "object"
           ? user.shift._id || user.shift.id
           : typeof user?.shift === "string"
-          ? user.shift
-          : user?.shiftId || "";
+            ? user.shift
+            : user?.shiftId || "";
       setTargetShiftId(currentShiftId || "null");
       setSelectedUserIds([user._id || user.id]);
     } else {
@@ -711,8 +712,8 @@ const ShiftManagement = () => {
     const targetShiftLabel = isFreeTime
       ? "Free Time"
       : targetShift
-      ? `${targetShift.shiftName} (${formatTo12Hour(targetShift.shiftStartTime)} - ${formatTo12Hour(targetShift.shiftEndTime)})`
-      : "Assigned Shift";
+        ? `${targetShift.shiftName} (${formatTo12Hour(targetShift.shiftStartTime)} - ${formatTo12Hour(targetShift.shiftEndTime)})`
+        : "Assigned Shift";
 
     setIsAssigning(true);
     const newHistoryEntries = [];
@@ -758,7 +759,7 @@ const ShiftManagement = () => {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
 
-    const tableData = history.flatMap(userHistory => 
+    const tableData = history.flatMap(userHistory =>
       userHistory.history.map((item, idx) => [
         idx + 1,
         userHistory.userId?.name || userHistory.userName || "—",
@@ -789,7 +790,7 @@ const ShiftManagement = () => {
       return;
     }
     const headers = ["Employee Name", "Email", "Previous Shift", "New Assigned Shift", "Assigned By", "Date & Time"];
-    const rows = history.flatMap(userHistory => 
+    const rows = history.flatMap(userHistory =>
       userHistory.history.map((item) => [
         `"${userHistory.userId?.name || userHistory.userName || "—"}"`,
         `"${userHistory.userId?.email || userHistory.userEmail || "—"}"`,
@@ -916,12 +917,12 @@ const ShiftManagement = () => {
 
   const filteredHistory = useMemo(() => {
     if (!history) return [];
-    
+
     // Convert to grouped format
     const grouped = history.map(userHistory => {
       const userName = userHistory.userId?.name || userHistory.userName || "—";
       const userEmail = userHistory.userId?.email || userHistory.userEmail || "—";
-      
+
       // Sort history items so latest is first
       const sortedHistory = [...(userHistory.history || [])].sort((a, b) => {
         return new Date(b.changedAt || b.assignedAt) - new Date(a.changedAt || a.assignedAt);
@@ -934,14 +935,14 @@ const ShiftManagement = () => {
         history: sortedHistory
       };
     });
-    
+
     return grouped.filter((item) => {
       const query = historySearch.toLowerCase();
       return (
         item.userName.toLowerCase().includes(query) ||
         item.userEmail.toLowerCase().includes(query) ||
-        item.history.some(h => 
-          (h.newShiftName || "").toLowerCase().includes(query) || 
+        item.history.some(h =>
+          (h.newShiftName || "").toLowerCase().includes(query) ||
           (h.oldShiftName || "").toLowerCase().includes(query)
         )
       );
@@ -984,15 +985,15 @@ const ShiftManagement = () => {
             {activeTab === 0
               ? "Shift Management"
               : activeTab === 1
-              ? "Shift Roster & Scheduling"
-              : "Shift Assignment History"}
+                ? "Shift Roster & Scheduling"
+                : "Shift Assignment History"}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
             {activeTab === 0
               ? "Configure, customize, and manage working hours for your teams"
               : activeTab === 1
-              ? "View and assign employee shifts across the roster"
-              : "Complete audit log of all shift reassignments and changes"}
+                ? "View and assign employee shifts across the roster"
+                : "Complete audit log of all shift reassignments and changes"}
           </Typography>
         </Box>
 
@@ -2606,8 +2607,8 @@ const ShiftManagement = () => {
                       ? `Removing shift for ${singleAssignUser.name || singleAssignUser.userName || "user"}:`
                       : `Reassigning ${singleAssignUser.name || singleAssignUser.userName || "user"} to:`
                     : targetShiftId === "null"
-                    ? `Removing shift for ${selectedUserIds.length} member(s):`
-                    : `Assigning ${selectedUserIds.length} member(s) to:`}
+                      ? `Removing shift for ${selectedUserIds.length} member(s):`
+                      : `Assigning ${selectedUserIds.length} member(s) to:`}
                 </Typography>
                 <Typography
                   variant="body2"
