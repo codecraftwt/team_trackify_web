@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   Box,
   Typography,
@@ -39,6 +39,7 @@ import {
   MenuItem,
   InputLabel,
   TablePagination,
+  Collapse,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -67,11 +68,14 @@ import {
   AssignmentInd as AssignmentIndIcon,
   Download as DownloadIcon,
   SwapHoriz as SwapHorizIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import { fetchShifts, createShift, deleteShift, updateShift, assignShiftToUser } from "../../redux/slices/shiftSlice";
+import { fetchShifts, createShift, deleteShift, updateShift, assignShiftToUser, fetchShiftHistory, fetchUserShiftHistory } from "../../redux/slices/shiftSlice";
 import { getUsersUnderAdmin } from "../../redux/slices/userSlice";
 import { toast } from "react-toastify";
 import jsPDF from "jspdf";
@@ -240,6 +244,198 @@ const SHIFT_PRESETS = [
   { name: "Night Shift", startTime: "22:00", endTime: "06:00" },
 ];
 
+const HistoryRow = ({ row, theme, index }) => {
+  const [open, setOpen] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
+  const dispatch = useDispatch();
+  
+  const userLogsObj = useSelector((state) => state.shift.userHistoryLogs[row.id] || {});
+  const { logs = [], pagination: innerPagination = {}, loading: innerLoading = false } = userLogsObj;
+
+  const latestHistory = row.history && row.history.length > 0 ? row.history[0] : null;
+
+  useEffect(() => {
+    if (open && !hasFetched && logs.length === 0 && !innerLoading) {
+      setHasFetched(true);
+      dispatch(fetchUserShiftHistory({ userId: row.id, page: 1, limit: 10 }));
+    }
+  }, [open, row.id, logs.length, innerLoading, dispatch, hasFetched]);
+
+  const observer = useRef();
+  const lastElementRef = useCallback(
+    (node) => {
+      if (innerLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && innerPagination.page < innerPagination.totalPages) {
+          dispatch(fetchUserShiftHistory({ userId: row.id, page: innerPagination.page + 1, limit: 10 }));
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [innerLoading, innerPagination.page, innerPagination.totalPages, row.id, dispatch]
+  );
+
+  return (
+    <React.Fragment>
+      <TableRow 
+        hover 
+        onClick={() => setOpen(!open)}
+        sx={{ 
+          cursor: "pointer",
+          "&:hover": { bgcolor: "#f8fafc" }, 
+          "& > *": { borderBottom: "unset" } 
+        }}
+      >
+        <TableCell sx={{ fontWeight: 600, color: "text.secondary", fontSize: "0.8rem", borderColor: "#f1f5f9" }}>
+          {index + 1}
+        </TableCell>
+        <TableCell sx={{ borderColor: "#f1f5f9" }}>
+          <Box>
+            <Typography variant="body2" fontWeight={600} color="text.primary" sx={{ fontSize: "0.85rem" }}>
+              {row.userName}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+              {row.userEmail}
+            </Typography>
+          </Box>
+        </TableCell>
+        <TableCell sx={{ borderColor: "#f1f5f9" }}>
+          <Chip
+            label={latestHistory?.oldShiftName || "Free Time"}
+            size="small"
+            sx={{
+              height: 20,
+              fontSize: "0.7rem",
+              fontWeight: 500,
+              bgcolor: "#f1f5f9",
+              color: "text.secondary",
+            }}
+          />
+        </TableCell>
+        <TableCell sx={{ borderColor: "#f1f5f9" }}>
+          <Chip
+            label={latestHistory?.newShiftName || "Free Time"}
+            size="small"
+            sx={{
+              height: 20,
+              fontSize: "0.7rem",
+              fontWeight: 600,
+              bgcolor: alpha(theme.palette.primary.main, 0.08),
+              color: theme.palette.primary.main,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+            }}
+          />
+        </TableCell>
+        <TableCell sx={{ color: "text.primary", fontSize: "0.82rem", fontWeight: 500, borderColor: "#f1f5f9" }}>
+          {latestHistory?.assignedBy || "Admin"}
+        </TableCell>
+        <TableCell sx={{ color: "text.secondary", fontSize: "0.8rem", borderColor: "#f1f5f9" }}>
+          {latestHistory ? new Date(latestHistory.changedAt || latestHistory.assignedAt).toLocaleString([], {
+            dateStyle: "medium",
+            timeStyle: "short",
+          }) : "—"}
+        </TableCell>
+        <TableCell sx={{ borderColor: "#f1f5f9" }}>
+          <Chip
+            label="Active"
+            size="small"
+            sx={{
+              height: 20,
+              fontSize: "0.68rem",
+              fontWeight: 600,
+              bgcolor: "#ecfdf5",
+              color: "#059669",
+              border: "1px solid #a7f3d0",
+            }}
+          />
+        </TableCell>
+        <TableCell align="right" sx={{ borderColor: "#f1f5f9" }}>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 2, p: 2, bgcolor: "#f8fafc", borderRadius: 2, border: "1px dashed #cbd5e1" }}>
+              <Typography variant="subtitle2" gutterBottom component="div" color="text.secondary">
+                Shift History Log for {row.userName}
+              </Typography>
+              <Grid container spacing={1.5} sx={{ mt: 0.5 }}>
+                {logs.map((histItem, index) => {
+                  const isLastElement = logs.length === index + 1;
+                  return (
+                    <Grid item xs={12} key={histItem._id || index} ref={isLastElement ? lastElementRef : null}>
+                      <Card variant="outlined" sx={{ p: 1.5, bgcolor: "white", borderColor: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        
+                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                          <Typography variant="caption" color="text.secondary" gutterBottom>New Assignment</Typography>
+                          <Chip 
+                            label={histItem.newShiftName || "Free Time"} 
+                            size="small" 
+                            sx={{ 
+                              fontSize: "0.75rem", 
+                              height: 24,
+                              bgcolor: alpha(theme.palette.primary.main, 0.08),
+                              color: theme.palette.primary.main,
+                              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+                            }} 
+                          />
+                          {histItem.newShiftTime && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
+                              {histItem.newShiftTime}
+                            </Typography>
+                          )}
+                        </Box>
+
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2 }}>
+                          <Typography variant="caption" color="text.disabled" sx={{ fontSize: "0.65rem", mb: 0.5 }}>
+                            {new Date(histItem.changedAt || histItem.assignedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                          </Typography>
+                          <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 0.5, borderRadius: "50%", display: "flex" }}>
+                            <ArrowBackIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <Typography variant="caption" color="text.secondary" gutterBottom>Previous Assignment</Typography>
+                          <Chip 
+                            label={histItem.oldShiftName || "Free Time"} 
+                            size="small" 
+                            sx={{ fontSize: "0.75rem", height: 24, bgcolor: "#f1f5f9", color: "text.secondary" }} 
+                          />
+                          {histItem.oldShiftTime && (
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
+                              {histItem.oldShiftTime}
+                            </Typography>
+                          )}
+                        </Box>
+
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+              
+              {innerLoading && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              )}
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
+  );
+};
+
 const ShiftManagement = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -252,7 +448,7 @@ const ShiftManagement = () => {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   // Redux state
-  const { shifts = [], loading: shiftLoading = false } = useSelector((state) => state.shift || {});
+  const { shifts = [], loading: shiftLoading = false, history = [], historyLoading = false, pagination, userHistoryLogs = {} } = useSelector((state) => state.shift || {});
   const { adminUsersList = [], adminUsersLoading = false } = useSelector((state) => state.user || {});
 
   // Current logged in user info
@@ -302,67 +498,11 @@ const ShiftManagement = () => {
   const [historySearch, setHistorySearch] = useState("");
   const [historyPage, setHistoryPage] = useState(0);
   const [historyRowsPerPage, setHistoryRowsPerPage] = useState(10);
-  const [assignmentHistory, setAssignmentHistory] = useState([]);
 
   // Smooth border constants matching UserManagement
   const cardBorder = `1px solid ${alpha(theme.palette.primary.main, 0.1)}`;
   const lightBorder = "1px solid #eef2f6";
   const softBorder = "1px solid #f1f5f9";
-
-  // Load Assignment History from localStorage
-  const loadHistoryFromStorage = useCallback(() => {
-    try {
-      const historyKey = `shift_history_${adminId || "default"}`;
-      const saved = localStorage.getItem(historyKey);
-      if (saved) {
-        setAssignmentHistory(JSON.parse(saved));
-      } else {
-        const initialSeed = [
-          {
-            id: "hist_1",
-            userName: "WalstarCC User",
-            userEmail: "team@walstar.com",
-            previousShift: "Free Time",
-            newShift: "Way To Office (08:30 AM - 08:55 AM)",
-            shiftId: "shift_1",
-            assignedBy: storedUser?.name || "Admin",
-            assignedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-            status: "Active",
-          },
-          {
-            id: "hist_2",
-            userName: "Field Officer",
-            userEmail: "field@walstar.com",
-            previousShift: "Way To Office",
-            newShift: "Way To Home (07:30 PM - 08:00 PM)",
-            shiftId: "shift_2",
-            assignedBy: storedUser?.name || "Admin",
-            assignedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-            status: "Completed",
-          },
-        ];
-        setAssignmentHistory(initialSeed);
-        localStorage.setItem(historyKey, JSON.stringify(initialSeed));
-      }
-    } catch (e) {
-      console.error("Error loading shift history:", e);
-    }
-  }, [adminId, storedUser?.name]);
-
-  // Save new assignment to history
-  const addAssignmentHistoryEntry = useCallback(
-    (entries) => {
-      try {
-        const historyKey = `shift_history_${adminId || "default"}`;
-        const updated = [...entries, ...assignmentHistory];
-        setAssignmentHistory(updated);
-        localStorage.setItem(historyKey, JSON.stringify(updated));
-      } catch (e) {
-        console.error("Error saving shift history:", e);
-      }
-    },
-    [adminId, assignmentHistory]
-  );
 
   // Fetch shifts & users on mount
   useEffect(() => {
@@ -370,8 +510,12 @@ const ShiftManagement = () => {
     if (adminId) {
       dispatch(getUsersUnderAdmin({ adminId, page: 1, limit: 100 }));
     }
-    loadHistoryFromStorage();
-  }, [dispatch, adminId, loadHistoryFromStorage]);
+  }, [dispatch, adminId]);
+
+  // Fetch shift history when pagination changes (and initially on mount)
+  useEffect(() => {
+    dispatch(fetchShiftHistory({ page: historyPage + 1, limit: historyRowsPerPage }));
+  }, [dispatch, historyPage, historyRowsPerPage]);
 
   const handleTabChange = (e, newTab) => {
     setActiveTab(newTab);
@@ -384,7 +528,9 @@ const ShiftManagement = () => {
     if (adminId) {
       dispatch(getUsersUnderAdmin({ adminId, page: 1, limit: 100 }));
     }
-    loadHistoryFromStorage();
+    if (activeTab === 2) {
+      dispatch(fetchShiftHistory({ page: historyPage + 1, limit: historyRowsPerPage }));
+    }
     toast.info("Data refreshed");
   };
 
@@ -577,21 +723,8 @@ const ShiftManagement = () => {
         const previousShiftName = userObj?.shift?.shiftName || "Free Time";
 
         await dispatch(assignShiftToUser({ userId, shiftId: actualShiftId })).unwrap();
-
-        newHistoryEntries.push({
-          id: `hist_${Date.now()}_${userId}`,
-          userName: userObj?.name || userObj?.userName || "Team Member",
-          userEmail: userObj?.email || "—",
-          previousShift: previousShiftName,
-          newShift: targetShiftLabel,
-          shiftId: actualShiftId || "free_time",
-          assignedBy: storedUser?.name || "Admin",
-          assignedAt: new Date().toISOString(),
-          status: "Active",
-        });
       }
 
-      addAssignmentHistoryEntry(newHistoryEntries);
       toast.success(
         isFreeTime
           ? `Successfully removed shift for ${selectedUserIds.length} member${selectedUserIds.length > 1 ? "s" : ""} (set to Free Time)!`
@@ -600,6 +733,9 @@ const ShiftManagement = () => {
 
       if (adminId) {
         dispatch(getUsersUnderAdmin({ adminId, page: 1, limit: 100 }));
+      }
+      if (activeTab === 2) {
+        dispatch(fetchShiftHistory({ page: historyPage + 1, limit: historyRowsPerPage }));
       }
       setSelectedUserIds([]);
       handleCloseAssignModal();
@@ -612,7 +748,7 @@ const ShiftManagement = () => {
 
   // Export History as PDF
   const handleExportHistoryPDF = () => {
-    if (assignmentHistory.length === 0) {
+    if (!history || history.length === 0) {
       toast.info("No assignment history to export");
       return;
     }
@@ -622,15 +758,17 @@ const ShiftManagement = () => {
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
 
-    const tableData = assignmentHistory.map((item, idx) => [
-      idx + 1,
-      item.userName,
-      item.userEmail,
-      item.previousShift,
-      item.newShift,
-      item.assignedBy,
-      new Date(item.assignedAt).toLocaleDateString(),
-    ]);
+    const tableData = history.flatMap(userHistory => 
+      userHistory.history.map((item, idx) => [
+        idx + 1,
+        userHistory.userId?.name || userHistory.userName || "—",
+        userHistory.userId?.email || userHistory.userEmail || "—",
+        item.oldShiftName || "Free Time",
+        item.newShiftName || "Free Time",
+        item.assignedBy || "Admin",
+        new Date(item.changedAt || item.assignedAt).toLocaleDateString(),
+      ])
+    );
 
     autoTable(doc, {
       startY: 34,
@@ -646,19 +784,21 @@ const ShiftManagement = () => {
 
   // Export History as CSV
   const handleExportHistoryCSV = () => {
-    if (assignmentHistory.length === 0) {
+    if (!history || history.length === 0) {
       toast.info("No assignment history to export");
       return;
     }
     const headers = ["Employee Name", "Email", "Previous Shift", "New Assigned Shift", "Assigned By", "Date & Time"];
-    const rows = assignmentHistory.map((item) => [
-      `"${item.userName}"`,
-      `"${item.userEmail}"`,
-      `"${item.previousShift}"`,
-      `"${item.newShift}"`,
-      `"${item.assignedBy}"`,
-      `"${new Date(item.assignedAt).toLocaleString()}"`,
-    ]);
+    const rows = history.flatMap(userHistory => 
+      userHistory.history.map((item) => [
+        `"${userHistory.userId?.name || userHistory.userName || "—"}"`,
+        `"${userHistory.userId?.email || userHistory.userEmail || "—"}"`,
+        `"${item.oldShiftName || "Free Time"}"`,
+        `"${item.newShiftName || "Free Time"}"`,
+        `"${item.assignedBy || "Admin"}"`,
+        `"${new Date(item.changedAt || item.assignedAt).toLocaleString()}"`,
+      ])
+    );
 
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
@@ -775,16 +915,38 @@ const ShiftManagement = () => {
   }, [adminUsersList, shifts]);
 
   const filteredHistory = useMemo(() => {
-    return assignmentHistory.filter((item) => {
+    if (!history) return [];
+    
+    // Convert to grouped format
+    const grouped = history.map(userHistory => {
+      const userName = userHistory.userId?.name || userHistory.userName || "—";
+      const userEmail = userHistory.userId?.email || userHistory.userEmail || "—";
+      
+      // Sort history items so latest is first
+      const sortedHistory = [...(userHistory.history || [])].sort((a, b) => {
+        return new Date(b.changedAt || b.assignedAt) - new Date(a.changedAt || a.assignedAt);
+      });
+
+      return {
+        id: userHistory.userId?._id || userHistory.userId, // Explicitly use the User's ID
+        userName,
+        userEmail,
+        history: sortedHistory
+      };
+    });
+    
+    return grouped.filter((item) => {
       const query = historySearch.toLowerCase();
       return (
         item.userName.toLowerCase().includes(query) ||
         item.userEmail.toLowerCase().includes(query) ||
-        item.newShift.toLowerCase().includes(query) ||
-        item.previousShift.toLowerCase().includes(query)
+        item.history.some(h => 
+          (h.newShiftName || "").toLowerCase().includes(query) || 
+          (h.oldShiftName || "").toLowerCase().includes(query)
+        )
       );
     });
-  }, [assignmentHistory, historySearch]);
+  }, [history, historySearch]);
 
   const livePreview = useMemo(() => {
     const details = getShiftDetails(formData.shiftName, formData.shiftStartTime);
@@ -1018,7 +1180,7 @@ const ShiftManagement = () => {
                 <HistoryIcon sx={{ fontSize: 16 }} />
                 <span>Assignment History</span>
                 <Chip
-                  label={assignmentHistory.length}
+                  label={pagination?.total || 0}
                   size="small"
                   sx={{
                     bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -2297,83 +2459,14 @@ const ShiftManagement = () => {
                     <TableCell sx={{ fontWeight: 700, color: "text.secondary", fontSize: "0.75rem", py: 1.2, borderColor: "#f1f5f9" }}>ASSIGNED BY</TableCell>
                     <TableCell sx={{ fontWeight: 700, color: "text.secondary", fontSize: "0.75rem", py: 1.2, borderColor: "#f1f5f9" }}>DATE & TIME</TableCell>
                     <TableCell sx={{ fontWeight: 700, color: "text.secondary", fontSize: "0.75rem", py: 1.2, borderColor: "#f1f5f9" }}>STATUS</TableCell>
+                    <TableCell sx={{ py: 1.2, borderColor: "#f1f5f9" }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredHistory
                     .slice(historyPage * historyRowsPerPage, historyPage * historyRowsPerPage + historyRowsPerPage)
                     .map((item, idx) => (
-                      <TableRow
-                        key={item.id || idx}
-                        hover
-                        sx={{
-                          "&:hover": { bgcolor: "#f8fafc" },
-                        }}
-                      >
-                        <TableCell sx={{ fontWeight: 600, color: "text.secondary", fontSize: "0.8rem", borderColor: "#f1f5f9" }}>
-                          {historyPage * historyRowsPerPage + idx + 1}
-                        </TableCell>
-                        <TableCell sx={{ borderColor: "#f1f5f9" }}>
-                          <Box>
-                            <Typography variant="body2" fontWeight={600} color="text.primary" sx={{ fontSize: "0.85rem" }}>
-                              {item.userName}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
-                              {item.userEmail}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell sx={{ borderColor: "#f1f5f9" }}>
-                          <Chip
-                            label={item.previousShift}
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: "0.7rem",
-                              fontWeight: 500,
-                              bgcolor: "#f1f5f9",
-                              color: "text.secondary",
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ borderColor: "#f1f5f9" }}>
-                          <Chip
-                            label={item.newShift}
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              bgcolor: alpha(theme.palette.primary.main, 0.08),
-                              color: theme.palette.primary.main,
-                              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ color: "text.primary", fontSize: "0.82rem", fontWeight: 500, borderColor: "#f1f5f9" }}>
-                          {item.assignedBy}
-                        </TableCell>
-                        <TableCell sx={{ color: "text.secondary", fontSize: "0.8rem", borderColor: "#f1f5f9" }}>
-                          {new Date(item.assignedAt).toLocaleString([], {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}
-                        </TableCell>
-                        <TableCell sx={{ borderColor: "#f1f5f9" }}>
-                          <Chip
-                            label={item.status || "Active"}
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: "0.68rem",
-                              fontWeight: 600,
-                              bgcolor: "#ecfdf5",
-                              color: "#059669",
-                              border: "1px solid #a7f3d0",
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
+                      <HistoryRow key={item.id} row={item} theme={theme} index={historyPage * historyRowsPerPage + idx} />
                     ))}
                 </TableBody>
               </Table>
