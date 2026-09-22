@@ -54,7 +54,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserReportsByAdminId, clearReports } from "../../redux/slices/reportSlice";
+import { getUserReportsByAdminId, getUserReportsSummaryByAdminId } from "../../redux/slices/reportSlice";
 import { formatDateTimeDDMMYYYY, formatDateDDMMYYYY, formatDateLocal } from "../../utils/dateFormat";
 import { useDebounce } from "../../Hooks/useDebounce";
 import jsPDF from "jspdf";
@@ -65,6 +65,19 @@ const SummaryCards = ({ summary, loading }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
+  // Helper to calculate hours/minutes from seconds fallback
+  const formatSecondsToText = (seconds) => {
+    if (!seconds) return "0 seconds";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    const parts = [];
+    if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+    if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+    if (secs > 0 || parts.length === 0) parts.push(`${secs} second${secs > 1 ? 's' : ''}`);
+    return parts.join(' ');
+  };
 
   const cards = [
     {
@@ -85,13 +98,16 @@ const SummaryCards = ({ summary, loading }) => {
     },
     {
       title: "Total Duration",
-      value: summary?.totalDurationFormatted || "0 seconds",
+      value: summary?.totalDurationFormatted || 
+             (summary?.totalDuration ? formatSecondsToText(summary.totalDuration) : "0 seconds"),
       unit: "",
       icon: <EventIcon sx={{ fontSize: isMobile ? 18 : 24 }} />,
       color: theme.palette.warning.main,
       bgColor: alpha(theme.palette.warning.main, 0.1),
     },
   ];
+
+
 
   // Helper function to format duration text
   const formatDurationText = (durationText) => {
@@ -413,7 +429,7 @@ const HeaderButtonSkeleton = ({ isMobile }) => {
 };
 
 // Mobile Card View Component with View Button
-const MobileCardView = ({ reports, currentPage, rowsPerPage, onViewDetails }) => {
+const MobileCardView = ({ reports, currentPage, rowsPerPage, onViewDetails, viewMode }) => {
   const theme = useTheme();
 
   const formatDisplayDate = (dateString) => {
@@ -523,13 +539,15 @@ const MobileCardView = ({ reports, currentPage, rowsPerPage, onViewDetails }) =>
                     <Grid item xs={6}>
                       <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: 1, borderRadius: 1.5 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>
-                          Check In
+                          {viewMode === 'summary' ? 'First In' : 'Check In'}
                         </Typography>
-                        {report.check_in_time ? (
+                        {(viewMode === 'summary' ? report.firstIn : report.check_in_time) ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                             <CheckInIcon sx={{ color: "#22c55e", fontSize: 14 }} />
                             <Typography variant="body2" noWrap sx={{ fontSize: '0.7rem', color: 'text.primary' }}>
-                              {formatDisplayDate(report.check_in_time)}
+                              {viewMode === 'summary' 
+                                ? new Date(report.firstIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) 
+                                : formatDisplayDate(report.check_in_time)}
                             </Typography>
                           </Box>
                         ) : (
@@ -540,13 +558,15 @@ const MobileCardView = ({ reports, currentPage, rowsPerPage, onViewDetails }) =>
                     <Grid item xs={6}>
                       <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), p: 1, borderRadius: 1.5 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem' }}>
-                          Check Out
+                          {viewMode === 'summary' ? 'Last Out' : 'Check Out'}
                         </Typography>
-                        {report.check_out_time ? (
+                        {(viewMode === 'summary' ? report.lastOut : report.check_out_time) ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                             <CheckOutIcon sx={{ color: "#ef4444", fontSize: 14 }} />
                             <Typography variant="body2" noWrap sx={{ fontSize: '0.7rem', color: 'text.primary' }}>
-                              {formatDisplayDate(report.check_out_time)}
+                              {viewMode === 'summary' 
+                                ? new Date(report.lastOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) 
+                                : formatDisplayDate(report.check_out_time)}
                             </Typography>
                           </Box>
                         ) : (
@@ -567,7 +587,10 @@ const MobileCardView = ({ reports, currentPage, rowsPerPage, onViewDetails }) =>
                   }}>
                     <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
                     <Typography variant="body2" fontWeight={500} sx={{ fontSize: '0.75rem', color: 'text.primary' }}>
-                      {report.tracker?.total_distance ? `${report.tracker.total_distance.toFixed(2)} km` : "0 km"}
+                      {viewMode === 'summary' 
+                        ? (report.totalDistance ? `${report.totalDistance.toFixed(2)} km` : "0 km")
+                        : (report.tracker?.total_distance ? `${report.tracker.total_distance.toFixed(2)} km` : "0 km")
+                      }
                     </Typography>
                   </Box>
                 </CardContent>
@@ -591,7 +614,7 @@ const Reports = () => {
 
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
   const [viewMode, setViewMode] = useState("summary");
-  const { reports = [], pagination = {}, loading = false, summary = {} } = useSelector((state) => state.report || {});
+  const { reports = [], summaryReports = [], pagination = {}, loading = false, summary = {} } = useSelector((state) => state.report || {});
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -642,23 +665,36 @@ const Reports = () => {
   useEffect(() => {
     if (!effectiveAdminId) return;
 
-    dispatch(
-      getUserReportsByAdminId({
-        adminId: effectiveAdminId,
-        page: currentPage + 1,
-        limit: rowsPerPage,
-        search: debouncedSearchQuery || undefined,
-        fromDate: dateRange.fromDate,
-        toDate: dateRange.toDate,
-      })
-    );
+    if (viewMode === 'summary') {
+      dispatch(
+        getUserReportsSummaryByAdminId({
+          adminId: effectiveAdminId,
+          page: currentPage + 1,
+          limit: rowsPerPage,
+          search: debouncedSearchQuery || undefined,
+          fromDate: dateRange.fromDate,
+          toDate: dateRange.toDate,
+        })
+      );
+    } else {
+      dispatch(
+        getUserReportsByAdminId({
+          adminId: effectiveAdminId,
+          page: currentPage + 1,
+          limit: rowsPerPage,
+          search: debouncedSearchQuery || undefined,
+          fromDate: dateRange.fromDate,
+          toDate: dateRange.toDate,
+        })
+      );
+    }
 
     const timer = setTimeout(() => {
       setShowFirstRenderLoader(false);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [dispatch, currentPage, rowsPerPage, dateRange.fromDate, dateRange.toDate, debouncedSearchQuery, effectiveAdminId]);
+  }, [dispatch, currentPage, rowsPerPage, dateRange.fromDate, dateRange.toDate, debouncedSearchQuery, effectiveAdminId, viewMode]);
 
   // Memoized sorted reports
   const sortedReports = useMemo(() => {
@@ -676,47 +712,7 @@ const Reports = () => {
     });
   }, [reports, sortOrder]);
 
-  const summaryReports = useMemo(() => {
-    if (!sortedReports || sortedReports.length === 0) return [];
-    
-    const grouped = {};
-    
-    sortedReports.forEach(report => {
-      if (!report.check_in_time || !report.user?._id) return;
-      
-      const date = new Date(report.check_in_time).toLocaleDateString('en-GB'); // DD/MM/YYYY
-      const key = `${report.user._id}_${date}`;
-      
-      if (!grouped[key]) {
-        grouped[key] = {
-          _id: key,
-          user: report.user,
-          dateString: report.check_in_time, 
-          first_check_in: report.check_in_time,
-          last_check_out: report.check_out_time,
-          total_distance: report.tracker?.total_distance || 0,
-          sessions_count: 1,
-        };
-      } else {
-        if (new Date(report.check_in_time) < new Date(grouped[key].first_check_in)) {
-          grouped[key].first_check_in = report.check_in_time;
-        }
-        if (report.check_out_time) {
-          if (!grouped[key].last_check_out || new Date(report.check_out_time) > new Date(grouped[key].last_check_out)) {
-            grouped[key].last_check_out = report.check_out_time;
-          }
-        }
-        grouped[key].total_distance += (report.tracker?.total_distance || 0);
-        grouped[key].sessions_count += 1;
-      }
-    });
-    
-    return Object.values(grouped).sort((a, b) => {
-      const dateA = new Date(a.dateString);
-      const dateB = new Date(b.dateString);
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    });
-  }, [sortedReports, sortOrder]);
+
 
   const handleChangePage = (event, newPage) => {
     setCurrentPage(newPage);
@@ -815,16 +811,33 @@ const Reports = () => {
         );
       }
 
-      const headers = ["#", "User Name", "Email", "Check In", "Check Out", "Distance (km)"];
+      const isSummary = viewMode === 'summary';
+      const headers = isSummary 
+        ? ["#", "User Name", "Email", "Date", "First In", "Last Out", "Sessions", "Distance (km)"]
+        : ["#", "User Name", "Email", "Check In", "Check Out", "Distance (km)"];
 
-      const data = sortedReports.map((report, index) => [
-        index + 1,
-        report.user?.name || "-",
-        report.user?.email || "-",
-        report.check_in_time ? formatDateTimeDDMMYYYY(report.check_in_time) : "-",
-        report.check_out_time ? formatDateTimeDDMMYYYY(report.check_out_time) : "-",
-        report.tracker?.total_distance ? `${report.tracker.total_distance.toFixed(2)}` : "-",
-      ]);
+      const dataToExport = isSummary ? summaryReports : sortedReports;
+
+      const data = dataToExport.map((report, index) => isSummary 
+        ? [
+            index + 1,
+            report.user?.name || "-",
+            report.user?.email || "-",
+            report.date ? formatDisplayDate(report.date) : "-",
+            report.firstIn ? formatDateTimeDDMMYYYY(report.firstIn) : "-",
+            report.lastOut ? formatDateTimeDDMMYYYY(report.lastOut) : "-",
+            `${report.sessionsCount} sessions`,
+            report.totalDistance ? `${report.totalDistance.toFixed(2)}` : "-",
+          ]
+        : [
+            index + 1,
+            report.user?.name || "-",
+            report.user?.email || "-",
+            report.check_in_time ? formatDateTimeDDMMYYYY(report.check_in_time) : "-",
+            report.check_out_time ? formatDateTimeDDMMYYYY(report.check_out_time) : "-",
+            report.tracker?.total_distance ? `${report.tracker.total_distance.toFixed(2)}` : "-",
+          ]
+      );
 
       autoTable(doc, {
         head: [headers],
@@ -1261,7 +1274,7 @@ const Reports = () => {
         {!loading && (viewMode === 'details' ? sortedReports.length > 0 : summaryReports.length > 0) ? (
           <>
             {isMobile ? (
-              <MobileCardView reports={viewMode === 'details' ? sortedReports : summaryReports} currentPage={currentPage} rowsPerPage={rowsPerPage} onViewDetails={handleViewDetails} />
+              <MobileCardView reports={viewMode === 'details' ? sortedReports : summaryReports} currentPage={currentPage} rowsPerPage={rowsPerPage} onViewDetails={handleViewDetails} viewMode={viewMode} />
             ) : (
               <TableContainer sx={{
                 overflowX: 'auto',
@@ -1333,11 +1346,11 @@ const Reports = () => {
                           {viewMode === 'summary' ? (
                             <>
                               <TableCell sx={{ py: 1.2 }}>
-                                {report.dateString ? (
+                                {report.date ? (
                                   <Chip
                                     size="small"
                                     icon={<CalendarIcon sx={{ fontSize: 14 }} />}
-                                    label={formatDisplayDate(report.dateString)}
+                                    label={formatDisplayDate(report.date)}
                                     sx={{
                                       bgcolor: alpha(theme.palette.primary.main, 0.1),
                                       color: theme.palette.primary.main,
@@ -1350,12 +1363,12 @@ const Reports = () => {
                                 )}
                               </TableCell>
                               <TableCell sx={{ py: 1.2 }}>
-                                {report.first_check_in ? (
-                                  <Tooltip title={formatDisplayDateTime(report.first_check_in)}>
+                                {report.firstIn ? (
+                                  <Tooltip title={formatDisplayDateTime(report.firstIn)}>
                                     <Chip
                                       size="small"
                                       icon={<CheckInIcon sx={{ fontSize: 14 }} />}
-                                      label={new Date(report.first_check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                      label={new Date(report.firstIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                       sx={{
                                         bgcolor: alpha('#22c55e', 0.1),
                                         color: '#22c55e',
@@ -1369,12 +1382,12 @@ const Reports = () => {
                                 )}
                               </TableCell>
                               <TableCell sx={{ py: 1.2 }}>
-                                {report.last_check_out ? (
-                                  <Tooltip title={formatDisplayDateTime(report.last_check_out)}>
+                                {report.lastOut ? (
+                                  <Tooltip title={formatDisplayDateTime(report.lastOut)}>
                                     <Chip
                                       size="small"
                                       icon={<CheckOutIcon sx={{ fontSize: 14 }} />}
-                                      label={new Date(report.last_check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                      label={new Date(report.lastOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                       sx={{
                                         bgcolor: alpha('#ef4444', 0.1),
                                         color: '#ef4444',
@@ -1391,7 +1404,7 @@ const Reports = () => {
                                 <Chip
                                   size="small"
                                   icon={<TimelineIcon sx={{ fontSize: 14 }} />}
-                                  label={`${report.sessions_count} sessions`}
+                                  label={`${report.sessionsCount} sessions`}
                                   sx={{
                                     bgcolor: alpha(theme.palette.info.main, 0.1),
                                     color: theme.palette.info.main,
@@ -1445,11 +1458,11 @@ const Reports = () => {
                           )}
 
                           <TableCell sx={{ py: 1.2 }}>
-                            {((viewMode === 'summary' ? report.total_distance : report.tracker?.total_distance) || 0) > 0 ? (
+                            {((viewMode === 'summary' ? report.totalDistance : report.tracker?.total_distance) || 0) > 0 ? (
                               <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
                                 <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
                                 <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, color: 'text.primary' }}>
-                                  {(viewMode === 'summary' ? report.total_distance : report.tracker.total_distance).toFixed(2)} km
+                                  {(viewMode === 'summary' ? report.totalDistance : report.tracker.total_distance).toFixed(2)} km
                                 </Typography>
                               </Box>
                             ) : (

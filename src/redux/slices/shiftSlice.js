@@ -90,11 +90,43 @@ export const assignShiftToUser = createAsyncThunk(
     }
 );
 
+export const fetchShiftHistory = createAsyncThunk(
+    "shift/fetchHistory",
+    async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/shifts/history/all?page=${page}&limit=${limit}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || "Failed to fetch shift history"
+            );
+        }
+    }
+);
+
+export const fetchUserShiftHistory = createAsyncThunk(
+    "shift/fetchUserHistory",
+    async ({ userId, page = 1, limit = 10 }, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/shifts/history/user/${userId}?page=${page}&limit=${limit}`);
+            return { userId, data: response.data };
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || "Failed to fetch user shift history"
+            );
+        }
+    }
+);
+
 const shiftSlice = createSlice({
     name: "shift",
     initialState: {
         shifts: [],
+        history: [],
+        userHistoryLogs: {}, // { [userId]: { logs: [], pagination: {}, loading: false } }
+        pagination: { total: 0, page: 1, limit: 10, totalPages: 1 },
         loading: false,
+        historyLoading: false,
         error: null,
     },
     reducers: {},
@@ -110,6 +142,60 @@ const shiftSlice = createSlice({
             })
             .addCase(fetchShifts.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
+            })
+
+            // Fetch History
+            .addCase(fetchShiftHistory.pending, (state) => {
+                state.historyLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchShiftHistory.fulfilled, (state, action) => {
+                state.historyLoading = false;
+                state.history = action.payload?.data || [];
+                if (action.payload?.pagination) {
+                    state.pagination = action.payload.pagination;
+                }
+            })
+            .addCase(fetchShiftHistory.rejected, (state, action) => {
+                state.historyLoading = false;
+                state.error = action.payload;
+            })
+
+            // Fetch User History
+            .addCase(fetchUserShiftHistory.pending, (state, action) => {
+                const { userId } = action.meta.arg;
+                if (!state.userHistoryLogs[userId]) {
+                    state.userHistoryLogs[userId] = { logs: [], pagination: {}, loading: true };
+                } else {
+                    state.userHistoryLogs[userId].loading = true;
+                }
+            })
+            .addCase(fetchUserShiftHistory.fulfilled, (state, action) => {
+                const { userId, data } = action.payload;
+                const { page } = action.meta.arg;
+                
+                if (state.userHistoryLogs[userId]) {
+                    state.userHistoryLogs[userId].loading = false;
+                    if (page === 1) {
+                        state.userHistoryLogs[userId].logs = data?.data || [];
+                    } else {
+                        // Append new logs for pagination
+                        state.userHistoryLogs[userId].logs = [
+                            ...state.userHistoryLogs[userId].logs,
+                            ...(data?.data || [])
+                        ];
+                    }
+                    if (data?.pagination) {
+                        state.userHistoryLogs[userId].pagination = data.pagination;
+                    }
+                }
+            })
+            .addCase(fetchUserShiftHistory.rejected, (state, action) => {
+                const { userId } = action.meta.arg;
+                if (state.userHistoryLogs[userId]) {
+                    state.userHistoryLogs[userId].loading = false;
+                }
                 state.error = action.payload;
             })
 

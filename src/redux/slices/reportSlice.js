@@ -25,6 +25,7 @@ api.interceptors.request.use(
 
 const initialState = {
   reports: [],
+  summaryReports: [], // Array for summary table data
   loading: false,
   error: null,
   pagination: {
@@ -66,6 +67,30 @@ export const getUserReportsByAdminId = createAsyncThunk(
   }
 );
 
+// NEW THUNK: Get user summary reports grouped by user and date
+export const getUserReportsSummaryByAdminId = createAsyncThunk(
+  "reports/getUserReportsSummaryByAdminId",
+  async ({ adminId, fromDate, toDate, page = 1, limit = 10, search } = {}, { rejectWithValue }) => {
+    try {
+      if (!adminId) {
+        throw new Error("Admin ID is required");
+      }
+
+      const params = { page, limit };
+      if (fromDate) params.fromDate = fromDate;
+      if (toDate) params.toDate = toDate;
+      if (search) params.search = search;
+
+      const response = await api.get(`/Tracking/admin/${adminId}/user-reports-summary`, { params });
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to fetch user summary reports";
+      toast.error(errorMessage);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // OLD THUNK: Keep for backward compatibility
 export const getReportsByAdmin = createAsyncThunk(
   "reports/getReportsByAdmin",
@@ -96,6 +121,7 @@ const reportSlice = createSlice({
   reducers: {
     clearReports: (state) => {
       state.reports = [];
+      state.summaryReports = [];
       state.error = null;
       state.pagination = {
         page: 1,
@@ -139,6 +165,32 @@ const reportSlice = createSlice({
       .addCase(getUserReportsByAdminId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to fetch user reports";
+      })
+      // NEW: Get User Summary Reports by Admin ID
+      .addCase(getUserReportsSummaryByAdminId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserReportsSummaryByAdminId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.summaryReports = action.payload.data || [];
+        state.pagination = {
+          page: action.payload.pagination?.page || 1,
+          limit: action.payload.pagination?.limit || 10,
+          totalItems: action.payload.pagination?.totalItems || 0,
+          totalPages: action.payload.pagination?.totalPages || 1,
+        };
+        state.summary = action.payload.summary || {
+          totalDistance: 0,
+          totalDistanceInMeters: 0,
+          totalSessions: 0,
+          totalDuration: 0,
+          totalDurationFormatted: "0 seconds",
+        };
+      })
+      .addCase(getUserReportsSummaryByAdminId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to fetch user summary reports";
       })
       // OLD: Get Reports by Admin
       .addCase(getReportsByAdmin.pending, (state) => {
