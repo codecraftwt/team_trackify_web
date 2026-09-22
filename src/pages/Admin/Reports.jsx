@@ -46,6 +46,8 @@ import {
   Clear as ClearIcon,
   Timeline as TimelineIcon,
   Visibility as ViewIcon,
+  BarChart as BarChartIcon,
+  FormatListBulleted as ListIcon,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -588,6 +590,7 @@ const Reports = () => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
   const [showFirstRenderLoader, setShowFirstRenderLoader] = useState(true);
+  const [viewMode, setViewMode] = useState("summary");
   const { reports = [], pagination = {}, loading = false, summary = {} } = useSelector((state) => state.report || {});
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -672,6 +675,48 @@ const Reports = () => {
       }
     });
   }, [reports, sortOrder]);
+
+  const summaryReports = useMemo(() => {
+    if (!sortedReports || sortedReports.length === 0) return [];
+    
+    const grouped = {};
+    
+    sortedReports.forEach(report => {
+      if (!report.check_in_time || !report.user?._id) return;
+      
+      const date = new Date(report.check_in_time).toLocaleDateString('en-GB'); // DD/MM/YYYY
+      const key = `${report.user._id}_${date}`;
+      
+      if (!grouped[key]) {
+        grouped[key] = {
+          _id: key,
+          user: report.user,
+          dateString: report.check_in_time, 
+          first_check_in: report.check_in_time,
+          last_check_out: report.check_out_time,
+          total_distance: report.tracker?.total_distance || 0,
+          sessions_count: 1,
+        };
+      } else {
+        if (new Date(report.check_in_time) < new Date(grouped[key].first_check_in)) {
+          grouped[key].first_check_in = report.check_in_time;
+        }
+        if (report.check_out_time) {
+          if (!grouped[key].last_check_out || new Date(report.check_out_time) > new Date(grouped[key].last_check_out)) {
+            grouped[key].last_check_out = report.check_out_time;
+          }
+        }
+        grouped[key].total_distance += (report.tracker?.total_distance || 0);
+        grouped[key].sessions_count += 1;
+      }
+    });
+    
+    return Object.values(grouped).sort((a, b) => {
+      const dateA = new Date(a.dateString);
+      const dateB = new Date(b.dateString);
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+  }, [sortedReports, sortOrder]);
 
   const handleChangePage = (event, newPage) => {
     setCurrentPage(newPage);
@@ -1149,6 +1194,58 @@ const Reports = () => {
         </LocalizationProvider>
       </Menu>
 
+      {/* View Mode Toggle */}
+      <Box sx={{ display: 'flex', mb: { xs: 2, sm: 2.5 } }}>
+        <Button
+          variant={viewMode === 'summary' ? 'contained' : 'outlined'}
+          onClick={() => setViewMode('summary')}
+          startIcon={<BarChartIcon sx={{ color: viewMode === 'summary' ? '#fbbf24' : 'inherit' }} />}
+          sx={{
+            borderRadius: '8px 0 0 8px',
+            px: { xs: 3, sm: 4 },
+            py: 0.8,
+            bgcolor: viewMode === 'summary' ? '#103975' : 'transparent',
+            color: viewMode === 'summary' ? 'white' : theme.palette.primary.main,
+            borderColor: viewMode === 'summary' ? '#103975' : alpha(theme.palette.primary.main, 0.4),
+            textTransform: 'none',
+            fontWeight: 600,
+            boxShadow: 'none',
+            '&:hover': {
+              bgcolor: viewMode === 'summary' ? '#0d2d5a' : alpha(theme.palette.primary.main, 0.04),
+              borderColor: viewMode === 'summary' ? '#0d2d5a' : theme.palette.primary.main,
+              boxShadow: 'none',
+            }
+          }}
+        >
+          Summary
+        </Button>
+        <Button
+          variant={viewMode === 'details' ? 'contained' : 'outlined'}
+          onClick={() => setViewMode('details')}
+          startIcon={<ListIcon sx={{ color: viewMode === 'details' ? '#fbbf24' : 'inherit' }} />}
+          sx={{
+            borderRadius: '0 8px 8px 0',
+            px: { xs: 3, sm: 4 },
+            py: 0.8,
+            bgcolor: viewMode === 'details' ? '#103975' : 'transparent',
+            color: viewMode === 'details' ? 'white' : theme.palette.primary.main,
+            borderColor: viewMode === 'details' ? '#103975' : alpha(theme.palette.primary.main, 0.4),
+            borderLeft: viewMode === 'details' ? undefined : 'none',
+            marginLeft: viewMode === 'details' ? 0 : '-1px',
+            textTransform: 'none',
+            fontWeight: 600,
+            boxShadow: 'none',
+            '&:hover': {
+              bgcolor: viewMode === 'details' ? '#0d2d5a' : alpha(theme.palette.primary.main, 0.04),
+              borderColor: viewMode === 'details' ? '#0d2d5a' : theme.palette.primary.main,
+              boxShadow: 'none',
+            }
+          }}
+        >
+          Details
+        </Button>
+      </Box>
+
       {/* Reports Table/Card View */}
       <Paper
         elevation={0}
@@ -1161,10 +1258,10 @@ const Reports = () => {
       >
         {loading && <LinearProgress sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), "& .MuiLinearProgress-bar": { bgcolor: theme.palette.primary.main }, height: 2 }} />}
 
-        {!loading && sortedReports.length > 0 ? (
+        {!loading && (viewMode === 'details' ? sortedReports.length > 0 : summaryReports.length > 0) ? (
           <>
             {isMobile ? (
-              <MobileCardView reports={sortedReports} currentPage={currentPage} rowsPerPage={rowsPerPage} onViewDetails={handleViewDetails} />
+              <MobileCardView reports={viewMode === 'details' ? sortedReports : summaryReports} currentPage={currentPage} rowsPerPage={rowsPerPage} onViewDetails={handleViewDetails} />
             ) : (
               <TableContainer sx={{
                 overflowX: 'auto',
@@ -1176,15 +1273,28 @@ const Reports = () => {
                       <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>#</TableCell>
                       <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>User</TableCell>
                       <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Email</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check In</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check Out</TableCell>
+                      {viewMode === 'summary' ? (
+                        <>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Date</TableCell>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>First In</TableCell>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Last Out</TableCell>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Sessions</TableCell>
+                        </>
+                      ) : (
+                        <>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check In</TableCell>
+                          <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Check Out</TableCell>
+                        </>
+                      )}
                       <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Distance</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Action</TableCell>
+                      {viewMode === 'details' && (
+                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' }, color: theme.palette.primary.main, py: 1.5 }}>Action</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     <AnimatePresence>
-                      {sortedReports.map((report, index) => (
+                      {(viewMode === 'details' ? sortedReports : summaryReports).map((report, index) => (
                         <motion.tr
                           key={report._id}
                           initial={{ opacity: 0, y: 10 }}
@@ -1219,78 +1329,158 @@ const Reports = () => {
                           <TableCell sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, py: 1.2, color: 'text.secondary' }}>
                             {report.user?.email || "-"}
                           </TableCell>
-                          <TableCell sx={{ py: 1.2 }}>
-                            {report.check_in_time ? (
-                              <Tooltip title={formatDisplayDateTime(report.check_in_time)}>
+
+                          {viewMode === 'summary' ? (
+                            <>
+                              <TableCell sx={{ py: 1.2 }}>
+                                {report.dateString ? (
+                                  <Chip
+                                    size="small"
+                                    icon={<CalendarIcon sx={{ fontSize: 14 }} />}
+                                    label={formatDisplayDate(report.dateString)}
+                                    sx={{
+                                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                      color: theme.palette.primary.main,
+                                      fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                      height: 26,
+                                    }}
+                                  />
+                                ) : (
+                                  <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ py: 1.2 }}>
+                                {report.first_check_in ? (
+                                  <Tooltip title={formatDisplayDateTime(report.first_check_in)}>
+                                    <Chip
+                                      size="small"
+                                      icon={<CheckInIcon sx={{ fontSize: 14 }} />}
+                                      label={new Date(report.first_check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                      sx={{
+                                        bgcolor: alpha('#22c55e', 0.1),
+                                        color: '#22c55e',
+                                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                        height: 26,
+                                      }}
+                                    />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ py: 1.2 }}>
+                                {report.last_check_out ? (
+                                  <Tooltip title={formatDisplayDateTime(report.last_check_out)}>
+                                    <Chip
+                                      size="small"
+                                      icon={<CheckOutIcon sx={{ fontSize: 14 }} />}
+                                      label={new Date(report.last_check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                      sx={{
+                                        bgcolor: alpha('#ef4444', 0.1),
+                                        color: '#ef4444',
+                                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                        height: 26,
+                                      }}
+                                    />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ py: 1.2 }}>
                                 <Chip
                                   size="small"
-                                  icon={<EventIcon sx={{ fontSize: 14 }} />}
-                                  label={formatDisplayDate(report.check_in_time)}
+                                  icon={<TimelineIcon sx={{ fontSize: 14 }} />}
+                                  label={`${report.sessions_count} sessions`}
                                   sx={{
-                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                    color: theme.palette.primary.main,
+                                    bgcolor: alpha(theme.palette.info.main, 0.1),
+                                    color: theme.palette.info.main,
                                     fontSize: { xs: '0.6rem', sm: '0.65rem' },
                                     height: 26,
                                   }}
                                 />
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
-                            )}
-                          </TableCell>
+                              </TableCell>
+                            </>
+                          ) : (
+                            <>
+                              <TableCell sx={{ py: 1.2 }}>
+                                {report.check_in_time ? (
+                                  <Tooltip title={formatDisplayDateTime(report.check_in_time)}>
+                                    <Chip
+                                      size="small"
+                                      icon={<EventIcon sx={{ fontSize: 14 }} />}
+                                      label={formatDisplayDate(report.check_in_time)}
+                                      sx={{
+                                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                        color: theme.palette.primary.main,
+                                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                        height: 26,
+                                      }}
+                                    />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+                                )}
+                              </TableCell>
+                              <TableCell sx={{ py: 1.2 }}>
+                                {report.check_out_time ? (
+                                  <Tooltip title={formatDisplayDateTime(report.check_out_time)}>
+                                    <Chip
+                                      size="small"
+                                      icon={<EventIcon sx={{ fontSize: 14 }} />}
+                                      label={formatDisplayDate(report.check_out_time)}
+                                      sx={{
+                                        bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                                        color: theme.palette.text.secondary,
+                                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                                        height: 26,
+                                      }}
+                                    />
+                                  </Tooltip>
+                                ) : (
+                                  <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
+                                )}
+                              </TableCell>
+                            </>
+                          )}
+
                           <TableCell sx={{ py: 1.2 }}>
-                            {report.check_out_time ? (
-                              <Tooltip title={formatDisplayDateTime(report.check_out_time)}>
-                                <Chip
-                                  size="small"
-                                  icon={<EventIcon sx={{ fontSize: 14 }} />}
-                                  label={formatDisplayDate(report.check_out_time)}
-                                  sx={{
-                                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                                    color: theme.palette.text.secondary,
-                                    fontSize: { xs: '0.6rem', sm: '0.65rem' },
-                                    height: 26,
-                                  }}
-                                />
-                              </Tooltip>
-                            ) : (
-                              <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>-</Typography>
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.2 }}>
-                            {report.tracker?.total_distance ? (
+                            {((viewMode === 'summary' ? report.total_distance : report.tracker?.total_distance) || 0) > 0 ? (
                               <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
                                 <DistanceIcon sx={{ color: theme.palette.primary.main, fontSize: 16 }} />
                                 <Typography variant="body2" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, color: 'text.primary' }}>
-                                  {report.tracker.total_distance.toFixed(2)} km
+                                  {(viewMode === 'summary' ? report.total_distance : report.tracker.total_distance).toFixed(2)} km
                                 </Typography>
                               </Box>
                             ) : (
                               <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>0 km</Typography>
                             )}
                           </TableCell>
-                          <TableCell sx={{ py: 1.2 }}>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              startIcon={<ViewIcon sx={{ fontSize: 14 }} />}
-                              onClick={() => handleViewDetails(report)}
-                              sx={{
-                                fontSize: '0.65rem',
-                                py: 0.5,
-                                px: 1.5,
-                                minWidth: 'auto',
-                                borderColor: alpha(theme.palette.primary.main, 0.5),
-                                color: theme.palette.primary.main,
-                                '&:hover': {
-                                  borderColor: theme.palette.primary.main,
-                                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                }
-                              }}
-                            >
-                              View
-                            </Button>
-                          </TableCell>
+
+                          {viewMode === 'details' && (
+                            <TableCell sx={{ py: 1.2 }}>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                startIcon={<ViewIcon sx={{ fontSize: 14 }} />}
+                                onClick={() => handleViewDetails(report)}
+                                sx={{
+                                  fontSize: '0.65rem',
+                                  py: 0.5,
+                                  px: 1.5,
+                                  minWidth: 'auto',
+                                  borderColor: alpha(theme.palette.primary.main, 0.5),
+                                  color: theme.palette.primary.main,
+                                  '&:hover': {
+                                    borderColor: theme.palette.primary.main,
+                                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                  }
+                                }}
+                              >
+                                View
+                              </Button>
+                            </TableCell>
+                          )}
                         </motion.tr>
                       ))}
                     </AnimatePresence>

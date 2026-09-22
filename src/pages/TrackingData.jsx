@@ -510,7 +510,21 @@ const TrackingData = () => {
                 </Button>
 
                 <Badge
-                  className="px-2 py-1 rounded-pill"
+                  className="px-2 py-1 rounded-pill d-flex align-items-center"
+                  style={{
+                    fontSize: "0.65rem",
+                    whiteSpace: "nowrap",
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                    fontWeight: 500,
+                    color: "#fff",
+                  }}
+                >
+                  <FaRoute className="me-1" style={{ fontSize: "0.6rem" }} />
+                  Total Traveled Distance: {((sessions?.reduce((sum, s) => sum + (s.isActive === false ? (s.totalDistance || 0) : 0), 0)) / 1000).toFixed(1)} km
+                </Badge>
+
+                <Badge
+                  className="px-2 py-1 rounded-pill d-flex align-items-center"
                   style={{
                     fontSize: "0.65rem",
                     whiteSpace: "nowrap",

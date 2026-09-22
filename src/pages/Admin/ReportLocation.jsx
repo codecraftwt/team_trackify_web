@@ -22,6 +22,8 @@ import {
     Stack,
     Snackbar,
     Alert,
+    Menu,
+    MenuItem,
 } from "@mui/material";
 import {
     ArrowBack as ArrowBackIcon,
@@ -47,6 +49,7 @@ import {
     LocationOn as LocationOnIcon,
     PlayArrow as PlayArrowIcon,
     CameraAlt as CameraAltIcon,
+    Layers as LayersIcon,
 } from "@mui/icons-material";
 import { getSessionDetails } from "../../redux/slices/userSlice";
 import L from "leaflet";
@@ -419,6 +422,7 @@ const ReportLocation = () => {
     const [endTime, setEndTime] = useState(null);
     const [hasLocations, setHasLocations] = useState(false);
     const [showPhotoMarkers, setShowPhotoMarkers] = useState(true);
+    const [showStops, setShowStops] = useState(false);
     const [isMapInitialized, setIsMapInitialized] = useState(false);
     const [sessionPhotos, setSessionPhotos] = useState([]);
     const [startPoint, setStartPoint] = useState(null);
@@ -434,6 +438,8 @@ const ReportLocation = () => {
     const [isLegendOpen, setIsLegendOpen] = useState(true);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [mapLayerAnchorEl, setMapLayerAnchorEl] = useState(null);
+    const [currentMapLayer, setCurrentMapLayer] = useState('Roadmap');
 
     // ── Refs ───────────────────────────────────────────────────────────────────
     const mapRef = useRef(null);
@@ -442,6 +448,18 @@ const ReportLocation = () => {
     const markers = useRef([]);
     const markerRefs = useRef(new Map());
     const lastFitBoundsSessionId = useRef(null);
+    const baseMapsRef = useRef({});
+
+    const handleMapLayerClick = (event) => setMapLayerAnchorEl(event.currentTarget);
+    const handleMapLayerClose = () => setMapLayerAnchorEl(null);
+    const handleLayerSelect = (layerName) => {
+        if (mapInstance.current && baseMapsRef.current[layerName]) {
+            Object.values(baseMapsRef.current).forEach(layer => mapInstance.current.removeLayer(layer));
+            baseMapsRef.current[layerName].addTo(mapInstance.current);
+            setCurrentMapLayer(layerName);
+        }
+        handleMapLayerClose();
+    };
 
     // Show snackbar message
     const showMessage = (message, severity = "info") => {
@@ -663,7 +681,7 @@ const ReportLocation = () => {
         for (let i = 0; i < validLocations.length - 1; i++) {
             const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
             const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
-            const color = validLocations[i].isOnline === true ? "#102c4a" : "#ef4444";
+            const color = validLocations[i].isOnline === true ? (isDarkMode ? "#ffffff" : "#102c4a") : "#ef4444";
 
             const line = L.polyline(
                 [p1, p2],
@@ -857,18 +875,72 @@ const ReportLocation = () => {
             });
         }
 
+        if (showStops && session.stops && session.stops.length > 0) {
+            session.stops.forEach((stop, idx) => {
+                const lat = stop.latitude;
+                const lng = stop.longitude;
+                if (!lat || !lng) return;
+
+                const popup = `<div style="width:220px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;padding:12px 14px 14px 14px;box-sizing:border-box;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-right:16px;">
+    <div style="color:#9333ea;background:linear-gradient(135deg, #f3e8ff, #e9d5ff);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(147,51,234,0.15);flex-shrink:0;">
+      ${SVG_ICONS.pin}
+    </div>
+    <div style="min-width:0;">
+      <div style="font-size:15px;font-weight:700;color:#7e22ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${stop.name || 'Stop'}</div>
+    </div>
+  </div>
+  <div style="font-size:11.5px;color:#475569;margin-bottom:12px;line-height:1.4;border-left:2px solid #e9d5ff;padding-left:8px;">
+    ${stop.address || 'Address not available'}
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">
+      <span style="display:flex;align-items:center;color:#7e22ce;">${SVG_ICONS.clock}</span>
+      <span style="font-weight:600;">${fmtTime(stop.stopStartTime)} &mdash; ${fmtTime(stop.stopEndTime)}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(147,51,234,0.08);padding:4px 10px;border-radius:20px;width:fit-content;color:#7e22ce;font-weight:600;font-size:11px;border:1px solid rgba(147,51,234,0.15);">
+      Duration: ${stop.durationMinutes || 0} min
+    </div>
+  </div>
+</div>`;
+
+                const icon = L.divIcon({
+                    html: `<div style="position:relative;width:28px;height:28px;">
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#9333ea;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
+              <div style="transform:rotate(45deg);width:8px;height:8px;background:#fff;border-radius:50%;"></div>
+            </div>
+          </div>`,
+                    className: "",
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28],
+                });
+
+                const m = L.marker([lat, lng], {
+                    icon,
+                    zIndexOffset: 1200
+                }).bindPopup(popup, {
+                    maxWidth: 240,
+                    minWidth: 200,
+                    className: 'photo-popup'
+                }).addTo(mapInstance.current);
+
+                markers.current.push(m);
+                markerRefs.current.set(`stop_${idx}`, m);
+            });
+        }
+
         // Fit bounds
         if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
             const bounds = L.latLngBounds(validLocations.map((l) => [getLat(l), getLng(l)]));
             mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
             lastFitBoundsSessionId.current = String(session.sessionId || session._id);
         }
-    }, [startPoint, endPoint, mapZoom]);
+    }, [startPoint, endPoint, showStops, mapZoom, isDarkMode]);
 
     // Initialize Map
     useEffect(() => {
         if (!mapRef.current || isMapInitialized) return;
-        const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 16, minZoom: 3 });
+        const map = L.map(mapRef.current, { zoomControl: false, center: [16.703, 74.251], zoom: 16, minZoom: 3 });
 
         const apiKey = import.meta.env.VITE_GOOGLE_MAP_APIKEY;
 
@@ -892,7 +964,7 @@ const ReportLocation = () => {
             maxZoom: 19,
         });
 
-        const baseMaps = {
+        baseMapsRef.current = {
             "Roadmap": googleRoadmap,
             "Satellite": googleSatellite,
             "Hybrid": googleHybrid,
@@ -900,7 +972,7 @@ const ReportLocation = () => {
         };
 
         googleRoadmap.addTo(map);
-        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
         mapInstance.current = map;
 
@@ -962,7 +1034,7 @@ const ReportLocation = () => {
 
     // ─── Compact Header Component ────────────────────────────────────────────────
     const CompactHeader = () => (
-        <Box sx={{ p: 1, display: "flex", alignItems: "center", gap: 0.75 }}>
+        <Box sx={{ p: 1.5, display: "flex", alignItems: "center", gap: 1.5 }}>
             <Avatar
                 sx={{
                     width: 28,
@@ -977,12 +1049,12 @@ const ReportLocation = () => {
                 <Typography noWrap sx={{ fontSize: "0.65rem", fontWeight: 600, color: "text.primary" }}>
                     {userName || "User Name"}
                 </Typography>
-                <Typography noWrap sx={{ fontSize: "0.5rem", color: "text.secondary", display: "flex", alignItems: "center", gap: 0.3 }}>
+                <Typography noWrap sx={{ fontSize: "0.5rem", color: "text.secondary", display: "flex", alignItems: "center", gap: 0.5 }}>
                     <CalendarIcon sx={{ fontSize: 8 }} />
                     {sessionDate?.toLocaleDateString("en-US", { month: "short", day: "numeric" }) || "No date"}
                 </Typography>
             </Box>
-            <Box sx={{ display: "flex", gap: 0.3 }}>
+            <Box sx={{ display: "flex", gap: 0.5 }}>
                 <Chip
                     label={fmtDist(totalDistance)}
                     size="small"
@@ -1002,7 +1074,7 @@ const ReportLocation = () => {
 
     // ─── Expanded Details Component ──────────────────────────────────────────────
     const ExpandedDetails = () => (
-        <Box sx={{ p: 1, pt: 0, borderTop: `1px solid ${alpha("#102c4a", 0.1)}` }}>
+        <Box sx={{ p: 1.5, pt: 1.5, borderTop: `1px solid ${alpha("#102c4a", 0.08)}` }}>
             {selectedSession?.remark && (
                 <Chip
                     label={selectedSession.remark}
@@ -1018,9 +1090,9 @@ const ReportLocation = () => {
                     }}
                 />
             )}
-            <Grid container spacing={0.5}>
+            <Grid container spacing={1.5}>
                 <Grid item xs={6}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <StartIcon sx={{ fontSize: 10, color: "#22c55e" }} />
                         <Box>
                             <Typography sx={{ fontSize: "0.45rem", color: "text.secondary" }}>Start</Typography>
@@ -1029,7 +1101,7 @@ const ReportLocation = () => {
                     </Box>
                 </Grid>
                 <Grid item xs={6}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <FlagIcon sx={{ fontSize: 10, color: "#ef4444" }} />
                         <Box>
                             <Typography sx={{ fontSize: "0.45rem", color: "text.secondary" }}>End</Typography>
@@ -1039,7 +1111,7 @@ const ReportLocation = () => {
                 </Grid>
             </Grid>
             {userEmail && (
-                <Typography sx={{ fontSize: "0.5rem", color: "text.secondary", mt: 0.5, display: "flex", alignItems: "center", gap: 0.3 }}>
+                <Typography sx={{ fontSize: "0.5rem", color: "text.secondary", mt: 1.5, display: "flex", alignItems: "center", gap: 0.5 }}>
                     <EmailIcon sx={{ fontSize: 9 }} />
                     {userEmail}
                 </Typography>
@@ -1053,16 +1125,16 @@ const ReportLocation = () => {
 
     return (
         <Box sx={{ 
-            p: 0.75, 
-            pt: 0, 
-            borderTop: `1px solid ${alpha("#102c4a", 0.1)}`,
+            p: 1.5, 
+            pt: 1.5, 
+            borderTop: `1px solid ${alpha("#102c4a", 0.08)}`,
             maxHeight: 220,  // Reduced height for smaller display
             overflowY: "auto",
             "&::-webkit-scrollbar": { width: 3 },
             "&::-webkit-scrollbar-track": { bgcolor: alpha("#102c4a", 0.05), borderRadius: 2 },
             "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 },
         }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, mb: 0.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
                 <CollectionsIcon sx={{ fontSize: 10, color: "#FF9800" }} />
                 <Typography sx={{ fontSize: "0.5rem", fontWeight: 500, color: "text.secondary" }}>
                     Photos ({sessionPhotos.length})
@@ -1072,7 +1144,7 @@ const ReportLocation = () => {
                 sx={{
                     display: "grid",
                     gridTemplateColumns: "repeat(3, 1fr)",  // 3 images per row
-                    gap: 0.5,  // Smaller gap between images
+                    gap: 1,  // Increased gap
                 }}
             >
                 {sessionPhotos.map((photo, index) => (
@@ -1291,7 +1363,7 @@ const ReportLocation = () => {
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
-        <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden", bgcolor: "background.paper" }}>
+        <Box sx={{ height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", overflow: "hidden", bgcolor: "background.paper" }}>
             {/* AppBar */}
             <AppBar position="static" sx={{ flexShrink: 0, bgcolor: "background.paper", boxShadow: "0 1px 5px rgba(0,0,0,0.05)" }}>
                 <Toolbar sx={{ minHeight: { xs: 48, sm: 56 }, px: { xs: 1, sm: 2 } }}>
@@ -1313,36 +1385,72 @@ const ReportLocation = () => {
             <Box sx={{ flex: 1, position: "relative", minHeight: 0 }}>
                 <div ref={mapRef} style={{ width: "100%", height: "100%", backgroundColor: "#f0f0f0" }} />
 
+                <Box sx={{ position: 'absolute', top: 85, right: 12, zIndex: 1000, display: 'flex', gap: 1 }}>
+                    <Paper elevation={2} sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
+                        <IconButton onClick={handleMapLayerClick} sx={{ p: 1, bgcolor: 'background.paper', '&:hover': { bgcolor: 'action.hover' } }}>
+                            <LayersIcon sx={{ color: '#102c4a' }} />
+                        </IconButton>
+                    </Paper>
+                    <Menu
+                        anchorEl={mapLayerAnchorEl}
+                        open={Boolean(mapLayerAnchorEl)}
+                        onClose={handleMapLayerClose}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        sx={{ mt: 1 }}
+                    >
+                        {['Roadmap', 'Satellite', 'Hybrid', 'Terrain'].map((layer) => (
+                            <MenuItem 
+                                key={layer} 
+                                selected={currentMapLayer === layer}
+                                onClick={() => handleLayerSelect(layer)}
+                                sx={{ fontSize: '0.85rem' }}
+                            >
+                                {layer}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                </Box>
+
                 {sessionDetailsLoading && (
                     <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
                         <CircularProgress size={40} sx={{ color: "#102c4a" }} />
                     </Box>
                 )}
 
-                {/* Small Info Card - Right Side */}
-                {selectedSession && (
-                    <Paper sx={{
-                        position: "absolute",
-                        top: 70,
-                        right: 12,
-                        width: 220,
-                        maxHeight: 'calc(100vh - 100px)',
-                        zIndex: 500,
-                        borderRadius: 1.5,
-                        overflow: "auto",
-                        bgcolor: "rgba(255, 255, 255, 0.96)",
-                        backdropFilter: "blur(16px)",
-                        border: `1px solid ${alpha("#102c4a", 0.15)}`,
-                        boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
-                        "&::-webkit-scrollbar": { width: 3 },
-                        "&::-webkit-scrollbar-track": { bgcolor: alpha("#102c4a", 0.05) },
-                        "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 },
-                    }}>
-                        <CompactHeader />
-                        {isExpanded && <ExpandedDetails />}
-                        <PhotoCarousel />
-                    </Paper>
-                )}
+                <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                    {/* Small Info Card - Left Side */}
+                    {selectedSession && (
+                        <Paper sx={{
+                            width: 260,
+                            maxHeight: 'calc(100vh - 100px)',
+                            borderRadius: 1.5,
+                            overflow: "auto",
+                            bgcolor: "rgba(255, 255, 255, 0.96)",
+                            backdropFilter: "blur(16px)",
+                            border: `1px solid ${alpha("#102c4a", 0.15)}`,
+                            boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
+                            "&::-webkit-scrollbar": { width: 3 },
+                            "&::-webkit-scrollbar-track": { bgcolor: alpha("#102c4a", 0.05) },
+                            "&::-webkit-scrollbar-thumb": { bgcolor: alpha("#102c4a", 0.3), borderRadius: 2 },
+                        }}>
+                            <CompactHeader />
+                            {isExpanded && <ExpandedDetails />}
+                            <PhotoCarousel />
+                        </Paper>
+                    )}
+
+                    {/* Stop Toggle Button */}
+                    {selectedSession?.stops && selectedSession.stops.length > 0 && (
+                        <Paper elevation={2} sx={{ borderRadius: 1.5, overflow: 'hidden', display: 'flex' }}>
+                            <IconButton onClick={() => setShowStops(!showStops)} sx={{ p: 1, borderRadius: 0, width: 40, height: 40, bgcolor: showStops ? '#ef4444' : 'background.paper', '&:hover': { bgcolor: showStops ? '#dc2626' : 'action.hover' } }}>
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ color: showStops ? 'white' : '#ef4444' }}>
+                                    <path d="M7 2h10l5 10-5 10H7l-5-10z" />
+                                </svg>
+                            </IconButton>
+                        </Paper>
+                    )}
+                </Box>
                 
                 {/* Stylish Map Legend */}
                 <Paper elevation={0} sx={{
@@ -1395,19 +1503,25 @@ const ReportLocation = () => {
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                             <Box sx={{ width: 18, height: 18, bgcolor: '#10b981', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                                <PlayArrowIcon sx={{ fontSize: 11 }} />
+                                <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.start }} sx={{ '& svg': { width: 10, height: 10 } }} />
                             </Box>
                             <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Start Point</Typography>
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 18, height: 18, bgcolor: '#9333ea', color: '#fff', borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+                                <Box sx={{ width: 4, height: 4, bgcolor: '#fff', borderRadius: '50%', transform: 'rotate(45deg)' }} />
+                            </Box>
+                            <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Stop Point</Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                             <Box sx={{ width: 18, height: 18, bgcolor: '#f59e0b', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                                <CameraAltIcon sx={{ fontSize: 10 }} />
+                                <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.camera }} sx={{ '& svg': { width: 10, height: 10 } }} />
                             </Box>
                             <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Route Photo</Typography>
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                             <Box sx={{ width: 18, height: 18, bgcolor: '#ef4444', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                                <FlagIcon sx={{ fontSize: 10 }} />
+                                <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.end }} sx={{ '& svg': { width: 10, height: 10 } }} />
                             </Box>
                             <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>End Point</Typography>
                         </Box>

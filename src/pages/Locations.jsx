@@ -6134,6 +6134,8 @@ import {
   Fade,
   Popover,
   Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -6161,6 +6163,7 @@ import {
   Info as InfoIcon,
   Person as PersonIcon,
   Email as EmailIcon,
+  Layers as LayersIcon,
 } from "@mui/icons-material";
 import { getSessionDetails, getUserAvailableDates, getUserSessionsByDate } from "../redux/slices/userSlice";
 import Calendar from "react-calendar";
@@ -6483,12 +6486,32 @@ const Locations = () => {
   const [allSessions, setAllSessions] = useState([]);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
+
+  // Map Layers Custom Control
+  const [mapLayerAnchorEl, setMapLayerAnchorEl] = useState(null);
+  const [currentMapLayer, setCurrentMapLayer] = useState("Roadmap");
+
+  const handleMapLayerClick = (event) => setMapLayerAnchorEl(event.currentTarget);
+  const handleMapLayerClose = () => setMapLayerAnchorEl(null);
+  const handleLayerSelect = (layerName) => {
+    setCurrentMapLayer(layerName);
+    if (mapInstance.current && mapInstance.current.baseMaps) {
+      const map = mapInstance.current;
+      const baseMaps = map.baseMaps;
+      Object.values(baseMaps).forEach(layer => {
+        if (map.hasLayer(layer)) map.removeLayer(layer);
+      });
+      baseMaps[layerName].addTo(map);
+    }
+    handleMapLayerClose();
+  };
   const [totalDistance, setTotalDistance] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [hasLocations, setHasLocations] = useState(false);
   const [showPhotoMarkers, setShowPhotoMarkers] = useState(true);
+  const [showStops, setShowStops] = useState(false);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [sessionStatsMap, setSessionStatsMap] = useState(new Map());
@@ -6944,7 +6967,7 @@ const Locations = () => {
     for (let i = 0; i < validLocations.length - 1; i++) {
       const p1 = [getLat(validLocations[i]), getLng(validLocations[i])];
       const p2 = [getLat(validLocations[i + 1]), getLng(validLocations[i + 1])];
-      const color = validLocations[i].isOnline === true ? "#102c4a" : "#ef4444";
+      const color = validLocations[i].isOnline === true ? (isDarkMode ? "#ffffff" : "#102c4a") : "#ef4444";
 
       const line = L.polyline(
         [p1, p2],
@@ -7254,12 +7277,66 @@ const Locations = () => {
       if (liveTarget) { mapInstance.current.flyTo([getLat(liveTarget), getLng(liveTarget)], 18, { animate: true, duration: 1.0 }); return; }
     }
 
+    if (showStops && session.stops && session.stops.length > 0) {
+      session.stops.forEach((stop, idx) => {
+        const lat = stop.latitude;
+        const lng = stop.longitude;
+        if (!lat || !lng) return;
+
+        const popup = `<div style="width:220px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1e293b;padding:12px 14px 14px 14px;box-sizing:border-box;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-right:16px;">
+    <div style="color:#9333ea;background:linear-gradient(135deg, #f3e8ff, #e9d5ff);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(147,51,234,0.15);flex-shrink:0;">
+      ${SVG_ICONS.pin}
+    </div>
+    <div style="min-width:0;">
+      <div style="font-size:15px;font-weight:700;color:#7e22ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${stop.name || 'Stop'}</div>
+    </div>
+  </div>
+  <div style="font-size:11.5px;color:#475569;margin-bottom:12px;line-height:1.4;border-left:2px solid #e9d5ff;padding-left:8px;">
+    ${stop.address || 'Address not available'}
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#334155;">
+      <span style="display:flex;align-items:center;color:#7e22ce;">${SVG_ICONS.clock}</span>
+      <span style="font-weight:600;">${fmtTime(stop.stopStartTime)} &mdash; ${fmtTime(stop.stopEndTime)}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(147,51,234,0.08);padding:4px 10px;border-radius:20px;width:fit-content;color:#7e22ce;font-weight:600;font-size:11px;border:1px solid rgba(147,51,234,0.15);">
+      Duration: ${stop.durationMinutes || 0} min
+    </div>
+  </div>
+</div>`;
+
+        const icon = L.divIcon({
+          html: `<div style="position:relative;width:28px;height:28px;">
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:#9333ea;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
+              <div style="transform:rotate(45deg);width:8px;height:8px;background:#fff;border-radius:50%;"></div>
+            </div>
+          </div>`,
+          className: "",
+          iconSize: [28, 28],
+          iconAnchor: [14, 28],
+        });
+
+        const m = L.marker([lat, lng], {
+          icon,
+          zIndexOffset: 1200
+        }).bindPopup(popup, {
+          maxWidth: 240,
+          minWidth: 200,
+          className: 'photo-popup'
+        }).addTo(mapInstance.current);
+
+        markers.current.push(m);
+        markerRefs.current.set(`stop_${idx}`, m);
+      });
+    }
+
     if (validLocations.length > 0 && lastFitBoundsSessionId.current !== String(session.sessionId || session._id)) {
       const bounds = L.latLngBounds(validLocations.map((l) => [getLat(l), getLng(l)]));
       mapInstance.current.fitBounds(bounds, { padding: [40, 40] });
       lastFitBoundsSessionId.current = String(session.sessionId || session._id);
     }
-  }, [startPoint, endPoint, showPhotoMarkers, mapZoom]);
+  }, [startPoint, endPoint, showPhotoMarkers, showStops, mapZoom, isDarkMode]);
   useEffect(() => {
     if (!mapRef.current || isMapInitialized) return;
     const map = L.map(mapRef.current, { zoomControl: true, center: [16.703, 74.251], zoom: 16, minZoom: 3 });
@@ -7270,7 +7347,8 @@ const Locations = () => {
     const googleTerrain = L.tileLayer(`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${apiKey}`, { attribution: "&copy; Google Terrain", maxZoom: 19 });
     const baseMaps = { "Roadmap": googleRoadmap, "Satellite": googleSatellite, "Hybrid": googleHybrid, "Terrain": googleTerrain };
     googleRoadmap.addTo(map);
-    L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
+    // L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
+    map.baseMaps = baseMaps;
     mapInstance.current = map;
 
     // Listen to zoom changes to adapt arrows size and distance intervals dynamically
@@ -7764,6 +7842,43 @@ const Locations = () => {
         <Box sx={{ flex: 1, position: "relative", minWidth: 0, minHeight: 0, overflow: "hidden" }}>
           <div ref={mapRef} style={{ position: "absolute", inset: 0, backgroundColor: "#f0f0f0" }} />
 
+          {/* Custom Map Layers Button */}
+          <Box sx={{ position: 'absolute', top: 12, right: 12, zIndex: 1000, display: 'flex', gap: 1 }}>
+            {selectedSession?.stops && selectedSession.stops.length > 0 && (
+              <Paper elevation={2} sx={{ borderRadius: 1.5, overflow: 'hidden', display: 'flex' }}>
+                <IconButton onClick={() => setShowStops(!showStops)} sx={{ p: 1, borderRadius: 0, width: '100%', height: '100%', bgcolor: showStops ? '#ef4444' : 'background.paper', '&:hover': { bgcolor: showStops ? '#dc2626' : 'action.hover' } }}>
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{ color: showStops ? 'white' : '#ef4444' }}>
+                    <path d="M7 2h10l5 10-5 10H7l-5-10z" />
+                  </svg>
+                </IconButton>
+              </Paper>
+            )}
+            <Paper elevation={2} sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
+              <IconButton onClick={handleMapLayerClick} sx={{ p: 1, bgcolor: 'background.paper', '&:hover': { bgcolor: 'action.hover' } }}>
+                <LayersIcon sx={{ color: '#102c4a' }} />
+              </IconButton>
+            </Paper>
+            <Menu
+              anchorEl={mapLayerAnchorEl}
+              open={Boolean(mapLayerAnchorEl)}
+              onClose={handleMapLayerClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              sx={{ mt: 1 }}
+            >
+              {['Roadmap', 'Satellite', 'Hybrid', 'Terrain'].map((layer) => (
+                <MenuItem 
+                  key={layer} 
+                  selected={currentMapLayer === layer}
+                  onClick={() => handleLayerSelect(layer)}
+                  sx={{ fontSize: '0.85rem' }}
+                >
+                  {layer}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+
           {isLoadingSession && (
             <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1000 }}>
               <CircularProgress size={40} sx={{ color: "#102c4a" }} />
@@ -7890,22 +8005,29 @@ const Locations = () => {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 18, height: 18, bgcolor: '#22c55e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                    <span style={{ fontSize: '9px' }}>🚀</span>
+                  <Box sx={{ width: 18, height: 18, bgcolor: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', color: '#fff' }}>
+                    <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.start }} sx={{ '& svg': { width: 10, height: 10 } }} />
                   </Box>
                   <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Start Point</Typography>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 18, height: 18, bgcolor: '#FF9800', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                    <span style={{ fontSize: '9px' }}>📸</span>
+                  <Box sx={{ width: 18, height: 18, bgcolor: '#9333ea', borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', color: '#fff' }}>
+                    <Box sx={{ width: 4, height: 4, bgcolor: '#fff', borderRadius: '50%', transform: 'rotate(45deg)' }} />
+                  </Box>
+                  <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Stop Point</Typography>
+                </Box>
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box sx={{ width: 18, height: 18, bgcolor: '#f59e0b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', color: '#fff' }}>
+                    <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.camera }} sx={{ '& svg': { width: 10, height: 10 } }} />
                   </Box>
                   <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>Route Photo</Typography>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 18, height: 18, bgcolor: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
-                    <span style={{ fontSize: '9px' }}>🏁</span>
+                  <Box sx={{ width: 18, height: 18, bgcolor: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', color: '#fff' }}>
+                    <Box dangerouslySetInnerHTML={{ __html: SVG_ICONS.end }} sx={{ '& svg': { width: 10, height: 10 } }} />
                   </Box>
                   <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: isDarkMode ? "#ccc" : "text.secondary" }}>End Point</Typography>
                 </Box>
