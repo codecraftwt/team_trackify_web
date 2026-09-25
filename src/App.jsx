@@ -76,6 +76,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/contact-us" element={<Navigate to="/contact" replace />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
             {/* Authentication Routes */}

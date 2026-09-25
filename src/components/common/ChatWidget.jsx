@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 const ChatWidget = () => {
   const location = useLocation();
-  const publicPaths = ['/', '/about', '/pricing', '/contact', '/privacypolicy'];
+  const publicPaths = ['/', '/about', '/pricing', '/contact', '/contact-us', '/privacy-policy', '/privacypolicy'];
   const isPublicPage = publicPaths.includes(location.pathname);
 
   const scriptLoadedRef = useRef(false);

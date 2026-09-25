@@ -278,7 +278,7 @@ const Contact = () => {
                           <Typography variant="body1" sx={{ color: 'text.primary', fontWeight: 500, minWidth: { xs: '120px', sm: '140px' }, flexShrink: 0, mr: 1 }}>
                             Call Us Now:
                           </Typography>
-                          <a href="tel:+188823456789" style={{ color: theme.palette.primary.main, fontWeight: 600, textDecoration: 'none' }}>
+                          <a href="tel:+918530111646" style={{ color: theme.palette.primary.main, fontWeight: 600, textDecoration: 'none' }}>
                             +91 8530111646
                           </a>
                         </Box>

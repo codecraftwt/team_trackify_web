@@ -46,10 +46,15 @@ const Footer = () => {
           <div className="flex flex-col items-start lg:pl-10">
             <h4 className="text-[17px] font-bold mb-6" style={{ color: theme.palette.text.primary }}>Support</h4>
             <ul className="space-y-3 p-0 m-0 list-none w-full">
-              {['Home', 'About', 'Pricing', 'Contact Us'].map((item) => (
-                <li key={item}>
-                  <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} className="text-[14px] hover:underline transition-all" style={{ color: theme.palette.text.secondary }}>
-                    {item}
+              {[
+                { name: 'Home', path: '/' },
+                { name: 'About', path: '/about' },
+                { name: 'Pricing', path: '/pricing' },
+                { name: 'Contact Us', path: '/contact' },
+              ].map((item) => (
+                <li key={item.name}>
+                  <Link to={item.path} className="text-[14px] hover:underline transition-all" style={{ color: theme.palette.text.secondary }}>
+                    {item.name}
                   </Link>
                 </li>
               ))}
