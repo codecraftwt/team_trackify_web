@@ -520,7 +520,7 @@ const TrackingData = () => {
                   }}
                 >
                   <FaRoute className="me-1" style={{ fontSize: "0.6rem" }} />
-                  Total Traveled Distance: {((sessions?.reduce((sum, s) => sum + (s.isActive === false ? (s.totalDistance || 0) : 0), 0)) / 1000).toFixed(1)} km
+                  Total Traveled Distance: {(sessions?.reduce((sum, s) => sum + (s.isActive === false && s.totalDistance ? Math.floor((s.totalDistance / 1000) * 10) : 0), 0) || 0) / 10} km
                 </Badge>
 
                 <Badge
