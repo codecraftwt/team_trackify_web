@@ -49,9 +49,9 @@ const Contact = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
-  } = useForm({ mode: 'onTouched' });
+  } = useForm({ mode: 'onChange' });
 
   const onSubmit = async (data) => {
     setIsSending(true);
@@ -132,13 +132,16 @@ const Contact = () => {
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.5 }}
                         >
-                          <Box sx={{ py: 6, textAlign: 'center' }}>
+                          <Box sx={{ py: 6, px: 2, textAlign: 'center' }}>
                             <CheckCircleIcon sx={{ fontSize: 60, color: '#10b981', mb: 2 }} />
-                            <Typography variant="h5" fontWeight="700" sx={{ mb: 1 }}>
-                              Message Sent!
+                            <Typography variant="h5" fontWeight="700" sx={{ mb: 2, color: '#1a1a1a' }}>
+                              Thank You for Contacting Us!
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Thank you! We'll get back to you shortly.
+                            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2, lineHeight: 1.6 }}>
+                              Your message has been sent successfully. We appreciate your interest and will get back to you as soon as possible.
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                              If you have any further questions, please feel free to contact us.
                             </Typography>
                           </Box>
                         </motion.div>
@@ -158,8 +161,18 @@ const Contact = () => {
                                 fullWidth
                                 variant="outlined"
                                 placeholder="John"
-                                {...register('firstName', { required: 'Required' })}
+                                {...register('firstName', { 
+                                  required: 'First name is required',
+                                  pattern: {
+                                    value: /^[A-Za-z\s]+$/,
+                                    message: 'Only alphabets are allowed'
+                                  }
+                                })}
+                                onInput={(e) => {
+                                  e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                }}
                                 error={!!errors.firstName}
+                                helperText={errors.firstName?.message}
                                 sx={fieldSx}
                               />
                             </Grid>
@@ -169,8 +182,18 @@ const Contact = () => {
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Doe"
-                                {...register('lastName', { required: 'Required' })}
+                                {...register('lastName', { 
+                                  required: 'Last name is required',
+                                  pattern: {
+                                    value: /^[A-Za-z\s]+$/,
+                                    message: 'Only alphabets are allowed'
+                                  }
+                                })}
+                                onInput={(e) => {
+                                  e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                }}
                                 error={!!errors.lastName}
+                                helperText={errors.lastName?.message}
                                 sx={fieldSx}
                               />
                             </Grid>
@@ -182,10 +205,11 @@ const Contact = () => {
                                 variant="outlined"
                                 placeholder="john@example.com"
                                 {...register('email', {
-                                  required: 'Required',
-                                  pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' },
+                                  required: 'Email is required',
+                                  pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' },
                                 })}
                                 error={!!errors.email}
+                                helperText={errors.email?.message}
                                 sx={fieldSx}
                               />
                             </Grid>
@@ -194,8 +218,19 @@ const Contact = () => {
                               <TextField
                                 fullWidth
                                 variant="outlined"
-                                placeholder="+1 (555) 000-0000"
-                                {...register('phone')}
+                                placeholder="1234567890"
+                                {...register('phone', {
+                                  required: 'Phone number is required',
+                                  pattern: {
+                                    value: /^[0-9]{10}$/,
+                                    message: 'Phone must be exactly 10 digits'
+                                  }
+                                })}
+                                onInput={(e) => {
+                                  e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                                }}
+                                error={!!errors.phone}
+                                helperText={errors.phone?.message}
                                 sx={fieldSx}
                               />
                             </Grid>
@@ -207,22 +242,23 @@ const Contact = () => {
                                 rows={4}
                                 variant="outlined"
                                 placeholder="Tell us about your requirements..."
-                                {...register('message', { required: 'Required' })}
+                                {...register('message', { required: 'Message is required' })}
                                 error={!!errors.message}
+                                helperText={errors.message?.message}
                                 sx={fieldSx}
                               />
                             </Grid>
                             <Grid item xs={12} sx={{ mt: 1 }}>
                               <motion.button
                                 type="submit"
-                                disabled={isSending}
-                                whileHover={!isSending ? { scale: 1.03, y: -2 } : {}}
-                                whileTap={!isSending ? { scale: 0.97 } : {}}
+                                disabled={isSending || !isValid}
+                                whileHover={!(isSending || !isValid) ? { scale: 1.03, y: -2 } : {}}
+                                whileTap={!(isSending || !isValid) ? { scale: 0.97 } : {}}
                                 className="w-full text-white font-bold text-base py-3.5 rounded-md flex items-center justify-center gap-2 transition-shadow duration-300"
                                 style={{
-                                  background: isSending ? alpha(theme.palette.primary.main, 0.5) : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                                  boxShadow: isSending ? 'none' : `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
-                                  cursor: isSending ? 'not-allowed' : 'pointer'
+                                  background: (isSending || !isValid) ? alpha(theme.palette.primary.main, 0.5) : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                                  boxShadow: (isSending || !isValid) ? 'none' : `0 10px 25px -8px ${alpha(theme.palette.primary.main, 0.6)}`,
+                                  cursor: (isSending || !isValid) ? 'not-allowed' : 'pointer'
                                 }}
                               >
                                 {isSending ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send Message'}
