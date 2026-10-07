@@ -276,6 +276,15 @@ const ContactDetailModal = ({ open, onClose, contact }) => {
           </Typography>
         </Box>
 
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
+            Mobile No
+          </Typography>
+          <Typography variant="body1" sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, wordBreak: 'break-all' }}>
+            {contact.phone || "—"}
+          </Typography>
+        </Box>
+
         <Divider sx={{ my: 2 }} />
 
         <Box sx={{ mb: 2 }}>
@@ -745,6 +754,7 @@ const ContactList = () => {
       { label: "#", key: "index" },
       { label: "Name", key: "name" },
       { label: "Email", key: "email" },
+      { label: "Mobile No", key: "phone" },
       { label: "Message", key: "message" },
       { label: "Status", key: "status" },
       { label: "Date", key: "date" },
@@ -852,6 +862,17 @@ const ContactList = () => {
                     }}
                   >
                     {contact.email}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: '0.65rem', sm: '0.7rem' },
+                      display: 'block',
+                      wordBreak: 'break-all'
+                    }}
+                  >
+                    {contact.phone || "—"}
                   </Typography>
                 </Box>
 
@@ -1023,6 +1044,18 @@ const ContactList = () => {
               }}
             >
               {truncateText(contact.email, 20)}
+            </Typography>
+          </TableCell>
+
+          <TableCell sx={{ bgcolor: rowBg, py: { xs: 1, sm: 1.2, md: 1.5 } }}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
+                color: 'text.primary',
+              }}
+            >
+              {contact.phone || "—"}
             </Typography>
           </TableCell>
 
