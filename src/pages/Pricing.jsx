@@ -570,7 +570,7 @@ const Pricing = () => {
             </Box>
 
             <Typography variant="body2" sx={{ opacity: 0.8, mb: 4, minHeight: 20 }}>
-              {!plan.isCustom ? 'Get 7 Days Free Trial' : renderDescription(plan.description)}
+              {!plan.isCustom ? '' : renderDescription(plan.description)}
             </Typography>
 
             <Box sx={{ flexGrow: 1, mb: 4 }}>
