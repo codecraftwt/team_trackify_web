@@ -50,7 +50,7 @@ const ExpiringPlansPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
-  
+
   // Filter states
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
@@ -105,7 +105,7 @@ const ExpiringPlansPage = () => {
 
   const getStatusChip = (expiresAt, status) => {
     const days = getDaysLeft(expiresAt);
-    
+
     // Use status from API if available
     if (status === "EXPIRED") {
       return { label: "Expired", color: "#ef4444", bg: alpha("#ef4444", 0.1) };
@@ -116,7 +116,7 @@ const ExpiringPlansPage = () => {
     if (status === "ACTIVE") {
       return { label: "Active", color: "#22c55e", bg: alpha("#22c55e", 0.1) };
     }
-    
+
     // Fallback to days calculation
     if (days < 0) return { label: "Expired", color: "#ef4444", bg: alpha("#ef4444", 0.1) };
     if (days <= 3) return { label: `${days}d left`, color: "#f97316", bg: alpha("#f97316", 0.1) };
@@ -144,7 +144,7 @@ const ExpiringPlansPage = () => {
       filtered = filtered.filter((user) => {
         const days = getDaysLeft(user?.currentPaymentId?.expiresAt);
         const userStatus = user?.status;
-        
+
         switch (filterStatus) {
           case "expired":
             return days < 0 || userStatus === "EXPIRED";
@@ -174,7 +174,7 @@ const ExpiringPlansPage = () => {
 
   const paginated = sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const columns = ["#", "User", "Email", "Phone", "Plan", "Price", "Expires", "Days Left", "Status"];
+  const columns = ["#", "User", "Email", "Phone", "Plan", "Price", "Expires", "Days", "Status"];
 
   // Calculate stats
   const totalUsers = users.length;
@@ -353,15 +353,15 @@ const ExpiringPlansPage = () => {
             sx: { borderRadius: 1.5, mt: 1, minWidth: 160 },
           }}
         >
-          <MenuItem 
-            onClick={() => handleFilterClose("all")} 
+          <MenuItem
+            onClick={() => handleFilterClose("all")}
             selected={filterStatus === "all"}
             sx={{ fontSize: "0.75rem" }}
           >
             All Plans
           </MenuItem>
-          <MenuItem 
-            onClick={() => handleFilterClose("expired")} 
+          <MenuItem
+            onClick={() => handleFilterClose("expired")}
             selected={filterStatus === "expired"}
             sx={{ fontSize: "0.75rem", color: "#ef4444" }}
           >
@@ -369,8 +369,8 @@ const ExpiringPlansPage = () => {
               <span>⏰</span> Expired
             </Box>
           </MenuItem>
-          <MenuItem 
-            onClick={() => handleFilterClose("expiring_7")} 
+          <MenuItem
+            onClick={() => handleFilterClose("expiring_7")}
             selected={filterStatus === "expiring_7"}
             sx={{ fontSize: "0.75rem", color: "#eab308" }}
           >
@@ -378,8 +378,8 @@ const ExpiringPlansPage = () => {
               <span>⚠️</span> Expiring ≤7 Days
             </Box>
           </MenuItem>
-          <MenuItem 
-            onClick={() => handleFilterClose("expiring_30")} 
+          <MenuItem
+            onClick={() => handleFilterClose("expiring_30")}
             selected={filterStatus === "expiring_30"}
             sx={{ fontSize: "0.75rem", color: "#3b82f6" }}
           >
@@ -387,8 +387,8 @@ const ExpiringPlansPage = () => {
               <span>📅</span> Expiring ≤30 Days
             </Box>
           </MenuItem>
-          <MenuItem 
-            onClick={() => handleFilterClose("active")} 
+          <MenuItem
+            onClick={() => handleFilterClose("active")}
             selected={filterStatus === "active"}
             sx={{ fontSize: "0.75rem", color: "#22c55e" }}
           >
@@ -553,7 +553,7 @@ const ExpiringPlansPage = () => {
                           : "—"}
                       </TableCell>
                       <TableCell sx={{ fontSize: "0.7rem", py: 1.2, px: 1.5, color: days < 0 ? "#ef4444" : "text.primary", fontWeight: 600 }}>
-                        {days === null ? "—" : days < 0 ? `${Math.abs(days)}d ago` : `${days}d`}
+                        {days === null ? "—" : days < 0 ? `${Math.abs(days)} Ago` : `${days} Left`}
                       </TableCell>
                       <TableCell sx={{ py: 1.2, px: 1.5 }}>
                         <Chip
