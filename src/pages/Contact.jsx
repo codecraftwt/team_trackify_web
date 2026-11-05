@@ -266,7 +266,7 @@ const Contact = () => {
                             </Grid>
                             <Grid item xs={12} sx={{ textAlign: 'center', mt: 2 }}>
                               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                Read our <Link to="#" style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600 }}>Terms & Conditions</Link> for details.
+                                Read our <Link to="/privacy-policy" style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link> for details.
                               </Typography>
                             </Grid>
                           </Grid>
