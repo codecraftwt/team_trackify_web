@@ -811,7 +811,33 @@ const PaymentPlans = () => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [planToCancel, setPlanToCancel] = useState(null);
 
-  const isCustomPlanPurchased = currentPlanDetails?.planId === userCustomPlan?._id;
+  const customPlanId = userCustomPlan?._id ? String(userCustomPlan._id) : null;
+  const currentPlanId = currentPlanDetails?.planId
+    ? String(currentPlanDetails.planId?._id || currentPlanDetails.planId)
+    : userData?.currentPaymentId?.planId
+    ? String(userData.currentPaymentId.planId?._id || userData.currentPaymentId.planId)
+    : null;
+
+  // Check if custom plan matches current or previous plan
+  const isCustomPlanMatched = Boolean(
+    customPlanId && (
+      (currentPlanId && currentPlanId === customPlanId) ||
+      (currentPlanDetails?.name && userCustomPlan?.name && currentPlanDetails.name.toLowerCase() === userCustomPlan.name.toLowerCase()) ||
+      (userData?.currentPaymentId?.name && userCustomPlan?.name && userData.currentPaymentId.name.toLowerCase() === userCustomPlan.name.toLowerCase()) ||
+      (currentPlanDetails?.name?.toLowerCase().includes("custom")) ||
+      (userData?.currentPaymentId?.name?.toLowerCase().includes("custom")) ||
+      paymentHistory?.some(p => {
+        const pId = String(p.planId?._id || p.planId || "");
+        const pName = (p.planName || p.planId?.name || "").toLowerCase();
+        return (pId && pId === customPlanId) || (pName && userCustomPlan?.name && pName === userCustomPlan.name.toLowerCase());
+      }) ||
+      (Boolean(userData?.currentPaymentId) && !plansList?.some(p => String(p._id) === currentPlanId))
+    )
+  );
+
+  const isCustomPlanPurchased = isCustomPlanMatched;
+  const isCustomPlanActive = isCustomPlanMatched && !isSubscriptionExpired;
+  const isCustomPlanPrevious = isCustomPlanMatched && isSubscriptionExpired;
 
   const isSubAdmin = Number(authUser?.role_id) === 3;
   const effectiveAdminId = isSubAdmin
@@ -1399,6 +1425,7 @@ const PaymentPlans = () => {
         >
           <Card elevation={0} sx={{
               position: "relative",
+              overflow: "hidden",
               borderRadius: 2,
               border: "1px solid",
               borderColor: isRecommended
@@ -1449,8 +1476,60 @@ const PaymentPlans = () => {
               </Box>
             )}
 
+            {isCurrentPlan && isSubscriptionExpired && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 18,
+                  right: -36,
+                  zIndex: 10,
+                  background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "0.55rem",
+                  py: 0.5,
+                  px: 1,
+                  transform: "rotate(45deg)",
+                  boxShadow: "0 2px 8px rgba(220, 38, 38, 0.4)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.6px",
+                  width: "140px",
+                  textAlign: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                PREVIOUS PLAN
+              </Box>
+            )}
+
+            {isActivePlan && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 18,
+                  right: -36,
+                  zIndex: 10,
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "0.6rem",
+                  py: 0.5,
+                  px: 1,
+                  transform: "rotate(45deg)",
+                  boxShadow: "0 2px 8px rgba(16, 185, 129, 0.4)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.6px",
+                  width: "140px",
+                  textAlign: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                ACTIVE
+              </Box>
+            )}
+
             <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, pr: (isActivePlan || (isCurrentPlan && isSubscriptionExpired)) ? 6 : 0 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main, width: 32, height: 32 }}>
                     {isAddOn ? <AddIcon sx={{ fontSize: 18 }} /> : <CreditCardIcon sx={{ fontSize: 18 }} />}
@@ -1853,51 +1932,73 @@ const PaymentPlans = () => {
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", height: "100%" }}>
                     <Card elevation={0} sx={{
                         position: "relative",
-                        borderRadius: 2,
+                        overflow: "hidden",
+                        borderRadius: 2.5,
                         border: "2px solid",
-                        borderColor: isCustomPlanPurchased ? theme.palette.success.main : "#9c27b0",
+                        borderColor: isCustomPlanActive ? theme.palette.success.main : isCustomPlanPrevious ? alpha("#ef4444", 0.6) : "#9c27b0",
                         boxShadow: "none", height: "100%", display: "flex", flexDirection: "column",
                       }}
                     >
                       <Box
                         sx={{
                           position: "absolute",
-                          top: 14,
-                          right: -30,
+                          top: 18,
+                          right: -36,
                           zIndex: 10,
-                          background: isCustomPlanPurchased ? theme.palette.success.main : "#df3a24b1",
-                          color: "white",
-                          fontWeight: 600,
-                          fontSize: "0.58rem",
-                          py: 0.3,
-                          px: 2.2,
+                          background: isCustomPlanActive
+                            ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                            : isCustomPlanPrevious
+                            ? "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+                            : "linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)",
+                          color: "#ffffff",
+                          fontWeight: 700,
+                          fontSize: isCustomPlanPrevious ? "0.55rem" : "0.6rem",
+                          py: 0.5,
+                          px: 1,
                           transform: "rotate(45deg)",
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                          textTransform: "capitalize",
-                          letterSpacing: "0.3px",
-                          width: "105px",
+                          boxShadow: isCustomPlanPrevious
+                            ? "0 2px 8px rgba(220, 38, 38, 0.4)"
+                            : isCustomPlanActive
+                            ? "0 2px 8px rgba(16, 185, 129, 0.4)"
+                            : "0 2px 8px rgba(168, 85, 247, 0.4)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.6px",
+                          width: "140px",
                           textAlign: "center",
+                          pointerEvents: "none",
                         }}
                       >
-                        {isCustomPlanPurchased ? "ACTIVE" : "YOUR PLAN"}
+                        {isCustomPlanActive ? "ACTIVE" : isCustomPlanPrevious ? "PREVIOUS PLAN" : "YOUR PLAN"}
                       </Box>
 
                       <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                            <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", width: 32, height: 32 }}>
+                            <Avatar sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", width: 34, height: 34 }}>
                               <BuildIcon sx={{ fontSize: 18 }} />
                             </Avatar>
                             <Box>
                               <Typography fontWeight={700} color="text.primary" sx={{ fontSize: "0.95rem", lineHeight: 1.2 }}>
                                 {userCustomPlan.name}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.68rem" }}>
-                                Custom Plan
-                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.4 }}>
+                                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.68rem" }}>
+                                  Custom Plan
+                                </Typography>
+                                <Chip
+                                  label={userCustomPlan.duration}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: alpha("#9c27b0", 0.08),
+                                    color: "#9c27b0",
+                                    fontWeight: 600,
+                                    fontSize: "0.62rem",
+                                    height: 18,
+                                  }}
+                                />
+                              </Box>
                             </Box>
                           </Box>
-                          <Chip label={userCustomPlan.duration} size="small" sx={{ bgcolor: alpha("#9c27b0", 0.1), color: "#9c27b0", fontWeight: 600, fontSize: "0.65rem", height: 22 }} />
                         </Box>
 
                         <Box sx={{ mb: 1.5 }}>
@@ -1928,7 +2029,7 @@ const PaymentPlans = () => {
                         </Box>
 
                         {/* ✅ Active badge only when not expired */}
-                        {isCustomPlanPurchased && !isSubscriptionExpired && (
+                        {isCustomPlanActive && (
                           <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.success.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
                             <Typography variant="caption" sx={{ color: theme.palette.success.main, fontWeight: 600, fontSize: "0.68rem" }}>
                               ✓ You have an active subscription for this plan
@@ -1937,10 +2038,22 @@ const PaymentPlans = () => {
                         )}
 
                         {/* ✅ Expired badge */}
-                        {isCustomPlanPurchased && isSubscriptionExpired && (
-                          <Box sx={{ mt: 1.5, p: 0.75, bgcolor: alpha(theme.palette.warning.main, 0.1), borderRadius: 1.2, textAlign: "center" }}>
-                            <Typography variant="caption" sx={{ color: theme.palette.warning.main, fontWeight: 600, fontSize: "0.68rem" }}>
-                              ⚠ Subscription Expired — Please renew
+                        {isCustomPlanPrevious && (
+                          <Box sx={{
+                            mt: 1.5,
+                            p: 0.9,
+                            bgcolor: alpha("#ef4444", 0.08),
+                            border: `1px solid ${alpha("#ef4444", 0.25)}`,
+                            borderRadius: 1.5,
+                            textAlign: "center",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 0.8,
+                          }}>
+                            <WarningIcon sx={{ color: "#ef4444", fontSize: 15 }} />
+                            <Typography variant="caption" sx={{ color: "#dc2626", fontWeight: 600, fontSize: "0.7rem", letterSpacing: "0.2px" }}>
+                              Subscription Expired — Please renew
                             </Typography>
                           </Box>
                         )}
@@ -1948,7 +2061,7 @@ const PaymentPlans = () => {
 
                       <CardActions sx={{ p: 2, pt: 0 }}>
                         {/* ✅ Active and NOT expired */}
-                        {isCustomPlanPurchased && !isSubscriptionExpired ? (
+                        {isCustomPlanActive ? (
                           <Box sx={{ display: "flex", gap: 0.8, width: "100%" }}>
                             <Button fullWidth variant="contained" color="success" disabled startIcon={<CheckCircleIcon sx={{ fontSize: 14 }} />} size="small" sx={{ py: 0.8, borderRadius: 1.5, bgcolor: theme.palette.success.main, color: "white", fontSize: "0.72rem" }}>
                               Active Plan
@@ -1965,18 +2078,30 @@ const PaymentPlans = () => {
                               Cancel
                             </Button>
                           </Box>
-                        ) : isCustomPlanPurchased && isSubscriptionExpired ? (
-                          // ✅ Expired custom plan → Renew
-                          <Button
-                            fullWidth
-                            variant="contained"
-                            onClick={handlePurchaseCustomPlan}
-                            startIcon={<CreditCardIcon sx={{ fontSize: 15 }} />}
-                            size="small"
-                            sx={{ py: 0.8, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.72rem", "&:hover": { bgcolor: "#7b1fa2" } }}
-                          >
-                            Renew Plan
-                          </Button>
+                        ) : isCustomPlanPrevious ? (
+                          // ✅ Expired custom plan → Edit + Renew
+                          <>
+                            <Button
+                              fullWidth
+                              variant="outlined"
+                              onClick={handleOpenEditCustomPlan}
+                              startIcon={<EditIcon sx={{ fontSize: 15 }} />}
+                              size="small"
+                              sx={{ py: 0.8, borderRadius: 1.5, borderColor: alpha("#9c27b0", 0.3), color: "#9c27b0", fontSize: "0.72rem", mr: 0.8, "&:hover": { borderColor: "#9c27b0", bgcolor: alpha("#9c27b0", 0.05) } }}
+                            >
+                              Edit Plan
+                            </Button>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              onClick={handlePurchaseCustomPlan}
+                              startIcon={<CreditCardIcon sx={{ fontSize: 15 }} />}
+                              size="small"
+                              sx={{ py: 0.8, borderRadius: 1.5, bgcolor: "#9c27b0", fontSize: "0.72rem", "&:hover": { bgcolor: "#7b1fa2" } }}
+                            >
+                              Renew
+                            </Button>
+                          </>
                         ) : (
                           // ✅ Not purchased yet → Edit + Subscribe
                           <>

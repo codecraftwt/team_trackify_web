@@ -31,6 +31,7 @@ import {
   Timeline as TimelineIcon,
   ShoppingBag as ShoppingBagIcon,
   CalendarToday as CalendarIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import ShiftsPopup from "./component/ShiftsPopup";
 import { motion, AnimatePresence } from "framer-motion";
@@ -428,6 +429,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShif
 
   // ── Plan helpers ───────────────────────────────────────────────────────────
   const daysLeft = planExpiresIn(planData.expiresAt);
+  const isPlanExpired = daysLeft <= 0 || (planData.expiresAt && new Date(planData.expiresAt) < new Date());
 
   const calculateProgress = () => {
     if (!planData.createdAt || !planData.expiresAt) return 0;
@@ -439,7 +441,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShif
   const progress = calculateProgress();
 
   const getStatusColor = () => {
-    if (daysLeft <= 0) return "#ef4444";
+    if (isPlanExpired) return "#ef4444";
     if (daysLeft <= 7) return theme.palette.secondary.main;
     return theme.palette.primary.main;
   };
@@ -482,6 +484,123 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShif
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
+      {/* ── Expired Plan Banner (Visible when plan is expired; removed once renewed) ── */}
+      {isPlanExpired && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 1.5, sm: 2 },
+            borderRadius: { xs: 2.5, sm: 3 },
+            border: "1px solid",
+            borderColor: alpha("#ef4444", 0.35),
+            mb: { xs: 2, sm: 2.5 },
+            bgcolor: alpha("#ef4444", 0.05),
+            boxShadow: `0 8px 24px -8px ${alpha("#ef4444", 0.25)}`,
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            justifyContent: "space-between",
+            gap: { xs: 1.5, sm: 2 },
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 5,
+              bgcolor: "#ef4444",
+              borderRadius: "4px 0 0 4px",
+            },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, pl: { xs: 0.8, sm: 1.2 } }}>
+            <Box
+              sx={{
+                width: { xs: 38, sm: 44 },
+                height: { xs: 38, sm: 44 },
+                borderRadius: "50%",
+                bgcolor: alpha("#ef4444", 0.12),
+                color: "#ef4444",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <WarningIcon sx={{ fontSize: { xs: 22, sm: 26 } }} />
+            </Box>
+            <Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", mb: 0.3 }}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="700"
+                  sx={{
+                    color: "#dc2626",
+                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                    lineHeight: 1.3,
+                  }}
+                >
+                  Subscription Plan Expired
+                </Typography>
+                <Chip
+                  label="Action Required"
+                  size="small"
+                  sx={{
+                    bgcolor: alpha("#ef4444", 0.15),
+                    color: "#dc2626",
+                    fontWeight: 700,
+                    fontSize: "0.62rem",
+                    height: 20,
+                  }}
+                />
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  fontSize: { xs: "0.7rem", sm: "0.78rem" },
+                  lineHeight: 1.4,
+                }}
+              >
+                {isSubAdmin
+                  ? `Your organization's subscription plan expired on ${formatDateDDMMYYYY(planData.expiresAt)}. Please contact your administrator to renew.`
+                  : `Your subscription plan expired on ${formatDateDDMMYYYY(planData.expiresAt)}. Please renew your plan to restore full access to user tracking and shift management.`}
+              </Typography>
+            </Box>
+          </Box>
+
+          {!isSubAdmin && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={onPurchasePlan}
+              startIcon={<ShoppingBagIcon sx={{ fontSize: 16 }} />}
+              sx={{
+                bgcolor: "#ef4444",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: { xs: "0.72rem", sm: "0.8rem" },
+                px: { xs: 2.2, sm: 3 },
+                py: { xs: 0.8, sm: 1 },
+                borderRadius: 2,
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                alignSelf: { xs: "stretch", sm: "center" },
+                boxShadow: `0 4px 14px -3px ${alpha("#ef4444", 0.4)}`,
+                "&:hover": {
+                  bgcolor: "#dc2626",
+                  boxShadow: `0 6px 18px -3px ${alpha("#ef4444", 0.5)}`,
+                },
+              }}
+            >
+              Renew Plan
+            </Button>
+          )}
+        </Paper>
+      )}
+
       <Paper
         elevation={0}
         sx={{
@@ -532,7 +651,7 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShif
                   '&:hover': { borderColor: statusColor, bgcolor: alpha(statusColor, 0.05) },
                 }}
               >
-                Upgrade Plan
+                {isPlanExpired ? "Renew Plan" : "Upgrade Plan"}
               </Button>
             )}
           </Box>
@@ -564,8 +683,16 @@ const CurrentPlan = ({ planData, loading, onPurchasePlan, isSubAdmin, onOpenShif
             <Box sx={{ bgcolor: alpha(statusColor, 0.03), p: { xs: 0.8, sm: 1 }, borderRadius: 1.5, border: "1px solid", borderColor: alpha(statusColor, 0.1), height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="caption" color="text.secondary" display="block" sx={{ fontSize: '0.6rem', fontWeight: 500 }}>Status</Typography>
               <Chip
-                label={planData.isActive ? "Active" : "Inactive"} size="small"
-                sx={{ bgcolor: alpha(planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary, 0.1), color: planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary, fontWeight: 600, fontSize: '0.6rem', height: 18, mt: 0.3, alignSelf: 'flex-start' }}
+                label={isPlanExpired ? "Expired" : planData.isActive ? "Active" : "Inactive"} size="small"
+                sx={{
+                  bgcolor: alpha(isPlanExpired ? "#ef4444" : planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary, 0.1),
+                  color: isPlanExpired ? "#ef4444" : planData.isActive ? theme.palette.primary.main : theme.palette.text.secondary,
+                  fontWeight: 600,
+                  fontSize: '0.6rem',
+                  height: 18,
+                  mt: 0.3,
+                  alignSelf: 'flex-start'
+                }}
               />
             </Box>
           </Grid>
